@@ -19,14 +19,20 @@
 #ifndef FIB_NCO_NCO_HPP_
 #define FIB_NCO_NCO_HPP_
 
-#include "hwg.hpp"
+#include "module.hpp"
 
-class NCO : public HWG {
+namespace FIB {
+
+class NCO : public Module {
 
 
 
 
-};
+
+}; // class NCO
+
+} // namespace FIB
+
 
 
 #endif /* FIB_NCO_NCO_HPP_ */
