@@ -1,5 +1,5 @@
 /*
-    Hardware wrapper ("glue") for project Fibration.
+    A general module class for modular synth project Fibration.
     Copyright (C) 2020 Lukas Neverauskis
 
     This program is free software: you can redistribute it and/or modify
@@ -16,10 +16,4 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-class HWG {
-
-
-
-
-};
-
+#include "module.hpp"
