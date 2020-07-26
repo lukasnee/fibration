@@ -16,15 +16,100 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#include "stdint.h"
+
 namespace FIB {
 
 ////////////////////////////////////////////////////////////////////////////////
-// Module
+// Hardware wrapper
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "main.h"
 
-class Module {
+extern ADC_HandleTypeDef hadc1;
+extern DAC_HandleTypeDef hdac;
+extern UART_HandleTypeDef huart1;
 
+typedef struct pin_
+{
+	GPIO_TypeDef * pPort;
+	uint16_t pinNum;
+} pin_t;
+
+class digitalIn
+{
+	digitalIn()
+	{
+		_btnNum = _pinsActive;
+		_pinsActive++;
+		/* already initialized in main.c autogen code*/
+	};
+
+	~digitalIn()
+	{
+		_pinsActive--;
+	};
+
+	bool read()
+	{
+		return (bool)HAL_GPIO_ReadPin(InputPinLUT[_btnNum].pPort, InputPinLUT[_btnNum].pinNum);
+	}
+
+	uint8_t _btnNum;
+
+	static const pin_t InputPinLUT[];
+	static uint8_t _pinsActive;
+};
+
+class digitalOut
+{
+	digitalOut()
+	{
+		_btnNum = _pinsActive;
+		_pinsActive++;
+		/* already initialized in main.c autogen code*/
+	};
+
+	~digitalOut()
+	{
+		_pinsActive--;
+	};
+
+	void write(bool state)
+	{
+		HAL_GPIO_WritePin(OutputPinLUT[_btnNum].pPort, OutputPinLUT[_btnNum].pinNum,
+				(GPIO_PinState)state);
+	}
+
+	void toggle()
+	{
+		HAL_GPIO_TogglePin(OutputPinLUT[_btnNum].pPort, OutputPinLUT[_btnNum].pinNum);
+	}
+
+	uint8_t activeInTotal()
+	{
+		return _pinsActive;
+	}
+
+	uint8_t _btnNum;
+
+	static const pin_t OutputPinLUT[];
+	static uint8_t _pinsActive;
+};
+
+class ADC
+{
+
+};
+
+class Serial
+{
+
+
+};
+
+class DAC
+{
 
 };
 
@@ -42,12 +127,12 @@ class LED {
 
 	digitalOut dOut;
 
-	void turnOn(void) {
+	void turnOn() {
 
 		dOut.setHigh();
 	}
 
-	void turnOff(void) {
+	void turnOff() {
 
 		dOut.setHigh();
 	}
@@ -87,60 +172,14 @@ class SigOut : public DAC {
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-// Hardware wrapper
+// Module
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "main.h"
 
-extern ADC_HandleTypeDef hadc1;
-extern DAC_HandleTypeDef hdac;
-extern UART_HandleTypeDef huart1;
-
-class digitalIn
-{
-
-	bool read(void)
-	{
-		return (bool)HAL_GPIO_ReadPin(GPIOx, GPIO_Pin);
-	}
-
-	GPIO_TypeDef * pPort;
-	uint16_t pin;
-};
-
-class digitalOut
-{
-
-	digitalOut() { /* gets initialized in main by cubeide autogen code */ };
-
-	void write(bool state)
-	{
-		HAL_GPIO_WritePin(pPort, pin, (GPIO_PinState)state);
-	}
-
-	void toggle(void)
-	{
-		HAL_GPIO_TogglePin(pPort, pin);
-	}
-
-	GPIO_TypeDef * pPort;
-	uint16_t pin;
-
-};
-class ADC
-{
-
-};
-
-class Serial
-{
+class Module {
 
 
 };
 
 } // namespace FIB
 
-
-class DAC {
-
-};
