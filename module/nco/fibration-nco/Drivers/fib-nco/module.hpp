@@ -17,6 +17,8 @@
 */
 
 #include "stdint.h"
+#include <cstdlib>
+#include <vector>
 
 namespace FIB {
 
@@ -75,7 +77,7 @@ class digitalOut
 		_pinsActive--;
 	};
 
-	void write(bool state)
+	void digitalWrite(bool state)
 	{
 		HAL_GPIO_WritePin(OutputPinLUT[_btnNum].pPort, OutputPinLUT[_btnNum].pinNum,
 				(GPIO_PinState)state);
@@ -123,26 +125,82 @@ class Button {
 
 };
 
-class LED {
+
+////////////////////////////////////////////////////////////////////////////////
+// LED stuff
+////////////////////////////////////////////////////////////////////////////////
+
+typedef enum
+{
+	LED_POLARITY_ON_IS_LOW = false,
+	LED_POLARITY_ON_IS_HIGH = true
+} LED_polarity_e
+
+class LED
+{
+	LED(LED_polarity_e polarity) : _polarity(polarity) {  };
+	void turnOn() { dOut.digitalWrite(_polarity); };
+	void turnOff() { dOut.digitalWrite(!_polarity); };
+	void toggle(void) { dOut.toggle();};
 
 	digitalOut dOut;
-
-	void turnOn() {
-
-		dOut.setHigh();
-	}
-
-	void turnOff() {
-
-		dOut.setHigh();
-	}
-
-	void toggle(void) {
-
-		dOut.toggle();
-	}
-
+	LED_polarity_e _polarity;
 };
+
+class Blinker : public LED {
+
+private:
+	static std::vector<Blinker*> BlinkerVec;
+	static void task(void * p);
+	uint8_t 	_ledPin, _times;
+	uint16_t 	_periodMs, _duty, _tick;
+
+public:
+
+	Blinker(uint8_t ledPin) : _ledPin(ledPin), _times(0), _periodMs(0),
+		_duty(50), _tick(0)
+	{
+		BlinkerVec.push_back(this);
+		if(BlinkerVec.size() < 2) {
+			xTaskCreate(task, "blinker_tsk", 1024, NULL, configMAX_PRIORITIES - 3, NULL);
+		}
+	};
+
+	~Blinker() {
+		for(auto it = BlinkerVec.begin(); it != BlinkerVec.end(); ++it) {
+			if(*it == this)
+			{
+				BlinkerVec.erase(it);
+				gpio_set_level((gpio_num_t)_ledPin, 0);
+				return;
+			}
+		}
+	}
+
+	int8_t Blinker::blink(uint16_t periodMs, uint8_t times, uint8_t duty) {
+		if(periodMs && times)
+		{
+			_periodMs = periodMs;
+			_times = times;
+			_tick = 0;
+			if(!duty)
+			{
+				_duty = (times == 1) ? 100 : 50;
+			}
+			else
+			{
+				_duty = duty;
+			}
+			gpio_set_direction((gpio_num_t)_ledPin, GPIO_MODE_OUTPUT);
+			return 0;
+		}
+		return -1;
+	};
+};
+
+////////////////////////////////////////////////////////////////////////////////
+// Inputs
+////////////////////////////////////////////////////////////////////////////////
 
 class Potentiometer {
 
