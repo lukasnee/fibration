@@ -20,19 +20,5 @@
 
 using namespace FIB;
 
-const pin_t InputPinLUT[1] =
-{
-	{GPIOC, GPIO_PIN_13}
-};
-
-const pin_t OutputPinLUT[1] =
-{
-	{GPIOA, GPIO_PIN_12}
-};
-
-
-
-uint8_t digitalOut::_pinsActive = 0;
-
 
 
