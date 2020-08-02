@@ -20,13 +20,16 @@
 #define _ROTARY_ENCODER_H
 
 #include <cstdio>
+#include "dio.hpp"
 
 #define LATCHSTATE 3
 
-class RotaryEncoder {
+class RotaryEncoder
+{
 public:
 	// ----- Constructor -----
-	RotaryEncoder(uint32_t pin1, uint32_t pin2);
+	RotaryEncoder(pin_e pin1, pin_e pin2);
+	RotaryEncoder(pin_e pin1, pin_e pin2, pin_e pinButton);
 
 	// retrieve the current position
 	uint32_t getPosition();
@@ -43,8 +46,7 @@ public:
 	void tick();
 
 private:
-
-	uint32_t _pin1, _pin2;
+	digitalIn _pin1, _pin2;
 	volatile int8_t _oldState;
 	volatile uint32_t _position;     // Internal position (4 times _positionExt)
 	volatile uint32_t _positionExt;      // External position

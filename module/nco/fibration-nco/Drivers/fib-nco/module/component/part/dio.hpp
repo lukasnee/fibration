@@ -19,13 +19,59 @@
 #ifndef FIB_NCO_IO_IO_HPP_
 #define FIB_NCO_IO_IO_HPP_
 
-#include "gpio.hpp"
+#include "stdint.h"
+
+typedef enum pin_
+{
+	PIN_A,		PIN_B, 		PIN_C, 		PIN_D,
+	PIN_E, 		PIN_F, 		PIN_G, 		PIN_H,
+	PIN_I, 		PIN_J, 		PIN_K, 		PIN_L,
+	PIN_M, 		PIN_N, 		PIN_O, 		PIN_P,
+	PIN_Q, 		PIN_R, 		PIN_S, 		PIN_T,
+	PIN_U, 		PIN_V, 		PIN_W, 		PIN_X,
+	PIN_Y, 		PIN_Z, 		PIN_AA, 	PIN_AB,
+	PIN_AC, 	PIN_AD, 	PIN_AE, 	PIN_AF,
+	PIN_AG, 	PIN_AH, 	PIN_AI, 	PIN_AJ,
+	PIN_AK, 	PIN_AL, 	PIN_AM, 	PIN_AN,
+	PIN_AO, 	PIN_AP, 	PIN_AQ, 	PIN_AR,
+	PIN_AS, 	PIN_AT, 	PIN_AU, 	PIN_AV,
+	PIN_AW, 	PIN_AX, 	PIN_AY, 	PIN_AZ,
+PIN_TOTAL} pin_e;
+
+typedef enum pinMode_
+{
+	PIN_MODE_INPUT, PIN_MODE_OUTPUT
+} pinMode_e;
+
+typedef enum pinPull_
+{
+	PIN_PULL_NONE, PIN_PULL_UP, PIN_PULL_DOWN
+} pinPull_e;
+
+class digitalPin
+{
+public:
+	digitalPin(pin_e pin,
+			pinMode_e mode = PIN_MODE_OUTPUT,
+			pinPull_e pull = PIN_PULL_NONE);
+	void digitalWrite(bool state);
+	bool digitalRead();
+	void toggle();
+	~digitalPin();
+private:
+	pin_e _pin;
+	static uint8_t _pinsActive;
+};
+
+
+
 
 class digitalIn : private digitalPin
 {
 public:
-	digitalIn(pins_e pin) : digitalPin(pin) { _btnNum = _pinsActive; _pinsActive++; };
+	digitalIn(pin_e pin, pinPull_e pull = PIN_PULL_NONE);
 	virtual bool digitalRead() = 0;
+
 	uint8_t activeInTotal() { return _pinsActive; }
 	~digitalIn() { _pinsActive--; };
 private:
@@ -33,10 +79,13 @@ private:
 	static uint8_t _pinsActive;
 };
 
+
+
+
 class digitalOut : private digitalPin
 {
 public:
-	digitalOut() { _btnNum = _pinsActive; _pinsActive++; };
+	digitalOut(pin_e pin, pinPull_e pull = PIN_PULL_NONE);
 	virtual void digitalWrite(bool state) = 0;
 	virtual void toggle() = 0;
 	~digitalOut() { _pinsActive--; };
@@ -45,6 +94,5 @@ private:
 	uint8_t _btnNum;
 	static uint8_t _pinsActive;
 };
-
 
 #endif /* FIB_NCO_IO_IO_HPP_ */

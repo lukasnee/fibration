@@ -1,5 +1,5 @@
 /*
-    DAC class for modular synth project Fibration.
+    Knob (potentiometer) class for modular synth project Fibration.
     Copyright (C) 2020 Lukas Neverauskis
 
     This program is free software: you can redistribute it and/or modify
@@ -16,8 +16,16 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "../../components/hardware/adc.hpp"
 
-#include "../../components/hardware/hardware.hpp"
+#ifndef FIB_NCO_MODULE_COMPONENT_KNOB_HPP_
+#define FIB_NCO_MODULE_COMPONENT_KNOB_HPP_
 
-extern ADC_HandleTypeDef hadc1;
+#include "adc.hpp"
+
+class Knob : private ADC {
+
+
+
+};
+
+#endif /* FIB_NCO_MODULE_COMPONENT_KNOB_HPP_ */

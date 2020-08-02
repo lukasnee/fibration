@@ -16,8 +16,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "../../components/hardware/dac.hpp"
-
-#include "../../components/hardware/hardware.hpp"
+#include "dac.hpp"
+#include "hardware.hpp"
 
 extern DAC_HandleTypeDef hdac;

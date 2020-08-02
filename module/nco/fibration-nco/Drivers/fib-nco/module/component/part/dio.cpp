@@ -1,5 +1,5 @@
 /*
-    GPIO class for modular synth project Fibration.
+    Digital I/O class for modular synth project Fibration.
     Copyright (C) 2020 Lukas Neverauskis
 
     This program is free software: you can redistribute it and/or modify
@@ -16,9 +16,9 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "../../components/hardware/gpio.hpp"
+#include "dio.hpp"
 
-#include "../../components/hardware/hardware.hpp"
+#include "hardware.hpp"
 
 uint8_t digitalPin::_pinsActive = 0;
 
@@ -87,8 +87,23 @@ void digitalPin::toggle()
 	HAL_GPIO_TogglePin(pinsMap[_pin].pPort, pinsMap[_pin].pinNum);
 };
 
-digitalPin::digitalPin(pins_e pin) : _pin(pin)
+digitalPin::digitalPin(pin_e pin, pinMode_e mode, pinPull_e pull) : _pin(pin)
 {
+	GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+//	/* GPIO Ports Clock Enable */
+//	__HAL_RCC_GPIOC_CLK_ENABLE();
+//	__HAL_RCC_GPIOF_CLK_ENABLE();
+//	__HAL_RCC_GPIOA_CLK_ENABLE();
+//	__HAL_RCC_GPIOB_CLK_ENABLE();
+
+	digitalWrite(false); //default level
+
+	GPIO_InitStruct.Pin = pinsMap[_pin].pinNum;
+	GPIO_InitStruct.Mode = mode;
+	GPIO_InitStruct.Pull = pull;
+	HAL_GPIO_Init(pinsMap[_pin].pPort, &GPIO_InitStruct);
+
 	_pinsActive++;
 	/* initialization done in main.c by cubeide autogen code */
 };
@@ -99,43 +114,23 @@ digitalPin::~digitalPin()
 
 
 
+uint8_t digitalIn::_pinsActive = 0;
+
+digitalIn::digitalIn(pin_e pin, pinPull_e pull = PIN_PULL_NONE) :
+	digitalPin(pin, PIN_MODE_INPUT, pull)
+{
+	_btnNum = _pinsActive;
+	_pinsActive++;
+};
 
 
 
+uint8_t digitalOut::_pinsActive = 0;
 
+digitalOut::digitalOut(pin_e pin, pinPull_e pull = PIN_PULL_NONE) :
+			digitalPin(pin, PIN_MODE_OUTPUT, pull)
+{
+	_btnNum = _pinsActive;
+	_pinsActive++;
+};
 
-/*	RobotDyn STM32F303 dev board pinout
-
-	GPIO PORT A
-		PIN_A0, 	PIN_A1,		PIN_A2,		PIN_A3,
-		PIN_A4,		PIN_A5,		PIN_A6,		PIN_A7,
-		PIN_A8,		PIN_A9,		PIN_A10,	PIN_A11,
-		PIN_A12,							PIN_A15,
-	GPIO PORT B
-		PIN_B0,		PIN_B1,					PIN_B3,
-		PIN_B4,		PIN_B5,		PIN_B6, 	PIN_B7,
-		PIN_B8,		PIN_B9,		PIN_B10,	PIN_B11,
-		PIN_B12,	PIN_B13,	PIN_B14,	PIN_B15,
-	GPIO PORT C
-		PIN_C13,	PIN_C14,	PIN_B15,
-*/
-
-//
-//const pin_t buttonLUT[1] =
-//{
-//	{GPIOC, GPIO_PIN_13}
-//};
-//
-//const pin_t sigInLUT[] =
-//{
-//};
-//
-//const pin_t sigOutLUT[] =
-//{
-//};
-//
-//const pin_t OutputPinLUT[1] =
-//{
-//	{GPIOA, GPIO_PIN_12}
-//};
-//
