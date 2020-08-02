@@ -23,7 +23,7 @@
 
 namespace FIB {
 
-class NCO : public Module {
+class NCO : private Module {
 
 
 
@@ -32,7 +32,5 @@ class NCO : public Module {
 }; // class NCO
 
 } // namespace FIB
-
-
 
 #endif /* FIB_NCO_NCO_HPP_ */
