@@ -7,7 +7,7 @@
 
 #include "button.hpp"
 
-#include "gpio.hpp"
+#include "dio.hpp"
 #include "wucy_api.h"
 
 uint8_t button_DebounceTick=0;

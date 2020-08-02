@@ -17,6 +17,7 @@
  */
 
 #include "rotaryEncoder.hpp"
+#include "dio.hpp"
 
 // The array holds the values �1 for the entries where a position was decremented,
 // a 1 for the entries where the position was incremented
@@ -29,14 +30,12 @@ const int8_t KnobDirection[] = { 0, -1, 1, 0, 1, 0, 0, -1, -1, 0, 0, 1, 0, 1, -1
 // ==> right, count up
 // <== left,  count down
 
-RotaryEncoder::RotaryEncoder(uint32_t pin1, uint32_t pin2) :
-		_pin1(pin1), _pin2(pin2)
+RotaryEncoder::RotaryEncoder(pin_e pin1, pin_e pin2) :
+		_pin1(pin1, PIN_PULL_DOWN), _pin2(pin2, PIN_PULL_DOWN)
 {
-
 	// when not started in motion, the current state of the encoder should be 3
 	_oldState = 3;
 
-	// start with position 0;
 	_position = 0;
 	_positionExt = 0;
 	_positionExtPrev = 0;
@@ -78,8 +77,8 @@ void RotaryEncoder::setPosition(uint32_t newPosition)
 
 void RotaryEncoder::tick()
 {
-	uint8_t sig1 = wucy_hal_PinRead(_pin1);
-	uint8_t sig2 = wucy_hal_PinRead(_pin2);
+	uint8_t sig1 = _pin1.digitalRead();
+	uint8_t sig2 = _pin2.digitalRead();
 
 	int8_t thisState = sig1 | (sig2 << 1);
 

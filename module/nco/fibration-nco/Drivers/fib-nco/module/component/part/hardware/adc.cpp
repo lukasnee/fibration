@@ -1,5 +1,5 @@
 /*
-    Digital I/O class for modular synth project Fibration.
+    DAC class for modular synth project Fibration.
     Copyright (C) 2020 Lukas Neverauskis
 
     This program is free software: you can redistribute it and/or modify
@@ -16,7 +16,7 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "../components/io.hpp"
+#include "adc.hpp"
+#include "hardware.hpp"
 
-uint8_t digitalIn::_pinsActive = 0;
-uint8_t digitalOut::_pinsActive = 0;
+extern ADC_HandleTypeDef hadc1;
