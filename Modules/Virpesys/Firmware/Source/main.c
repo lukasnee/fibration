@@ -1,4 +1,5 @@
-#include "stm32f3xx_hal.h"
+#include "main.h"
+#include "stdio.h"
 
 #define LED_ONBOARD_Pin GPIO_PIN_13
 #define LED_ONBOARD_GPIO_Port GPIOC
@@ -23,20 +24,65 @@ static void MX_ADC1_Init(void);
 static void MX_DAC_Init(void);
 static void MX_USART1_UART_Init(void);
 
-int main(void)
+int k;
+double sin(), cos();
+main()
 {
+
   HAL_Init();
   SystemClock_Config();
   MX_GPIO_Init();
   MX_ADC1_Init();
   MX_DAC_Init();
   MX_USART1_UART_Init();
-
-  while (1)
+  int i;
+  for(i = 0; i < 3; i++)
   {
+    printf("Hello World %d ! \r\n", i);
+    HAL_Delay(1000-1);
+  }
 
+  float A = 0, B = 0, i, j, z[1760];
+  char b[1760];
+  printf("\r\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+  for (;;)
+  {
+    memset(b, 32, 1760);
+    memset(z, 0, 7040);
+    for (j = 0; 6.28 > j; j += 0.07)
+    {
+      for (i = 0; 6.28 > i; i += 0.02)
+      {
+        float sini = sin(i),
+              cosj = cos(j),
+              sinA = sin(A),
+              sinj = sin(j),
+              cosA = cos(A),
+              cosj2 = cosj + 2,
+              mess = 1 / (sini * cosj2 * sinA + sinj * cosA + 5),
+              cosi = cos(i),
+              cosB = cos(B),
+              sinB = sin(B),
+              t = sini * cosj2 * cosA - sinj * sinA;
+        int x = 40 + 30 * mess * (cosi * cosj2 * cosB - t * sinB),
+            y = 12 + 15 * mess * (cosi * cosj2 * sinB + t * cosB),
+            o = x + 80 * y,
+            N = 8 * ((sinj * sinA - sini * cosj * cosA) * cosB - sini * cosj * sinA - sinj * cosA - cosi * cosj * sinB);
+        if (22 > y && y > 0 && x > 0 && 80 > x && mess > z[o])
+        {
+          z[o] = mess;
+          b[o] = ".,-~:;=!*#$@"[N > 0 ? N : 0];
+        }
+      }
+    }
+    printf("\r\n");
+    for (k = 0; 1761 > k; k++)
+      putchar(k % 80 ? b[k] : 10);
+    A += 0.04;
+    B += 0.02;
   }
 }
+
 
 void SystemClock_Config(void)
 {
@@ -142,7 +188,7 @@ static void MX_DAC_Init(void)
 static void MX_USART1_UART_Init(void)
 {
   huart1.Instance = USART1;
-  huart1.Init.BaudRate = 9600;
+  huart1.Init.BaudRate = 115200;
   huart1.Init.WordLength = UART_WORDLENGTH_8B;
   huart1.Init.StopBits = UART_STOPBITS_1;
   huart1.Init.Parity = UART_PARITY_NONE;
