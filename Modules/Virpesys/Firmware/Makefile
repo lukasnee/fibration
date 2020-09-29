@@ -176,16 +176,16 @@ CFLAGS += -Wall
 CFLAGS += -DSTM32F303xC
 CFLAGS += -T"STM32F303CCTX_FLASH.ld" 
 
-# CFLAGS += -mfpu=fpv4-sp-d16
-# CFLAGS += --specs=nosys.specs
-# CFLAGS += --specs=nano.specs
-# CFLAGS += -Wl,-Map="$(TARGET).map" 
-# CFLAGS += -Wl,--gc-sections 
-# CFLAGS += --static 
-# CFLAGS += -mfloat-abi=hard 
-# CFLAGS += -Wl,--start-group 
-# CFLAGS += -lc -lm 
-# CFLAGS += -Wl,--end-group 
+CFLAGS += -mfpu=fpv4-sp-d16
+CFLAGS += --specs=nosys.specs
+CFLAGS += --specs=nano.specs
+CFLAGS += -Wl,-Map="$(TARGET).map" 
+CFLAGS += -Wl,--gc-sections 
+CFLAGS += --static 
+CFLAGS += -mfloat-abi=hard 
+CFLAGS += -Wl,--start-group 
+CFLAGS += -lc -lm 
+CFLAGS += -Wl,--end-group 
 
 #===============================================================================
 # Build Targets
