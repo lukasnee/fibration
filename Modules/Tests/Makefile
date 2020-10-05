@@ -18,10 +18,10 @@
 # Common
 #===============================================================================
 
-PROJECT=Virpesys
+PROJECT=Tests
 
 TARGET=$(PROJECT)
-FIB_ROOT=../../..
+FIB_ROOT=../..
 PROJECT_DIR=.
 BUILD_DIR =.Build
 
@@ -37,15 +37,12 @@ FIBLIB_DRIVERS=$(FIBLIB_HARDWARE)/Drivers
 # Main Source of the project
 #===============================================================================
 
-INCLUDES += -IInclude/
-
+PROJECT_SRC += ./
+PROJECT_INC += -I./
 STM32_FAMILY=stm32f3xx
 STM32_FAMILY_CAP=STM32F3xx
 
-PROJECT_SRC=Source
-
 S_SRCS = $(PROJECT_DIR)/startup_stm32f303cctx.s 
-
 C_SRCS = $(PROJECT_SRC)/main.c
 C_SRCS += $(PROJECT_SRC)/$(STM32_FAMILY)_hal_msp.c
 C_SRCS += $(PROJECT_SRC)/$(STM32_FAMILY)_it.c
@@ -59,13 +56,14 @@ C_SRCS += $(PROJECT_SRC)/system_$(STM32_FAMILY).c
 
 # CMSIS stuff
 
+INCLUDES += $(PROJECT_INC)
 INCLUDES += -I$(FIBLIB_DRIVERS)/CMSIS/Device/ST/$(STM32_FAMILY_CAP)/Include
 INCLUDES += -I$(FIBLIB_DRIVERS)/CMSIS/Include
 
 # Hardware Abstraction Layer (HAL) stuff
 
-STM32_HAL_DIR=$(FIBLIB_DRIVERS)/$(STM32_FAMILY_CAP)_HAL_Driver
-STM32_HAL=$(STM32_HAL_DIR)/Src/$(STM32_FAMILY)_hal
+STM32_HAL_DIR = $(FIBLIB_DRIVERS)/$(STM32_FAMILY_CAP)_HAL_Driver
+STM32_HAL = $(STM32_HAL_DIR)/Src/$(STM32_FAMILY)_hal
 INCLUDES += -I$(STM32_HAL_DIR)/Inc
 INCLUDES += -I$(STM32_HAL_DIR)/Legacy
 
@@ -213,4 +211,3 @@ reset:
 
 rebuild: clean $(TARGET)
 bf: build flash
-bfr: build flash reset

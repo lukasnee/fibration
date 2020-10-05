@@ -1,0 +1,20 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+    {
+        "cwd": "${workspaceRoot}",
+        "executable": "${workspaceRoot}/Modules/Virpesys/Firmware/.Build/Virpesys.elf",
+        "name": "Virpesys (st-util)",
+        "request": "launch",
+        "type": "cortex-debug",
+        "servertype": "stutil",
+        "cpu": "cortex-m3", 
+        "preLaunchTask": "build virpesys",
+        "runToMain": true,
+        "svdFile": "${workspaceRoot}/Libraries/Fibration/Components/Parts/Hardware/Drivers/STM32F303.svd"
+    }     
+    ]
+}

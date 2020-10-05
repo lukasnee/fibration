@@ -21,6 +21,7 @@
 
 uint8_t digitalPin::_pinsActive = 0;
 
+
 // map out arbitrary alphabetic pins to your hardware pins
 const struct {GPIO_TypeDef * pPort; uint16_t pinNum;} pinsMap[] =
 {
@@ -71,45 +72,52 @@ const struct {GPIO_TypeDef * pPort; uint16_t pinNum;} pinsMap[] =
 	{ GPIOC, GPIO_PIN_15},	// is PIN_AF
 };
 
+
 void digitalPin::digitalWrite(bool state)
 {
 	HAL_GPIO_WritePin(pinsMap[_pin].pPort, pinsMap[_pin].pinNum, (GPIO_PinState)state);
 };
+
 
 bool digitalPin::digitalRead()
 {
 	return (bool)HAL_GPIO_ReadPin(pinsMap[_pin].pPort, pinsMap[_pin].pinNum);
 };
 
+
 void digitalPin::toggle()
 {
 	HAL_GPIO_TogglePin(pinsMap[_pin].pPort, pinsMap[_pin].pinNum);
 };
-void digitalPin::init(pin_e pin, pinMode_e mode, pinPull_e pull) {
 
-	GPIO_InitTypeDef GPIO_InitStruct = {0};
 
-/* initialization done in main.c by cubeide autogen code */
-//	/* GPIO Ports Clock Enable */
-//	__HAL_RCC_GPIOC_CLK_ENABLE();
-//	__HAL_RCC_GPIOF_CLK_ENABLE();
-//	__HAL_RCC_GPIOA_CLK_ENABLE();
-//	__HAL_RCC_GPIOB_CLK_ENABLE();
+void digitalPin::init(pin_e pin, pinMode_e mode, pinPull_e pull) 
+{	
+	__HAL_RCC_GPIOA_CLK_ENABLE();
+	__HAL_RCC_GPIOB_CLK_ENABLE();
+	__HAL_RCC_GPIOC_CLK_ENABLE();
+	__HAL_RCC_GPIOF_CLK_ENABLE();
 
 	digitalWrite(false); //default level
 
+	GPIO_InitTypeDef GPIO_InitStruct = {0};
+	
 	GPIO_InitStruct.Pin = pinsMap[_pin].pinNum;
 	GPIO_InitStruct.Mode = mode;
 	GPIO_InitStruct.Pull = pull;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
 	HAL_GPIO_Init(pinsMap[_pin].pPort, &GPIO_InitStruct);
 	_pinsActive++;
 }
+
 
 digitalPin::digitalPin()
 {
 };
 
-digitalPin::digitalPin(pin_e pin, pinMode_e mode, pinPull_e pull) : _pin(pin)
+
+digitalPin::digitalPin(pin_e pin, pinMode_e mode, pinPull_e pull) 
+	: _pin(pin)
 {
 	init(pin, mode, pull);
 };
@@ -119,16 +127,14 @@ digitalPin::~digitalPin()
 };
 
 
-
 uint8_t digitalIn::_pinsActive = 0;
 
-digitalIn::digitalIn(pin_e pin, pinPull_e pull = PIN_PULL_NONE) :
-	digitalPin(pin, PIN_MODE_INPUT, pull)
+digitalIn::digitalIn(pin_e pin, pinPull_e pull = PIN_PULL_NONE)
+	: digitalPin(pin, PIN_MODE_INPUT, pull)
 {
 	_btnNum = _pinsActive;
 	_pinsActive++;
 };
-
 
 
 uint8_t digitalOut::_pinsActive = 0;
@@ -139,16 +145,18 @@ digitalOut::init()
 
 }
 
-digitalOut::digitalOut() : digitalPin()
+
+digitalOut::digitalOut() 
+	: digitalPin()
 {
 	_btnNum = _pinsActive;
 	_pinsActive++;
 };
 
-digitalOut::digitalOut(pin_e pin, pinPull_e pull = PIN_PULL_NONE) :
-			digitalPin(pin, PIN_MODE_OUTPUT, pull)
+
+digitalOut::digitalOut(pin_e pin, pinPull_e pull = PIN_PULL_NONE)
+	: digitalPin(pin, PIN_MODE_OUTPUT, pull)
 {
 	_btnNum = _pinsActive;
 	_pinsActive++;
 };
-
