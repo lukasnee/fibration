@@ -1,0 +1,11 @@
+{
+    "tasks": [
+{
+    "label": "build virpesys",
+    "type": "shell",
+    "command": "cd ./Modules/Virpesys/Firmware/; make Virpesys; make flash; cd -",
+    "problemMatcher": []
+}
+    ],
+    "version": "2.0.0"
+}
