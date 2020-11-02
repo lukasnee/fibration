@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.13)
+
+project(Modules)
+
+#add_subdirectory(makefileTest)
+add_subdirectory(uartprintfTest)
