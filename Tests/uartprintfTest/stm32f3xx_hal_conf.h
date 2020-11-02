@@ -309,6 +309,7 @@
 #ifdef HAL_USART_MODULE_ENABLED
  #include "stm32f3xx_hal_usart.h"
 #endif /* HAL_USART_MODULE_ENABLED */
+
 #ifdef HAL_WWDG_MODULE_ENABLED
  #include "stm32f3xx_hal_wwdg.h"
 #endif /* HAL_WWDG_MODULE_ENABLED */
