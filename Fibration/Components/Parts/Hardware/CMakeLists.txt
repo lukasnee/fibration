@@ -8,6 +8,15 @@ set(stm32_ll STM32F3xx_HAL_Driver/Src/stm32f3xx_ll)
 
 add_library(Hardware STATIC 
 
+# FreeRTOS kernel stuff
+
+    FreeRTOS/Source/tasks.c
+    FreeRTOS/Source/list.c
+    FreeRTOS/Source/queue.c
+    FreeRTOS/Source/timers.c
+    FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c
+    FreeRTOS/Source/portable/MemMang/heap_4.c
+
 # hardware wrapper for ease (c++)
 
     adc.cpp
@@ -99,6 +108,8 @@ add_library(Hardware STATIC
 )
 
 include_directories(
+    FreeRTOS/Source/include
+    FreeRTOS/Source/portable/GCC/ARM_CM4F
     CMSIS/Device/ST/STM32F3xx/Include
     CMSIS/Include
     STM32F3xx_HAL_Driver/Inc
