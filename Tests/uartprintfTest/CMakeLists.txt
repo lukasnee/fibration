@@ -1,4 +1,3 @@
-cmake_minimum_required(VERSION 3.13)
 
 project(uartprintfTest)
 
@@ -17,6 +16,7 @@ add_executable(${EXECUTABLE}
     syscalls.c
     sysmem.c
     system_stm32f3xx.c
+    FreeRTOSConfig.h
     uartprintf.c
     uartprintf.h
 )
