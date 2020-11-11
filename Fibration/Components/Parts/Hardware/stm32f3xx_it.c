@@ -1,5 +1,7 @@
 #include "stm32f3xx_it.h"
 
+#include "stm32f3xx_hal.h"
+
 // This function is executed in case of error occurrence.
 void Error_Handler(void)
 {

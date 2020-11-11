@@ -8,9 +8,10 @@
 #include <sys/times.h>
 #include <limits.h>
 #include <signal.h>
-#include <uartprintf.h>
 #include <stdint.h>
 #include <stdio.h>
+
+#include "uartprintf.h"
 
 #if !defined(OS_USE_SEMIHOSTING)
 

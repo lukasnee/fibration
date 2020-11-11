@@ -10,15 +10,6 @@ set(EXECUTABLE ${PROJECT_NAME}.out)
 
 add_executable(${EXECUTABLE} 
     main.cpp
-    stm32f3xx_hal_msp.c
-    stm32f3xx_it.c
-    stm32f3xx_it.h
-    syscalls.c
-    sysmem.c
-    system_stm32f3xx.c
-    FreeRTOSConfig.h
-    uartprintf.c
-    uartprintf.h
 )
 
 
