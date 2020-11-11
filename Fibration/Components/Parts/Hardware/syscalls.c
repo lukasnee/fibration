@@ -44,7 +44,7 @@ void _exit (int status)
 __attribute__((weak)) int _read(int file, char *ptr, int len)
 {
 	int DataIdx;
-	HAL_UART_Receive(&huart1, ptr, 1, 0xFFFFFFFF);
+	HAL_UART_Receive(&huart1, (uint8_t*)ptr, 1, 0xFFFFFFFF);
 	for (DataIdx = 0; DataIdx < len; DataIdx++)
 	{
 		*ptr++ = __io_getchar();
@@ -56,7 +56,7 @@ return len;
 __attribute__((weak)) int _write(int file, char *ptr, int len)
 {
 	int DataIdx;
-	HAL_UART_Transmit(&huart1, ptr, len, 0xFFFFFFFF);
+	HAL_UART_Transmit(&huart1, (uint8_t*)ptr, len, 0xFFFFFFFF);
 	for (DataIdx = 0; DataIdx < len; DataIdx++)
 	{
 		__io_putchar(*ptr++);
