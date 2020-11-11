@@ -8,6 +8,15 @@ set(stm32_ll STM32F3xx_HAL_Driver/Src/stm32f3xx_ll)
 
 add_library(Hardware STATIC 
 
+# fibration hardware wrapper
+
+    adc.cpp
+    adc.hpp
+    dac.cpp
+    dac.hpp
+    gpio.cpp
+    gpio.hpp
+
 # FreeRTOS kernel stuff
 
     FreeRTOS/Source/tasks.c
@@ -16,15 +25,6 @@ add_library(Hardware STATIC
     FreeRTOS/Source/timers.c
     FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c
     FreeRTOS/Source/portable/MemMang/heap_4.c
-
-# hardware wrapper for ease (c++)
-
-    adc.cpp
-    adc.hpp
-    dac.cpp
-    dac.hpp
-    gpio.cpp
-    gpio.hpp
 
 # STM32 hardware abstraction layer stuff
 
