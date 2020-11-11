@@ -1,19 +1,13 @@
 
 project(uartprintfTest)
 
-enable_language(C ASM)
-set(CMAKE_C_STANDARD 99)
-set(CMAKE_C_STANDARD_REQUIRED ON)
-set(CMAKE_C_EXTENSIONS OFF)
 
-set(EXECUTABLE ${PROJECT_NAME}.out)
+set(EXECUTABLE ${PROJECT_NAME})
 
 add_executable(${EXECUTABLE} 
     main.cpp
 )
 
-
-# add_subdirectory(Fibration)
 target_link_libraries(${EXECUTABLE} PUBLIC 
     FibrationLib
 )
@@ -43,9 +37,9 @@ target_compile_options(${EXECUTABLE} PRIVATE
     $<$<CONFIG:Debug>:-Og>
     $<$<CONFIG:Release>:-O2>
 )
-
+# TODO something with these flags, move them to hardware layer maybe
 target_link_options(${EXECUTABLE} PRIVATE
-    -TSTM32F303CCTX_FLASH.ld
+    -T${CMAKE_SOURCE_DIR}/Fibration/Components/Parts/Hardware/STM32F303CCTX_FLASH.ld
     -mcpu=cortex-m4
     -mthumb
     -mfpu=fpv4-sp-d16
