@@ -32,9 +32,10 @@ add_library(Hardware STATIC
 
 # STM32 hardware stuff
 
-    sysmem.c
-    system_stm32f3xx.c
     syscalls.c
+	sysmem.c
+	startup_stm32f303cctx.s
+    system_stm32f3xx.c
     stm32f3xx_hal_msp.c
     stm32f3xx_it.c
     stm32f3xx_it.h
