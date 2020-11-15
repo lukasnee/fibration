@@ -82,6 +82,20 @@ int main()
 	__HAL_RCC_PWR_CLK_ENABLE();
 	SystemClock_Config();
 
+	Hardware::GPIO led(Hardware::PIN_LED,
+					   false,
+					   Hardware::PIN_MODE_OUTPUT,
+					   Hardware::PIN_PULL_NONE);
+
+	led.digitalWrite(false);
+	HAL_Delay(100);
+	led.digitalWrite(true);
+	HAL_Delay(900);
+	led.digitalWrite(false);
+	HAL_Delay(100);
+	led.digitalWrite(true);
+	HAL_Delay(900);
+		
 	BaseType_t xReturned;
 	TaskHandle_t xHandle = NULL;
 	xReturned = xTaskCreate(vBlinkyTask,
