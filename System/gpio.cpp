@@ -130,11 +130,16 @@ GPIO::GPIO(pin_e pin, bool defaultState, pinMode_e mode, PinPull pull)
 	init(pin, defaultState, mode, pull);
 }
 
+void GPIO::deinit() 
+{
+	HAL_GPIO_DeInit(cPinsMap[_pin].pPort, cPinsMap[_pin].pinNum);	
+		_initialized = false;
+	_pinsActive--;
+}
 
 GPIO::~GPIO()
 {
-	_initialized = false;
-	_pinsActive--;
+	deinit();
 }
 
 } //namespace Hardware

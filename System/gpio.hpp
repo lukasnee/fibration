@@ -95,6 +95,8 @@ namespace Hardware
 				pinMode_e mode = PIN_MODE_OUTPUT,
 				PinPull pull = PIN_PULL_NONE);
 
+		void deinit();
+
 		void digitalWrite(bool state);
 		bool digitalRead();
 
