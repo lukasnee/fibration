@@ -24,13 +24,13 @@ set(SYSTEM_SRC
 	# STM32F3 Hardware Abstraction Layer
 	${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal.c
 	${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_cortex.c
-	${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_dma.c
+	# ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_dma.c
 	${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_exti.c
-	${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_flash.c
-	${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_flash_ex.c
+	# ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_flash.c
+	# ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_flash_ex.c
 	${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_gpio.c
-	${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_i2c.c
-	${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_i2c_ex.c
+	# ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_i2c.c
+	# ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_i2c_ex.c
 	${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_pwr.c
 	${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_pwr_ex.c
 	${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc.c
@@ -86,27 +86,22 @@ target_compile_options(${PROJECT_NAME} PRIVATE
     -mfpu=fpv4-sp-d16
     -mfloat-abi=hard
 
-    -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
-    # -specs=nosys.specs
     -specs=nano.specs
-    -Wl,--gc-sections
-    -static
-
+	-fstack-usage
+	-Wall
     -fdata-sections
     -ffunction-sections
 
-	-Wall
-	
-	-fstack-usage
 	# -fno-use-cxa-atexit
 	# -fno-threadsafe-statics 
 	# -fno-rtti 
-	-fno-exceptions
+	
+	# -fno-exceptions # big change in code size and performace
 
 	# -c -x assembler-with-cpp 
 
-    $<$<CONFIG:Debug>:-Og>
-    $<$<CONFIG:Release>:-O2 g3>
+    $<$<CONFIG:Debug>:-g3 -O0 -DDEBUG>
+    $<$<CONFIG:Release>:-O2>
 )
 
 target_link_options(${PROJECT_NAME} PRIVATE
@@ -114,17 +109,16 @@ target_link_options(${PROJECT_NAME} PRIVATE
     -mcpu=cortex-m4
     -mthumb
     -mfpu=fpv4-sp-d16
-    -mfloat-abi=hard
-
+	-mfloat-abi=hard
+	
     -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
-    # -specs=nosys.specs
+	-specs=nosys.specs
     -specs=nano.specs
     -static
     -Wl,--gc-sections
 
     -Wl,-Map=${PROJECT_NAME}.map,--cref
 	-Wl,--print-memory-usage
-
 )
 
 # Print executable size
