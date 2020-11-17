@@ -69,41 +69,22 @@ void vBlinkyTask(void * pvParams)
 
 	while(true)
 	{
-		vTaskDelay(100);
-		led.toggle();
+		led.digitalWrite(true);
 		vTaskDelay(1000-100);
+		led.digitalWrite(false);
+		vTaskDelay(100);
 	}
 }
 
 int main()
 {  
 	HAL_Init();
-	__HAL_RCC_SYSCFG_CLK_ENABLE();
-	__HAL_RCC_PWR_CLK_ENABLE();
 	SystemClock_Config();
 
-	Hardware::GPIO led(Hardware::PIN_LED,
-					   false,
-					   Hardware::PIN_MODE_OUTPUT,
-					   Hardware::PIN_PULL_NONE);
-
-	led.digitalWrite(false);
-	HAL_Delay(100);
-	led.digitalWrite(true);
-	HAL_Delay(900);
-	led.digitalWrite(false);
-	HAL_Delay(100);
-	led.digitalWrite(true);
-	HAL_Delay(900);
-		
 	BaseType_t xReturned;
 	TaskHandle_t xHandle = NULL;
-	xReturned = xTaskCreate(vBlinkyTask,
-							"blinky",
-							0x200,
-							NULL,
-							tskIDLE_PRIORITY + 1,
-							&xHandle);
+	xReturned = xTaskCreate(vBlinkyTask, "blinky", 0x200, NULL, 1, &xHandle);
+		
 	if(xReturned == pdPASS)
     { 
 		vTaskStartScheduler();
