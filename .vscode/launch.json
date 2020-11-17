@@ -7,7 +7,7 @@
 
 	    {
         "cwd": "${workspaceRoot}",
-        "executable": "${workspaceRoot}/Build/.debug/Tests/freertosBlinkyTest/freertosBlinkyTest",
+        "executable": "${workspaceRoot}/Build/Debug/Tests/freertosBlinkyTest/freertosBlinkyTest",
         "name": "freertosBlinkyTest",
         "request": "launch",
         "type": "cortex-debug",
