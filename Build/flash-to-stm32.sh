@@ -2,7 +2,7 @@
 set -e 
 
 if [[ $1 -eq "" ]]; then
-  echo "usage: ./flash.sh <binary-file>"
+  echo "usage: $0 <binary-file>"
   exit 1;
 fi
 
