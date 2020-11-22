@@ -18,6 +18,7 @@
 
 #include "stm32f3xx_hal.h"
 
+#include "system.hpp"
 
 #include "gpio.hpp"
 
@@ -115,11 +116,11 @@ void GPIO::digitalWrite(bool state)
 	}
 	else
 	{
-	HAL_GPIO_WritePin(
-		cPinsMap[_pin].pPort, 
-		cPinsMap[_pin].pinNum, 
-		state ? GPIO_PIN_SET : GPIO_PIN_RESET);
-}
+		HAL_GPIO_WritePin(
+			cPinsMap[_pin].pPort, 
+			cPinsMap[_pin].pinNum, 
+			state ? GPIO_PIN_SET : GPIO_PIN_RESET);	
+	}
 }
 
 
@@ -129,13 +130,13 @@ bool GPIO::digitalRead()
 	{
 		Log::error("digitalRead()", strFmtPinUninitialized, _pin);
 		return false;
-}
+	}
 	else
-{
+	{
 		return (bool)HAL_GPIO_ReadPin(
 			cPinsMap[_pin].pPort, 
 			cPinsMap[_pin].pinNum);
-}
+	}
 }
 
 
