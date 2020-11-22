@@ -12,25 +12,12 @@ set(CMAKE_CXX_STANDARD 14)
 set(ROOT ${CMAKE_SOURCE_DIR})
 
 set(SYSTEM_SRC
-	# STM32F3 system source
-	${ROOT}/System/MSP/stm32f3xx_hal_msp.c
-	${ROOT}/System/MSP/stm32f3xx_hal_timebase_tim.c
-	${ROOT}/System/MSP/stm32f3xx_it.c
-	${ROOT}/System/MSP/syscalls.c
-	${ROOT}/System/MSP/sysmem.c
-	${ROOT}/System/MSP/system_stm32f3xx.c
-	${ROOT}/System/MSP/startup_stm32f303cctx.s
 
 	# STM32F3 Hardware Abstraction Layer
 	${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal.c
 	${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_cortex.c
-	# ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_dma.c
 	${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_exti.c
-	# ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_flash.c
-	# ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_flash_ex.c
 	${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_gpio.c
-	# ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_i2c.c
-	# ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_i2c_ex.c
 	${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_pwr.c
 	${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_pwr_ex.c
 	${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc.c
@@ -39,6 +26,15 @@ set(SYSTEM_SRC
 	${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim_ex.c	
 	${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.c	
 	${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart_ex.c	
+
+	# STM32F3 system source
+	${ROOT}/System/MSP/stm32f3xx_hal_msp.c
+	${ROOT}/System/MSP/stm32f3xx_hal_timebase_tim.c
+	${ROOT}/System/MSP/stm32f3xx_it.c
+	${ROOT}/System/MSP/syscalls.c
+	${ROOT}/System/MSP/sysmem.c
+	${ROOT}/System/MSP/system_stm32f3xx.c
+	${ROOT}/System/MSP/startup_stm32f303cctx.s
 
 	# FreeRTOS source
 	${ROOT}/System/FreeRTOS/Source/croutine.c
