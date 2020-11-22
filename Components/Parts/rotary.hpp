@@ -27,8 +27,8 @@
 class RotaryEncoder {
 // public:
 // 	// ----- Constructor -----
-// 	RotaryEncoder(pin_e pin1, pin_e pin2);
-// 	RotaryEncoder(pin_e pin1, pin_e pin2, pin_e pinButton);
+// 	RotaryEncoder(Pin pin1, Pin pin2);
+// 	RotaryEncoder(Pin pin1, Pin pin2, Pin pinButton);
 // 	// retrieve the current position
 // 	uint32_t getPosition();
 
