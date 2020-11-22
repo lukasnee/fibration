@@ -32,7 +32,7 @@ typedef enum LED_Polarity_
 
 class LED 
 {
-	LED(Hardware::pin_e pin, LED_Polarity polarity) : 
+	LED(Hardware::Pin pin, LED_Polarity polarity) : 
 		Hardware::ledPin(pin, polarity == LED_POLARITY_ON_IS_HIGH ? Hardware::PIN_PULL_DOWN : Hardware::PIN_PULL_UP),
 		_polarity(polarity) {  };
 	void turnOn() { ledPin.digitalWrite(_polarity); };

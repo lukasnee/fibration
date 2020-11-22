@@ -41,13 +41,13 @@ const int8_t KnobDirection[] = { 0, -1, 1, 0, 1, 0, 0, -1, -1, 0, 0, 1, 0, 1, -1
 // 	_positionExtPrev = 0;
 // }
 
-// RotaryEncoder::RotaryEncoder(pin_e pin1, pin_e pin2)
+// RotaryEncoder::RotaryEncoder(Pin pin1, Pin pin2)
 // {
 // 	init();
 // 	_pin1().init();
 // }
 
-// RotaryEncoder::RotaryEncoder(pin_e pin1, pin_e pin2, pin_e pinButton)
+// RotaryEncoder::RotaryEncoder(Pin pin1, Pin pin2, Pin pinButton)
 // {
 // 	init();
 // }
