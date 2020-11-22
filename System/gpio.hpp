@@ -15,18 +15,18 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
+#pragma once
 
-#ifndef FIB_DIGITAL_PIN_HPP_
-#define FIB_DIGITAL_PIN_HPP_
-
-#include "stdint.h"
+#define GPIO_CAREFUL true
 
 namespace Hardware
 {
 
-	typedef enum pin_
+class GPIO
+{
+public:
+	enum Pin
 	{
-		//PIN_UNKNOWN = 0,
 		PIN_0,
 		PIN_1,
 		PIN_2,
@@ -61,55 +61,53 @@ namespace Hardware
 		PIN_1E,
 		PIN_1F,
 
-		PIN_2C, // RobotDyn LED pin, active LOW 
-		PIN_LED = PIN_2C,
+		PIN_2C, PIN_LED = PIN_2C, // RobotDyn LED pin, active LOW 
 		PIN_2D,
 		PIN_2E,
-		PIN_TOTAL
-	} pin_e;
 
-	typedef enum pinMode_
+	PIN_TOTAL};
+
+	enum InitState
+	{
+		INIT_STATE_RESET,
+		INIT_STATE_SET
+	};
+
+	enum PinMode
 	{
 		PIN_MODE_INPUT,
 		PIN_MODE_OUTPUT
-	} pinMode_e;
+	};
 
-	typedef enum pinPull_
+	enum PinPull
 	{
 		PIN_PULL_NONE,
 		PIN_PULL_UP,
 		PIN_PULL_DOWN
-	} PinPull;
-
-	class GPIO
-	{
-	public:
-		GPIO(pin_e pin, 
-				bool defaultState = false,
-				pinMode_e mode = PIN_MODE_OUTPUT,
-				PinPull pull = PIN_PULL_NONE);
-		~GPIO();
-
-		void init(pin_e pin, 
-				bool defaultState = false,
-				pinMode_e mode = PIN_MODE_OUTPUT,
-				PinPull pull = PIN_PULL_NONE);
-
-		void deinit();
-
-		void digitalWrite(bool state);
-		bool digitalRead();
-
-		void toggle();
-
-		pin_e getPin() { return _pin; };
-
-	private:
-		pin_e _pin;
-		bool _initialized;
-		static uint8_t _pinsActive;
 	};
 
-} //namespace Hardware
+	GPIO(Pin pin, 
+		InitState state = INIT_STATE_RESET,
+		PinMode mode = PIN_MODE_OUTPUT,
+		PinPull pull = PIN_PULL_NONE);
+	~GPIO();
+	void toggle();
+	void digitalWrite(bool state);
+	bool digitalRead();
 
-#endif /* FIB_DIGITAL_PIN_HPP_ */
+private:		
+	void init(
+		InitState state = INIT_STATE_RESET,
+		PinMode mode = PIN_MODE_OUTPUT,
+		PinPull pull = PIN_PULL_NONE);
+	void deinit();
+
+	struct PinStatus
+	{
+		bool isInitialized;
+	};
+
+	Pin _pin;
+	static PinStatus arPinStatus[PIN_TOTAL];
+};
+} //namespace Hardware

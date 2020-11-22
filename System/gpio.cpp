@@ -16,20 +16,18 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "common.hpp"
-
 #include "stm32f3xx_hal.h"
+
+
 #include "gpio.hpp"
 
 namespace Hardware {
 
-uint8_t GPIO::_pinsActive = 0;
-
-typedef struct PinData_ 
+struct PinData
 {
 	GPIO_TypeDef * pPort; 
 	uint16_t pinNum;
-} PinData;
+};
 
 // map out arbitrary alphabetic pins to your hardware pins
 const PinData cPinsMap[] =
@@ -76,32 +74,80 @@ const PinData cPinsMap[] =
 };
 
 
-void GPIO::digitalWrite(bool state)
+GPIO::PinStatus GPIO::arPinStatus[PIN_TOTAL] = { 0 };
+
+
+static const char * strFmtPinUninitialized = "pin #%d uninitialized.";
+static const char * strFmtPinAlreadyInitialized = "pin #%d already initialized.";
+
+
+GPIO::GPIO(Pin pin, InitState state, PinMode mode, PinPull pull) 
+	: _pin(pin)
 {
-	HAL_GPIO_WritePin(
-		cPinsMap[_pin].pPort, 
-		cPinsMap[_pin].pinNum, 
-		state ? GPIO_PIN_SET : GPIO_PIN_RESET);
+	init(state, mode, pull);
 }
 
 
-bool GPIO::digitalRead()
+GPIO::~GPIO()
 {
-	return (bool)HAL_GPIO_ReadPin(cPinsMap[_pin].pPort, cPinsMap[_pin].pinNum);
+	deinit();
 }
 
 
 void GPIO::toggle()
 {
-	HAL_GPIO_TogglePin(cPinsMap[_pin].pPort, cPinsMap[_pin].pinNum);
+	if(GPIO_CAREFUL && arPinStatus[_pin].isInitialized == false)
+	{
+		Log::error("GPIO::toggle()", strFmtPinUninitialized, _pin);
+	}
+	else
+	{
+		HAL_GPIO_TogglePin(cPinsMap[_pin].pPort, cPinsMap[_pin].pinNum);
+	}
 }
 
 
-void GPIO::init(pin_e pin, bool defaultState, pinMode_e mode, PinPull pull) 
-{	
-	if(pin < sizeof(cPinsMap)/sizeof(PinData))
+void GPIO::digitalWrite(bool state)
+{
+	if(GPIO_CAREFUL && arPinStatus[_pin].isInitialized == false)
 	{
-		switch((uint32_t)cPinsMap[pin].pPort)
+		Log::error("GPIO::digitalWrite()", strFmtPinUninitialized, _pin);
+	}
+	else
+	{
+	HAL_GPIO_WritePin(
+		cPinsMap[_pin].pPort, 
+		cPinsMap[_pin].pinNum, 
+		state ? GPIO_PIN_SET : GPIO_PIN_RESET);
+}
+}
+
+
+bool GPIO::digitalRead()
+{
+	if(GPIO_CAREFUL && arPinStatus[_pin].isInitialized == false)
+	{
+		Log::error("digitalRead()", strFmtPinUninitialized, _pin);
+		return false;
+}
+	else
+{
+		return (bool)HAL_GPIO_ReadPin(
+			cPinsMap[_pin].pPort, 
+			cPinsMap[_pin].pinNum);
+}
+}
+
+
+void GPIO::init(InitState state, PinMode mode, PinPull pull) 
+{	
+	if (GPIO_CAREFUL && arPinStatus[_pin].isInitialized)
+	{
+		Log::warning("GPIO::init", strFmtPinAlreadyInitialized, _pin);
+	}
+	else
+	{
+		switch((uint32_t)cPinsMap[_pin].pPort)
 		{
 			case GPIOA_BASE: __HAL_RCC_GPIOA_CLK_ENABLE(); break;
 			case GPIOB_BASE: __HAL_RCC_GPIOB_CLK_ENABLE(); break;
@@ -109,7 +155,8 @@ void GPIO::init(pin_e pin, bool defaultState, pinMode_e mode, PinPull pull)
 			case GPIOF_BASE: __HAL_RCC_GPIOF_CLK_ENABLE(); break;
 		}
 
-		digitalWrite(defaultState);
+		arPinStatus[_pin].isInitialized = true;
+		digitalWrite(state);
 
 		GPIO_InitTypeDef GPIO_InitStruct = { 0 };
 		GPIO_InitStruct.Pin = cPinsMap[_pin].pinNum;
@@ -117,29 +164,16 @@ void GPIO::init(pin_e pin, bool defaultState, pinMode_e mode, PinPull pull)
 		GPIO_InitStruct.Pull = pull;
 		GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
 		HAL_GPIO_Init(cPinsMap[_pin].pPort, &GPIO_InitStruct);
-
-		_pinsActive++;
-		_initialized = true;
 	}
 }
 
 
-GPIO::GPIO(pin_e pin, bool defaultState, pinMode_e mode, PinPull pull) 
-	: _pin(pin), _initialized(false)
-{
-	init(pin, defaultState, mode, pull);
-}
-
 void GPIO::deinit() 
 {
+	/* todo maybe if all port X pins are deinitialized,
+	stop the clock for deeper deinitialization. */
 	HAL_GPIO_DeInit(cPinsMap[_pin].pPort, cPinsMap[_pin].pinNum);	
-		_initialized = false;
-	_pinsActive--;
-}
-
-GPIO::~GPIO()
-{
-	deinit();
+	arPinStatus[_pin].isInitialized = false;
 }
 
 } //namespace Hardware
