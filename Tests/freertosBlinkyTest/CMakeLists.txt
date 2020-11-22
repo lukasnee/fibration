@@ -51,8 +51,12 @@ set(SYSTEM_SRC
 	${ROOT}/System/FreeRTOSConfig.h
 
 	# Fibration hardware interface
+	${ROOT}/System/system.cpp
+	${ROOT}/System/system.hpp
 	${ROOT}/System/gpio.cpp
-	${ROOT}/System/gpio.hpp
+	${ROOT}/System/gpio.hpp	
+	${ROOT}/System/log.cpp
+	${ROOT}/System/log.hpp
 )
 
 add_executable(${PROJECT_NAME} 
