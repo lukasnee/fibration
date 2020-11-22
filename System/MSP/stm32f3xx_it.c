@@ -3,6 +3,51 @@
 
 extern TIM_HandleTypeDef htim7;
 
+#define BLINK_TIME_MS 100
+#define OFF_TIME_MS 1000
+
+static void errorLedInit()
+{
+	static uint8_t errorLedInitialized = 0;
+	if(!errorLedInitialized)
+	{
+		__HAL_RCC_GPIOC_CLK_ENABLE();
+		//__HAL_RCC_GPIOF_CLK_ENABLE();
+
+		GPIO_InitTypeDef GPIO_InitStruct = { 0 };
+		GPIO_InitStruct.Pin = GPIO_PIN_13;
+		GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+		GPIO_InitStruct.Pull = GPIO_PULLUP;
+		GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
+		HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET); // led off
+
+		errorLedInitialized = 1;
+	}
+}
+
+static void blinkErrorLed(uint8_t numberOfTimes)
+{
+	errorLedInit();
+	while(numberOfTimes--)
+	{
+		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
+		HAL_Delay(BLINK_TIME_MS);
+		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
+		HAL_Delay(BLINK_TIME_MS);
+	}
+	HAL_Delay(OFF_TIME_MS);
+};
+
+enum TimesToBlinkOnFault
+{
+	TIMES_TO_BLINK_ON_HARD_FAULT = 1,
+	TIMES_TO_BLINK_ON_MEM_FAULT,
+	TIMES_TO_BLINK_ON_BUS_FAULT,
+	TIMES_TO_BLINK_ON_USAGE_FAULT,
+};
+
 // This function handles Non maskable interrupt.
 void NMI_Handler(void)
 {
@@ -13,6 +58,7 @@ void HardFault_Handler(void)
 {
 	while (1)
 	{
+		blinkErrorLed(TIMES_TO_BLINK_ON_HARD_FAULT);
 	}
 }
 
@@ -21,6 +67,7 @@ void MemManage_Handler(void)
 {
 	while (1)
 	{
+		blinkErrorLed(TIMES_TO_BLINK_ON_MEM_FAULT);
 	}
 }
 
@@ -29,6 +76,7 @@ void BusFault_Handler(void)
 {
 	while (1)
 	{
+		blinkErrorLed(TIMES_TO_BLINK_ON_BUS_FAULT);
 	}
 }
 
@@ -37,6 +85,7 @@ void UsageFault_Handler(void)
 {
 	while (1)
 	{
+		blinkErrorLed(TIMES_TO_BLINK_ON_USAGE_FAULT);
 	}
 }
 
