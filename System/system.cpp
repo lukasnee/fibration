@@ -132,3 +132,8 @@ extern "C" int _read(int fd, char* ptr, int len) {
   errno = EBADF;
   return -1;
 }
+
+uint32_t System::getTick()
+{
+	return HAL_GetTick();
+}
