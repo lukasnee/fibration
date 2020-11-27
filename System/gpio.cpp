@@ -77,10 +77,9 @@ const PinData cPinsMap[] =
 
 GPIO::PinStatus GPIO::arPinStatus[PIN_TOTAL] = { 0 };
 
-
-static const char * strFmtPinUninitialized = "pin #%d uninitialized.";
-static const char * strFmtPinAlreadyInitialized = "pin #%d already initialized.";
-
+static const std::string strGPIO = "GPIO";
+static const std::string strFmtPinUninitialized = "pin #%d uninitialized.";
+static const std::string strFmtPinAlreadyInitialized = "pin #%d already initialized.";
 
 GPIO::GPIO(Pin pin, InitState state, PinMode mode, PinPull pull) 
 	: _pin(pin)
@@ -99,7 +98,7 @@ void GPIO::toggle()
 {
 	if(GPIO_CAREFUL && arPinStatus[_pin].isInitialized == false)
 	{
-		Log::error("GPIO::toggle()", strFmtPinUninitialized, _pin);
+		Log::error(strGPIO, strFmtPinUninitialized, _pin);
 	}
 	else
 	{
@@ -112,7 +111,7 @@ void GPIO::digitalWrite(bool state)
 {
 	if(GPIO_CAREFUL && arPinStatus[_pin].isInitialized == false)
 	{
-		Log::error("GPIO::digitalWrite()", strFmtPinUninitialized, _pin);
+		Log::error(strGPIO, strFmtPinUninitialized, _pin);
 	}
 	else
 	{
@@ -120,6 +119,9 @@ void GPIO::digitalWrite(bool state)
 			cPinsMap[_pin].pPort, 
 			cPinsMap[_pin].pinNum, 
 			state ? GPIO_PIN_SET : GPIO_PIN_RESET);	
+
+		Log::info(Log::VERBOSITY_2, strGPIO, 
+			"pin %d is %s.", _pin, state ? "set" : "reset");
 	}
 }
 
@@ -128,7 +130,7 @@ bool GPIO::digitalRead()
 {
 	if(GPIO_CAREFUL && arPinStatus[_pin].isInitialized == false)
 	{
-		Log::error("digitalRead()", strFmtPinUninitialized, _pin);
+		Log::error(strGPIO, strFmtPinUninitialized, _pin);
 		return false;
 	}
 	else
@@ -144,7 +146,7 @@ void GPIO::init(InitState state, PinMode mode, PinPull pull)
 {	
 	if (GPIO_CAREFUL && arPinStatus[_pin].isInitialized)
 	{
-		Log::warning("GPIO::init", strFmtPinAlreadyInitialized, _pin);
+		Log::warning(strGPIO, strFmtPinAlreadyInitialized, _pin);
 	}
 	else
 	{
@@ -165,6 +167,7 @@ void GPIO::init(InitState state, PinMode mode, PinPull pull)
 		GPIO_InitStruct.Pull = pull;
 		GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
 		HAL_GPIO_Init(cPinsMap[_pin].pPort, &GPIO_InitStruct);
+		Log::info(strGPIO, "pin %d initialized.", _pin);
 	}
 }
 
@@ -175,6 +178,7 @@ void GPIO::deinit()
 	stop the clock for deeper deinitialization. */
 	HAL_GPIO_DeInit(cPinsMap[_pin].pPort, cPinsMap[_pin].pinNum);	
 	arPinStatus[_pin].isInitialized = false;
+	Log::info(strGPIO, "pin %d deinitialized.", _pin);
 }
 
 } //namespace Hardware
