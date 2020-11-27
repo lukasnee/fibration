@@ -1,11 +1,47 @@
 {
     "tasks": [
-{
-    "label": "build virpesys",
-    "type": "shell",
-    "command": "cd ./Modules/Virpesys/Firmware/; make Virpesys; make flash; cd -",
-    "problemMatcher": []
-}
+	{
+		"label": "build.debug",
+		"type": "shell",
+		"command": "cd Build; ./build.debug.sh",
+		"problemMatcher": []
+	},
+	{
+		"label": "rebuild.debug",
+		"type": "shell",
+		"command": "cd Build; ./rebuild.debug.sh",
+		"problemMatcher": []
+	},
+	{
+		"label": "bf.debug",
+		"type": "shell",
+		"command": "cd Build; ./bf.debug.sh",
+		"problemMatcher": []
+	},
+	{
+		"label": "build.release",
+		"type": "shell",
+		"command": "cd Build; ./build.release.sh",
+		"problemMatcher": []
+	},
+	{
+		"label": "rebuild.release",
+		"type": "shell",
+		"command": "cd Build; ./rebuild.release.sh",
+		"problemMatcher": []
+	},
+	{
+		"label": "bf.release",
+		"type": "shell",
+		"command": "cd Build; ./bf.release.sh",
+		"problemMatcher": []
+	},
+	{
+		"label": "flash",
+		"type": "shell",
+		"command": "cd Build; ./flash-to-stm32.sh Debug/Tests/freertosBlinkyTest/freertosBlinkyTest.bin",
+		"problemMatcher": []
+	}
     ],
     "version": "2.0.0"
 }
