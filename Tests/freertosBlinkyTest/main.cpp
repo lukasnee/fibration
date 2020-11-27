@@ -12,17 +12,12 @@ void vBlinkyTask(void * pvParams)
 	Hardware::GPIO led(Hardware::GPIO::PIN_LED);
 	int i = 0;
 	while(true)
-	{
-		
-		led.digitalWrite(true);
-		vTaskDelay(1000-100);
+	{	
 		led.digitalWrite(false);
 		vTaskDelay(100);
-
-		if(!(i%3)) Log::message("led", "message blink  %d !", i);
-		if(!(i%5)) Log::warning("led", "warning blink  %d !", i);
-		if(!(i%7)) Log::error("led", "error blink %d !", i);
-		i++;
+		led.digitalWrite(true);
+		vTaskDelay(1000-100);
+		Log::info("led", "message blink  %d !", i++);
 	}
 }
 
