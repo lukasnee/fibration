@@ -1,6 +1,8 @@
 #include "stm32f3xx_hal.h"
 #include "stm32f3xx_it.h"
 
+extern DMA_HandleTypeDef hdma_usart1_tx;
+extern DMA_HandleTypeDef hdma_usart1_rx;
 extern TIM_HandleTypeDef htim7;
 
 #define BLINK_TIME_MS 100
@@ -92,6 +94,16 @@ void UsageFault_Handler(void)
 // This function handles Debug monitor.
 void DebugMon_Handler(void)
 {
+}
+
+void DMA1_Channel4_IRQHandler(void)
+{
+  HAL_DMA_IRQHandler(&hdma_usart1_tx);
+}
+
+void DMA1_Channel5_IRQHandler(void)
+{
+  HAL_DMA_IRQHandler(&hdma_usart1_rx);
 }
 
 void TIM7_IRQHandler(void)
