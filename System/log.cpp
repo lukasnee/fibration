@@ -82,14 +82,13 @@ void Log::log(Verbosity verbosity,
 			/* todo could be very inefficient using std::string (memory and 
 			perfomance wise), test this. maybe try https://github.com/fmtlib/fmt 
 			for printig and formatting */
-			printf("%02lu:%02lu.%03lu\t%s\e[0m\t%s\t",
+			printf("\n\r%02lu:%02lu.%03lu\t%s\e[0m\t%s\t",
 				logTick/1000/60, // minutes 
 				logTick/1000%60, // seconds
 				System::getTick()%1000, // milliseconds
 				arLogType[type].c_str(),
 				context.c_str());
 			vprintf(fmt.c_str(), arglist);
-			printf("\n\r");
 		}
 	}
 };
