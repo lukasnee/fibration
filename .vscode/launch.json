@@ -13,7 +13,7 @@
         "type": "cortex-debug",
         "servertype": "stutil",
         "cpu": "cortex-m4", 
-        //"preLaunchTask": "build freertosBlinkyTest",
+        "preLaunchTask": "bf.debug",
         "runToMain": true,
         "svdFile": "${workspaceRoot}/Fibration/Components/Parts/Hardware/STM32F303.svd"
     }     
