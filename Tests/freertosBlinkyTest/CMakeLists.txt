@@ -26,6 +26,7 @@ set(SYSTEM_SRC
 	${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim_ex.c	
 	${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.c	
 	${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart_ex.c	
+	${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_dma.c	
 
 	# STM32F3 system source
 	${ROOT}/System/MSP/stm32f3xx_hal_msp.c

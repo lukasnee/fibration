@@ -6,6 +6,8 @@
 #include <cstdio>
 
 UART_HandleTypeDef huart1;
+DMA_HandleTypeDef hdma_usart1_tx;
+DMA_HandleTypeDef hdma_usart1_rx;
 
 static void Error_Handler()
 {
@@ -69,7 +71,13 @@ static void iostreamOverUartInit()
 {
 	/* Disable I/O buffering for STDOUT stream, so that
    * chars are sent out as soon as they are printed. */
-	setvbuf(stdout, NULL, _IONBF, 0);
+	//setvbuf(stdout, NULL, _IONBF, 0);
+	const size_t stdioBuffSize = 0x400;
+	void * stdioBuff = malloc(stdioBuffSize);
+	if(stdioBuff)
+	{
+		setvbuf(stdout, (char *)stdioBuff, _IOLBF, stdioBuffSize);
+}
 }
 
 static void MX_USART1_UART_Init(void)
@@ -91,19 +99,33 @@ static void MX_USART1_UART_Init(void)
 	iostreamOverUartInit();
 }
 
+static void MX_DMA_Init(void)
+{
+	/* DMA controller clock enable */
+	__HAL_RCC_DMA1_CLK_ENABLE();
+
+	/* DMA interrupt init */
+	/* DMA1_Channel4_IRQn interrupt configuration */
+	HAL_NVIC_SetPriority(DMA1_Channel4_IRQn, 0, 0);
+	HAL_NVIC_EnableIRQ(DMA1_Channel4_IRQn);
+	/* DMA1_Channel5_IRQn interrupt configuration */
+	HAL_NVIC_SetPriority(DMA1_Channel5_IRQn, 0, 0);
+	HAL_NVIC_EnableIRQ(DMA1_Channel5_IRQn);
+}
+
 void System::init()
 {
 	HAL_Init();
 	SystemClock_Config();
-
+	MX_DMA_Init();
 	MX_USART1_UART_Init();
 }
 
 #include <cerrno>
 
-#define STDIN_FILENO  0
-#define STDOUT_FILENO 1
-#define STDERR_FILENO 2
+#define STDIN_FILENO 	0
+#define STDOUT_FILENO 	1
+#define STDERR_FILENO 	2
 
 extern "C" int _write(int fd, char* ptr, int len) {
   HAL_StatusTypeDef hstatus;
