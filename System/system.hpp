@@ -5,8 +5,8 @@
 class System
 {
 public:
-	static void init();
+	static void start();
 	static uint32_t getTick();
 private:
-	
+	static void createSystemTasks();
 };

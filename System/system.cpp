@@ -3,6 +3,9 @@
 #include "stm32f3xx_hal.h"
 #include "stm32f3xx_it.h"
 
+#include "FreeRTOS.h"
+#include "task.h"
+
 #include <cstdio>
 
 UART_HandleTypeDef huart1;
@@ -11,6 +14,7 @@ DMA_HandleTypeDef hdma_usart1_rx;
 
 static void Error_Handler()
 {
+	UsageFault_Handler();
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
@@ -67,21 +71,17 @@ static void SystemClock_Config(void)
 	}
 }
 
-static void iostreamOverUartInit()
+static void vStdioTask(void * pvParams)
 {
-	/* Disable I/O buffering for STDOUT stream, so that
-   * chars are sent out as soon as they are printed. */
-	//setvbuf(stdout, NULL, _IONBF, 0);
-	const size_t stdioBuffSize = 0x400;
-	void * stdioBuff = malloc(stdioBuffSize);
-	if(stdioBuff)
-	{
-		setvbuf(stdout, (char *)stdioBuff, _IOLBF, stdioBuffSize);
-}
-}
+	__HAL_RCC_DMA1_CLK_ENABLE();
+	/* DMA interrupt init */
+	/* DMA1_Channel4_IRQn interrupt configuration */
+	HAL_NVIC_SetPriority(DMA1_Channel4_IRQn, 0, 0);
+	HAL_NVIC_EnableIRQ(DMA1_Channel4_IRQn);
+	/* DMA1_Channel5_IRQn interrupt configuration */
+	HAL_NVIC_SetPriority(DMA1_Channel5_IRQn, 0, 0);
+	HAL_NVIC_EnableIRQ(DMA1_Channel5_IRQn);
 
-static void MX_USART1_UART_Init(void)
-{
 	huart1.Instance = USART1;
 	huart1.Init.BaudRate = 115200;
 	huart1.Init.WordLength = UART_WORDLENGTH_8B;
@@ -96,29 +96,70 @@ static void MX_USART1_UART_Init(void)
 	{
 		Error_Handler();
 	}
-	iostreamOverUartInit();
+
+	/* Disable I/O buffering for STDOUT stream, so that
+   * chars are sent out as soon as they are printed. */
+	//setvbuf(stdout, NULL, _IONBF, 0);
+	const size_t stdioBuffSize = 0x400; 
+	void * stdioBuff = pvPortMalloc(stdioBuffSize);
+	if(stdioBuff)
+	{
+		setvbuf(stdout, (char *)stdioBuff, _IOLBF, stdioBuffSize);
+}
+	for(;;)
+	{
+		vTaskDelay(20);
+	}
+	vPortFree(stdioBuff);	
 }
 
-static void MX_DMA_Init(void)
+void vMainTask(void *); // main application task
+
+struct TaskCreateParams {
+	TaskFunction_t pxTaskCode; 
+	const char *const pcName;
+	const uint16_t usStackDepth; 
+	void *const pvParameters; 
+	UBaseType_t uxPriority; 
+	TaskHandle_t *const pxCreatedTask;
+};
+
+void System::createSystemTasks()
 {
-	/* DMA controller clock enable */
-	__HAL_RCC_DMA1_CLK_ENABLE();
+	TaskCreateParams arSystemTasks[] = 
+	{
+		{vStdioTask, "stdio", 0x200, NULL, 16, NULL},
+		{vMainTask, "main", 0x200, NULL, 1, NULL},
+	};
 
-	/* DMA interrupt init */
-	/* DMA1_Channel4_IRQn interrupt configuration */
-	HAL_NVIC_SetPriority(DMA1_Channel4_IRQn, 0, 0);
-	HAL_NVIC_EnableIRQ(DMA1_Channel4_IRQn);
-	/* DMA1_Channel5_IRQn interrupt configuration */
-	HAL_NVIC_SetPriority(DMA1_Channel5_IRQn, 0, 0);
-	HAL_NVIC_EnableIRQ(DMA1_Channel5_IRQn);
+	for(TaskCreateParams &tc : arSystemTasks)
+	{
+		BaseType_t xReturned = xTaskCreate(
+			tc.pxTaskCode, 
+			tc.pcName, 
+			tc.usStackDepth, 
+			tc.pvParameters, 
+			tc.uxPriority, 
+			tc.pxCreatedTask);		
+	
+		if(xReturned == pdFAIL) 
+		{
+			Error_Handler();
+			break;
+		}
+	}
 }
 
-void System::init()
+void System::start()
 {
 	HAL_Init();
 	SystemClock_Config();
-	MX_DMA_Init();
-	MX_USART1_UART_Init();
+
+ 	System::createSystemTasks();
+
+	vTaskStartScheduler();
+
+	while(true); // should never reach
 }
 
 #include <cerrno>
@@ -158,4 +199,9 @@ extern "C" int _read(int fd, char* ptr, int len) {
 uint32_t System::getTick()
 {
 	return HAL_GetTick();
+}
+
+int main()
+{  
+	System::start(); // never returns
 }
