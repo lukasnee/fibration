@@ -42,7 +42,11 @@
 		"stdexcept": "cpp",
 		"streambuf": "cpp",
 		"typeinfo": "cpp",
-		"cerrno": "cpp"
+		"cerrno": "cpp",
+		"climits": "cpp",
+		"ios": "cpp",
+		"queue": "cpp"
 	},
-    "cmake.configureOnOpen": true
+	"cmake.configureOnOpen": true,
+	"C_Cpp.errorSquiggles": "Disabled"
 }

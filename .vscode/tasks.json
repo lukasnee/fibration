@@ -16,17 +16,17 @@
 		"label": "bf.debug",
 		"type": "shell",
 		"command": "cd Build; ./bf.debug.sh",
-		"group": {
-			"kind": "build",
-			"isDefault": true
-		}
-		"problemMatcher": []
+		"problemMatcher": "$gcc"
 	},
 	{
 		"label": "build.release",
 		"type": "shell",
 		"command": "cd Build; ./build.release.sh",
-		"problemMatcher": []
+		"group": {
+			"kind": "build",
+			"isDefault": true
+		},
+		"problemMatcher": "$gcc"
 	},
 	{
 		"label": "rebuild.release",
