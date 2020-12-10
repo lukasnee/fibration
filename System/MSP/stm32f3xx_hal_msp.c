@@ -60,17 +60,22 @@ void HAL_UART_MspInit(UART_HandleTypeDef *huart)
 			Error_Handler();
 		}
 		__HAL_LINKDMA(huart, hdmarx, hdma_usart1_rx);
+
+		HAL_NVIC_SetPriority(USART1_IRQn, 0, 0);
+		HAL_NVIC_EnableIRQ(USART1_IRQn);
+
 	}
 }
 
 void HAL_UART_MspDeInit(UART_HandleTypeDef *huart)
 {
 	if (huart->Instance == USART1)
-	{
+	 {
 		__HAL_RCC_USART1_CLK_DISABLE();
 
 		HAL_GPIO_DeInit(GPIOA, GPIO_PIN_9 | GPIO_PIN_10); // uart1
 		HAL_DMA_DeInit(huart->hdmatx);
     	HAL_DMA_DeInit(huart->hdmarx);
 	}
+    HAL_NVIC_DisableIRQ(USART1_IRQn);
 }
