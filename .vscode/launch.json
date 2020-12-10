@@ -1,21 +1,21 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-
-	    {
-        "cwd": "${workspaceRoot}",
-        "executable": "${workspaceRoot}/Build/Debug/Tests/freertosBlinkyTest/freertosBlinkyTest",
-        "name": "freertosBlinkyTest",
-        "request": "launch",
-        "type": "cortex-debug",
-        "servertype": "stutil",
-        "cpu": "cortex-m4", 
-        "preLaunchTask": "bf.debug",
-        "runToMain": true,
-        "svdFile": "${workspaceRoot}/Fibration/Components/Parts/Hardware/STM32F303.svd"
-    }     
-    ]
+	// Use IntelliSense to learn about possible attributes.
+	// Hover to view descriptions of existing attributes.
+	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "freertosBlinkyTest",
+			"cwd": "${workspaceRoot}",
+			"request": "launch",
+			"type": "cortex-debug",
+			"servertype": "stutil",
+			"cpu": "cortex-m4", 
+			"preLaunchTask": "bf.debug",
+			"executable": "${workspaceRoot}/Build/Debug/Tests/freertosBlinkyTest/freertosBlinkyTest",
+			"svdFile": "${workspaceRoot}/Fibration/Components/Parts/Hardware/STM32F303.svd",
+			"interface": "swd",
+			"runToMain": true,
+		}     
+	]
 }
