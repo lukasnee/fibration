@@ -5,14 +5,14 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": "freertosBlinkyTest",
+			"name": "blinkTest",
 			"cwd": "${workspaceRoot}",
 			"request": "launch",
 			"type": "cortex-debug",
 			"servertype": "stutil",
 			"cpu": "cortex-m4", 
-			"preLaunchTask": "bf.debug",
-			"executable": "${workspaceRoot}/Build/Debug/Tests/freertosBlinkyTest/freertosBlinkyTest",
+			"preLaunchTask": "debug blinkTest",
+			"executable": "${workspaceRoot}/Build/Debug/Tests/blinkTest/blinkTest",
 			"svdFile": "${workspaceRoot}/Fibration/Components/Parts/Hardware/STM32F303.svd",
 			"interface": "swd",
 			"runToMain": true,
