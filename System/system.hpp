@@ -5,7 +5,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "peripheral.hpp"
+#include "peripherals.hpp"
 #include "log.hpp"
 
 class System // todo make singleton
@@ -13,11 +13,12 @@ class System // todo make singleton
 public:
 	static void run();
 	static void stop();
-	static uint32_t getTick();
+	static std::uint32_t getTick();
 	static void error();
+	
 private:
 	static void hardwareInit();
-	static void createTask(uint32_t priority);
+	static void createTask(std::uint32_t priority);
 
 	static TaskHandle_t hMainTask;
 };
