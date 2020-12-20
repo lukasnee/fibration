@@ -7,6 +7,11 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+int main()
+{
+	System::run(); // never returns
+}
+
 static void Error_Handler()
 {
 	UsageFault_Handler();
@@ -79,8 +84,8 @@ uint32_t System::getTick()
 
 void System::createTask(UBaseType_t priority)
 {
-	BaseType_t xReturned = xTaskCreate(vMainTask, 
-		"main", 0x200, NULL, 1, &hMainTask);		
+	BaseType_t xReturned;
+	xReturned = xTaskCreate(vMainTask, "main", 0x200, NULL, 1, &hMainTask);		
 
 	if(xReturned == pdFAIL) 
 	{

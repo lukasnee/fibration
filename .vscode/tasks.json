@@ -13,12 +13,6 @@
 		"problemMatcher": []
 	},
 	{
-		"label": "bf.debug",
-		"type": "shell",
-		"command": "cd Build; ./bf.debug.sh",
-		"problemMatcher": "$gcc"
-	},
-	{
 		"label": "build.release",
 		"type": "shell",
 		"command": "cd Build; ./build.release.sh",
@@ -35,15 +29,15 @@
 		"problemMatcher": []
 	},
 	{
-		"label": "bf.release",
+		"label": "debug blinkTest",
 		"type": "shell",
-		"command": "cd Build; ./bf.release.sh",
+		"command": "cd Build; ./build.debug.sh; ./flash-to-stm32.sh Release/Tests/blinkTest/blinkTest.bin",
 		"problemMatcher": []
-	},
+	}
 	{
-		"label": "flash",
+		"label": "flash blinkTest release",
 		"type": "shell",
-		"command": "cd Build; ./flash-to-stm32.sh Release/Tests/freertosBlinkyTest/freertosBlinkyTest.bin",
+		"command": "cd Build; ./flash-to-stm32.sh Release/Tests/blinkTest/blinkTest.bin",
 		"problemMatcher": []
 	}
     ],

@@ -1,5 +1,5 @@
 
-project(freertosBlinkyTest)
+project(blinkTest)
 
 enable_language(CXX C ASM)
 
@@ -52,11 +52,11 @@ set(SYSTEM_SRC
 	${ROOT}/System/FreeRTOSConfig.h
 
 	# Fibration hardware interface
-	${ROOT}/System/main.cpp
 	${ROOT}/System/system.cpp
 	${ROOT}/System/system.hpp
 
-	${ROOT}/System/peripheral.hpp
+	${ROOT}/System/peripherals.cpp
+	${ROOT}/System/peripherals.hpp
 	${ROOT}/System/uart.cpp
 	${ROOT}/System/uart.hpp
 	${ROOT}/System/dmaQueue.cpp
