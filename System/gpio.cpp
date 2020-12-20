@@ -16,169 +16,140 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "stm32f3xx_hal.h"
-
+#include "gpio.hpp"
 #include "system.hpp"
 
-#include "gpio.hpp"
+#include "stm32f3xx_hal.h"
 
-namespace Hardware {
-
-struct PinData
+static GPIO_TypeDef * sGetPort(Gpio::Port port)
 {
-	GPIO_TypeDef * pPort; 
-	uint16_t pinNum;
-};
+	const GPIO_TypeDef * cMap[Gpio::Port::_PORT_ENUM_MAX + 1] = {
+		GPIOA, GPIOB, GPIOC, GPIOD, GPIOE, GPIOF
+	};
+	return const_cast<GPIO_TypeDef *>(cMap[port]);
+}
 
-// map out arbitrary alphabetic pins to your hardware pins
-const PinData cPinsMap[] =
+static uint16_t sGetPin(Gpio::Pin pin)
 {
-	//{ nullptr, 0}, 		// is PIN_UNKNOWN (undefined)
+	const uint16_t cMap[Gpio::Pin::_PIN_ENUM_MAX + 1] = {
+		GPIO_PIN_0, GPIO_PIN_1, GPIO_PIN_2, GPIO_PIN_3,
+		GPIO_PIN_4, GPIO_PIN_5, GPIO_PIN_6, GPIO_PIN_7,
+		GPIO_PIN_8, GPIO_PIN_9, GPIO_PIN_10, GPIO_PIN_11,
+		GPIO_PIN_12, GPIO_PIN_13, GPIO_PIN_14, GPIO_PIN_15
+	};
+	return cMap[pin];
+}
 
-	{ GPIOA, GPIO_PIN_0},	// is PIN_0
-	{ GPIOA, GPIO_PIN_1},	// is PIN_1
-	{ GPIOA, GPIO_PIN_2},	// is PIN_2
-	{ GPIOA, GPIO_PIN_3},	// is PIN_3
-	{ GPIOA, GPIO_PIN_4},	// is PIN_4
-	{ GPIOA, GPIO_PIN_5},	// is PIN_5
-	{ GPIOA, GPIO_PIN_6},	// is PIN_6
-	{ GPIOA, GPIO_PIN_7},	// is PIN_7
-	{ GPIOA, GPIO_PIN_8},	// is PIN_8
-	{ GPIOA, GPIO_PIN_9},	// is PIN_9
-	{ GPIOA, GPIO_PIN_10},	// is PIN_A
-	{ GPIOA, GPIO_PIN_11},	// is PIN_B
-	{ GPIOA, GPIO_PIN_12},	// is PIN_C
-// 	{ GPIOA, GPIO_PIN_13},	// is PIN_D used for SWIO
-// 	{ GPIOA, GPIO_PIN_14},	// is PIN_E used for SWCLK
-	{ GPIOA, GPIO_PIN_15}, 	// is PIN_F
-
-	{ GPIOB, GPIO_PIN_0},	// is PIN_10
-	{ GPIOB, GPIO_PIN_1},	// is PIN_11
-//	{ GPIOB, GPIO_PIN_2}, // is PIN_12 used for BOOT1
-	{ GPIOB, GPIO_PIN_3},	// is PIN_13
-	{ GPIOB, GPIO_PIN_4},	// is PIN_14
-	{ GPIOB, GPIO_PIN_5},	// is PIN_15
-	{ GPIOB, GPIO_PIN_6},	// is PIN_16
-	{ GPIOB, GPIO_PIN_7},	// is PIN_17
-	{ GPIOB, GPIO_PIN_8},	// is PIN_18
-	{ GPIOB, GPIO_PIN_9},	// is PIN_19
-	{ GPIOB, GPIO_PIN_10},	// is PIN_1A
-	{ GPIOB, GPIO_PIN_11},	// is PIN_1B
-	{ GPIOB, GPIO_PIN_12},	// is PIN_1C
-	{ GPIOB, GPIO_PIN_13},	// is PIN_1D
-	{ GPIOB, GPIO_PIN_14},	// is PIN_1E
-	{ GPIOB, GPIO_PIN_15},	// is PIN_1F
-
-	{ GPIOC, GPIO_PIN_13},	// is PIN_2C, RobotDyn LED pin, active LOW
-	{ GPIOC, GPIO_PIN_14},	// is PIN_2D
-	{ GPIOC, GPIO_PIN_15},	// is PIN_2E
-};
-
-
-GPIO::PinStatus GPIO::arPinStatus[PIN_TOTAL] = { 0 };
-
-static const std::string strGPIO = "GPIO";
-static const std::string strFmtPinUninitialized = "pin #%d uninitialized.";
-static const std::string strFmtPinAlreadyInitialized = "pin #%d already initialized.";
-
-GPIO::GPIO(Pin pin, InitState state, PinMode mode, PinPull pull) 
-	: _pin(pin)
+static uint32_t sGetMode(Gpio::Mode mode)
 {
-	init(state, mode, pull);
+	const uint32_t cMap[Gpio::Mode::_MODE_ENUM_MAX + 1] = {
+		GPIO_MODE_INPUT, 
+		GPIO_MODE_OUTPUT_PP, 
+		GPIO_MODE_OUTPUT_OD
+	};
+	return cMap[mode];
+}
+
+static uint32_t sGetPull(Gpio::Pull pull)
+{
+	const uint32_t cMap[Gpio::Pull::_PULL_ENUM_MAX + 1] = {
+		GPIO_NOPULL,
+		GPIO_PULLUP,
+		GPIO_PULLDOWN
+	};
+	return cMap[pull];
+}
+
+static uint32_t sGetSpeed(Gpio::Speed speed)
+{
+	const uint32_t cMap[Gpio::Speed::_SPEED_ENUM_MAX + 1] = {
+		GPIO_SPEED_FREQ_LOW,
+		GPIO_SPEED_FREQ_MEDIUM,
+		GPIO_SPEED_FREQ_HIGH
+	};
+	return cMap[speed];
+}
+
+static void sEnableGpioClock(Gpio::Port port)
+{
+	switch(port)
+	{
+		case Gpio::Port::A: __HAL_RCC_GPIOA_CLK_ENABLE(); break;
+		case Gpio::Port::B: __HAL_RCC_GPIOB_CLK_ENABLE(); break;
+		case Gpio::Port::C: __HAL_RCC_GPIOC_CLK_ENABLE(); break;
+		case Gpio::Port::D: __HAL_RCC_GPIOD_CLK_ENABLE(); break;
+		case Gpio::Port::F: __HAL_RCC_GPIOF_CLK_ENABLE(); break;
+		default: break;
+	}
+}
+
+static void sGpioInit(
+	Gpio::Port port, 
+	Gpio::Pin pin, 
+	Gpio::Mode mode, 
+	Gpio::Pull pull, 
+	Gpio::Speed speed)
+{
+	GPIO_InitTypeDef GPIO_InitStruct = { 0 };
+	GPIO_InitStruct.Pin = sGetPin(pin);
+	GPIO_InitStruct.Mode = sGetMode(mode);
+	GPIO_InitStruct.Pull = sGetPull(pull);
+	GPIO_InitStruct.Speed = sGetSpeed(speed);
+	HAL_GPIO_Init(sGetPort(port), &GPIO_InitStruct);
 }
 
 
-GPIO::~GPIO()
+
+Gpio::Gpio(Port port, Pin pin) : 
+	_port(port), 
+	_pin(pin), 
+	_mode(Mode::Output_PP), 
+	_pull(Pull::None), 
+	_speed(Speed::Low)
+{
+}
+
+
+void Gpio::init(bool initState, Mode mode, Pull pull, Speed speed)
+{
+	_mode = mode;
+	_pull = pull;
+	_speed = speed;
+
+	write(initState);
+
+	sEnableGpioClock(_port);
+	sGpioInit(_port, _pin, _mode, _pull, _speed);
+}
+
+
+bool Gpio::read()
+{
+	return (bool)HAL_GPIO_ReadPin(sGetPort(_port), sGetPin(_pin));
+}
+
+
+void Gpio::write(bool state)
+{
+	HAL_GPIO_WritePin(sGetPort(_port), sGetPin(_pin), 
+		state ? GPIO_PIN_SET : GPIO_PIN_RESET);	
+}
+
+
+void Gpio::toggle()
+{
+	HAL_GPIO_TogglePin(sGetPort(_port), sGetPin(_pin));
+}
+
+
+void Gpio::deinit()
+{
+	HAL_GPIO_DeInit(sGetPort(_port), sGetPin(_pin)); 
+	// note gpio related clock still remain enabled
+}
+
+
+Gpio::~Gpio()
 {
 	deinit();
 }
-
-
-void GPIO::toggle()
-{
-	if(GPIO_CAREFUL && arPinStatus[_pin].isInitialized == false)
-	{
-		Log::error(strGPIO, strFmtPinUninitialized, _pin);
-	}
-	else
-	{
-		HAL_GPIO_TogglePin(cPinsMap[_pin].pPort, cPinsMap[_pin].pinNum);
-	}
-}
-
-
-void GPIO::digitalWrite(bool state)
-{
-	if(GPIO_CAREFUL && arPinStatus[_pin].isInitialized == false)
-	{
-		Log::error(strGPIO, strFmtPinUninitialized, _pin);
-	}
-	else
-	{
-		HAL_GPIO_WritePin(
-			cPinsMap[_pin].pPort, 
-			cPinsMap[_pin].pinNum, 
-			state ? GPIO_PIN_SET : GPIO_PIN_RESET);	
-
-		Log::info(Log::VERBOSITY_2, strGPIO, 
-			"pin %d is %s.", _pin, state ? "set" : "reset");
-	}
-}
-
-
-bool GPIO::digitalRead()
-{
-	if(GPIO_CAREFUL && arPinStatus[_pin].isInitialized == false)
-	{
-		Log::error(strGPIO, strFmtPinUninitialized, _pin);
-		return false;
-	}
-	else
-	{
-		return (bool)HAL_GPIO_ReadPin(
-			cPinsMap[_pin].pPort, 
-			cPinsMap[_pin].pinNum);
-	}
-}
-
-
-void GPIO::init(InitState state, PinMode mode, PinPull pull) 
-{	
-	if (GPIO_CAREFUL && arPinStatus[_pin].isInitialized)
-	{
-		Log::warning(strGPIO, strFmtPinAlreadyInitialized, _pin);
-	}
-	else
-	{
-		switch((uint32_t)cPinsMap[_pin].pPort)
-		{
-			case GPIOA_BASE: __HAL_RCC_GPIOA_CLK_ENABLE(); break;
-			case GPIOB_BASE: __HAL_RCC_GPIOB_CLK_ENABLE(); break;
-			case GPIOC_BASE: __HAL_RCC_GPIOC_CLK_ENABLE(); break;
-			case GPIOF_BASE: __HAL_RCC_GPIOF_CLK_ENABLE(); break;
-		}
-
-		arPinStatus[_pin].isInitialized = true;
-		digitalWrite(state);
-
-		GPIO_InitTypeDef GPIO_InitStruct = { 0 };
-		GPIO_InitStruct.Pin = cPinsMap[_pin].pinNum;
-		GPIO_InitStruct.Mode = mode;
-		GPIO_InitStruct.Pull = pull;
-		GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
-		HAL_GPIO_Init(cPinsMap[_pin].pPort, &GPIO_InitStruct);
-		Log::info(strGPIO, "pin %d initialized.", _pin);
-	}
-}
-
-
-void GPIO::deinit() 
-{
-	/* todo maybe if all port X pins are deinitialized,
-	stop the clock for deeper deinitialization. */
-	HAL_GPIO_DeInit(cPinsMap[_pin].pPort, cPinsMap[_pin].pinNum);	
-	arPinStatus[_pin].isInitialized = false;
-	Log::info(strGPIO, "pin %d deinitialized.", _pin);
-}
-
-} //namespace Hardware

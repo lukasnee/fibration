@@ -19,95 +19,58 @@
 
 #define GPIO_CAREFUL true
 
-namespace Hardware
-{
+#include <cstdint>
 
-class GPIO
+class Gpio
 {
 public:
-	enum Pin
-	{
-		PIN_0,
-		PIN_1,
-		PIN_2,
-		PIN_3,
-		PIN_4,
-		PIN_5,
-		PIN_6,
-		PIN_7,
-		PIN_8,
-		PIN_9,
-		PIN_A,
-		PIN_B,
-		PIN_C,
-//		PIN_D, // used for SWIO
-//		PIN_E, // used for SWCLK
-		PIN_F,
-
-		PIN_10,
-		PIN_11,
-//		PIN_12, // used for BOOT1
-		PIN_13,
-		PIN_14,
-		PIN_15,
-		PIN_16,
-		PIN_17,
-		PIN_18,
-		PIN_19,
-		PIN_1A,
-		PIN_1B,
-		PIN_1C,
-		PIN_1D,
-		PIN_1E,
-		PIN_1F,
-
-		PIN_2C, PIN_LED = PIN_2C, // RobotDyn LED pin, active LOW 
-		PIN_2D,
-		PIN_2E,
-
-	PIN_TOTAL};
-
-	enum InitState
-	{
-		INIT_STATE_RESET,
-		INIT_STATE_SET
+	enum Port : std::size_t 
+	{ 
+		A, B, C, D, E, F, 
+		
+	_PORT_ENUM_MAX = F 
 	};
 
-	enum PinMode
+	enum Pin : std::size_t
 	{
-		PIN_MODE_INPUT,
-		PIN_MODE_OUTPUT
+		P0, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15,
+
+	_PIN_ENUM_MAX = P15
 	};
 
-	enum PinPull
+	enum Mode : std::size_t
 	{
-		PIN_PULL_NONE,
-		PIN_PULL_UP,
-		PIN_PULL_DOWN
+		Input,
+		Output_PP, // push/pull
+		Output_OD, // open drain
+		// support more
+	_MODE_ENUM_MAX = Output_OD
 	};
 
-	GPIO(Pin pin, 
-		InitState state = INIT_STATE_RESET,
-		PinMode mode = PIN_MODE_OUTPUT,
-		PinPull pull = PIN_PULL_NONE);
-	~GPIO();
+	enum Pull : std::size_t 
+	{ 
+		None, Up, Down, 
+	_PULL_ENUM_MAX = Down
+	};
+
+	enum Speed : std::size_t 
+	{ 
+		Low, Medium, High, 
+	_SPEED_ENUM_MAX = High 
+	};
+
+	Gpio(Port port, Pin pin);
+	void init(bool initState = false, Mode mode = Output_PP, Pull pull = None, Speed speed = Low);
+	bool read();
+	void write(bool state);
 	void toggle();
-	void digitalWrite(bool state);
-	bool digitalRead();
-
-private:		
-	void init(
-		InitState state = INIT_STATE_RESET,
-		PinMode mode = PIN_MODE_OUTPUT,
-		PinPull pull = PIN_PULL_NONE);
 	void deinit();
+	~Gpio();
 
-	struct PinStatus
-	{
-		bool isInitialized;
-	};
-
+private:
+	Port _port;
 	Pin _pin;
-	static PinStatus arPinStatus[PIN_TOTAL];
+	Mode _mode;
+	Pull _pull;
+	Speed _speed;
 };
-} //namespace Hardware
