@@ -7,7 +7,7 @@ enable_language(C ASM)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 # set(CMAKE_C_EXTENSIONS OFF)
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 set(ROOT ${CMAKE_SOURCE_DIR})
 
@@ -52,12 +52,20 @@ set(SYSTEM_SRC
 	${ROOT}/System/FreeRTOSConfig.h
 
 	# Fibration hardware interface
+	${ROOT}/System/main.cpp
 	${ROOT}/System/system.cpp
 	${ROOT}/System/system.hpp
-	${ROOT}/System/gpio.cpp
-	${ROOT}/System/gpio.hpp	
+
+	${ROOT}/System/peripheral.hpp
+	${ROOT}/System/uart.cpp
+	${ROOT}/System/uart.hpp
+	${ROOT}/System/dmaQueue.cpp
+	${ROOT}/System/dmaQueue.hpp
 	${ROOT}/System/log.cpp
 	${ROOT}/System/log.hpp
+
+	${ROOT}/System/gpio.cpp
+	${ROOT}/System/gpio.hpp	
 )
 
 add_executable(${PROJECT_NAME} 
