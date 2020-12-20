@@ -43,7 +43,7 @@
 	{
 		"label": "flash",
 		"type": "shell",
-		"command": "cd Build; ./flash-to-stm32.sh Debug/Tests/freertosBlinkyTest/freertosBlinkyTest.bin",
+		"command": "cd Build; ./flash-to-stm32.sh Release/Tests/freertosBlinkyTest/freertosBlinkyTest.bin",
 		"problemMatcher": []
 	}
     ],

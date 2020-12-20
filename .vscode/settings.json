@@ -45,7 +45,13 @@
 		"cerrno": "cpp",
 		"climits": "cpp",
 		"ios": "cpp",
-		"queue": "cpp"
+		"queue": "cpp",
+		"mutex": "cpp",
+		"chrono": "cpp",
+		"condition_variable": "cpp",
+		"ctime": "cpp",
+		"ratio": "cpp",
+		"thread": "cpp"
 	},
 	"cmake.configureOnOpen": true,
 	"C_Cpp.errorSquiggles": "Disabled"
