@@ -8,18 +8,17 @@
 
 void vMainTask(void * pvParams)
 {
-	Gpio & onBoardLed = Periph::getGpio(Gpio::Port::A, Gpio::Pin::P13);
+	Gpio & onBoardLed = Periph::getGpio(Gpio::Port::C, Gpio::Pin::P13);
 	onBoardLed.init(false, Gpio::Mode::Output_PP);
 	int i = 0;
  
 	for(;;)
 	{	
 		onBoardLed.write(false);
-		vTaskDelay(100);
+		vTaskDelay(500);
 		onBoardLed.write(true);
-		vTaskDelay(1000-100);
+		vTaskDelay(500);
 		Log::info("led", "message blink  %d !", i++);
 	}
 	vTaskDelete(NULL);
 }
- 
