@@ -68,9 +68,10 @@ public:
 	~Gpio();
 
 private:
-	Port _port;
-	Pin _pin;
-	Mode _mode;
-	Pull _pull;
-	Speed _speed;
+	Port port;
+	Pin pin;
+	Mode mode;
+	Pull pull;
+	Speed speed;
+	bool isInitialized;
 };

@@ -101,50 +101,52 @@ static void sGpioInit(
 
 
 Gpio::Gpio(Port port, Pin pin) : 
-	_port(port), 
-	_pin(pin), 
-	_mode(Mode::Output_PP), 
-	_pull(Pull::None), 
-	_speed(Speed::Low)
+	port(port), 
+	pin(pin), 
+	mode(Mode::Output_PP), 
+	pull(Pull::None), 
+	speed(Speed::Low),
+	isInitialized(false)
 {
 }
 
 
 void Gpio::init(bool initState, Mode mode, Pull pull, Speed speed)
 {
-	_mode = mode;
-	_pull = pull;
-	_speed = speed;
+	this->mode = mode;
+	this->pull = pull;
+	this->speed = speed;
 
 	write(initState);
 
-	sEnableGpioClock(_port);
-	sGpioInit(_port, _pin, _mode, _pull, _speed);
+	sEnableGpioClock(this->port);
+	sGpioInit(this->port, this->pin, this->mode, this->pull, this->speed);
+	isInitialized = true;
 }
 
 
 bool Gpio::read()
 {
-	return (bool)HAL_GPIO_ReadPin(sGetPort(_port), sGetPin(_pin));
+	return (bool)HAL_GPIO_ReadPin(sGetPort(this->port), sGetPin(this->pin));
 }
 
 
 void Gpio::write(bool state)
 {
-	HAL_GPIO_WritePin(sGetPort(_port), sGetPin(_pin), 
+	HAL_GPIO_WritePin(sGetPort(this->port), sGetPin(this->pin), 
 		state ? GPIO_PIN_SET : GPIO_PIN_RESET);	
 }
 
 
 void Gpio::toggle()
 {
-	HAL_GPIO_TogglePin(sGetPort(_port), sGetPin(_pin));
+	HAL_GPIO_TogglePin(sGetPort(this->port), sGetPin(this->pin));
 }
 
 
 void Gpio::deinit()
 {
-	HAL_GPIO_DeInit(sGetPort(_port), sGetPin(_pin)); 
+	HAL_GPIO_DeInit(sGetPort(this->port), sGetPin(this->pin)); 
 	// note gpio related clock still remain enabled
 }
 
