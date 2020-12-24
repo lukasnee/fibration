@@ -11,7 +11,7 @@
 			"type": "cortex-debug",
 			"servertype": "stutil",
 			"cpu": "cortex-m4", 
-			"preLaunchTask": "debug blinkTest",
+			"preLaunchTask": "GNU Debug: blinkTest",
 			"executable": "${workspaceRoot}/Build/Debug/Tests/blinkTest/blinkTest",
 			"svdFile": "${workspaceRoot}/Fibration/Components/Parts/Hardware/STM32F303.svd",
 			"interface": "swd",

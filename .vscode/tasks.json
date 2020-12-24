@@ -1,45 +1,88 @@
 {
-    "tasks": [
-	{
-		"label": "build.debug",
-		"type": "shell",
-		"command": "cd Build; ./build.debug.sh",
-		"problemMatcher": []
-	},
-	{
-		"label": "rebuild.debug",
-		"type": "shell",
-		"command": "cd Build; ./rebuild.debug.sh",
-		"problemMatcher": []
-	},
-	{
-		"label": "build.release",
-		"type": "shell",
-		"command": "cd Build; ./build.release.sh",
-		"group": {
-			"kind": "build",
-			"isDefault": true
+	"tasks": [
+		{
+			"label": "See real-time Log (minicom)",
+			"type": "shell",
+			"linux": {
+				"command": "minicom -c on"
+			},
+			"presentation": {
+				"focus": true,
+				"panel": "dedicated",
+				"revealProblems": "onProblem"
+			},
+			"problemMatcher": []
 		},
-		"problemMatcher": "$gcc"
-	},
-	{
-		"label": "rebuild.release",
-		"type": "shell",
-		"command": "cd Build; ./rebuild.release.sh",
-		"problemMatcher": []
-	},
-	{
-		"label": "debug blinkTest",
-		"type": "shell",
-		"command": "cd Build; ./build.debug.sh; ./flash-to-stm32.sh Release/Tests/blinkTest/blinkTest.bin",
-		"problemMatcher": []
-	}
-	{
-		"label": "flash blinkTest release",
-		"type": "shell",
-		"command": "cd Build; ./flash-to-stm32.sh Release/Tests/blinkTest/blinkTest.bin",
-		"problemMatcher": []
-	}
-    ],
-    "version": "2.0.0"
+		{
+			"label": "Build All (Debug)",
+			"type": "shell",
+			"group": "build",
+			"linux": {
+				"command": "cd Build; ./build.debug.sh",
+				"problemMatcher": "$gcc"
+			},
+			"presentation": {
+				"revealProblems": "onProblem"
+			}
+		},
+		{
+			"label": "Rebuild All (Debug)",
+			"type": "shell",
+			"group": "build",
+			"linux": {
+				"command": "cd Build; ./rebuild.debug.sh",
+				"problemMatcher": "$gcc"
+			},
+			"presentation": {
+				"revealProblems": "onProblem"
+			}
+		},
+		{
+			"label": "Build All (Release)",
+			"type": "shell",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"linux": {
+				"command": "cd Build; ./build.release.sh",
+				"problemMatcher": "$gcc"
+			},
+			"presentation": {
+				"revealProblems": "onProblem"
+			}
+		},
+		{
+			"label": "Rebuild All (Release)",
+			"type": "shell",
+			"group": "build",
+			"linux": {
+				"command": "cd Build; ./rebuild.release.sh",
+				"problemMatcher": "$gcc"
+			},
+			"presentation": {
+				"revealProblems": "onProblem"
+			}
+		},
+		{
+			"label": "GNU Debug: blinkTest",
+			"type": "shell",
+			"group": "test",
+			"linux": {
+				"command": "cd Build; ./build.debug.sh; ./flash-to-stm32.sh Release/Tests/blinkTest/blinkTest.bin"
+			}
+		},
+		{
+			"label": "Flash (Release): blinkTest",
+			"type": "shell",
+			"group": {
+				"kind": "test",
+				"isDefault": true
+			},
+			"linux": {
+				"command": "cd Build; ./flash-to-stm32.sh Release/Tests/blinkTest/blinkTest.bin"
+			}
+		}
+	],
+	"version": "2.0.0"
 }
