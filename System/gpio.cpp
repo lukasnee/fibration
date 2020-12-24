@@ -102,10 +102,7 @@ static void sGpioInit(
 
 Gpio::Gpio(Port port, Pin pin) : 
 	port(port), 
-	pin(pin), 
-	mode(Mode::Output_PP), 
-	pull(Pull::None), 
-	speed(Speed::Low),
+	pin(pin),
 	isInitialized(false)
 {
 }
@@ -113,14 +110,10 @@ Gpio::Gpio(Port port, Pin pin) :
 
 void Gpio::init(bool initState, Mode mode, Pull pull, Speed speed)
 {
-	this->mode = mode;
-	this->pull = pull;
-	this->speed = speed;
-
 	write(initState);
 
 	sEnableGpioClock(this->port);
-	sGpioInit(this->port, this->pin, this->mode, this->pull, this->speed);
+	sGpioInit(this->port, this->pin, mode, pull, speed);
 	isInitialized = true;
 }
 
