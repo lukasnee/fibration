@@ -7,9 +7,11 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+static const char * szFIBSYS = "FIBSYS"; // log context
+
 int main()
 {
-	System::run(); // never returns
+	FibSys::run(); // never returns
 }
 
 static void Error_Handler()
@@ -69,46 +71,74 @@ static void SystemClock_Config(void)
 	}
 }
 
-TaskHandle_t System::hMainTask = NULL;
+size_t FibSys::initialFreeHeapSize = 0;
+size_t FibSys::freeHeapSize = 0; 
 
-void System::hardwareInit()
+TaskHandle_t FibSys::hSystemTask = NULL;
+TaskHandle_t FibSys::hMainTask = NULL;
+
+void FibSys::taskDelay(std::uint32_t ms)
+{
+	vTaskDelay(10 / portTICK_PERIOD_MS);
+}
+
+void FibSys::vTask(void * pvParams)
+{
+	FibSys::initialFreeHeapSize = xPortGetFreeHeapSize();
+	Log::info(szFIBSYS, "initialFreeHeapSize %lu", freeHeapSize);
+
+	while(true)
+	{	
+		FibSys::freeHeapSize = xPortGetFreeHeapSize();
+		Log::info(szFIBSYS, "freeHeapSize %lu", freeHeapSize);
+		FibSys::taskDelay(100);
+	}
+	vTaskDelete(NULL);
+}
+
+void FibSys::hardwareInit()
 {
 	HAL_Init();
 	SystemClock_Config();
 }
 
-uint32_t System::getTick()
+uint32_t FibSys::getTick()
 {
 	return HAL_GetTick();
 }
 
-void System::createTask(UBaseType_t priority)
+void FibSys::initTasks(UBaseType_t priority)
 {
 	BaseType_t xReturned;
-	xReturned = xTaskCreate(vMainTask, "main", 0x200, NULL, 1, &hMainTask);		
-
+	xReturned = xTaskCreate(FibSys::vTask, "system", 0x200, NULL, priority, &FibSys::hSystemTask);	
 	if(xReturned == pdFAIL) 
 	{
 		Error_Handler();
-	}
+	}	
+	
+	xReturned = xTaskCreate(vMainTask, "main", 0x200, NULL, priority - 1, &FibSys::hMainTask);		
+	if(xReturned == pdFAIL) 
+	{
+		Error_Handler();
+	}	
 }
 
-void System::run()
+void FibSys::run()
 {
 	const UBaseType_t cSysPriority = configMAX_PRIORITIES - 1;
-	System::hardwareInit();
- 	System::createTask(cSysPriority);
-	
+	FibSys::hardwareInit();
+ 	FibSys::initTasks(cSysPriority);
 	vTaskStartScheduler();
 	while(true); // should never be reached
 }
 
-void System::stop()
+void FibSys::stop()
 {
-	vTaskDelete(hMainTask);
+	vTaskDelete(FibSys::hSystemTask);
+	vTaskDelete(FibSys::hMainTask);
 }
 
-void System::error()
+void FibSys::error()
 {
 	HardFault_Handler(); // todo something better...
 }
