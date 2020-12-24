@@ -70,8 +70,5 @@ public:
 private:
 	Port port;
 	Pin pin;
-	Mode mode;
-	Pull pull;
-	Speed speed;
 	bool isInitialized;
 };
