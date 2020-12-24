@@ -6,7 +6,7 @@ Uart & Periph::getUart(std::uint8_t no)
 	if		(no == 1) { static Uart uart1(1, 115200); return uart1; }
 	else if (no == 2) { /* ... */ }
 
-	System::error(); // never returns...
+	FibSys::error(); // never returns...
 	static Uart dummy(0, 0); return dummy;
 }
 
@@ -57,6 +57,6 @@ Gpio & Periph::getGpio(Gpio::Port port, Gpio::Pin pin)
 		else if (pin == Gpio::Pin::P15) { static Gpio gpio(port, pin); return gpio; }
 	}
 
-	System::error(); // never returns...
+	FibSys::error(); // never returns...
 	static Gpio dummy(port, pin); return dummy;
 }
