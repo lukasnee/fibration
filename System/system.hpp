@@ -21,7 +21,8 @@ private:
 	static void initPlatform();
 	static void initTasks(std::uint32_t priority);
 
-	static void vTask(void * pvParams);
+	static void vSystemTask(void * pvParams);
+	static void vMainTask(void * pvParams);
 
 	static TaskHandle_t hSystemTask;
 	static TaskHandle_t hMainTask;
@@ -30,4 +31,4 @@ private:
 	static size_t freeHeapSize;
 };
 
-void vMainTask(void *); // main application task
+void mainTask(void *); // application entry point

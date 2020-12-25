@@ -7,16 +7,40 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-static const char * szFIBSYS = "FIBSYS"; // log context
-
 int main()
 {
 	FibSys::run(); // never returns
 }
 
+#define STDALLOC true
+
+void * operator new(size_t size)
+{
+    if(STDALLOC) return std::malloc(size);
+    else         return pvPortMalloc(size);
+}
+
+void * operator new[](size_t size)
+{
+    if(STDALLOC) return std::malloc(size);
+    else         return pvPortMalloc( size );
+}
+
+void operator delete(void * ptr)
+{
+    if(STDALLOC) std::free(ptr);
+    else         vPortFree(ptr);
+}
+
+void operator delete[](void * ptr)
+{
+    if(STDALLOC) std::free(ptr);
+    else         vPortFree(ptr);
+}
+
 static void Error_Handler()
 {
-	UsageFault_Handler();
+    HardFault_Handler();
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
@@ -77,68 +101,76 @@ size_t FibSys::freeHeapSize = 0;
 TaskHandle_t FibSys::hSystemTask = NULL;
 TaskHandle_t FibSys::hMainTask = NULL;
 
-void FibSys::taskDelay(std::uint32_t ms)
+void FibSys::initPlatform()
 {
-	vTaskDelay(10 / portTICK_PERIOD_MS);
-}
-
-void FibSys::vTask(void * pvParams)
-{
-	FibSys::initialFreeHeapSize = xPortGetFreeHeapSize();
-	Log::info(szFIBSYS, "initialFreeHeapSize %lu", freeHeapSize);
-
-	while(true)
-	{	
-		FibSys::freeHeapSize = xPortGetFreeHeapSize();
-		Log::info(szFIBSYS, "freeHeapSize %lu", freeHeapSize);
-		FibSys::taskDelay(100);
-	}
-	vTaskDelete(NULL);
-}
-
-void FibSys::hardwareInit()
-{
-	HAL_Init();
-	SystemClock_Config();
+    HAL_Init();
+    SystemClock_Config();
 }
 
 uint32_t FibSys::getTick()
 {
-	return HAL_GetTick();
+    return HAL_GetTick();
+}
+
+void FibSys::taskDelay(std::uint32_t ms)
+{
+    vTaskDelay(ms / portTICK_PERIOD_MS);
+}
+
+void FibSys::error()
+{
+    HardFault_Handler(); // todo something better...
 }
 
 void FibSys::initTasks(UBaseType_t priority)
 {
 	BaseType_t xReturned;
-	xReturned = xTaskCreate(FibSys::vTask, "system", 0x200, NULL, priority, &FibSys::hSystemTask);	
+    xReturned = xTaskCreate(FibSys::vSystemTask, "system", 0x200, NULL, priority, &FibSys::hSystemTask);	
 	if(xReturned == pdFAIL) 
 	{
-		Error_Handler();
+        FibSys::error();
 	}	
 	
-	xReturned = xTaskCreate(vMainTask, "main", 0x200, NULL, priority - 1, &FibSys::hMainTask);		
+    xReturned = xTaskCreate(FibSys::vMainTask, "main", 0x200, NULL, priority - 1, &FibSys::hMainTask);		
 	if(xReturned == pdFAIL) 
 	{
-		Error_Handler();
+        FibSys::error();
 	}	
 }
 
 void FibSys::run()
 {
 	const UBaseType_t cSysPriority = configMAX_PRIORITIES - 1;
-	FibSys::hardwareInit();
+    FibSys::initPlatform();
+    Log::init();
  	FibSys::initTasks(cSysPriority);
+    uwTick = 0; // for nicer log
 	vTaskStartScheduler();
 	while(true); // should never be reached
 }
+
+void FibSys::vSystemTask(void * pvParams)
+{
+    FibSys::initialFreeHeapSize = xPortGetFreeHeapSize();
+    //Log::system("vSystemTask", "initialFreeHeapSize %lu", freeHeapSize);
+
+    while(true)
+    {	
+        FibSys::freeHeapSize = xPortGetFreeHeapSize();
+        //Log::system("vSystemTask", "freeHeapSize %lu", freeHeapSize);
+        FibSys::taskDelay(100);
+    }
+    vTaskDelete(NULL);
+}
+
+void FibSys::vMainTask(void * pvParams)
+{
+    mainTask(pvParams); // should never return
+    vTaskDelete(nullptr);
+};
 
 void FibSys::stop()
 {
 	vTaskDelete(FibSys::hSystemTask);
 	vTaskDelete(FibSys::hMainTask);
-}
-
-void FibSys::error()
-{
-	HardFault_Handler(); // todo something better...
 }
