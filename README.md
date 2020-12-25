@@ -1,7 +1,7 @@
 ![Hopf Fibration](Misc/hopf-fibration.png)
 # Fibration
 Fibration is an open source synthesizer framework for embedded applications.
-Utilising RTOS, MCU in-built DMA, I2S, ADC and DAC peripherals for efficient real-time DSP.
+Utilising RTOS, MCU in-built DMA, I2S, ADC and DAC peripheralsfor efficient real-time DSP.
 Currently being developed for STM32F303 MCU but designed to be portable. 
 
 # Framework
