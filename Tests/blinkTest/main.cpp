@@ -6,13 +6,13 @@
 #include "system.hpp"
 #include "gpio.hpp"
 
-void vMainTask(void * pvParams)
+void mainTask(void * pvParams)
 {
 	Gpio & onBoardLed = Periph::getGpio(Gpio::Port::C, Gpio::Pin::P13);
 	onBoardLed.init(false, Gpio::Mode::Output_PP);
 	int i = 0;
  
-	for(;;)
+	while(true)
 	{	
 		onBoardLed.write(false);
 		vTaskDelay(500);
@@ -20,5 +20,4 @@ void vMainTask(void * pvParams)
 		vTaskDelay(500);
 		Log::info("led", "message blink  %d !", i++);
 	}
-	vTaskDelete(NULL);
 }
