@@ -4,7 +4,7 @@
 			"label": "See real-time Log (minicom)",
 			"type": "shell",
 			"linux": {
-				"command": "minicom --baudrate=115200 --8bit --device=/dev/serial0 --color=on --attrib=on --capturefile=.fib-log.txt",
+				"command": "minicom --baudrate=115200 --8bit --device=/dev/serial0 --color=on --attrib=on --capturefile=fib-log.txt",
 			},
 			"presentation": {
 				"focus": true,
