@@ -1,26 +1,25 @@
 ![Hopf Fibration](Misc/hopf-fibration.png)
-# fibration
-Fibration is a family of eurorack synth modules. Homebrew :)
-    - MCU software framework specifically designed for digital synth developement!
-    - takes care of hardware, unifies it and gives portabilyness-thing-a-ma-gig
-    - like Arduino, but oriented for sound sythesis and such (utilises DMA, I2S, 
-        ADC, DAC...), gives a nice playground for creating and manipulating 
-        sounds on a MCU. 
+# Fibration
+Fibration is an open source synthesizer framework for embedded applications.
+Utilising RTOS, MCU in-built DMA, I2S, ADC and DAC peripherals for efficient real-time DSP.
+Currently being developed for STM32F303 MCU but designed to be portable. 
 
-# framework
+# Framework
 > (note. MSA - Modular Synth Application)
 
-         MSA #1      MSA #2       MSA #3     MSA #...     MSA #N	
-            |___________|___________|___________|____________|
-                                    |
-                            Fibration lib (C++)
-              ______________________|__________________________
-             |                      |                          |
-    FreeRTOS               STM32_HAL/LL lib (C)		Third-party libs (C/C++)
-                                    |
-                                HARDWARE 
-                            (STM32F3 for now) 
+                              MSA #1      MSA #2       MSA #3     MSA #...     MSA #N
+                                |___________|___________|___________|____________|
+                                                        |
+                                                  ______|________
+                                  ________________|Fib lib (C++)|__________________
+                                 |                |_____________|                  |
+                            FreeRTOS (C)                |                  Third-party libraries
+                                                        |                       (C/C++)                                             
+                                                STM32_HAL/LL lib (C)
+                                                        |
+                                                    HARDWARE 
+                                                (STM32F303 for now) 
 
-# license
-- software under GNU GPL-3.0
-- hardware under CERN OHL-2.0 
+# License
+- software GNU GPL-3.0
+- hardware CERN OHL-2.0 
