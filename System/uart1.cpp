@@ -7,7 +7,7 @@ DMA_HandleTypeDef hdma_usart1_tx;
 DMA_HandleTypeDef hdma_usart1_rx;
 UART_HandleTypeDef huart1;
 
-static void sInitUartDma1(uint32_t baudrate)
+static void sInitUartDma1(std::uint32_t baudrate)
 {
 	__HAL_RCC_DMA1_CLK_ENABLE();
 	HAL_NVIC_SetPriority(DMA1_Channel4_IRQn, 0, 0);
@@ -31,29 +31,17 @@ static void sInitUartDma1(uint32_t baudrate)
 	}
 }
 
-static void sDeinitUartDma1()
-{
-	HAL_UART_DeInit(&huart1);
-	HAL_NVIC_DisableIRQ(DMA1_Channel4_IRQn);
-	HAL_NVIC_DisableIRQ(DMA1_Channel5_IRQn);
-}
-
 Uart1::Uart1(uint32_t baudrate) :
 	DmaQueue(), baudrate(baudrate)
 {
 	sInitUartDma1(this->baudrate);
 }
 
-Uart1::~Uart1()
-{
-	sDeinitUartDma1();
-}
-
-bool Uart1::transmitDma(DmaCallbacks &dmaCb, uint8_t *pData, uint16_t size)
+bool Uart1::transmitDma(std::uint8_t *pData, std::uint16_t size, DmaCallbacks &dmaCallbacks)
 {
 	bool retval = false;
 	
-	dmaCallbacks = &dmaCb;
+	this->dmaCallbacks = &dmaCallbacks; // todo maybe check if cbs not null.
 
 	HAL_StatusTypeDef status; 
 	status = HAL_UART_Transmit_DMA(&huart1, pData, size);
@@ -61,18 +49,15 @@ bool Uart1::transmitDma(DmaCallbacks &dmaCb, uint8_t *pData, uint16_t size)
 	{
 		retval = true;
 	}
-	else
-	{
-	}
 	
 	return retval;
 }
 
-bool Uart1::receiveDma(DmaCallbacks &dmaCb, uint8_t *pData, uint16_t size)
+bool Uart1::receiveDma(std::uint8_t *pData, std::uint16_t size, DmaCallbacks &dmaCallbacks)
 {
 	bool retval = false;
 
-	dmaCallbacks = &dmaCb;
+	this->dmaCallbacks = &dmaCallbacks;
 
 	HAL_StatusTypeDef status;
 	status = HAL_UART_Receive_DMA(&huart1, pData, size);
@@ -80,9 +65,18 @@ bool Uart1::receiveDma(DmaCallbacks &dmaCb, uint8_t *pData, uint16_t size)
 	{
 		retval = true;
 	}
-	else
-	{
-	}
 
 	return retval;
+}
+
+static void sDeinitUartDma1()
+{
+	HAL_UART_DeInit(&huart1);
+	HAL_NVIC_DisableIRQ(DMA1_Channel4_IRQn);
+	HAL_NVIC_DisableIRQ(DMA1_Channel5_IRQn);
+}
+
+Uart1::~Uart1()
+{
+	sDeinitUartDma1();
 }

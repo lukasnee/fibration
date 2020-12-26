@@ -4,70 +4,28 @@
 
 #define QUEUE_MAX 0x20
 
-// todo rename stream to object name 
-// low level (hardware DMA) interface
-// should be signaled on DMA stream completion interrupt callback
-
-void DmaQueue::rxComplete()
-{
-	// todo
-}
-
-/* NOTE ! every alloc() must follow according queueStreamNext() or free() */
-bool DmaQueue::alloc(std::size_t size, std::uint8_t ** pPtr, std::size_t * pAllocSize)
+bool DmaQueue::outQueuePush(const std::uint8_t * ptr, std::size_t size)
 {
 	bool retval = false;
 
-	std::uint8_t * allocPtr = NULL;
-	std::size_t allocSize = 0;
-
-	if(deque.size() < QUEUE_MAX - 1)
-	{
-		// allocate fast static buffer if available
-		if(fsbInUse == false && size <= fsb.size())
-		{
-			allocPtr = fsb.data();
-			allocSize = fsb.size(); 
-			fsbInUse = true;
-		}
-		else // elsewise allocate mem ory from heap...
-		{
-			// NOTE. FreeRTOS vPortFree fails from ISR // todo ivestigate
-			allocPtr = new std::uint8_t[size == 0 ? fsb.size() : size];	
-			allocSize = (size == 0 ? fsb.size() : size);
-		}
-	}
-
-	retval = (allocPtr != NULL);
-
-	*pPtr = allocPtr;
-	*pAllocSize = allocSize;
-
-	return retval;
-}
-
-bool DmaQueue::queuePush(const std::uint8_t * ptr, std::size_t size)
-{
-	bool retval = false;
-
-	if(deque.size() < QUEUE_MAX)
+	if(outDeque.size() < QUEUE_MAX)
 	{
 		DmaQueue::Blob blob = { .ptr = const_cast<std::uint8_t*>(ptr), .size = size };
-		deque.push_back(blob);
+		outDeque.push_back(blob);
 		retval = true;
 	}
-	queueStreamNext(); // try to stream it immediately
+	outQueueStreamNext(); // try to stream it immediately
 
 	return retval;
 }
 
-bool DmaQueue::queueStreamNext()
+bool DmaQueue::outQueueStreamNext()
 {
 	bool retval = false;
 
-	if(deque.empty() == false)
+	if(outDeque.empty() == false)
 	{
-		if (transmitDma(*this, deque.front().ptr, deque.front().size) == false)
+		if (transmitDma(outDeque.front().ptr, outDeque.front().size, *this) == false)
 		{
 			retval = true;
 		}
@@ -77,43 +35,27 @@ bool DmaQueue::queueStreamNext()
 }
 
 // pop completed blob and try to stream next one
-void DmaQueue::txComplete()
+void DmaQueue::dmaTxCpltCallback()
 {
-	DmaQueue::queuePop(); 
-	queueStreamNext();
+	DmaQueue::outQueuePop(); 
+	outQueueStreamNext();
 }
 
-bool DmaQueue::queuePop()
+bool DmaQueue::outQueuePop()
 {
 	bool retval = false;
 
-	if(deque.empty() == false)
+	if(outDeque.empty() == false)
 	{	
-		DmaQueue::free(deque.front().ptr);
-		deque.pop_front();
+		delete [] outDeque.front().ptr;
+		outDeque.pop_front();
 		retval = true;
 	}
 
 	return retval;
 }
 
-// todo maybe change to Blob passing as arg
-void DmaQueue::free(std::uint8_t * ptr)
-{
-	if(ptr == fsb.data())
-	{
-		//memset(fsb.data(), 0 , fsb.size()) // unnecessary
-		fsbInUse = false;
-	}
-	else
-	{
-		// NOTE. FreeRTOS vPortFree fails from ISR // todo ivestigate
-		delete [] ptr;
-	}
-}
-
-DmaQueue::DmaQueue() :  
-	fsbInUse(false) 
+DmaQueue::DmaQueue() 
 {
 }
  
