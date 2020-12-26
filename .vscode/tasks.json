@@ -81,7 +81,7 @@
 			},
 			"linux": {
 				"command": "cd Build; ./build.release.sh; ./flash-to-stm32.sh Release/Tests/blinkTest/blinkTest.bin"
-			}
+			},
 			"presentation": {
 				"focus": true
 			}
