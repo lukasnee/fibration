@@ -7,11 +7,11 @@
 #include <cstdio>
 #include <cstdarg>
 
-Uart * Log::pStream = nullptr;
+Uart1 * Log::pStream = nullptr;
 
 void Log::init()
 {
-	Log::pStream = &Periph::getUart(1);
+	Log::pStream = &Periph::getUart1();
 }
 
 void Log::trace(const std::string &context, const std::string &fmt, ...)
