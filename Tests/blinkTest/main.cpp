@@ -11,13 +11,13 @@ void mainTask(void * pvParams)
 	Gpio & onBoardLed = Periph::getGpio(Gpio::Port::C, Gpio::Pin::P13);
 	onBoardLed.init(false, Gpio::Mode::Output_PP);
 	int i = 0;
- 
+
 	while(true)
 	{	
 		onBoardLed.write(false);
-		vTaskDelay(500);
+		vTaskDelay(5);
 		onBoardLed.write(true);
-		vTaskDelay(500);
-		Log::info("led", "message blink  %d !", i++);
+		vTaskDelay(5);
+		Log::info("led", "blink %d !", i++);
 	}
 }
