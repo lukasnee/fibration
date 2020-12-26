@@ -56,7 +56,7 @@ private:
 	static const std::string arLogType[LOG_TYPE_MAX + 1];
 
 	static void log(Verbosity verbosity, Type type, const std::string &context, const std::string &fmt, va_list arglist);
-	static int formatPrefix(Type type, const std::string &context, std::uint8_t * pOut, const std::size_t maxSize);
+	static int formatPrefixAndContext(Type type, const std::string &context, std::uint8_t * pOut, const std::size_t maxSize);
 
 	static Uart1 * pStream;
 

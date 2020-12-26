@@ -95,7 +95,7 @@ void Log::info(Verbosity verbosity,
 void Log::logOutOfMem()
 {
 	const std::string str = "\e[31mstream out of mem\e[0m\r\n";
-	pStream->queuePush(reinterpret_cast<const std::uint8_t*>(str.c_str()), str.size());
+	pStream->outQueuePush(reinterpret_cast<const std::uint8_t*>(str.c_str()), str.size());
 }
 
 void Log::log(Verbosity verbosity, Type type, const std::string &context, const std::string &fmt, va_list arglist)
@@ -108,10 +108,9 @@ void Log::log(Verbosity verbosity, Type type, const std::string &context, const 
 			perfomance wise), test this. maybe try https://github.com/fmtlib/fmt 
 			for printig and formatting */
 
-			std::uint8_t * pStrBase = nullptr;
-			std::size_t allocSize = 0;
-
-			if(pStream->alloc(0, &pStrBase, &allocSize) == false)
+			const int allocSize = 0x80; // a typical log line should fit... 
+			std::uint8_t * pStrBase = new std::uint8_t[allocSize];
+			if(pStrBase == nullptr)
 			{
 				logOutOfMem();
 				return;
@@ -119,57 +118,58 @@ void Log::log(Verbosity verbosity, Type type, const std::string &context, const 
 			else
 			{
 				std::uint8_t * pStrHead = pStrBase;
-				std::size_t maxStrLen = allocSize - sizeof('\0');
+				int maxStrLen = allocSize - sizeof('\0');
 				std::uint32_t strLen = 0;
 
-				int len;
-				// try
-				len = formatPrefix(type, context, pStrHead, maxStrLen);
-				if (static_cast<std::size_t>(len) >= maxStrLen) 
+				// try to print prefix and context
+				int len = formatPrefixAndContext(type, context, pStrHead, maxStrLen);
+				if (len > maxStrLen) 
 				{
-					// did not fit - reallocate needed length buffer
-					pStream->free(pStrBase);
-					pStream->alloc(allocSize, &pStrBase, &allocSize);
-					pStrHead = pStrBase;
-					maxStrLen = allocSize - sizeof('\0');
-					strLen = 0;
-
-					// try again
-					len = formatPrefix(type, context, pStrHead, maxStrLen);
-					if(static_cast<std::size_t>(len) >= maxStrLen)
+					// did not fit - reallocate needed length buffer and try again
+					delete [] pStrBase;
+					pStrBase = new std::uint8_t[len + sizeof('\0')];
+					if(pStrBase == nullptr)
 					{
 						logOutOfMem();
 						return;
 					}
+					else
+					{
+						pStrHead = pStrBase;
+						maxStrLen = len;
+						strLen = 0;
+						formatPrefixAndContext(type, context, pStrHead, maxStrLen);
+					}
 				}
+				
+				strLen += len; // notice printed prefix and context
+				pStrHead += len; maxStrLen -= len;
 
-				pStrHead += len;
-				maxStrLen -= len;
-				strLen += len;
-
-				// print user message
-				len = vsnprintf(reinterpret_cast<char*>(pStrHead), 
-					allocSize, fmt.c_str(), arglist);
-				if (static_cast<std::size_t>(len) >= maxStrLen)
+				// try to print log message
+				len = vsnprintf(reinterpret_cast<char*>(pStrHead), maxStrLen, fmt.c_str(), arglist);
+				if (len > maxStrLen)
 				{
-					// push only prefix, then push user message separately...
-					pStream->queuePush(pStrBase, strLen + sizeof('\0'));
-					if(pStream->alloc(0, &pStrBase, &allocSize) == false)
+					// did not fit - push previous print, and try to print log message to a new mem alloc
+					pStream->outQueuePush(pStrBase, strLen + sizeof('\0'));
+					pStrBase = new std::uint8_t[allocSize]; // should fit
+					if(pStrBase == nullptr)
 					{
 						logOutOfMem();
 						return;
 					}
-					pStrHead = pStrBase;
-					maxStrLen = allocSize - sizeof('\0');
-					strLen = 0;
+					else
+					{
+						pStrHead = pStrBase;
+						maxStrLen = allocSize - sizeof('\0');
+						strLen = 0;
+						vsnprintf(reinterpret_cast<char*>(pStrHead), maxStrLen, fmt.c_str(), arglist);
+					}
 				}
-
-				pStrHead += len;
-				maxStrLen -= len;
-				strLen += len;
+				strLen += len; // notice printed log message
+				pStrHead += len; maxStrLen -= len;
 
 				// push whats left
-				pStream->queuePush(pStrBase, strLen + sizeof('\0'));
+				pStream->outQueuePush(pStrBase, strLen + sizeof('\0'));
 			}
 		}
 	}
@@ -185,7 +185,7 @@ const std::string Log::arLogType[LOG_TYPE_MAX + 1] = {
 	{"\e[36m  INFO"}, 	// cyan
 };
 
-int Log::formatPrefix(Type type, const std::string &context, std::uint8_t * pStrBase, const std::size_t maxSize)
+int Log::formatPrefixAndContext(Type type, const std::string &context, std::uint8_t * pStrBase, const std::size_t maxSize)
 {
 	std::uint32_t tick = FibSys::getTick();
 	std::uint32_t minutes = tick / 1000 / 60;
