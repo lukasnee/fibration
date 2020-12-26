@@ -6,7 +6,7 @@
 #include <string>
 #include <cstdarg>
 
-#include "uart.hpp"
+#include "uart1.hpp"
 
 class Log
 {
@@ -58,7 +58,7 @@ private:
 	static void log(Verbosity verbosity, Type type, const std::string &context, const std::string &fmt, va_list arglist);
 	static int formatPrefix(Type type, const std::string &context, std::uint8_t * pOut, const std::size_t maxSize);
 
-	static Uart * pStream;
+	static Uart1 * pStream;
 
 	static void logOutOfMem();
 };

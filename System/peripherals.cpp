@@ -1,13 +1,9 @@
 #include "peripherals.hpp"
 #include "system.hpp"
 
-Uart & Periph::getUart(std::uint8_t no)
+Uart1 & Periph::getUart1()
 {
-	if		(no == 1) { static Uart uart1(1, 115200); return uart1; }
-	else if (no == 2) { /* ... */ }
-
-	FibSys::error(); // never returns...
-	static Uart dummy(0, 0); return dummy;
+	static Uart1 uart1(115200); return uart1;
 }
 
 Gpio & Periph::getGpio(Gpio::Port port, Gpio::Pin pin)

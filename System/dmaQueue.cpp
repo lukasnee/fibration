@@ -48,12 +48,17 @@ bool DmaQueue::alloc(std::size_t size, std::uint8_t ** pPtr, std::size_t * pAllo
 
 bool DmaQueue::queuePush(const std::uint8_t * ptr, std::size_t size)
 {
+	bool retval = false;
+
 	if(deque.size() < QUEUE_MAX)
 	{
 		DmaQueue::Blob blob = { .ptr = const_cast<std::uint8_t*>(ptr), .size = size };
 		deque.push_back(blob);
+		retval = true;
 	}
 	queueStreamNext(); // try to stream it immediately
+
+	return retval;
 }
 
 bool DmaQueue::queueStreamNext()

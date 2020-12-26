@@ -57,8 +57,9 @@ set(SYSTEM_SRC
 
 	${ROOT}/System/peripherals.cpp
 	${ROOT}/System/peripherals.hpp
-	${ROOT}/System/uart.cpp
-	${ROOT}/System/uart.hpp
+	${ROOT}/System/uart1.cpp
+	${ROOT}/System/uart1.hpp
+	${ROOT}/System/uartCallbacks.cpp
 	${ROOT}/System/dmaQueue.cpp
 	${ROOT}/System/dmaQueue.hpp
 	${ROOT}/System/log.cpp
