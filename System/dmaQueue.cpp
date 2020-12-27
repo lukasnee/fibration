@@ -4,7 +4,7 @@
 
 #define QUEUE_MAX 0x20
 
-bool DmaQueue::outQueuePush(const std::uint8_t * ptr, std::size_t size)
+bool DmaQueue::pushTx(const std::uint8_t * ptr, std::size_t size)
 {
 	bool retval = false;
 
