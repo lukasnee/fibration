@@ -95,7 +95,7 @@ void Log::info(Verbosity verbosity,
 void Log::logOutOfMem()
 {
 	const std::string str = "\e[31mstream out of mem\e[0m\r\n";
-	pStream->outQueuePush(reinterpret_cast<const std::uint8_t*>(str.c_str()), str.size());
+	pStream->pushTx(reinterpret_cast<const std::uint8_t*>(str.c_str()), str.size());
 }
 
 void Log::log(Verbosity verbosity, Type type, const std::string &context, const std::string &fmt, va_list arglist)
@@ -150,7 +150,7 @@ void Log::log(Verbosity verbosity, Type type, const std::string &context, const 
 				if (len > maxStrLen)
 				{
 					// did not fit - push previous print, and try to print log message to a new mem alloc
-					pStream->outQueuePush(pStrBase, strLen + sizeof('\0'));
+					pStream->pushTx(pStrBase, strLen + sizeof('\0'));
 					pStrBase = new std::uint8_t[allocSize]; // should fit
 					if(pStrBase == nullptr)
 					{
@@ -169,7 +169,7 @@ void Log::log(Verbosity verbosity, Type type, const std::string &context, const 
 				pStrHead += len; maxStrLen -= len;
 
 				// push whats left
-				pStream->outQueuePush(pStrBase, strLen + sizeof('\0'));
+				pStream->pushTx(pStrBase, strLen + sizeof('\0'));
 			}
 		}
 	}

@@ -30,7 +30,7 @@ public:
 	virtual bool transmitDma(std::uint8_t *pData, std::uint16_t size, DmaCallbacks &dmaCallbacks) = 0;
 	virtual bool receiveDma(std::uint8_t *pData, std::uint16_t size, DmaCallbacks &dmaCallbacks) = 0;
 
-	bool outQueuePush(const std::uint8_t * ptr, std::size_t size);
+	bool pushTx(const std::uint8_t * ptr, std::size_t size);
 
 	void dmaTxCpltCallback() override;
 	// void dmaTxHalfCpltCallback() override;
