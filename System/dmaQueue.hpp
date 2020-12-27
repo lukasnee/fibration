@@ -4,48 +4,44 @@
 #include <array>
 #include <queue>
 
-class DmaCallbacks 
-{
-public:
-	DmaCallbacks(){};
-	virtual void dmaTxCpltCallback() {};
-	virtual void dmaTxHalfCpltCallback() {};
-	virtual void dmaRxCpltCallback() {};
-	virtual void dmaRxHalfCpltCallback() {};
-	virtual void dmaErrorCallback() {}; 
-	virtual void dmaAbortCpltCallback() {};
-	virtual void dmaAbortTransmitCpltCallback() {};
-	virtual void dmaAbortReceiveCpltCallback() {};
-};
+#include "thread.hpp"
+#include "dmaCallbacks.hpp"
 
-// todo make template for buffer size
-// todo make array type not char but more general uint8_t
-// todo make list of staticBuffers
-
-class DmaQueue : public DmaCallbacks 
+class DmaQueue : public cpp_freertos::Thread, public DmaCallbacks
 {
 public:	
-	struct Blob { std::uint8_t * ptr; std::size_t size; };
+    struct DmaSession
+    { 
+        std::uint8_t * ptr; 
+        std::uint16_t size;
+        DmaCallbacks & dmaCallbacks; // todo think about this
+    };
 
-	virtual bool transmitDma(std::uint8_t *pData, std::uint16_t size, DmaCallbacks &dmaCallbacks) = 0;
-	virtual bool receiveDma(std::uint8_t *pData, std::uint16_t size, DmaCallbacks &dmaCallbacks) = 0;
+    virtual bool transmitDma(std::uint8_t *pData, std::uint16_t size, DmaCallbacks &dmaCallbacks) = 0;
+    virtual bool receiveDma(std::uint8_t *pData, std::uint16_t size, DmaCallbacks &dmaCallbacks) = 0;
 
-	bool pushTx(const std::uint8_t * ptr, std::size_t size);
-
-	void dmaTxCpltCallback() override;
-	// void dmaTxHalfCpltCallback() override;
-	// void dmaRxCpltCallback() override;
-	// void dmaRxHalfCpltCallback() override;
-	// void dmaErrorCallback() override;
-	// void dmaAbortCpltCallback() override;
-	// void dmaAbortTransmitCpltCallback() override;
-	// void dmaAbortReceiveCpltCallback() override;
+    bool txPush(const std::uint8_t * ptr, std::uint16_t size);
 
 protected:
-	DmaQueue();
-	~DmaQueue();
+    DmaQueue(uint32_t priority);
+    ~DmaQueue();
+
 private:	
-	std::deque<Blob> outDeque;
-	bool outQueueStreamNext();
-	bool outQueuePop();
+    bool txNext();
+    bool txHandle();
+
+    virtual void Run() override; // task code
+
+    void dmaTxCpltCallback() override;
+    // void dmaTxHalfCpltCallback() override;
+    // void dmaRxCpltCallback() override;
+    // void dmaRxHalfCpltCallback() override;
+    // void dmaErrorCallback() override;
+    // void dmaAbortCpltCallback() override;
+    // void dmaAbortTransmitCpltCallback() override;
+    // void dmaAbortReceiveCpltCallback() override;
+
+    std::deque<DmaSession> txSessionQueue;
+
+    int txCpltCount;
 };

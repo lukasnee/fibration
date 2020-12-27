@@ -5,7 +5,7 @@
 
 Uart1 & Periph::getUart1()
 {
-	static Uart1 uart1(115200); return uart1;
+	static Uart1 uart1(10, 115200); return uart1;
 }
 
 Gpio & Periph::getGpio(Gpio::Port port, Gpio::Pin pin)
