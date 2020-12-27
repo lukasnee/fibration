@@ -1,6 +1,8 @@
 #include "peripherals.hpp"
 #include "system.hpp"
 
+// NOTE: peripheral instances should get constructer after MCU core and freertos initialization
+
 Uart1 & Periph::getUart1()
 {
 	static Uart1 uart1(115200); return uart1;
@@ -53,6 +55,6 @@ Gpio & Periph::getGpio(Gpio::Port port, Gpio::Pin pin)
 		else if (pin == Gpio::Pin::P15) { static Gpio gpio(port, pin); return gpio; }
 	}
 
-	FibSys::error(); // never returns...
+	FibSys::panic(); // never returns...
 	static Gpio dummy(port, pin); return dummy;
 }

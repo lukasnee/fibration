@@ -27,7 +27,7 @@ static void sInitUartDma1(std::uint32_t baudrate)
 	huart1.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
 	if (HAL_UART_Init(&huart1) != HAL_OK)
 	{
-		FibSys::error();
+		FibSys::panic();
 	}
 }
 
