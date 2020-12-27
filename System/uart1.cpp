@@ -31,8 +31,8 @@ static void sInitUartDma1(std::uint32_t baudrate)
 	}
 }
 
-Uart1::Uart1(uint32_t baudrate) :
-	DmaQueue(), baudrate(baudrate)
+Uart1::Uart1(uint32_t priority, uint32_t baudrate) :
+	DmaQueue(priority), baudrate(baudrate)
 {
 	sInitUartDma1(this->baudrate);
 }

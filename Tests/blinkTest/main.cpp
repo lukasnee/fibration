@@ -15,9 +15,9 @@ void mainTask(void * pvParams)
 	while(true)
 	{	
 		onBoardLed.write(false);
-		vTaskDelay(50);
-		onBoardLed.write(true);
-		vTaskDelay(50);
 		Log::info("mainTask", "blink %d !", i++);
+		vTaskDelay(500);
+		onBoardLed.write(true);
+		vTaskDelay(500);
 	}
 }
