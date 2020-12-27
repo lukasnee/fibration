@@ -15,7 +15,7 @@ public:
     static void stop();
     static std::uint32_t getTick();
     static void taskDelay(std::uint32_t ms);
-    static void error();
+    static void panic();
     
 private:
     static void initPlatform();

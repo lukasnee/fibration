@@ -117,7 +117,7 @@ void FibSys::taskDelay(std::uint32_t ms)
     vTaskDelay(ms / portTICK_PERIOD_MS);
 }
 
-void FibSys::error()
+void FibSys::panic()
 {
     HardFault_Handler(); // todo something better...
 }
@@ -128,13 +128,13 @@ void FibSys::initTasks(UBaseType_t priority)
     xReturned = xTaskCreate(FibSys::vSystemTask, "system", 0x200, NULL, priority, &FibSys::hSystemTask);	
     if(xReturned == pdFAIL) 
     {
-        FibSys::error();
+        FibSys::panic();
     }
     
     xReturned = xTaskCreate(FibSys::vMainTask, "main", 0x200, NULL, priority - 1, &FibSys::hMainTask);		
     if(xReturned == pdFAIL) 
     {
-        FibSys::error();
+        FibSys::panic();
     }
 }
 
@@ -143,7 +143,7 @@ void FibSys::run()
     const UBaseType_t cSysPriority = configMAX_PRIORITIES - 1;
     FibSys::initPlatform();
     Log::init();
-     FibSys::initTasks(cSysPriority);
+    FibSys::initTasks(cSysPriority);
     uwTick = 0; // for nicer log
     vTaskStartScheduler();
     while(true); // should never be reached
