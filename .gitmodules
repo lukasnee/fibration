@@ -1,0 +1,3 @@
+[submodule "System/freertos-addons"]
+	path = System/freertos-addons
+	url = https://github.com/michaelbecker/freertos-addons.git
