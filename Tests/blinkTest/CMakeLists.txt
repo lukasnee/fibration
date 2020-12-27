@@ -65,10 +65,11 @@ set(SYSTEM_SRC
 	# ${ROOT}/System/freertos-addons/c++/Source/ccondition_variable.cpp
 	# ${ROOT}/System/freertos-addons/c++/Source/cevent_groups.cpp
 	# ${ROOT}/System/freertos-addons/c++/Source/cmem_pool.cpp
-	
+
 # Fibration Framework
 
-	# Hardware Peripheral Interface
+    # Hardware Peripheral Interface
+    ${ROOT}/System/threadSafeMalloc.cpp
 	${ROOT}/System/peripherals.cpp
 	${ROOT}/System/peripherals.hpp
 	${ROOT}/System/uart1.cpp
