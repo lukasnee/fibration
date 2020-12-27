@@ -13,7 +13,18 @@ set(ROOT ${CMAKE_SOURCE_DIR})
 
 set(SYSTEM_SRC
 
-	# STM32F3 Hardware Abstraction Layer
+# Hardware Platform
+
+	# STM32F303 MCU core components
+	${ROOT}/System/MSP/stm32f3xx_hal_msp.c
+	${ROOT}/System/MSP/stm32f3xx_hal_timebase_tim.c
+	${ROOT}/System/MSP/stm32f3xx_it.c
+	${ROOT}/System/MSP/syscalls.c
+	${ROOT}/System/MSP/sysmem.c
+	${ROOT}/System/MSP/system_stm32f3xx.c
+	${ROOT}/System/MSP/startup_stm32f303cctx.s
+
+	# STM32F3xx HAL (Hardware Abstraction Layer)
 	${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal.c
 	${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_cortex.c
 	${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_exti.c
@@ -28,16 +39,9 @@ set(SYSTEM_SRC
 	${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart_ex.c	
 	${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_dma.c	
 
-	# STM32F3 system source
-	${ROOT}/System/MSP/stm32f3xx_hal_msp.c
-	${ROOT}/System/MSP/stm32f3xx_hal_timebase_tim.c
-	${ROOT}/System/MSP/stm32f3xx_it.c
-	${ROOT}/System/MSP/syscalls.c
-	${ROOT}/System/MSP/sysmem.c
-	${ROOT}/System/MSP/system_stm32f3xx.c
-	${ROOT}/System/MSP/startup_stm32f303cctx.s
+# RTOS (Real-Time Operating System)
 
-	# FreeRTOS source
+	# FreeRTOS
 	${ROOT}/System/FreeRTOS/Source/croutine.c
 	${ROOT}/System/FreeRTOS/Source/event_groups.c
 	${ROOT}/System/FreeRTOS/Source/list.c
@@ -48,25 +52,39 @@ set(SYSTEM_SRC
 	${ROOT}/System/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c
 	${ROOT}/System/FreeRTOS/Source/portable/MemMang/heap_4.c
 
-	# FreeRTOS project specific configuration
-	${ROOT}/System/FreeRTOSConfig.h
+	# freertos-addons submodule (FreeRTOS C++ wrapper and more)
+	${ROOT}/System/freertos-addons/c++/Source/cmutex.cpp
+	${ROOT}/System/freertos-addons/c++/Source/cqueue.cpp
+	${ROOT}/System/freertos-addons/c++/Source/cread_write_lock.cpp
+	${ROOT}/System/freertos-addons/c++/Source/csemaphore.cpp
+	${ROOT}/System/freertos-addons/c++/Source/ctasklet.cpp
+	${ROOT}/System/freertos-addons/c++/Source/cthread.cpp
+	${ROOT}/System/freertos-addons/c++/Source/ctimer.cpp
+	${ROOT}/System/freertos-addons/c++/Source/ctickhook.cpp
+	${ROOT}/System/freertos-addons/c++/Source/cworkqueue.cpp
+	# ${ROOT}/System/freertos-addons/c++/Source/ccondition_variable.cpp
+	# ${ROOT}/System/freertos-addons/c++/Source/cevent_groups.cpp
+	# ${ROOT}/System/freertos-addons/c++/Source/cmem_pool.cpp
+	
+# Fibration Framework
 
-	# Fibration hardware interface
-	${ROOT}/System/system.cpp
-	${ROOT}/System/system.hpp
-
+	# Hardware Peripheral Interface
 	${ROOT}/System/peripherals.cpp
 	${ROOT}/System/peripherals.hpp
 	${ROOT}/System/uart1.cpp
 	${ROOT}/System/uart1.hpp
 	${ROOT}/System/uartCallbacks.cpp
+	${ROOT}/System/gpio.cpp
+	${ROOT}/System/gpio.hpp	
+
+	# FibSys (Fibration System)	
+	${ROOT}/System/FreeRTOSConfig.h # FreeRTOS project specific configuration
+	${ROOT}/System/system.cpp
+	${ROOT}/System/system.hpp
 	${ROOT}/System/dmaQueue.cpp
 	${ROOT}/System/dmaQueue.hpp
 	${ROOT}/System/log.cpp
 	${ROOT}/System/log.hpp
-
-	${ROOT}/System/gpio.cpp
-	${ROOT}/System/gpio.hpp	
 )
 
 add_executable(${PROJECT_NAME} 
@@ -80,15 +98,19 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE 
-
+	
+	# Hardware Platform
 	${ROOT}/System/MSP/CMSIS/Device/ST/STM32F3xx/Include
 	${ROOT}/System/MSP/CMSIS/Include
 	${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Inc
 	${ROOT}/System/MSP
-	
+
+	# RTOS (Real-Time Operating System)
 	${ROOT}/System/FreeRTOS/Source/include
 	${ROOT}/System/FreeRTOS/Source/portable/GCC/ARM_CM4F
+	${ROOT}/System/freertos-addons/c++/Source/include
 
+	# Fibration Framework
 	${ROOT}/System
 )
 

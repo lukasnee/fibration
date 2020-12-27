@@ -51,7 +51,9 @@
 		"condition_variable": "cpp",
 		"ctime": "cpp",
 		"ratio": "cpp",
-		"thread": "cpp"
+		"thread": "cpp",
+		"*.hppdelete": "cpp",
+		"thread_delete": "cpp"
 	},
 	"cmake.configureOnOpen": true,
 	"C_Cpp.errorSquiggles": "Disabled"
