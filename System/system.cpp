@@ -12,32 +12,6 @@ int main()
     FibSys::run(); // never returns
 }
 
-#define STDALLOC true
-
-void * operator new(size_t size)
-{
-    if(STDALLOC) return std::malloc(size);
-    else         return pvPortMalloc(size);
-}
-
-void * operator new[](size_t size)
-{
-    if(STDALLOC) return std::malloc(size);
-    else         return pvPortMalloc( size );
-}
-
-void operator delete(void * ptr)
-{
-    if(STDALLOC) std::free(ptr);
-    else         vPortFree(ptr);
-}
-
-void operator delete[](void * ptr)
-{
-    if(STDALLOC) std::free(ptr);
-    else         vPortFree(ptr);
-}
-
 static void Error_Handler()
 {
     HardFault_Handler();
