@@ -41,7 +41,8 @@ private:
     // void dmaAbortTransmitCpltCallback() override;
     // void dmaAbortReceiveCpltCallback() override;
 
-    std::deque<DmaSession> txSessionQueue;
+    std::queue<DmaSession> txQueue;
+    // todo try to change to freertos queue
 
     int txCpltCount;
 };
