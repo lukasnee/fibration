@@ -1,6 +1,6 @@
 #include "dmaQueue.hpp"
 
-#define QUEUE_MAX 0x20
+#define QUEUE_MAX 0x40
 
 DmaQueue::DmaQueue(uint32_t priority) : 
     Thread{"dmaQueue", 0x100, priority}, //todo priority move out
@@ -13,10 +13,10 @@ bool DmaQueue::txPush(const std::uint8_t * ptr, std::uint16_t size)
 {
     bool retval = false;
 
-    if(txSessionQueue.size() < QUEUE_MAX) // some limit
+    if(txQueue.size() < QUEUE_MAX) // some limit
     {
         DmaQueue::DmaSession blob = { .ptr = const_cast<std::uint8_t*>(ptr), .size = size, .dmaCallbacks = *this };
-        txSessionQueue.push_back(blob);
+        txQueue.push(blob);
         Thread::Resume(); // handle immediately
         retval = true;
     }
@@ -47,8 +47,8 @@ bool DmaQueue::txHandle()
     // free completed session from queue front
     if (txCpltCount)
     {
-        delete[] txSessionQueue.front().ptr;
-        txSessionQueue.pop_front();
+        delete[] txQueue.front().ptr;
+        txQueue.pop();
         txCpltCount--;
         retval = true;
     }
@@ -63,11 +63,11 @@ bool DmaQueue::txNext()
 {
     bool retval = false;
 
-    if(txSessionQueue.empty() == false)
+    if(txQueue.empty() == false)
     {
-        if (transmitDma(txSessionQueue.front().ptr, 
-                        txSessionQueue.front().size, 
-                        txSessionQueue.front().dmaCallbacks))
+        if (transmitDma(txQueue.front().ptr, 
+                        txQueue.front().size, 
+                        txQueue.front().dmaCallbacks))
         {
             retval = true;
         }
