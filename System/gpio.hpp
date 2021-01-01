@@ -24,51 +24,60 @@
 class Gpio
 {
 public:
-	enum Port : std::size_t 
-	{ 
-		A, B, C, D, E, F, 
-		
-	_PORT_ENUM_MAX = F 
-	};
+    enum Port : std::size_t
+    {
+        A, B, C, D, E, F,
+    _PORT_ENUM_MAX = F
+    };
 
-	enum Pin : std::size_t
-	{
-		P0, P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15,
+    enum Pin : std::size_t
+    {
+        pin0, pin1, pin2, pin3, 
+        pin4, pin5, pin6, pin7, 
+        pin8, pin9, pin10, pin11, 
+        pin12, pin13, pin14, pin15,
 
-	_PIN_ENUM_MAX = P15
-	};
+    _PIN_ENUM_MAX = pin15
+    };
 
-	enum Mode : std::size_t
-	{
-		Input,
-		Output_PP, // push/pull
-		Output_OD, // open drain
-		// support more
-	_MODE_ENUM_MAX = Output_OD
-	};
+    enum Mode : std::size_t
+    {
+        input,
+        outputPushPull,
+        outputOpenDrain,
+        // support more
+    _MODE_ENUM_MAX = outputOpenDrain
+    };
 
-	enum Pull : std::size_t 
-	{ 
-		None, Up, Down, 
-	_PULL_ENUM_MAX = Down
-	};
+    enum Pull : std::size_t
+    {
+        none, up, down, 
+    _PULL_ENUM_MAX = down
+    };
 
-	enum Speed : std::size_t 
-	{ 
-		Low, Medium, High, 
-	_SPEED_ENUM_MAX = High 
-	};
+    enum Speed : std::size_t
+    {
+        low, medium, high, 
+    _SPEED_ENUM_MAX = high
+    };
 
-	Gpio(Port port, Pin pin);
-	void init(bool initState = false, Mode mode = Output_PP, Pull pull = None, Speed speed = Low);
-	bool read();
-	void write(bool state);
-	void toggle();
-	void deinit();
-	~Gpio();
+    enum class LogicState : std::size_t
+    {
+        low, high,
+    _LOGICSTATE_ENUM_MAX = high 
+    };
+
+    Gpio(Port port, Pin pin);
+    void init(Mode mode, Pull pull = Pull::none, Speed speed = Speed::low);
+    void init(Mode mode, LogicState initState, Pull pull = Pull::none, Speed speed = Speed::low);
+    bool read();
+    void write(LogicState value);
+    void toggle();
+    void deinit();
+    ~Gpio();
 
 private:
-	Port port;
-	Pin pin;
-	bool isInitialized;
+    Port port;
+    Pin pin;
+    bool isInitialized;
 };
