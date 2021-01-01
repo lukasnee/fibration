@@ -34,6 +34,9 @@ public:
 	Log(Log const&) = delete;
 	void operator=(Log const&) = delete;
 
+    static void colorEnable() { logColored = true; };
+    static void colorDisable() { logColored = false; };
+
 	Log();
 	~Log();
 
@@ -59,6 +62,9 @@ private:
 	static int formatPrefixAndContext(Type type, const std::string &context, std::uint8_t * pOut, const std::size_t maxSize);
 
 	static Uart1 * pStream;
+
+    // config
+    static bool logColored;
 
 	static void logOutOfMem();
 };
