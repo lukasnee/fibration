@@ -61,18 +61,19 @@ public:
     _SPEED_ENUM_MAX = high
     };
 
-    enum class LogicState : std::size_t
+    enum PinState : std::size_t
     {
-        low, high,
-    _LOGICSTATE_ENUM_MAX = high 
+        LOW, HIGH, 
+    _PINSTATE_ENUM_MAX = HIGH 
     };
 
     Gpio(Port port, Pin pin);
     void init(Mode mode, Pull pull = Pull::none, Speed speed = Speed::low);
-    void init(Mode mode, LogicState initState, Pull pull = Pull::none, Speed speed = Speed::low);
+    void init(Mode mode, PinState initial, Pull pull = Pull::none, Speed speed = Speed::low);
     bool read();
-    void write(LogicState value);
+    void write(PinState value);
     void toggle();
+    void lock(); // lock pin hardware configuration registers until mcu reboot 
     void deinit();
     ~Gpio();
 

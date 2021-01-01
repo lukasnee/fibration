@@ -21,7 +21,7 @@
 
 #include "stm32f3xx_hal.h"
 
-static GPIO_TypeDef * sGetPort(Gpio::Port port)
+static constexpr GPIO_TypeDef * sGetPort(Gpio::Port port)
 {
     const GPIO_TypeDef * cMap[Gpio::Port::_PORT_ENUM_MAX + 1] = {
         GPIOA, GPIOB, GPIOC, GPIOD, GPIOE, GPIOF
@@ -29,7 +29,7 @@ static GPIO_TypeDef * sGetPort(Gpio::Port port)
     return const_cast<GPIO_TypeDef *>(cMap[port]);
 }
 
-static uint16_t sGetPin(Gpio::Pin pin)
+static constexpr uint16_t sGetPin(Gpio::Pin pin)
 {
     const uint16_t cMap[Gpio::Pin::_PIN_ENUM_MAX + 1] = {
         GPIO_PIN_0, GPIO_PIN_1, GPIO_PIN_2, GPIO_PIN_3,
@@ -40,7 +40,7 @@ static uint16_t sGetPin(Gpio::Pin pin)
     return cMap[pin];
 }
 
-static uint32_t sGetMode(Gpio::Mode mode)
+static constexpr uint32_t sGetMode(Gpio::Mode mode)
 {
     const uint32_t cMap[Gpio::Mode::_MODE_ENUM_MAX + 1] = {
         GPIO_MODE_INPUT,
@@ -50,7 +50,7 @@ static uint32_t sGetMode(Gpio::Mode mode)
     return cMap[mode];
 }
 
-static uint32_t sGetPull(Gpio::Pull pull)
+static constexpr uint32_t sGetPull(Gpio::Pull pull)
 {
     const uint32_t cMap[Gpio::Pull::_PULL_ENUM_MAX + 1] = {
         GPIO_NOPULL,
@@ -60,7 +60,7 @@ static uint32_t sGetPull(Gpio::Pull pull)
     return cMap[pull];
 }
 
-static uint32_t sGetSpeed(Gpio::Speed speed)
+static constexpr uint32_t sGetSpeed(Gpio::Speed speed)
 {
     const uint32_t cMap[Gpio::Speed::_SPEED_ENUM_MAX + 1] = {
         GPIO_SPEED_FREQ_LOW,
@@ -68,6 +68,15 @@ static uint32_t sGetSpeed(Gpio::Speed speed)
         GPIO_SPEED_FREQ_HIGH
     };
     return cMap[speed];
+}
+
+static constexpr GPIO_PinState sGetPinState(Gpio::PinState pinState)
+{
+    const GPIO_PinState cMap[Gpio::PinState::_PINSTATE_ENUM_MAX + 1] = {
+        GPIO_PIN_RESET,
+        GPIO_PIN_SET
+    };
+    return cMap[pinState];
 }
 
 static void sEnableGpioClock(Gpio::Port port)
@@ -115,7 +124,7 @@ void Gpio::init(Mode mode, Pull pull, Speed speed)
     isInitialized = true;
 }
 
-void Gpio::init(Mode mode, LogicState initial, Pull pull, Speed speed)
+void Gpio::init(Mode mode, PinState initial, Pull pull, Speed speed)
 {
     write(initial);
     init(mode, pull, speed);
@@ -128,16 +137,21 @@ bool Gpio::read()
 }
 
 
-void Gpio::write(LogicState value)
+void Gpio::write(PinState value)
 {
-    HAL_GPIO_WritePin(sGetPort(this->port), sGetPin(this->pin),
-        value == LogicState::low ? GPIO_PIN_RESET : GPIO_PIN_SET);	
+    HAL_GPIO_WritePin(sGetPort(this->port), sGetPin(this->pin), sGetPinState(value));
 }
 
 
 void Gpio::toggle()
 {
     HAL_GPIO_TogglePin(sGetPort(this->port), sGetPin(this->pin));
+}
+
+
+void Gpio::lock()
+{
+    HAL_GPIO_LockPin(sGetPort(this->port), sGetPin(this->pin));
 }
 
 
