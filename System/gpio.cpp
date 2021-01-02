@@ -23,60 +23,60 @@
 
 static constexpr GPIO_TypeDef * sGetPort(Gpio::Port port)
 {
-    const GPIO_TypeDef * cMap[Gpio::Port::_PORT_ENUM_MAX + 1] = {
+    const GPIO_TypeDef * cMap[static_cast<std::size_t>(Gpio::Port::_PORT_ENUM_MAX) + 1] = {
         GPIOA, GPIOB, GPIOC, GPIOD, GPIOE, GPIOF
     };
-    return const_cast<GPIO_TypeDef *>(cMap[port]);
+    return const_cast<GPIO_TypeDef *>(cMap[static_cast<std::size_t>(port)]);
 }
 
 static constexpr uint16_t sGetPin(Gpio::Pin pin)
 {
-    const uint16_t cMap[Gpio::Pin::_PIN_ENUM_MAX + 1] = {
+    const uint16_t cMap[static_cast<std::size_t>(Gpio::Pin::_PIN_ENUM_MAX) + 1] = {
         GPIO_PIN_0, GPIO_PIN_1, GPIO_PIN_2, GPIO_PIN_3,
         GPIO_PIN_4, GPIO_PIN_5, GPIO_PIN_6, GPIO_PIN_7,
         GPIO_PIN_8, GPIO_PIN_9, GPIO_PIN_10, GPIO_PIN_11,
         GPIO_PIN_12, GPIO_PIN_13, GPIO_PIN_14, GPIO_PIN_15
     };
-    return cMap[pin];
+    return cMap[static_cast<std::size_t>(pin)];
 }
 
 static constexpr uint32_t sGetMode(Gpio::Mode mode)
 {
-    const uint32_t cMap[Gpio::Mode::_MODE_ENUM_MAX + 1] = {
+    const uint32_t cMap[static_cast<std::size_t>(Gpio::Mode::_MODE_ENUM_MAX) + 1] = {
         GPIO_MODE_INPUT,
         GPIO_MODE_OUTPUT_PP,
         GPIO_MODE_OUTPUT_OD
     };
-    return cMap[mode];
+    return cMap[static_cast<std::size_t>(mode)];
 }
 
 static constexpr uint32_t sGetPull(Gpio::Pull pull)
 {
-    const uint32_t cMap[Gpio::Pull::_PULL_ENUM_MAX + 1] = {
+    const uint32_t cMap[static_cast<std::size_t>(Gpio::Pull::_PULL_ENUM_MAX) + 1] = {
         GPIO_NOPULL,
         GPIO_PULLUP,
         GPIO_PULLDOWN
     };
-    return cMap[pull];
+    return cMap[static_cast<std::size_t>(pull)];
 }
 
 static constexpr uint32_t sGetSpeed(Gpio::Speed speed)
 {
-    const uint32_t cMap[Gpio::Speed::_SPEED_ENUM_MAX + 1] = {
+    const uint32_t cMap[static_cast<std::size_t>(Gpio::Speed::_SPEED_ENUM_MAX) + 1] = {
         GPIO_SPEED_FREQ_LOW,
         GPIO_SPEED_FREQ_MEDIUM,
         GPIO_SPEED_FREQ_HIGH
     };
-    return cMap[speed];
+    return cMap[static_cast<std::size_t>(speed)];
 }
 
 static constexpr GPIO_PinState sGetPinState(Gpio::PinState pinState)
 {
-    const GPIO_PinState cMap[Gpio::PinState::_PINSTATE_ENUM_MAX + 1] = {
+    const GPIO_PinState cMap[static_cast<std::size_t>(Gpio::PinState::_PINSTATE_ENUM_MAX) + 1] = {
         GPIO_PIN_RESET,
         GPIO_PIN_SET
     };
-    return cMap[pinState];
+    return cMap[static_cast<std::size_t>(pinState)];
 }
 
 static void sEnableGpioClock(Gpio::Port port)
