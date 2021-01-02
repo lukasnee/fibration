@@ -179,12 +179,12 @@ void Log::log(Verbosity verbosity, Type type, const std::string &context, const 
 
 // try just char pointer array... maybe more efficient?
 const std::string Log::arLogType[LOG_TYPE_MAX + 1] = {
-    {"\e[32m TRACE"}, 	// green
-    {"\e[35m FATAL"}, 	// magenta
-    {"\e[34mSYSTEM"}, 	// blue
-    {"\e[31m ERROR"}, 	// red
-    {"\e[33mWRNING"}, 	// yellow
-    {"\e[36m  INFO"}, 	// cyan
+    {"\e[32mTRACE"}, 	// green
+    {"\e[35mFATAL"}, 	// magenta
+    {"\e[34mSYS  "}, 	// blue
+    {"\e[31mERROR"}, 	// red
+    {"\e[33mWARN "}, 	// yellow
+    {"\e[36mINFO "}, 	// cyan
 };
 
 int Log::formatPrefixAndContext(Type type, const std::string &context, std::uint8_t * pStrBase, const std::size_t maxSize)
