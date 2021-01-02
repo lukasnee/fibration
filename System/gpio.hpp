@@ -24,13 +24,13 @@
 class Gpio
 {
 public:
-    enum Port : std::size_t
+    enum class Port : std::size_t
     {
         A, B, C, D, E, F,
     _PORT_ENUM_MAX = F
     };
 
-    enum Pin : std::size_t
+    enum class Pin : std::size_t
     {
         pin0, pin1, pin2, pin3, 
         pin4, pin5, pin6, pin7, 
@@ -40,7 +40,7 @@ public:
     _PIN_ENUM_MAX = pin15
     };
 
-    enum Mode : std::size_t
+    enum class Mode : std::size_t
     {
         input,
         outputPushPull,
@@ -49,28 +49,28 @@ public:
     _MODE_ENUM_MAX = outputOpenDrain
     };
 
-    enum Pull : std::size_t
+    enum class Pull : std::size_t
     {
         none, up, down, 
     _PULL_ENUM_MAX = down
     };
 
-    enum Speed : std::size_t
+    enum class Speed : std::size_t
     {
         low, medium, high, 
     _SPEED_ENUM_MAX = high
     };
 
-    enum PinState : std::size_t
+    enum class PinState : std::size_t
     {
-        LOW, HIGH, 
-    _PINSTATE_ENUM_MAX = HIGH 
+        low, high, 
+    _PINSTATE_ENUM_MAX = high 
     };
 
     Gpio(Port port, Pin pin);
     void init(Mode mode, Pull pull = Pull::none, Speed speed = Speed::low);
     void init(Mode mode, PinState initial, Pull pull = Pull::none, Speed speed = Speed::low);
-    bool read();
+    [[nodiscard]] bool read();
     void write(PinState value);
     void toggle();
     void lock(); // lock pin hardware configuration registers until mcu reboot 
