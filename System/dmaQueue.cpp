@@ -9,7 +9,21 @@ DmaQueue::DmaQueue(uint32_t priority) :
     Thread::Start();
 }
 
-bool DmaQueue::txPush(const std::uint8_t * ptr, std::uint16_t size)
+void DmaQueue::signalTxHandling(bool callingFromISR)
+{
+    // TODO: investigate more, problem is that freertos fails if calling alloc/free from ISR 
+    if(callingFromISR)
+    {
+        Thread::ResumeFromISR();
+        Thread::Yield(); // TODO: should not it be YieldFromISR ?
+    }
+    else
+    {
+        txHandle(); // handle immediately 
+    }
+};
+
+bool DmaQueue::txPush(const std::uint8_t * ptr, std::uint16_t size, bool callingFromISR)
 {
     bool retval = false;
 
@@ -17,7 +31,7 @@ bool DmaQueue::txPush(const std::uint8_t * ptr, std::uint16_t size)
     {
         DmaQueue::DmaSession blob = { .ptr = const_cast<std::uint8_t*>(ptr), .size = size, .dmaCallbacks = *this };
         txQueue.push(blob);
-        Thread::Resume(); // handle immediately
+        signalTxHandling(callingFromISR);
         retval = true;
     }
 
@@ -27,7 +41,7 @@ bool DmaQueue::txPush(const std::uint8_t * ptr, std::uint16_t size)
 void DmaQueue::dmaTxCpltCallback()
 {
     txCpltCount++;
-    Thread::ResumeFromISR();
+    signalTxHandling(true);
 }
 
 void DmaQueue::Run() // task code
