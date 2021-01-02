@@ -69,7 +69,7 @@ set(SYSTEM_SRC
 # Fibration Framework
 
     # Hardware Peripheral Interface
-    ${ROOT}/System/threadSafeMalloc.cpp
+    ${ROOT}/System/memory.cpp
     ${ROOT}/System/peripherals.cpp
     ${ROOT}/System/peripherals.hpp
     ${ROOT}/System/uart1.cpp
