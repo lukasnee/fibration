@@ -20,7 +20,7 @@ public:
     virtual bool transmitDma(std::uint8_t *pData, std::uint16_t size, DmaCallbacks &dmaCallbacks) = 0;
     virtual bool receiveDma(std::uint8_t *pData, std::uint16_t size, DmaCallbacks &dmaCallbacks) = 0;
 
-    bool txPush(const std::uint8_t * ptr, std::uint16_t size);
+    bool txPush(const std::uint8_t * ptr, std::uint16_t size, bool callingFromISR);
 
 protected:
     DmaQueue(uint32_t priority);
@@ -29,6 +29,7 @@ protected:
 private:	
     bool txNext();
     bool txHandle();
+    void signalTxHandling(bool callingFromISR);
 
     virtual void Run() override; // task code
 
