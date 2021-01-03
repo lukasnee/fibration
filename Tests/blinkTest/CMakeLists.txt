@@ -72,6 +72,8 @@ set(SYSTEM_SRC
     ${ROOT}/System/memory.cpp
     ${ROOT}/System/peripherals.cpp
     ${ROOT}/System/peripherals.hpp
+    ${ROOT}/System/tim6.cpp
+    ${ROOT}/System/tim6.hpp
     ${ROOT}/System/uart1.cpp
     ${ROOT}/System/uart1.hpp
     ${ROOT}/System/uartCallbacks.cpp
