@@ -1,91 +1,104 @@
 {
-	"tasks": [
-		{
-			"label": "See real-time Log (minicom)",
-			"type": "shell",
-			"linux": {
-				"command": "minicom --baudrate=115200 --8bit --device=/dev/serial0 --color=on --attrib=on --capturefile=fib-log.txt",
-			},
-			"presentation": {
-				"focus": true,
-				"panel": "dedicated",
-				"revealProblems": "onProblem"
-			},
-			"problemMatcher": []
-		},
-		{
-			"label": "Build All (Debug)",
-			"type": "shell",
-			"group": "build",
-			"linux": {
-				"command": "cd Build; ./build.debug.sh",
-				"problemMatcher": "$gcc"
-			},
-			"presentation": {
-				"revealProblems": "onProblem"
-			}
-		},
-		{
-			"label": "Rebuild All (Debug)",
-			"type": "shell",
-			"group": "build",
-			"linux": {
-				"command": "cd Build; ./rebuild.debug.sh",
-				"problemMatcher": "$gcc"
-			},
-			"presentation": {
-				"revealProblems": "onProblem"
-			}
-		},
-		{
-			"label": "Build All (Release)",
-			"type": "shell",
-			"group": {
-				"kind": "build",
-				"isDefault": true
-			},
-			"linux": {
-				"command": "cd Build; ./build.release.sh",
-				"problemMatcher": "$gcc"
-			},
-			"presentation": {
-				"revealProblems": "onProblem"
-			}
-		},
-		{
-			"label": "Rebuild All (Release)",
-			"type": "shell",
-			"group": "build",
-			"linux": {
-				"command": "cd Build; ./rebuild.release.sh",
-				"problemMatcher": "$gcc"
-			},
-			"presentation": {
-				"revealProblems": "onProblem"
-			}
-		},
-		{
-			"label": "GNU Debug: blinkTest",
-			"type": "shell",
-			"group": "test",
-			"linux": {
-				"command": "cd Build; ./build.debug.sh; ./flash-to-stm32.sh Debug/Tests/blinkTest/blinkTest.bin"
-			}
-		},
-		{
-			"label": "Flash (Release): blinkTest",
-			"type": "shell",
-			"group": {
-				"kind": "test",
-				"isDefault": true
-			},
-			"linux": {
-				"command": "cd Build; ./build.release.sh; ./flash-to-stm32.sh Release/Tests/blinkTest/blinkTest.bin"
-			},
-			"presentation": {
-				"focus": true
-			}
-		}
-	],
-	"version": "2.0.0"
+    "tasks": [
+        {
+            "label": "See real-time Log (minicom)",
+            "type": "shell",
+            "linux": {
+                "command": "minicom --baudrate=115200 --8bit --device=/dev/serial0 --color=on --attrib=on",
+            },
+            "presentation": {
+                "focus": true,
+                "panel": "dedicated",
+                "revealProblems": "onProblem"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "See real-time Log to file (minicom)",
+            "type": "shell",
+            "linux": {
+                "command": "minicom --baudrate=115200 --8bit --device=/dev/serial0 --color=on --attrib=on --capturefile=fib-log.txt",
+            },
+            "presentation": {
+                "focus": true,
+                "panel": "dedicated",
+                "revealProblems": "onProblem"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Build All (Debug)",
+            "type": "shell",
+            "group": "build",
+            "linux": {
+                "command": "cd Build; ./build.debug.sh",
+                "problemMatcher": "$gcc"
+            },
+            "presentation": {
+                "revealProblems": "onProblem"
+            }
+        },
+        {
+            "label": "Rebuild All (Debug)",
+            "type": "shell",
+            "group": "build",
+            "linux": {
+                "command": "cd Build; ./rebuild.debug.sh",
+                "problemMatcher": "$gcc"
+            },
+            "presentation": {
+                "revealProblems": "onProblem"
+            }
+        },
+        {
+            "label": "Build All (Release)",
+            "type": "shell",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "linux": {
+                "command": "cd Build; ./build.release.sh",
+                "problemMatcher": "$gcc"
+            },
+            "presentation": {
+                "revealProblems": "onProblem"
+            }
+        },
+        {
+            "label": "Rebuild All (Release)",
+            "type": "shell",
+            "group": "build",
+            "linux": {
+                "command": "cd Build; ./rebuild.release.sh",
+                "problemMatcher": "$gcc"
+            },
+            "presentation": {
+                "revealProblems": "onProblem"
+            }
+        },
+        {
+            "label": "GNU Debug: blinkTest",
+            "type": "shell",
+            "group": "test",
+            "linux": {
+                "command": "cd Build; ./build.debug.sh; ./flash-to-stm32.sh Debug/Tests/blinkTest/blinkTest.bin"
+            }
+        },
+        {
+            "label": "Flash (Release): blinkTest",
+            "type": "shell",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "linux": {
+                "command": "cd Build; ./build.release.sh; ./flash-to-stm32.sh Release/Tests/blinkTest/blinkTest.bin"
+            },
+            "presentation": {
+                "focus": true
+            }
+        }
+    ],
+    "version": "2.0.0"
 }
