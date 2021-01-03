@@ -56,7 +56,8 @@
         "thread_delete": "cpp",
         "cstring": "cpp",
         "list": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "map": "cpp"
     },
 	"cmake.configureOnOpen": true,
 	"C_Cpp.errorSquiggles": "Disabled"
