@@ -7,9 +7,9 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-int main()
+extern "C" void vApplicationMallocFailedHook( void )
 {
-    FibSys::run(); // never returns
+    FibSys::panic();
 }
 
 static void Error_Handler()

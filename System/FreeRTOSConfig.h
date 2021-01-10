@@ -35,15 +35,16 @@
 
 /* Memory allocation related definitions. */
 #define configSUPPORT_STATIC_ALLOCATION         1
-#define configSUPPORT_DYNAMIC_ALLOCATION        1
-#define configTOTAL_HEAP_SIZE                   ((size_t) 24*1024) /* 40K RAM total for STM32F303CC */ // todo maybe move out to fibsys
-//#define configAPPLICATION_ALLOCATED_HEAP        1
+#define configSUPPORT_DYNAMIC_ALLOCATION        1 // todo 100% static system
+#define configAPPLICATION_ALLOCATED_HEAP        0
+/* 40K RAM total for STM32F303CC */ // todo maybe move out to fibsys
+#define configTOTAL_HEAP_SIZE                   ((size_t) 24*1024) 
 
 /* Hook function related definitions. */
 #define configUSE_IDLE_HOOK                     0
 #define configUSE_TICK_HOOK                     0
-//#define configCHECK_FOR_STACK_OVERFLOW          2 // todo maybe
-#define configUSE_MALLOC_FAILED_HOOK            0
+#define configCHECK_FOR_STACK_OVERFLOW          0 // todo maybe
+#define configUSE_MALLOC_FAILED_HOOK            1
 #define configUSE_DAEMON_TASK_STARTUP_HOOK      0
 
 /* Run time and task stats gathering related definitions. */
