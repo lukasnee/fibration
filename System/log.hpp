@@ -3,7 +3,7 @@
 #define LOG_ENABLED 				true
 #define LOG_VERBOSITY_LEVEL 		Log::VERBOSITY_2
 
-#include <string>
+#include <string_view>
 #include <cstdarg>
 
 #include "uart1.hpp"
@@ -21,13 +21,9 @@ public:
 		VERBOSITY_2,
 	};
 	
-	static void trace(const std::string &context, const std::string &fmt, ...);
-	static void fatal(const std::string &context, const std::string &fmt, ...);
-	static void system(const std::string &context, const std::string &fmt, ...);
-	static void error(const std::string &context, const std::string &fmt, ...);
-	static void warning(const std::string &context, const std::string &fmt, ...);
-	static void info(const std::string &context, const std::string &fmt, ...);
-	static void info(Verbosity verbosity, const std::string &context, const std::string &fmt, ...);
+
+    static void DIRECT(const std::string_view rawMsg);
+    static void clear();
 
  	// singleton pattern
 	static Log& get() { static Log instance; return instance; };
