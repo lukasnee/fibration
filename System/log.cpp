@@ -3,7 +3,7 @@
 
 #include "dmaQueue.hpp"
 
-#include <string>
+#include <string_view>
 #include <cstdio>
 #include <cstdarg>
 
@@ -91,6 +91,14 @@ void Log::info(Verbosity verbosity,
         va_start(arglist, fmt);
         log(verbosity, LOG_TYPE_INFO, context, fmt, arglist);
         va_end(arglist);
+    }
+}
+
+void Log::DIRECT(const std::string_view staticStr)
+{
+    if(LOG_ENABLED)
+    {
+        pStream->txPush(reinterpret_cast<const uint8_t*>(staticStr.data()), staticStr.length(), false, true);
     }
 }
 

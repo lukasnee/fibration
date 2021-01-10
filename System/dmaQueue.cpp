@@ -23,13 +23,13 @@ void DmaQueue::signalTxHandling(bool callingFromISR)
     }
 };
 
-bool DmaQueue::txPush(const std::uint8_t * ptr, std::uint16_t size, bool callingFromISR)
+bool DmaQueue::txPush(const std::uint8_t * ptr, std::uint16_t size, bool callingFromISR, bool isDataStatic)
 {
     bool retval = false;
 
     if(txQueue.size() < QUEUE_MAX) // some limit
     {
-        DmaQueue::DmaSession blob = { .ptr = const_cast<std::uint8_t*>(ptr), .size = size, .dmaCallbacks = *this };
+        DmaQueue::DmaSession blob = { .ptr = const_cast<std::uint8_t*>(ptr), .size = size, .isDataStatic = isDataStatic, .dmaCallbacks = *this };
         txQueue.push(blob);
         signalTxHandling(callingFromISR);
         retval = true;
@@ -61,7 +61,11 @@ bool DmaQueue::txHandle()
     // free completed session from queue front
     if (txCpltCount)
     {
-        delete[] txQueue.front().ptr;
+        if(txQueue.front().isDataStatic == false)
+        {
+            delete[] txQueue.front().ptr;
+        }
+        
         txQueue.pop();
         txCpltCount--;
         retval = true;
