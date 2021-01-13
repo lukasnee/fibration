@@ -21,6 +21,13 @@ public:
 		VERBOSITY_2,
 	};
 	
+	static void trace(const std::string_view context, const std::string_view fmt, ...);
+	static void fatal(const std::string_view context, const std::string_view fmt, ...);
+	static void system(const std::string_view context, const std::string_view fmt, ...);
+	static void error(const std::string_view context, const std::string_view fmt, ...);
+	static void warning(const std::string_view context, const std::string_view fmt, ...);
+	static void info(const std::string_view context, const std::string_view fmt, ...);
+	static void info(Verbosity verbosity, const std::string_view context, const std::string_view fmt, ...);
 
     static void DIRECT(const std::string_view rawMsg);
     static void clear();
@@ -37,7 +44,7 @@ public:
 	~Log();
 
 protected:
-	static void syserr(const std::string &context, const std::string &fmt, ...);
+	static void syserr(const std::string_view context, const std::string_view fmt, ...);
 
 private:	
 	typedef enum Type_ 
@@ -52,10 +59,10 @@ private:
 	LOG_TYPE_MAX = LOG_TYPE_INFO
 	} Type;
 
-	static const std::string arLogType[LOG_TYPE_MAX + 1];
+	static const std::string_view arLogType[LOG_TYPE_MAX + 1];
 
-	static void log(Verbosity verbosity, Type type, const std::string &context, const std::string &fmt, va_list arglist);
-	static int formatPrefixAndContext(Type type, const std::string &context, std::uint8_t * pOut, const std::size_t maxSize);
+	static void log(Verbosity verbosity, Type type, const std::string_view context, const std::string_view fmt, va_list arglist);
+	static int formatPrefixAndContext(Type type, const std::string_view context, std::uint8_t * pOut, const std::size_t maxSize);
 
 	static Uart1 * pStream;
 
