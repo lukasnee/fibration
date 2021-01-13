@@ -4,20 +4,24 @@
 #include <limits>
 // NOTE: peripheral instances should get constructer after MCU core and freertos initialization
 
-// Gets used for FreeRTOS TimeGetStats
+// For FreeRTOS TimeGetStats
 Tim6 & Periph::getTim6()
 {
-    static Tim6 tim6((72000000/ (10000)), (std::numeric_limits<std::uint16_t>::max())); return tim6;
+    // Simple 16-bit value counted-up in 10 KHz
+    static Tim6 tim6((SystemCoreClock / (10000)), (std::numeric_limits<std::uint16_t>::max())); 
+    return tim6;
 }
 extern "C" void vConfigureTimerForRunTimeStats()
 {
-    Periph::getTim6().start(); // constructs (inits) and starts.
-}
-extern "C" uint32_t uint32GetRunTimeCounterValue()
-{
-    return Periph::getTim6().getCounterValue();
+    Periph::getTim6().start();
 }
 
+extern "C" uint32_t uint32GetRunTimeCounterValue()
+{
+    return static_cast<std::uint32_t>(Periph::getTim6().getCounterValue());
+}
+
+// For Log
 Uart1 & Periph::getUart1()
 {
     static Uart1 uart1(10, 115200); return uart1; // todo figure out priority 

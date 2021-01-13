@@ -5,6 +5,7 @@ extern DMA_HandleTypeDef hdma_usart1_tx;
 extern DMA_HandleTypeDef hdma_usart1_rx;
 extern UART_HandleTypeDef huart1;
 extern TIM_HandleTypeDef htim7;
+extern TIM_HandleTypeDef htim6;
 
 #define BLINK_TIME_MS 100
 #define OFF_TIME_MS 1000
@@ -115,4 +116,9 @@ void USART1_IRQHandler(void)
 void TIM7_IRQHandler(void)
 {
 	HAL_TIM_IRQHandler(&htim7);
+}
+
+void TIM6_DAC_IRQHandler(void)
+{
+  HAL_TIM_IRQHandler(&htim6);
 }
