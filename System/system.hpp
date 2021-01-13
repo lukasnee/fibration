@@ -1,34 +1,28 @@
 #pragma once
 
+#include "thread.hpp"
+
 #include <cstdint>
-
-#include "FreeRTOS.h"
-#include "task.h"
-
-#include "peripherals.hpp"
-#include "log.hpp"
-
-class FibSys // todo make singleton
+class FibSys : public cpp_freertos::Thread
 {
 public:
-    static void run();
-    static void stop();
-    static std::uint32_t getTick();
-    static void taskDelay(std::uint32_t ms);
+    // entry point of fibration system, should be called in main
+    static void start();
+
+    // 1KHz system tick time reference
+    static std::uint32_t getSysTick();
+
+    // should be called in case fatal error, could be used as run-time assert
     static void panic();
+    static BaseType_t getSysMaxPriority();
+    static BaseType_t getAppMaxPriority();
     
+    FibSys(const FibSys &) = delete;
+    FibSys(FibSys &&) = delete;
 private:
-    static void initPlatform();
-    static void initTasks(std::uint32_t priority);
+    // can only be instantiated with FibSys::start()
+    FibSys(std::uint16_t stackDepth, BaseType_t priority);
 
-    static void vSystemTask(void * pvParams);
-    static void vMainTask(void * pvParams);
-
-    static TaskHandle_t hSystemTask;
-    static TaskHandle_t hMainTask;
-
-    static size_t initialFreeHeapSize;
-    static size_t freeHeapSize;
+    // FibSys thread code
+    virtual void Run() override;
 };
-
-void mainTask(void *); // application entry point
