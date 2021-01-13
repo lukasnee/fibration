@@ -1,5 +1,6 @@
 #include "log.hpp"
 #include "system.hpp"
+#include "peripherals.hpp"
 
 #include "dmaQueue.hpp"
 
@@ -16,7 +17,7 @@ void Log::init()
     Log::pStream = &Periph::getUart1();
 }
 
-void Log::trace(const std::string &context, const std::string &fmt, ...)
+void Log::trace(const std::string_view context, const std::string_view fmt, ...)
 {
     if(LOG_ENABLED)
     {
@@ -27,7 +28,7 @@ void Log::trace(const std::string &context, const std::string &fmt, ...)
     }
 };
 
-void Log::fatal(const std::string &context, const std::string &fmt, ...)
+void Log::fatal(const std::string_view context, const std::string_view fmt, ...)
 {
     if(LOG_ENABLED)
     {
@@ -38,7 +39,7 @@ void Log::fatal(const std::string &context, const std::string &fmt, ...)
     }
 };
 
-void Log::system(const std::string &context, const std::string &fmt, ...)
+void Log::system(const std::string_view context, const std::string_view fmt, ...)
 {
     if(LOG_ENABLED)
     {
@@ -49,7 +50,7 @@ void Log::system(const std::string &context, const std::string &fmt, ...)
     }
 };
 
-void Log::error(const std::string &context, const std::string &fmt, ... )
+void Log::error(const std::string_view context, const std::string_view fmt, ... )
 {
     if(LOG_ENABLED)
     {
@@ -60,7 +61,7 @@ void Log::error(const std::string &context, const std::string &fmt, ... )
     }
 };
 
-void Log::warning(const std::string &context, const std::string &fmt, ... )
+void Log::warning(const std::string_view context, const std::string_view fmt, ... )
 {
     if(LOG_ENABLED)
     {
@@ -71,7 +72,7 @@ void Log::warning(const std::string &context, const std::string &fmt, ... )
     }
 };
 
-void Log::info(const std::string &context, const std::string &fmt, ... )
+void Log::info(const std::string_view context, const std::string_view fmt, ... )
 {
     if(LOG_ENABLED)
     {
@@ -83,7 +84,7 @@ void Log::info(const std::string &context, const std::string &fmt, ... )
 };
 
 void Log::info(Verbosity verbosity, 
-    const std::string &context, const std::string &fmt, ... )
+    const std::string_view context, const std::string_view fmt, ... )
 {
     if(LOG_ENABLED)
     {
@@ -94,31 +95,34 @@ void Log::info(Verbosity verbosity,
     }
 }
 
-void Log::DIRECT(const std::string_view staticStr)
+void Log::DIRECT(const std::string_view staticStrv)
 {
     if(LOG_ENABLED)
     {
-        pStream->txPush(reinterpret_cast<const uint8_t*>(staticStr.data()), staticStr.length(), false, true);
+        pStream->txPush(reinterpret_cast<const uint8_t*>(staticStrv.data()), staticStrv.length(), false, true);
     }
+}
+
+void Log::clear()
+{
+    static const std::string_view staticStrv = "\r\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
+    DIRECT(staticStrv);
 }
 
 void Log::logOutOfMem()
 {
-    const std::string str = "\e[31mstream out of mem\e[0m\r\n";
-    pStream->txPush(reinterpret_cast<const std::uint8_t*>(str.c_str()), str.size(), false);
+    static const std::string_view staticStrv = "\e[31mstream out of mem\e[0m\r\n";
+    DIRECT(staticStrv);
 }
 
-void Log::log(Verbosity verbosity, Type type, const std::string &context, const std::string &fmt, va_list arglist)
+void Log::log(Verbosity verbosity, Type type, const std::string_view context, const std::string_view fmt, va_list arglist)
 {
     if(LOG_ENABLED)
     {
         if(verbosity <= LOG_VERBOSITY_LEVEL)
         {
-            /* todo could be very inefficient using std::string (memory and
-            perfomance wise), test this. maybe try https://github.com/fmtlib/fmt
-            for printig and formatting */
+            int allocSize = 0x80; // a typical log line should fit...
 
-            const int allocSize = 0x80; // a typical log line should fit...
             std::uint8_t * pStrBase = new std::uint8_t[allocSize];
             if(pStrBase == nullptr)
             {
@@ -132,23 +136,27 @@ void Log::log(Verbosity verbosity, Type type, const std::string &context, const 
                 std::uint32_t strLen = 0;
 
                 // try to print prefix and context
-                int len = formatPrefixAndContext(type, context, pStrHead, maxStrLen);
+                int len = Log::formatPrefixAndContext(type, context, pStrHead, maxStrLen);
                 if (len > maxStrLen)
                 {
                     // did not fit - reallocate needed length buffer and try again
                     delete[] pStrBase;
-                    pStrBase = new std::uint8_t[len + sizeof('\0')];
-                    if(pStrBase == nullptr)
+                    if(len < 0x400) // some limitation
                     {
-                        logOutOfMem();
-                        return;
-                    }
-                    else
-                    {
-                        pStrHead = pStrBase;
-                        maxStrLen = len;
-                        strLen = 0;
-                        formatPrefixAndContext(type, context, pStrHead, maxStrLen);
+                        allocSize = len + sizeof('\0');
+                        pStrBase = new std::uint8_t[allocSize];
+                        if(pStrBase == nullptr)
+                        {
+                            Log::logOutOfMem();
+                            return;
+                        }
+                        else
+                        {
+                            pStrHead = pStrBase;
+                            maxStrLen = allocSize - sizeof('\0');
+                            strLen = 0;
+                            Log::formatPrefixAndContext(type, context, pStrHead, maxStrLen);
+                        }
                     }
                 }
                 
@@ -156,48 +164,53 @@ void Log::log(Verbosity verbosity, Type type, const std::string &context, const 
                 pStrHead += len; maxStrLen -= len;
 
                 // try to print log message
-                len = vsnprintf(reinterpret_cast<char*>(pStrHead), maxStrLen, fmt.c_str(), arglist);
+                len = vsnprintf(reinterpret_cast<char*>(pStrHead), maxStrLen, fmt.data(), arglist);
                 if (len > maxStrLen)
                 {
                     // did not fit - push previous print, and try to print log message to a new mem alloc
-                    pStream->txPush(pStrBase, strLen + sizeof('\0'), false);
-                    pStrBase = new std::uint8_t[allocSize]; // should fit
-                    if(pStrBase == nullptr)
+                    pStream->txPush(pStrBase, strLen, false, false);
+                    if(len < 0x400) // some limitation
                     {
-                        logOutOfMem();
-                        return;
-                    }
-                    else
-                    {
-                        pStrHead = pStrBase;
-                        maxStrLen = allocSize - sizeof('\0');
-                        strLen = 0;
-                        vsnprintf(reinterpret_cast<char*>(pStrHead), maxStrLen, fmt.c_str(), arglist);
+                        allocSize = len + sizeof('\0');
+                        pStrBase = new std::uint8_t[allocSize]; // should fit
+                        if(pStrBase == nullptr)
+                        {
+                            logOutOfMem();
+                            return;
+                        }
+                        else
+                        {
+                            pStrHead = pStrBase;
+                            maxStrLen = allocSize - sizeof('\0');
+                            strLen = 0;
+                            vsnprintf(reinterpret_cast<char*>(pStrHead), maxStrLen, fmt.data(), arglist);
+                        }
                     }
                 }
+                
                 strLen += len; // notice printed log message
                 pStrHead += len; maxStrLen -= len;
 
                 // push whats left
-                pStream->txPush(pStrBase, strLen + sizeof('\0'), false);
+                pStream->txPush(pStrBase, strLen, false, false);
             }
         }
     }
 }
 
 // try just char pointer array... maybe more efficient?
-const std::string Log::arLogType[LOG_TYPE_MAX + 1] = {
-    {"\e[32mTRACE"}, 	// green
-    {"\e[35mFATAL"}, 	// magenta
-    {"\e[34mSYS  "}, 	// blue
-    {"\e[31mERROR"}, 	// red
-    {"\e[33mWARN "}, 	// yellow
-    {"\e[36mINFO "}, 	// cyan
+constexpr std::string_view Log::arLogType[LOG_TYPE_MAX + 1] = {
+    {"\e[32mTRACE"}, // green
+    {"\e[35mFATAL"}, // magenta
+    {"\e[34mSYS  "}, // blue
+    {"\e[31mERROR"}, // red
+    {"\e[33mWARN "}, // yellow
+    {"\e[36mINFO "}, // cyan
 };
 
-int Log::formatPrefixAndContext(Type type, const std::string &context, std::uint8_t * pStrBase, const std::size_t maxSize)
+int Log::formatPrefixAndContext(Type type, const std::string_view context, std::uint8_t * pStrBase, const std::size_t maxSize)
 {
-    std::uint32_t tick = FibSys::getTick();
+    std::uint32_t tick = FibSys::getSysTick();
     std::uint32_t minutes = tick / 1000 / 60;
     std::uint32_t seconds = tick / 1000 % 60;
     std::uint32_t milliseconds = tick % 1000;
@@ -206,6 +219,5 @@ int Log::formatPrefixAndContext(Type type, const std::string &context, std::uint
     return snprintf(reinterpret_cast<char*>(pStrBase), 
         maxSize, logColored ? "\n\r%02lu:%02lu.%03lu %s \e[1m%s\e[0m " : "\n\r%02lu:%02lu.%03lu %s %s ",
         minutes, seconds, milliseconds, 
-        arLogType[type].c_str() + (logColored ? 0 : 5), context.c_str());
+        arLogType[type].data() + (logColored ? 0 : 5), context.data());
 }
-
