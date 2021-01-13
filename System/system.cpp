@@ -17,11 +17,24 @@ static void Error_Handler()
     HardFault_Handler();
 }
 
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+extern "C" void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     if (htim->Instance == TIM7)
     {
         HAL_IncTick();
+    }
+    if (htim->Instance == TIM6)
+    {
+        static bool firstIgnored = false;
+        
+        if(firstIgnored == false) 
+        {
+            firstIgnored = true;
+        }
+        else
+        {
+            Periph::getTim6().overflowCallback();
+        }
     }
 }
 

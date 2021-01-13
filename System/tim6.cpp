@@ -3,6 +3,8 @@
 #include "stm32f3xx_hal.h"
 #include "stm32f3xx_it.h"
 
+#include <limits>
+
 TIM_HandleTypeDef htim6;
 
 static void Error_Handler()
@@ -15,6 +17,8 @@ extern "C" void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim_base)
     if (htim_base->Instance == TIM6)
     {
         __HAL_RCC_TIM6_CLK_ENABLE();
+        HAL_NVIC_SetPriority(TIM6_DAC_IRQn, 0, 0);
+        HAL_NVIC_EnableIRQ(TIM6_DAC_IRQn);
     }
 }
 
@@ -43,6 +47,7 @@ extern "C" void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef *htim_base)
     if (htim_base->Instance == TIM6)
     {
         __HAL_RCC_TIM6_CLK_DISABLE();
+        HAL_NVIC_DisableIRQ(TIM6_DAC_IRQn);
     }
 }
 
@@ -51,24 +56,29 @@ void sTim6Deinit()
     HAL_TIM_Base_DeInit(&htim6);
 }
 
-Tim6::Tim6(std::uint16_t prescaler, std::uint16_t period)
+Tim6::Tim6(std::uint16_t prescaler, std::uint16_t period) : counterValue(0)
 {
     sTim6Init(prescaler, period);
 }
 
 void Tim6::start()
 {
-    HAL_TIM_Base_Start(&htim6);
+    HAL_TIM_Base_Start_IT(&htim6);
 }
 
-std::uint32_t Tim6::getCounterValue()
+void Tim6::overflowCallback()
 {
-    return htim6.Instance->CNT;
+    this->counterValue += std::numeric_limits<std::uint16_t>::max();
+}
+
+Tim6::CounterType Tim6::getCounterValue()
+{
+    return this->counterValue + htim6.Instance->CNT;
 }
 
 void Tim6::stop()
 {
-    HAL_TIM_Base_Stop(&htim6);
+    HAL_TIM_Base_Stop_IT(&htim6);
 }
 
 Tim6::~Tim6()
