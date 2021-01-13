@@ -1,12 +1,37 @@
 #include <cstdint>
 
 #include "FreeRTOS.h"
-#include "task.h"
+#include "thread.hpp"
+#include "timer.hpp"
+#include "ticks.hpp"
 
 #include "system.hpp"
-#include "gpio.hpp"
+#include "peripherals.hpp"
+#include "log.hpp"
 
-void mainTask(void *pvParams)
+int main() 
+{
+    FibSys::start();
+}
+
+class BlinkTestApp : public cpp_freertos::Thread
+{
+public:
+    BlinkTestApp(std::uint16_t stackDepth) : 
+        Thread("blinkTestApp", 0x200, FibSys::getAppMaxPriority())
+    {
+        if(!Start())
+        {
+            FibSys::panic();
+        }
+    };
+private:
+    virtual void Run() override;
+};
+
+BlinkTestApp blinkTestApp(0x200);
+
+void BlinkTestApp::Run()
 {
     Gpio &onBoardLed = Periph::getGpio(Gpio::Port::C, Gpio::Pin::pin13);
     Gpio &rotaryButton = Periph::getGpio(Gpio::Port::C, Gpio::Pin::pin14);
@@ -16,27 +41,22 @@ void mainTask(void *pvParams)
 
     int i = 0;
 
-    Log::error("mainTask", "blink %d !", i++);
-    Log::fatal("mainTask", "blink %d !", i++);
-    Log::info("mainTask", "blink %d !", i++);
-    Log::system("mainTask", "blink %d !", i++);
-    Log::trace("mainTask", "blink %d !", i++);
-    Log::warning("mainTask", "blink %d !", i++);
-
-
     while (true)
     {
-        rotaryButton.read() ? Log::colorEnable() : Log::colorDisable();
+        rotaryButton.read() ? Log::colorEnable() : Log::colorDisable(); // todo config over uart
 
         onBoardLed.write(Gpio::PinState::low);
-        Log::info("mainTask", "blink %d !", i);
+        Delay(cpp_freertos::Ticks::MsToTicks(500));
+        Log::info("mainTask", "blink %d !", i++);
+        onBoardLed.write(Gpio::PinState::high);
+        Delay(cpp_freertos::Ticks::MsToTicks(500));
+
         for (int y = 0; y < i; y++)
         {
             Log::trace("mainTask", "%.*s", y, "=================================================================================");
         }
         i++;
-        vTaskDelay(500);
-        onBoardLed.write(Gpio::PinState::high);
-        vTaskDelay(500);
     }
+
+    while (true) { Delay(1); }
 }
