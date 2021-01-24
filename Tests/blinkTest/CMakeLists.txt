@@ -76,6 +76,8 @@ set(SYSTEM_SRC
     ${ROOT}/System/tim6.hpp
     ${ROOT}/System/uart1.cpp
     ${ROOT}/System/uart1.hpp
+    ${ROOT}/System/uart2.cpp
+    ${ROOT}/System/uart2.hpp
     ${ROOT}/System/uartCallbacks.cpp
     ${ROOT}/System/gpio.cpp
     ${ROOT}/System/gpio.hpp
