@@ -90,6 +90,8 @@ set(SYSTEM_SRC
     ${ROOT}/System/dmaQueue.hpp
     ${ROOT}/System/log.cpp
     ${ROOT}/System/log.hpp
+    ${ROOT}/System/shell.cpp
+    ${ROOT}/System/shell.hpp
 )
 
 add_executable(${PROJECT_NAME} 

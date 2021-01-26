@@ -1,6 +1,7 @@
 #include "system.hpp"
 #include "peripherals.hpp"
 #include "log.hpp"
+#include "shell.hpp"
 
 #include "ticks.hpp"
 #include "timer.hpp"
@@ -125,6 +126,8 @@ void FibSys::start()
     
     // init system level tasks
     static FibSys fibSys(0x200, getSysMaxPriority());
+
+    Shell::start(Periph::getUart2(), 0x200, getSysMaxPriority());
 
     // start task scheduler
     uwTick = 0; // for nicer log
