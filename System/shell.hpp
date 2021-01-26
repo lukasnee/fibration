@@ -26,7 +26,7 @@ public:
     };
 
 private:
-    static constexpr std::string_view prompt = "FIB> "sv;
+    static constexpr std::string_view prompt = "\e[34mFIB> "sv;
 
     static constexpr std::size_t rxBufferSize = 256;
     static constexpr std::size_t maxArgs = 16;
@@ -36,16 +36,17 @@ private:
 
     virtual void Run() override;
 
+    void resetRxBuffer(void);
+    void receiveChar(char c);
+    void sendPrompt(void);
     void echo(char c);
     void echo(const char *string);
-    void resetRxBuffer(void);
+    void echoEndLine();
+    void echoLine(const char *string);
+    void process(void);
     char lastChar(void);
     bool isRxBufferFull(void);
     const Command *findCommand(const char *name);
-    void sendPrompt(void);
-    void process(void);
-    void receiveChar(char c);
-    void putLine(const char *string);
     int helpHandler(int argc, char *argv[]);
     std::size_t rxSize;
     std::array<char, rxBufferSize> rxBuffer;
