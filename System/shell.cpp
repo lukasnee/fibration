@@ -8,18 +8,38 @@ void Shell::start(Stream &stream, std::uint16_t stackDepth, BaseType_t priority)
     static Shell shell(stream, stackDepth, priority);
 }
 
-Shell::Shell(Stream &stream, std::uint16_t stackDepth, BaseType_t priority) : Thread("shell", stackDepth, priority), stream(stream)
+Shell::Shell(Stream &stream, std::uint16_t stackDepth, BaseType_t priority)
+    : Thread("shell", stackDepth, priority), stream(stream)
 {
-    this->resetRxBuffer();
-
     this->echoEndLine();
-    this->sendPrompt();
+    this->echoLine("Type 'help' to list all commands");
+    this->promptNew();
 
     if (Start() == false)
     {
         FibSys::panic();
     }
 };
+
+int Shell::printf(const char *fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+
+    std::array<char, Shell::txBufferSize> txBuffer;
+
+    int len = vsnprintf(txBuffer.data(), txBuffer.size(), fmt, args);
+    this->echo(txBuffer.data());
+
+    va_end(args);
+
+    return len;
+}
+
+void Shell::printc(const char c)
+{
+    this->echo(c);
+}
 
 void Shell::Run()
 {
@@ -32,52 +52,13 @@ void Shell::Run()
     }
 }
 
-void Shell::resetRxBuffer(void)
-{
-    this->rxBuffer.fill(0);
-    this->rxSize = 0;
-}
-
-void Shell::sendPrompt(void)
-{
-    this->echo(Shell::prompt.data());
-}
-
-void Shell::receiveChar(char c)
-{
-    if (this->isRxBufferFull() == false)
-    {
-        this->echo(c);
-
-        if (c == '\b')
-        {
-            this->rxBuffer[--this->rxSize] = '\0';
-            return;
-        }
-
-        this->rxBuffer[this->rxSize++] = c;
-
-        this->process();
-    }
-}
-
 void Shell::echo(char c)
 {
-    if (c == '\r') // end of line
+    if(c == '\n')
     {
         this->stream.putc('\r');
-        this->stream.putc('\n'); 
     }
-    else if (c == '\b') // backspace
-    {
-        this->stream.putc('\b');
-        this->stream.putc(' ');
-        this->stream.putc('\b');
-    }
-    else
-    {
-        this->stream.putc(c);
-    }
+    this->stream.putc(c);
 }
 
 void Shell::echo(const char *string)
@@ -86,11 +67,6 @@ void Shell::echo(const char *string)
     {
         this->echo(*c);
     }
-}
-
-void Shell::echoEndLine()
-{
-    this->echo("\r");
 }
 
 void Shell::echoLine(const char *string)
@@ -102,9 +78,62 @@ void Shell::echoLine(const char *string)
     this->echoEndLine();
 }
 
+void Shell::echoEndLine()
+{
+    this->echo("\r\n");
+}
+void Shell::resetRxBuffer(void)
+{
+    this->rxBuffer.fill('\0');
+    this->rxSize = 0;
+}
+
+void Shell::promptNew(void)
+{
+    this->resetRxBuffer();
+    this->printPrompt();
+}
+
+void Shell::printPrompt(void)
+{
+    this->echo(Shell::prompt.data());
+}
+
+void Shell::receiveChar(char c)
+{
+    if (c == '\r') // end of line
+    {
+        if(this->rxBuffer.size() - this->rxSize > 1) 
+        {
+            //this->rxBuffer[this->rxSize++] = '\r';
+            this->rxBuffer[this->rxSize++] = '\n';
+        }
+        this->echoEndLine();
+    }
+    else if (c == '\b') // backspace
+    {
+        if(this->rxSize) 
+        {
+            this->rxBuffer[--this->rxSize] = '\0';
+            this->echo("\b \b");
+        }
+        return;
+    }
+    else if(c >= 0x20) // ascii text symbols
+    {
+        this->rxBuffer[this->rxSize++] = c;
+        this->echo(c);
+    }
+    else{
+        return;
+    }
+
+    this->process();
+}
+
 void Shell::process(void)
 {
-    if (this->lastChar() == '\r' || this->isRxBufferFull())
+    if (this->lastChar() == '\n')
     {
         std::array<char *, Shell::maxArgs> argv{{0}};
         std::size_t argc = 0;
@@ -128,11 +157,6 @@ void Shell::process(void)
             }
         }
 
-        if (this->rxSize == Shell::rxBufferSize)
-        {
-            this->echo('\n');
-        }
-
         if (argc >= 1)
         {
             const Shell::Command *command = findCommand(argv[0]);
@@ -140,15 +164,26 @@ void Shell::process(void)
             {
                 this->echo("Unknown command: ");
                 this->echoLine(argv[0]);
-                this->echoLine("Type 'help' to list all commands");
             }
             else
             {
-                command->handler(argc, argv.data());
+                int result = command->handler(*this, argc, argv.data());
+                if (result == 0)
+                {
+                    this->echoLine("OK");
+                }
+                else if (result < 0)
+                {
+                    this->printf("FAIL: %d\n", result);
+                }
+                else if (result == 1) // no echo
+                {
+                }
             }
         }
+
         this->resetRxBuffer();
-        this->sendPrompt();
+        this->printPrompt();
     }
 }
 
@@ -162,9 +197,9 @@ bool Shell::isRxBufferFull(void)
     return (this->rxSize >= Shell::rxBufferSize);
 }
 
-const Shell::Command *Shell::findCommand(const char * name)
+const Shell::Command *Shell::findCommand(const char *name)
 {
-    for (const auto &command : Shell::commands)
+    for (const auto &command : Shell::shellCmds)
     {
         if (std::strcmp(command.name, name) == 0)
         {
@@ -174,13 +209,13 @@ const Shell::Command *Shell::findCommand(const char * name)
     return nullptr;
 }
 
-int Shell::helpHandler(int argc, char *argv[])
+int Shell::helpHandler(Shell &shell, int argc, char *argv[])
 {
-    for (const auto &command : Shell::commands)
+    for (const auto &command : Shell::shellCmds)
     {
-        this->echo(command.name);
-        this->echo(": ");
-        this->echoLine(command.help);
+        shell.echo(command.name);
+        shell.echo(": ");
+        shell.echoLine(command.help);
     }
     return 0;
 }
