@@ -10,6 +10,7 @@
 //#include <cstddef>
 #include <array>
 #include <cstring>
+#include <cstdarg>
 #include <string_view>
 using namespace std::string_view_literals;
 
@@ -18,36 +19,42 @@ class Shell : public cpp_freertos::Thread
 public:
     static void start(Stream &stream, std::uint16_t stackDepth, BaseType_t priority);
 
+    int printf(const char *fmt, ...);
+    void printc(const char c);
+
     struct Command
     {
         const char *name;
         const char *help;
-        int (*handler)(int argc, char *argv[]);
+        int (*handler)(Shell &shell, int argc, char *argv[]);
     };
 
 private:
     static constexpr std::string_view prompt = "\e[34mFIB> "sv;
 
+    static constexpr std::size_t txBufferSize = 256;
     static constexpr std::size_t rxBufferSize = 256;
     static constexpr std::size_t maxArgs = 16;
-    static constexpr std::array<Shell::Command, 16> commands{{0}}; //todo external comnmands
+
+    static const std::array<Shell::Command, 3> shellCmds;
 
     Shell(Stream &stream, std::uint16_t stackDepth, BaseType_t priority);
 
     virtual void Run() override;
 
-    void resetRxBuffer(void);
-    void receiveChar(char c);
-    void sendPrompt(void);
     void echo(char c);
     void echo(const char *string);
     void echoEndLine();
+    void resetRxBuffer(void);
+    void receiveChar(char c);
+    void promptNew(void);
+    void printPrompt(void);
     void echoLine(const char *string);
     void process(void);
     char lastChar(void);
     bool isRxBufferFull(void);
     const Command *findCommand(const char *name);
-    int helpHandler(int argc, char *argv[]);
+    int helpHandler(Shell &shell, int argc, char *argv[]);
     std::size_t rxSize;
     std::array<char, rxBufferSize> rxBuffer;
 
