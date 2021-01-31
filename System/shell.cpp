@@ -54,7 +54,7 @@ void Shell::Run()
 
 void Shell::echo(char c)
 {
-    if(c == '\n')
+    if (c == '\n')
     {
         this->stream.putc('\r');
     }
@@ -162,22 +162,26 @@ void Shell::process(void)
             const Shell::Command *command = findCommand(argv[0]);
             if (!command)
             {
-                this->echo("Unknown command: ");
+                this->printf("\e[39mfibration: %s: command not found", argv[0]);
                 this->echoLine(argv[0]);
             }
             else
             {
+                echo("\e[32m"); // response in green
                 int result = command->handler(*this, argc, argv.data());
-                if (result == 0)
+                if(ShellConfig::regularResponseIsEnabled)
                 {
-                    this->echoLine("OK");
-                }
-                else if (result < 0)
-                {
-                    this->printf("FAIL: %d\n", result);
-                }
-                else if (result == 1) // no echo
-                {
+                    if (result == 0)
+                    {
+                        this->echoLine("\e[32mOK"); // green
+                    }
+                    else if (result < 0)
+                    {
+                        this->printf("\e[31mFAIL: %d\n", result); // red
+                    }
+                    else if (result == 1) // no echo
+                    {
+                    }
                 }
             }
         }
