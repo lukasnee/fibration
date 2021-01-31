@@ -132,8 +132,6 @@ void FibSys::start()
     // start task scheduler
     uwTick = 0; // for nicer log
     vTaskStartScheduler();
-
-    while(true); // should never be reached
 }
 
 FibSys::FibSys(std::uint16_t stackDepth, BaseType_t priority) : 
@@ -145,40 +143,26 @@ FibSys::FibSys(std::uint16_t stackDepth, BaseType_t priority) :
     }
 };
 
+// void FibSys::collectStats()
+// {
+//     std::size_t minFreeHeapSize = std::numeric_limits<std::size_t>::max();
+
+//     std::size_t freeHeapSize = xPortGetFreeHeapSize();
+//     if(freeHeapSize < minFreeHeapSize)
+//     {
+//         minFreeHeapSize = freeHeapSize;
+//     }
+// }
+
 extern std::uint32_t callCount;
 extern "C" uint32_t uint32GetRunTimeCounterValue();
 //FibSys thread
 void FibSys::Run() {
-    std::size_t minFreeHeapSize = std::numeric_limits<std::size_t>::max();
-    std::size_t initialFreeHeapSize = xPortGetFreeHeapSize();
-
-
-
     while(true)
     {
-        std::size_t freeHeapSize = xPortGetFreeHeapSize();
-        if(freeHeapSize < minFreeHeapSize)
-        {
-            minFreeHeapSize = freeHeapSize;
-        }
-
-        char szRunTimeStats[10*40];
-        vTaskGetRunTimeStats(szRunTimeStats);
-        
-        Log::clear();
-        Log::system("FibSys", "\n\r"
-            "initialFreeHeapSize:%lu\n\r"
-            "       freeHeapSize:%lu\n\r"
-            "    minFreeHeapSize:%lu\n\r"
-            " RunTimeStatsCntVal:%lu\n\r"
-            "Task\t\ttime,.1ms\ttime,%%\n\r%s",
-            initialFreeHeapSize,
-            freeHeapSize,
-            minFreeHeapSize,
-            uint32GetRunTimeCounterValue(),
-            szRunTimeStats);
-
-        Delay(cpp_freertos::Ticks::MsToTicks(500));
+        // TODO:
+        // this->collectStats();
+        Delay(cpp_freertos::Ticks::MsToTicks(1000));
     }
     vTaskDelete(NULL);
 }
