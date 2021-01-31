@@ -1,6 +1,7 @@
 #pragma once
 
 #include "thread.hpp"
+#include "status.hpp"
 
 #include <cstdint>
 class FibSys : public cpp_freertos::Thread
@@ -18,7 +19,8 @@ public:
     static BaseType_t getAppMaxPriority();
     //void collectStats();
     
-    
+    Stats stats;
+
     FibSys(const FibSys &) = delete;
     FibSys(FibSys &&) = delete;
 private:
