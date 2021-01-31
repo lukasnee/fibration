@@ -1,7 +1,8 @@
 #include "uart2.hpp"
 #include "system.hpp"
 
-extern "C" {
+extern "C"
+{
 #include "stm32f3xx_hal.h"
 }
 
@@ -9,10 +10,23 @@ extern "C" {
 
 UART_HandleTypeDef huart2;
 
-static void sInitUart2(std::uint32_t baudrate)
+
+Uart2::Uart2(std::uint32_t baudrate) : baudrate(baudrate)
 {
+    this->init();
+}
+
+Uart2::~Uart2()
+{
+    this->deinit();
+}
+
+bool Uart2::init()
+{
+    bool retval = false;
+
     huart2.Instance = USART2;
-    huart2.Init.BaudRate = baudrate;
+    huart2.Init.BaudRate = this->baudrate;
     huart2.Init.WordLength = UART_WORDLENGTH_8B;
     huart2.Init.StopBits = UART_STOPBITS_1;
     huart2.Init.Parity = UART_PARITY_NONE;
@@ -21,36 +35,41 @@ static void sInitUart2(std::uint32_t baudrate)
     huart2.Init.OverSampling = UART_OVERSAMPLING_16;
     huart2.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
     huart2.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-    if (HAL_UART_Init(&huart2) != HAL_OK)
+
+    retval = (HAL_UART_Init(&huart2) == HAL_OK);
+
+    return retval;
+}
+
+bool Uart2::deinit()
+{
+    bool retval = false;
+
+    retval = (HAL_UART_DeInit(&huart2) == HAL_OK);
+
+    return retval;
+}
+
+bool Uart2::tx(std::uint8_t *pData, std::uint16_t size)
+{
+    bool retval = false;
+
+    if (HAL_UART_GetState(&huart2) == HAL_UART_STATE_READY)
     {
-		FibSys::panic();
+        retval = (HAL_UART_Transmit_IT(&huart2, pData, size) == HAL_OK);
     }
+
+    return retval;
 }
 
-static void sDeinitUart2()
+bool Uart2::rx(std::uint8_t *pData, std::uint16_t size)
 {
-    HAL_UART_DeInit(&huart2);
-}
+    bool retval = false;
 
+    if (HAL_UART_GetState(&huart2) == HAL_UART_STATE_READY)
+    {
+        retval = (HAL_UART_Receive_IT(&huart2, pData, size) == HAL_OK);
+    }
 
-Uart2::Uart2(std::uint32_t baudrate) : baudrate(baudrate)
-{
-    sInitUart2(this->baudrate);
-}
-
-void Uart2::putc(char c)
-{
-    HAL_UART_Transmit(&huart2, reinterpret_cast<uint8_t*>(&c), 1, std::numeric_limits<std::uint32_t>::max());
-}
-
-char Uart2::getc(void)
-{
-    char c;
-    HAL_UART_Receive(&huart2, reinterpret_cast<uint8_t*>(&c), 1, std::numeric_limits<std::uint32_t>::max());
-    return c;
-}
-
-Uart2::~Uart2()
-{
-    sDeinitUart2();
+    return retval;
 }
