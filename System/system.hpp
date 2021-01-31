@@ -16,6 +16,8 @@ public:
     static void panic();
     static BaseType_t getSysMaxPriority();
     static BaseType_t getAppMaxPriority();
+    //void collectStats();
+    
     
     FibSys(const FibSys &) = delete;
     FibSys(FibSys &&) = delete;
