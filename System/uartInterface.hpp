@@ -6,44 +6,45 @@
 
 #include <cstdint>
 
-class UartInterfaceCallbacks
-{
-public:
-    virtual void txCplt() = 0;
-    virtual void rxCplt() = 0;
-};
 
 class UartInterface
 {
 public:
+    class Callbacks
+    {
+    public:
+        virtual void txCpltISR() = 0;
+        virtual void rxCpltISR() = 0;
+    };
     // required interface - copy and implement
+
     virtual bool init() = 0;
     virtual bool deinit() = 0;
     virtual bool tx(std::uint8_t *pData, std::uint16_t size) = 0;
     virtual bool rx(std::uint8_t *pData, std::uint16_t size) = 0;
 
     // callbacks handling
-    void setCallbacks(UartInterfaceCallbacks *pUartInterfaceCallbacks = nullptr)
+    void setCallbacks(Callbacks *pCallbacks = nullptr)
     {
-        this->pUartInterfaceCallbacks = pUartInterfaceCallbacks;
+        this->pCallbacks = pCallbacks;
     }
 
     void txCpltCallback()
     {
-        if (this->pUartInterfaceCallbacks)
+        if (this->pCallbacks)
         {
-            this->pUartInterfaceCallbacks->txCplt();
+            this->pCallbacks->txCpltISR();
         }
     }
 
     void rxCpltCallback()
     {
-        if (this->pUartInterfaceCallbacks)
+        if (this->pCallbacks)
         {
-            this->pUartInterfaceCallbacks->rxCplt();
+            this->pCallbacks->rxCpltISR();
         }
     }
 
 private:
-    UartInterfaceCallbacks *pUartInterfaceCallbacks = nullptr;
+    Callbacks *pCallbacks = nullptr;
 };
