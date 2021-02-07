@@ -1,10 +1,10 @@
 {
     "tasks": [
-        {
-            "label": "See real-time Log (minicom)",
+            {
+            "label": "Serial /dev/serial0",
             "type": "shell",
             "linux": {
-                "command": "minicom --baudrate=115200 --8bit --device=/dev/serial0 --color=on --attrib=on",
+                "command": "minicom --baudrate=115200 --device=/dev/serial0 -c on",
             },
             "presentation": {
                 "focus": true,
@@ -14,10 +14,23 @@
             "problemMatcher": []
         },
         {
-            "label": "See real-time Log to file (minicom)",
+            "label": "Serial /dev/ttyUSB0",
             "type": "shell",
             "linux": {
-                "command": "minicom --baudrate=115200 --8bit --device=/dev/serial0 --color=on --attrib=on --capturefile=fib-log.txt",
+                "command": "minicom --baudrate=115200 --device=/dev/ttyUSB0 -c on",
+            },
+            "presentation": {
+                "focus": true,
+                "panel": "dedicated",
+                "revealProblems": "onProblem"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Serial /dev/ttyUSB1",
+            "type": "shell",
+            "linux": {
+                "command": "minicom --baudrate=115200 --device=/dev/ttyUSB1 -c on",
             },
             "presentation": {
                 "focus": true,
