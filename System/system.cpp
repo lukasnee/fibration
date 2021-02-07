@@ -1,6 +1,7 @@
 #include "system.hpp"
 #include "peripherals.hpp"
 #include "log.hpp"
+#include "uartStream.hpp"
 #include "shell.hpp"
 
 #include "ticks.hpp"

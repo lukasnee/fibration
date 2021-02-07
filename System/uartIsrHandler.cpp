@@ -9,7 +9,7 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
     // TODO: remake uart1 with UartInterface
 	if(huart == &huart1) { Periph::getUart1().dmaCallbacks->dmaTxCpltCallback(); }
-	if(huart == &huart2) { Periph::getUart2().txCpltCallback(); }
+	if(huart == &huart2) { Periph::getUart2().txCpltIsrCalback(); }
 }
 
 void HAL_UART_TxHalfCpltCallback(UART_HandleTypeDef *huart)
@@ -20,7 +20,7 @@ void HAL_UART_TxHalfCpltCallback(UART_HandleTypeDef *huart)
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	if(huart == &huart1) { Periph::getUart1().dmaCallbacks->dmaRxCpltCallback(); }
-	if(huart == &huart2) { Periph::getUart2().rxCpltCallback(); }
+	if(huart == &huart2) { Periph::getUart2().rxCpltIsrCalback(); }
 }
 
 void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart)
