@@ -41,7 +41,7 @@ private:
     static constexpr std::size_t rxBufferSize = 256;
     static constexpr std::size_t maxArgs = 16;
 
-    static const std::array<Shell::Command, 4> shellCmds;
+    static const std::array<Shell::Command, 5> shellCmds;
 
     Shell(Stream &stream, std::uint16_t stackDepth, BaseType_t priority);
 
@@ -51,7 +51,7 @@ private:
     void echo(const char *string);
     void echoEndLine();
     void resetRxBuffer(void);
-    void receiveChar(char c);
+    void receiveChar(char c/*, char c2*/);
     void promptNew(void);
     void printPrompt(void);
     void echoLine(const char *string);
@@ -60,8 +60,13 @@ private:
     bool isRxBufferFull(void);
     const Command *findCommand(const char *name);
     int helpHandler(Shell &shell, int argc, char *argv[]);
+    std::size_t rxHead;
     std::size_t rxSize;
     std::array<char, rxBufferSize> rxBuffer;
+    struct Config {
+        bool coloredOutput = true;
+    } config;
+    
 
     Stream &stream;
 };

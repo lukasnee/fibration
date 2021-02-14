@@ -3,7 +3,8 @@
 #include "uartInterface.hpp"
 #include <cstdint>
 
-class  Uart2 : public UartInterface {
+class Uart2 : public UartInterface
+{
 public:
     Uart2(std::uint32_t baudrate = 115200);
     ~Uart2();
@@ -13,8 +14,9 @@ public:
     bool txUnsafe(const std::uint8_t *pData, std::uint16_t size) override;
     bool rxUnsafe(std::uint8_t *pData, std::uint16_t size) override;
 
-    void operator=(Uart2 const&)  = delete;
-    Uart2(Uart2 const&) = delete;
+    void operator=(Uart2 const &) = delete;
+    Uart2(Uart2 const &) = delete;
+
 private:
     std::uint32_t baudrate;
 };

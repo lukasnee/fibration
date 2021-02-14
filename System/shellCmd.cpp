@@ -1,5 +1,6 @@
 
 #include "shell.hpp"
+#include "system.hpp"
 
 #include <stddef.h>
 #include <stdio.h>
@@ -13,8 +14,9 @@ int shellCmdEcho(Shell &shell, int argc, char *argv[])
     {
         for (int i = 1; i < argc; i++)
         {
-            shell.printf("%s\n", argv[i]);
+            shell.printf("%s ", argv[i]);
         }
+        shell.printc('\n');
         return 0;
     }
     return -1;
@@ -57,9 +59,17 @@ int shellCmdStatus(Shell &shell, int argc, char *argv[])
     return 0;
 }
 
-const std::array<Shell::Command, 4> Shell::shellCmds{{
+int shellPanic(Shell &shell, int argc, char *argv[])
+{
+    FibSys::panic();
+    // will never be reached
+    return 0;
+}
+
+const std::array<Shell::Command, 5> Shell::shellCmds{{
     {"echo", "echos typed content", shellCmdEcho},
     {"clear", "clear screen", shellCmdClear},
     {"help", "Lists all commands", shellCmdHelp},
     {"status", "show system status", shellCmdStatus},
+    {"panic", "cause system panic", shellPanic},
 }};

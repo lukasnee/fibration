@@ -12,21 +12,21 @@ class UartInterface
 public:
     struct TxIsrCallbacks
     {
-        virtual void onTxComplete(){};
+        virtual void onTxCompleteIsrCallback(){};
     };
     struct RxIsrCallbacks
     {
-        virtual void onRxComplete(){};
+        virtual void onRxCompleteIsrCallback(){};
     };
 
     bool tx(const std::uint8_t *pData, std::uint16_t size, TxIsrCallbacks *pTxIsrCallbacks = nullptr)
     {
         bool retval = false;
 
-        this->txSemaphore.Take();
+        this->txBinarySemaphore.Take();
         if (false == txUnsafe(pData, size))
         {
-            this->txSemaphore.Give();
+            this->txBinarySemaphore.Give();
         }
         else
         {
@@ -41,10 +41,10 @@ public:
     {
         bool retval = false;
 
-        this->rxSemaphore.Take();
+        this->rxBinarySemaphore.Take();
         if (false == rxUnsafe(pData, size))
         {
-            this->rxSemaphore.Give();
+            this->rxBinarySemaphore.Give();
         }
         else
         {
@@ -57,28 +57,30 @@ public:
 
     void txCpltIsrCalback()
     {
-        BaseType_t pxHigherPriorityTaskWoken;
-        this->txSemaphore.GiveFromISR(&pxHigherPriorityTaskWoken);
         if (this->pTxIsrCallbacks)
         {
-            this->pTxIsrCallbacks->onTxComplete();
+            this->pTxIsrCallbacks->onTxCompleteIsrCallback();
         }
+        BaseType_t xHigherPriorityTaskWoken;
+        this->txBinarySemaphore.GiveFromISR(&xHigherPriorityTaskWoken);
+        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
     }
 
     void rxCpltIsrCalback()
     {
-        BaseType_t pxHigherPriorityTaskWoken;
-        this->rxSemaphore.GiveFromISR(&pxHigherPriorityTaskWoken);
         if (this->pRxIsrCallbacks)
         {
-            this->pRxIsrCallbacks->onRxComplete();
+            this->pRxIsrCallbacks->onRxCompleteIsrCallback();
         }
+        BaseType_t xHigherPriorityTaskWoken;
+        this->rxBinarySemaphore.GiveFromISR(&xHigherPriorityTaskWoken);
+        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
     }
 
     UartInterface()
     {
-        this->txSemaphore.Give();
-        this->rxSemaphore.Give();
+        this->txBinarySemaphore.Give();
+        this->rxBinarySemaphore.Give();
     };
 
     virtual bool init() = 0;
@@ -89,8 +91,8 @@ protected:
     virtual bool rxUnsafe(std::uint8_t *pData, std::uint16_t size) = 0;
 
 private:
-    cpp_freertos::BinarySemaphore txSemaphore;
-    cpp_freertos::BinarySemaphore rxSemaphore;
+    cpp_freertos::BinarySemaphore txBinarySemaphore;
+    cpp_freertos::BinarySemaphore rxBinarySemaphore;
     TxIsrCallbacks *pTxIsrCallbacks;
     RxIsrCallbacks *pRxIsrCallbacks;
 };

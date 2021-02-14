@@ -1,8 +1,6 @@
 #pragma once
 
 #include "stream.hpp"
-#include "thread.hpp"
-#include "queue.hpp"
 #include "uartInterface.hpp"
 
 class UartStream : public Stream, public UartInterface::TxIsrCallbacks, public UartInterface::RxIsrCallbacks
@@ -24,8 +22,8 @@ public:
     UartStream(UartStream &&) = delete;
 
 private:
-    void onTxComplete() override;
-    void onRxComplete() override;
+    void onTxCompleteIsrCallback() override;
+    void onRxCompleteIsrCallback() override;
 
     UartInterface &uart;
 };
