@@ -9,10 +9,9 @@ Key features:
 - unified peripheral API (for ease of use and future portability)
 - use of DMA enabled I2S + FPU for efficient real-time digital signal processing.
 - quick drivers for common synth components (signalIn, signalOut, knob, slider, button, led, rotary encoder...)
-- lightweight command shell over UART ! (can be used for configuring real time, helpful for debugging)
+- lightweight command shell over UART ! (cool, could be used for configuring system in real-time, helpful for debugging)
 - lightweight logger over UART ! (helpful for debugging)
-- Tracealyzer support (? TBD) (helpful for debugging)
-
+- Tracealyzer support (TBD? would be helpful for debugging)
 
 # Framework
 > MSA - Modular Synth Application
