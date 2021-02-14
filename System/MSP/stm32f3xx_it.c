@@ -1,10 +1,6 @@
 #include "stm32f3xx_hal.h"
 #include "stm32f3xx_it.h"
 
-extern DMA_HandleTypeDef hdma_usart1_tx;
-extern DMA_HandleTypeDef hdma_usart1_rx;
-extern UART_HandleTypeDef huart1;
-extern UART_HandleTypeDef huart2;
 extern TIM_HandleTypeDef htim7;
 extern TIM_HandleTypeDef htim6;
 
@@ -97,21 +93,6 @@ void UsageFault_Handler(void)
 // This function handles Debug monitor.
 void DebugMon_Handler(void)
 {
-}
-
-void DMA1_Channel4_IRQHandler(void)
-{
-    HAL_DMA_IRQHandler(&hdma_usart1_tx);
-}
-
-void DMA1_Channel5_IRQHandler(void)
-{
-    HAL_DMA_IRQHandler(&hdma_usart1_rx);
-}
-
-void USART1_IRQHandler(void)
-{
-    HAL_UART_IRQHandler(&huart1);
 }
 
 void TIM7_IRQHandler(void)

@@ -3,6 +3,7 @@
 #include "log.hpp"
 #include "uartStream.hpp"
 #include "shell.hpp"
+#include "uartStreamer.hpp"
 
 #include "ticks.hpp"
 #include "timer.hpp"
@@ -13,12 +14,7 @@
 #include <limits>
 #include <cstdint>
 
-extern "C" void vApplicationMallocFailedHook( void )
-{
-    FibSys::panic();
-}
-
-static void Error_Handler()
+extern "C" void vApplicationMallocFailedHook(void)
 {
     FibSys::panic();
 }
@@ -32,8 +28,8 @@ extern "C" void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     if (htim->Instance == TIM6)
     {
         static bool firstIgnored = false;
-        
-        if(firstIgnored == false) 
+
+        if (firstIgnored == false)
         {
             firstIgnored = true;
         }
@@ -46,9 +42,9 @@ extern "C" void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 static void SystemClock_Config(void)
 {
-    RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
-    RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
-    RCC_PeriphCLKInitTypeDef PeriphClkInit = { 0 };
+    RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+    RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+    RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
     /* Initializes the RCC Oscillators according to the specified parameters
     in the RCC_OscInitTypeDef structure. */
@@ -61,7 +57,7 @@ static void SystemClock_Config(void)
     RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
     {
-        Error_Handler();
+        FibSys::panic();
     }
     /* Initializes the CPU, AHB and APB buses clocks */
     RCC_ClkInitStruct.ClockType =
@@ -77,15 +73,15 @@ static void SystemClock_Config(void)
 
     if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
     {
-        Error_Handler();
+        FibSys::panic();
     }
 
-    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1|RCC_PERIPHCLK_USART2;
+    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1 | RCC_PERIPHCLK_USART2;
     PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK2;
     PeriphClkInit.Usart2ClockSelection = RCC_USART2CLKSOURCE_PCLK1;
     if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
     {
-        Error_Handler();
+        FibSys::panic();
     }
 }
 
@@ -95,8 +91,6 @@ void sInitPlatform()
     SystemClock_Config();
 }
 
-
-
 uint32_t FibSys::getSysTick()
 {
     return HAL_GetTick();
@@ -104,8 +98,13 @@ uint32_t FibSys::getSysTick()
 
 void FibSys::panic()
 {
-    Log::DIRECT("\r\n\nsystem panic!\r\n\n");
-    HardFault_Handler(); // todo something better...
+    Log::direct("\r\n\nsystem panic!\r\n\n"sv); // TODO does not work?!
+    vTaskDelay(cpp_freertos::Ticks::MsToTicks(1000));
+    vTaskSuspendAll();
+    taskDISABLE_INTERRUPTS();
+    while (true)
+    {
+    };
 }
 
 BaseType_t FibSys::getSysMaxPriority()
@@ -115,30 +114,21 @@ BaseType_t FibSys::getSysMaxPriority()
 
 BaseType_t FibSys::getAppMaxPriority()
 {
-    return getSysMaxPriority() - 1;    
+    return getSysMaxPriority() - 1;
 }
 
 void FibSys::start()
 {
-    // init hardware
     sInitPlatform();
-
-    Log::init(); // todo cleanup
-    
-    // init system level tasks
+    // init system task
     static FibSys fibSys(0x200, getSysMaxPriority());
-
-    Shell::start(Periph::getUart2(), 0x200, getSysMaxPriority());
-
     // start task scheduler
-    uwTick = 0; // for nicer log
     vTaskStartScheduler();
 }
 
-FibSys::FibSys(std::uint16_t stackDepth, BaseType_t priority) : 
-    Thread("FibSys", stackDepth, priority) 
+FibSys::FibSys(std::uint16_t stackDepth, BaseType_t priority) : Thread("FibSys", stackDepth, priority)
 {
-    if(Start() == false)
+    if (Start() == false)
     {
         FibSys::panic();
     }
@@ -155,11 +145,16 @@ FibSys::FibSys(std::uint16_t stackDepth, BaseType_t priority) :
 //     }
 // }
 
-extern std::uint32_t callCount;
-extern "C" uint32_t uint32GetRunTimeCounterValue();
 //FibSys thread
-void FibSys::Run() {
-    while(true)
+void FibSys::Run()
+{
+    static auto uartStreamerForLog = UartStreamer(Periph::getUart1(), "logUartStreamer", 0x200, 10);
+    Log::setUartStreamer(&uartStreamerForLog);
+
+    static auto uartStreamForShell = UartStream(Periph::getUart2());
+    Shell::start(uartStreamForShell, 0x200, 10);
+
+    while (true)
     {
         // TODO:
         // this->collectStats();
@@ -167,4 +162,3 @@ void FibSys::Run() {
     }
     vTaskDelete(NULL);
 }
-

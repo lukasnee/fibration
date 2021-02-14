@@ -43,20 +43,24 @@ void BlinkTestApp::Run()
 
     while (true)
     {
-        rotaryButton.read() ? Log::colorEnable() : Log::colorDisable(); // todo config over uart
+        // rotaryButton.read() ? Log::colorEnable() : Log::colorDisable(); // todo config over uart
 
         onBoardLed.write(Gpio::PinState::low);
         Delay(cpp_freertos::Ticks::MsToTicks(500));
-        Log::info("mainTask", "blink %d !", i++);
+        //Log::info("mainTask", "blink %d !", i++);
         onBoardLed.write(Gpio::PinState::high);
         Delay(cpp_freertos::Ticks::MsToTicks(500));
+        
+        char buffer[0x200];
+        vTaskList(buffer);
+        Log::info("mainTask", "\r\nTask            State   Prio    Stack   Num\r\n%s", buffer);
+        vTaskGetRunTimeStats(buffer);
+        Log::info("mainTask", "\r\n%s", buffer);
 
-        for (int y = 0; y < i; y++)
-        {
-            Log::trace("mainTask", "%.*s", y, "=================================================================================");
-        }
-        i++;
+        // for (int y = 0; y < i; y++)
+        // {
+        //     Log::trace("mainTask", "%.*s", y, "=================================================================================");
+        // }
+        // i++;
     }
-
-    while (true) { Delay(1); }
 }

@@ -72,8 +72,12 @@ set(SYSTEM_SRC
     ${ROOT}/System/memory.cpp
     ${ROOT}/System/peripherals.cpp
     ${ROOT}/System/peripherals.hpp
+    ${ROOT}/System/gpio.cpp
+    ${ROOT}/System/gpio.hpp
     ${ROOT}/System/tim6.cpp
     ${ROOT}/System/tim6.hpp
+    ${ROOT}/System/uartInterface.hpp
+    ${ROOT}/System/uartIsrHandler.cpp
     ${ROOT}/System/uart1.cpp
     ${ROOT}/System/uart1.hpp
     ${ROOT}/System/uart2.cpp
@@ -90,12 +94,16 @@ set(SYSTEM_SRC
     ${ROOT}/System/FreeRTOSConfig.h # FreeRTOS project specific configuration
     ${ROOT}/System/system.cpp
     ${ROOT}/System/system.hpp
-    ${ROOT}/System/dmaQueue.cpp
-    ${ROOT}/System/dmaQueue.hpp
+    ${ROOT}/System/stream.hpp
+    ${ROOT}/System/uartStream.hpp
+    ${ROOT}/System/uartStream.cpp
+    ${ROOT}/System/uartStreamer.cpp
+    ${ROOT}/System/uartStreamer.hpp
     ${ROOT}/System/log.cpp
     ${ROOT}/System/log.hpp
     ${ROOT}/System/shell.cpp
     ${ROOT}/System/shell.hpp
+    ${ROOT}/System/shellCmd.cpp
 )
 
 add_executable(${PROJECT_NAME} 

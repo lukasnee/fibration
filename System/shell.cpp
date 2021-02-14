@@ -11,9 +11,7 @@ void Shell::start(Stream &stream, std::uint16_t stackDepth, BaseType_t priority)
 Shell::Shell(Stream &stream, std::uint16_t stackDepth, BaseType_t priority)
     : Thread("shell", stackDepth, priority), stream(stream)
 {
-    this->echoEndLine();
-    this->echoLine("Type 'help' to list all commands");
-    this->promptNew();
+    this->stream.setOwner(this);
 
     if (Start() == false)
     {
@@ -43,12 +41,17 @@ void Shell::printc(const char c)
 
 void Shell::Run()
 {
+    this->echoEndLine();
+    this->echoLine("Type 'help' to list all commands");
+    this->promptNew();
+    
     // Consume and send characters to shell...forever
-    char c;
+    char c/*, c2*/;
     while (true)
     {
         c = this->stream.getc();
-        this->receiveChar(c);
+        // c = this->stream.getcw(&c2);
+        this->receiveChar(c/*, c2*/);
     }
 }
 
@@ -85,6 +88,7 @@ void Shell::echoEndLine()
 void Shell::resetRxBuffer(void)
 {
     this->rxBuffer.fill('\0');
+    this->rxHead = 0;
     this->rxSize = 0;
 }
 
@@ -99,32 +103,48 @@ void Shell::printPrompt(void)
     this->echo(Shell::prompt.data());
 }
 
-void Shell::receiveChar(char c)
+void Shell::receiveChar(char c/*, char c2*/)
 {
     if (c == '\r') // end of line
     {
-        if(this->rxBuffer.size() - this->rxSize > 1) 
+        if (this->isRxBufferFull() == false)
         {
-            //this->rxBuffer[this->rxSize++] = '\r';
-            this->rxBuffer[this->rxSize++] = '\n';
+            this->rxBuffer[this->rxHead++] = '\n';
+            this->rxSize++;
         }
         this->echoEndLine();
     }
     else if (c == '\b') // backspace
     {
-        if(this->rxSize) 
+        if (this->rxHead)
         {
-            this->rxBuffer[--this->rxSize] = '\0';
+            this->rxHead--;
+            this->rxSize--;
+            this->rxBuffer[this->rxSize] = '\0';
             this->echo("\b \b");
         }
+        return;vTaskSuspend(nullptr);
+    }
+    else if (c == '['/* && c2 == 'D'*/)
+    {
+        rxHead--;
+        this->echo('\b');
         return;
     }
-    else if(c >= 0x20) // ascii text symbols
+    else if (c >= 0x20) // ascii text symbols
     {
-        this->rxBuffer[this->rxSize++] = c;
-        this->echo(c);
+        if (this->isRxBufferFull() == false)
+        {
+            if (this->rxHead == this->rxSize)
+            { // appending line
+                this->rxSize++;
+            }
+            this->rxBuffer[this->rxHead++] = c;
+            this->echo(c);
+        }
     }
-    else{
+    else
+    {
         return;
     }
 
@@ -162,7 +182,7 @@ void Shell::process(void)
             const Shell::Command *command = findCommand(argv[0]);
             if (!command)
             {
-                this->printf("\e[39mfibration: %s: command not found", argv[0]);
+                this->printf("\e[39mfibration: %s: command not found ", argv[0]);
                 this->echoLine(argv[0]);
             }
             else

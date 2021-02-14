@@ -1,6 +1,7 @@
 #include "uartStream.hpp"
 #include "system.hpp"
 #include <array>
+#include <cstring>
 
 UartStream::UartStream(UartInterface &uart) : Stream(), uart(uart)
 {
@@ -12,60 +13,46 @@ UartStream::~UartStream()
     this->uart.deinit();
 }
 
-void UartStream::onTxComplete()
+void UartStream::onTxCompleteIsrCallback()
 {
-    if (this->pOwner)
-    {
-        this->pOwner->ResumeFromISR();
-    }
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+    vTaskNotifyGiveIndexedFromISR(this->pOwner->GetHandle(), 0, &xHigherPriorityTaskWoken);
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
-void UartStream::onRxComplete()
+void UartStream::onRxCompleteIsrCallback()
 {
-    if (this->pOwner)
-    {
-        this->pOwner->ResumeFromISR();
-    }
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+    vTaskNotifyGiveIndexedFromISR(this->pOwner->GetHandle(), 1, &xHigherPriorityTaskWoken);
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
 void UartStream::putc(char c)
 {
     this->uart.tx(reinterpret_cast<std::uint8_t *>(&c), 1, this);
-    if (this->pOwner)
-    {
-        this->pOwner->Suspend();
-    }
-}
-
-void UartStream::puts(const char *s)
-{
-    for (const char *pC = s; pC != nullptr; pC++)
-    {
-        this->putc(*pC);
-    }
+    ulTaskNotifyTakeIndexed(0, pdTRUE, portMAX_DELAY);
 }
 
 void UartStream::puts(const char *s, uint16_t len)
 {
     this->uart.tx(reinterpret_cast<const std::uint8_t *>(s), len, this);
-    if (this->pOwner)
-    {
-        this->pOwner->Suspend();
-    }
+    ulTaskNotifyTakeIndexed(0, pdTRUE, portMAX_DELAY);
+}
+
+void UartStream::puts(const char *s)
+{
+    puts(s, std::strlen(s));
 }
 
 char UartStream::getc()
 {
     char c;
     this->uart.rx(reinterpret_cast<std::uint8_t *>(&c), 1, this);
-    if (this->pOwner)
-    {
-        this->pOwner->Suspend();
-    }
+    ulTaskNotifyTakeIndexed(1, pdTRUE, portMAX_DELAY);
     return c;
 }
 
-// TODO
+// TODO: whats the best way to buffer this in ? + use std optional
 // std::optional<char *> UartStream::gets(void)
 // {
 //     static std::array<char, 0x100> rxBuffer;
