@@ -22,9 +22,9 @@ Key features:
                                                   ______|________
                                   ________________|Fib lib (C++)|__________________
                                  |                |_____________|                  |
-                            FreeRTOS (C)                |                  Third-party libraries
-                                                        |                       (C/C++)                                             
-                                                STM32_HAL/LL lib (C)
+                          ccp_freertos (C++)            |                  Third-party libraries
+                                 |                      |                       (C/C++)                                             
+                            FreeRTOS (C)        STM32_HAL/LL lib (C)
                                                         |
                                                     HARDWARE 
                                                 (STM32F303 for now) 
