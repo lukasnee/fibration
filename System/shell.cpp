@@ -233,11 +233,6 @@ bool Shell::cursorStepBack()
     return (this->visualCursorStepBack() && this->rxBufferCursorStepBack());
 }
 
-bool Shell::insert()
-{
-    this->cursorStep();
-}
-
 bool Shell::deleteChar()
 {
     if (this->rxBufferIsNotEmpty() && this->rxBufferCursorNotOnTail())
