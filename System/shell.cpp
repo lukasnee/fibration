@@ -46,12 +46,9 @@ void Shell::Run()
     this->promptNew();
     
     // Consume and send characters to shell...forever
-    char c/*, c2*/;
     while (true)
     {
-        c = this->stream.getc();
-        // c = this->stream.getcw(&c2);
-        this->receiveChar(c/*, c2*/);
+        this->receiveChar(this->stream.getc());
     }
 }
 
