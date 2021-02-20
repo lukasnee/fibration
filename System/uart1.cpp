@@ -7,7 +7,7 @@ extern "C"
 }
 
 DMA_HandleTypeDef hdma_usart1_tx;
-DMA_HandleTypeDef hdma_usart1_rx;
+//DMA_HandleTypeDef hdma_usart1_rx;
 UART_HandleTypeDef huart1;
 
 extern "C" void DMA1_Channel4_IRQHandler(void)
@@ -15,10 +15,10 @@ extern "C" void DMA1_Channel4_IRQHandler(void)
     HAL_DMA_IRQHandler(&hdma_usart1_tx);
 }
 
-extern "C" void DMA1_Channel5_IRQHandler(void)
-{
-    HAL_DMA_IRQHandler(&hdma_usart1_rx);
-}
+// extern "C" void DMA1_Channel5_IRQHandler(void)
+// {
+//     HAL_DMA_IRQHandler(&hdma_usart1_rx);
+// }
 
 extern "C" void USART1_IRQHandler(void)
 {
@@ -46,8 +46,8 @@ bool Uart1::init()
     __HAL_RCC_DMA1_CLK_ENABLE();
     HAL_NVIC_SetPriority(DMA1_Channel4_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(DMA1_Channel4_IRQn);
-    HAL_NVIC_SetPriority(DMA1_Channel5_IRQn, 5, 0);
-    HAL_NVIC_EnableIRQ(DMA1_Channel5_IRQn);
+    // HAL_NVIC_SetPriority(DMA1_Channel5_IRQn, 5, 0);
+    // HAL_NVIC_EnableIRQ(DMA1_Channel5_IRQn);
 
     // setup gpios for alternative function (uart tx/rx)
     __HAL_RCC_GPIOA_CLK_ENABLE();
@@ -77,23 +77,23 @@ bool Uart1::init()
         __HAL_LINKDMA(&huart1, hdmatx, hdma_usart1_tx);
     }
 
-    // setup DMA channel for uart rx
-    hdma_usart1_rx.Instance = DMA1_Channel5;
-    hdma_usart1_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
-    hdma_usart1_rx.Init.PeriphInc = DMA_PINC_DISABLE;
-    hdma_usart1_rx.Init.MemInc = DMA_MINC_ENABLE;
-    hdma_usart1_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-    hdma_usart1_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
-    hdma_usart1_rx.Init.Mode = DMA_NORMAL;
-    hdma_usart1_rx.Init.Priority = DMA_PRIORITY_LOW;
-    if (HAL_DMA_Init(&hdma_usart1_rx) != HAL_OK)
-    {
-        FibSys::panic();
-    }
-    else
-    {
-        __HAL_LINKDMA(&huart1, hdmarx, hdma_usart1_rx);
-    }
+    // // setup DMA channel for uart rx
+    // hdma_usart1_rx.Instance = DMA1_Channel5;
+    // hdma_usart1_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
+    // hdma_usart1_rx.Init.PeriphInc = DMA_PINC_DISABLE;
+    // hdma_usart1_rx.Init.MemInc = DMA_MINC_ENABLE;
+    // hdma_usart1_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+    // hdma_usart1_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+    // hdma_usart1_rx.Init.Mode = DMA_NORMAL;
+    // hdma_usart1_rx.Init.Priority = DMA_PRIORITY_LOW;
+    // if (HAL_DMA_Init(&hdma_usart1_rx) != HAL_OK)
+    // {
+    //     FibSys::panic();
+    // }
+    // else
+    // {
+    //     __HAL_LINKDMA(&huart1, hdmarx, hdma_usart1_rx);
+    // }
 
     // setup uart itself
     huart1.Instance = USART1;
@@ -121,18 +121,18 @@ bool Uart1::deinit()
 
     HAL_GPIO_DeInit(GPIOA, GPIO_PIN_9 | GPIO_PIN_10);
 
-    if (HAL_DMA_DeInit(huart1.hdmarx) != HAL_OK)
-    {
-        return false;
-    }
-
     if (HAL_DMA_DeInit(huart1.hdmatx) != HAL_OK)
     {
         return false;
     }
 
+    // if (HAL_DMA_DeInit(huart1.hdmarx) != HAL_OK)
+    // {
+    //     return false;
+    // }
+
     HAL_NVIC_DisableIRQ(DMA1_Channel4_IRQn);
-    HAL_NVIC_DisableIRQ(DMA1_Channel5_IRQn);
+    // HAL_NVIC_DisableIRQ(DMA1_Channel5_IRQn);
 
     HAL_NVIC_DisableIRQ(USART1_IRQn);
 
