@@ -47,21 +47,39 @@ private:
 
     virtual void Run() override;
 
-    void echo(char c);
-    void echo(const char *string);
+    void echo(char c, std::size_t timesToRepeat = 1);
+    void echo(const char *string, std::size_t timesToRepeat = 1);
+    void echoData(const char *pData, const std::size_t len, std::size_t timesToRepeat = 1);
     void echoEndLine();
-    void resetRxBuffer(void);
-    void receiveChar(char c/*, char c2*/);
-    void promptNew(void);
-    void printPrompt(void);
+    void resetRxBuffer();
+    bool receiveChar(char c);
+    void promptNew();
+    void printPrompt();
+
+    bool rxBufferCursorOnBase();
+    bool rxBufferCursorNotOnBase();
+    bool rxBufferCursorOnTail();
+    bool rxBufferCursorNotOnTail();
+    bool rxBufferCursorStep();
+    bool rxBufferCursorStepBack();
+    bool rxBufferIsEmpty();
+    bool rxBufferIsNotEmpty();
+    bool rxBufferIsFull();
+    bool rxBufferIsNotFull();
+    char rxBufferCharOnCursor();
+    char rxBufferLastChar();
+
+    void visualBackspace();
+    
+
     void echoLine(const char *string);
-    void process(void);
-    char lastChar(void);
-    bool isRxBufferFull(void);
+    bool processAnsiCursorControl(char c);
+    bool processAnsiEscapeSequences(char c);
+    void processRxBufferIntoArgs();
     const Command *findCommand(const char *name);
     int helpHandler(Shell &shell, int argc, char *argv[]);
-    std::size_t rxHead;
-    std::size_t rxSize;
+    std::size_t rxCursorIdx;
+    std::size_t rxCharsTotal;
     std::array<char, rxBufferSize> rxBuffer;
     struct Config {
         bool coloredOutput = true;
