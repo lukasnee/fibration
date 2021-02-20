@@ -377,10 +377,9 @@ bool Shell::receiveChar(char c)
         if (this->rxBufferCursorNotOnBase())
         {
             std::memmove(&this->rxBuffer[this->rxCursorIdx - 1], &this->rxBuffer.at(this->rxCursorIdx), this->rxCharsTotal - this->rxCursorIdx);
-            if(this->rxBufferCursorStepBack())
+            if(this->cursorStepBack())
             {
                 this->rxBuffer[--this->rxCharsTotal] = '\0';
-                this->visualCursorStepBack();
                 this->echoData(&this->rxBuffer[this->rxCursorIdx], this->rxCharsTotal - this->rxCursorIdx);
                 this->echo("  ");
                 this->echo('\b', this->rxCharsTotal - this->rxCursorIdx + 1);
