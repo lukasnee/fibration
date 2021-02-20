@@ -366,12 +366,6 @@ bool Shell::receiveChar(char c)
         
         return false;
     }
-    else if (c == '\r') // enter!
-    {
-        this->echoEndLine();
-        this->processRxBufferIntoArgs();
-        return true;
-    }
     else if (c == '\b') // backspace
     {
         if (this->rxBufferCursorNotOnBase())
@@ -413,6 +407,12 @@ bool Shell::receiveChar(char c)
                 this->echo('\b', this->rxCharsTotal - this->rxCursorIdx - 1);
             }
         }
+        return true;
+    }
+    else if (c == '\r') // line feed (enter!)
+    {
+        this->echoEndLine();
+        this->processRxBufferIntoArgs();
         return true;
     }
     return true;
