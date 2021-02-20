@@ -60,17 +60,23 @@ private:
     bool rxBufferCursorNotOnBase();
     bool rxBufferCursorOnTail();
     bool rxBufferCursorNotOnTail();
-    bool rxBufferCursorStep();
-    bool rxBufferCursorStepBack();
     bool rxBufferIsEmpty();
     bool rxBufferIsNotEmpty();
     bool rxBufferIsFull();
     bool rxBufferIsNotFull();
     char rxBufferCharOnCursor();
     char rxBufferLastChar();
+    bool rxBufferCursorStep();
+    bool rxBufferCursorStepBack();
 
-    void visualCursorStepBack();
-    
+    bool visualCursorStep();
+    bool visualCursorStepBack();
+
+    bool cursorStep();
+    bool cursorStepBack();
+
+    bool insert();
+    bool deleteChar();
 
     void echoLine(const char *string);
     bool processAnsiCursorControl(char c);

@@ -164,6 +164,23 @@ bool Shell::rxBufferIsNotFull()
     return (false == this->rxBufferIsFull());
 }
 
+char Shell::rxBufferCharOnCursor()
+{
+    return this->rxBuffer.at(this->rxCursorIdx);
+}
+
+char Shell::rxBufferLastChar()
+{
+    if(this->rxBufferIsNotEmpty())
+    {
+        return this->rxBuffer.at(this->rxCharsTotal - 1 - sizeof('\0'));
+    }
+    else
+    {
+        return '\0';
+    }
+}
+
 bool Shell::rxBufferCursorStep()
 {
     if(this->rxBufferIsNotFull())
@@ -184,49 +201,56 @@ bool Shell::rxBufferCursorStepBack()
     return false;
 }
 
-void Shell::visualCursorStep()
+bool Shell::visualCursorStep()
 {            
     // ovewrite char with same value effectively moving cursor right
-    this->echo(this->rxBufferCharOnCursor());
+    if(this->rxBufferIsNotFull())
+    {
+        this->echo(this->rxBufferCharOnCursor());
+        return true;
+    }
+    return false;
 }
 
-void Shell::visualCursorStepBack()
+bool Shell::visualCursorStepBack()
 {
-    this->echo('\b');
+    if(this->rxBufferCursorNotOnBase())
+    {
+        this->echo('\b');
+        return true;
+    }
+    return false;
 }
 
-void Shell::cursorStep()
+bool Shell::cursorStep()
 {
-    this->visualCursorStep();
-    this->rxBufferCursorStep();
+    return (this->visualCursorStep() && this->rxBufferCursorStep());
 }
 
-void Shell::cursorStepBack()
+bool Shell::cursorStepBack()
 {
-    this->visualCursorStepBack();
-    this->rxBufferCursorStepBack();
+    return (this->visualCursorStepBack() && this->rxBufferCursorStepBack());
 }
 
-void Shell::insert()
+bool Shell::insert()
 {
     this->cursorStep();
 }
 
-char Shell::rxBufferCharOnCursor()
+bool Shell::deleteChar()
 {
-    return this->rxBuffer.at(this->rxCursorIdx);
-}
+    if (this->rxBufferIsNotEmpty() && this->rxBufferCursorNotOnTail())
+    {
+        std::memmove(&this->rxBuffer[this->rxCursorIdx], &this->rxBuffer[this->rxCursorIdx + 1], this->rxCharsTotal - (this->rxCursorIdx + 1));
+        this->rxBuffer[--this->rxCharsTotal] = '\0';
 
-char Shell::rxBufferLastChar()
-{
-    if(this->rxBufferIsNotEmpty())
-    {
-        return this->rxBuffer.at(this->rxCharsTotal - 1 - sizeof('\0'));
+        this->echoData(&this->rxBuffer[this->rxCursorIdx], this->rxCharsTotal - (this->rxCursorIdx + 1));
+        this->echo("  ");
+        this->echo('\b', this->rxCharsTotal - this->rxCursorIdx + 1);
+
+        return true;
     }
-    else
-    {
-        return '\0';
-    }
+    return false;
 }
 
 // ESC[H	moves cursor to home position (0, 0)
@@ -246,7 +270,20 @@ char Shell::rxBufferLastChar()
 // returns true if sequence finished
 bool Shell::processAnsiCursorControl(char c)
 {
-    if (c == 'H') // home position
+    static std::size_t delSequence = 0;
+    
+    if (c == '3') // DEL first symbol
+    {
+        delSequence++;
+        return false;
+    }
+    else if (c == '~' && delSequence == 1)
+    {
+        this->deleteChar();
+        delSequence = 0;
+        return true;
+    }
+    else if (c == 'H') // home position
     {
         while (this->rxBufferCursorStepBack())
         {
@@ -319,15 +356,7 @@ bool Shell::receiveChar(char c)
     {
         if (c == 0x7F) // DEL(ete)
         {
-            if (this->rxBufferIsNotEmpty() && this->rxBufferCursorNotOnTail())
-            {
-                std::memmove(&this->rxBuffer[this->rxCursorIdx], &this->rxBuffer[this->rxCursorIdx + 1], this->rxCharsTotal - (this->rxCursorIdx + 1));
-                this->rxBuffer[--this->rxCharsTotal] = '\0';
-
-                this->echoData(&this->rxBuffer[this->rxCursorIdx], this->rxCharsTotal - this->rxCursorIdx);
-                this->echo(' ');
-                this->echo('\b', this->rxCharsTotal - this->rxCursorIdx + 1);
-            }
+            this->deleteChar();
             escaped = false;
         }
         else if (this->processAnsiEscapeSequences(c))
@@ -347,13 +376,10 @@ bool Shell::receiveChar(char c)
     {
         if (this->rxBufferCursorNotOnBase())
         {
-            // update buffer
             std::memmove(&this->rxBuffer[this->rxCursorIdx - 1], &this->rxBuffer.at(this->rxCursorIdx), this->rxCharsTotal - this->rxCursorIdx);
             if(this->rxBufferCursorStepBack())
             {
                 this->rxBuffer[--this->rxCharsTotal] = '\0';
-
-                // adjust visuals accordingly
                 this->visualCursorStepBack();
                 this->echoData(&this->rxBuffer[this->rxCursorIdx], this->rxCharsTotal - this->rxCursorIdx);
                 this->echo("  ");
