@@ -164,11 +164,6 @@ bool Shell::rxBufferIsNotFull()
     return (false == this->rxBufferIsFull());
 }
 
-void Shell::visualBackspace()
-{
-    this->echo('\b');
-}
-
 bool Shell::rxBufferCursorStep()
 {
     if(this->rxBufferIsNotFull())
@@ -187,6 +182,34 @@ bool Shell::rxBufferCursorStepBack()
         return true;
     }
     return false;
+}
+
+void Shell::visualCursorStep()
+{            
+    // ovewrite char with same value effectively moving cursor right
+    this->echo(this->rxBufferCharOnCursor());
+}
+
+void Shell::visualCursorStepBack()
+{
+    this->echo('\b');
+}
+
+void Shell::cursorStep()
+{
+    this->visualCursorStep();
+    this->rxBufferCursorStep();
+}
+
+void Shell::cursorStepBack()
+{
+    this->visualCursorStepBack();
+    this->rxBufferCursorStepBack();
+}
+
+void Shell::insert()
+{
+    this->cursorStep();
 }
 
 char Shell::rxBufferCharOnCursor()
@@ -227,7 +250,7 @@ bool Shell::processAnsiCursorControl(char c)
     {
         while (this->rxBufferCursorStepBack())
         {
-            this->visualBackspace();
+            this->visualCursorStepBack();
         }
         return true;
     }
@@ -245,9 +268,7 @@ bool Shell::processAnsiCursorControl(char c)
     {
         if (this->rxBufferCursorNotOnTail())
         {
-            // ovewrite char with same value effectively moving cursor right
-            this->echo(this->rxBufferCharOnCursor());
-            this->rxBufferCursorStep();
+            this->cursorStep();
         }
         return true;
     }
@@ -255,8 +276,7 @@ bool Shell::processAnsiCursorControl(char c)
     {
         if (this->rxBufferCursorNotOnBase())
         {
-            this->visualBackspace();
-            this->rxBufferCursorStepBack();
+            this->cursorStepBack();
         }
         return true;
     }
@@ -334,10 +354,10 @@ bool Shell::receiveChar(char c)
                 this->rxBuffer[--this->rxCharsTotal] = '\0';
 
                 // adjust visuals accordingly
-                this->visualBackspace();
-                this->echoData(&this->rxBuffer[this->rxCursorIdx], this->rxCharsTotal - (this->rxCursorIdx));
+                this->visualCursorStepBack();
+                this->echoData(&this->rxBuffer[this->rxCursorIdx], this->rxCharsTotal - this->rxCursorIdx);
                 this->echo("  ");
-                this->echo('\b', this->rxCharsTotal - (this->rxCursorIdx) + 1);
+                this->echo('\b', this->rxCharsTotal - this->rxCursorIdx + 1);
             }
         }
         

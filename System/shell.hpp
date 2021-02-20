@@ -69,7 +69,7 @@ private:
     char rxBufferCharOnCursor();
     char rxBufferLastChar();
 
-    void visualBackspace();
+    void visualCursorStepBack();
     
 
     void echoLine(const char *string);
