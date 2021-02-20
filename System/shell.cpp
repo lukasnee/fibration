@@ -49,6 +49,7 @@ void Shell::Run()
     while (true)
     {
         // NOTE: escape sequences are time sensitive !
+        // TODO: move this to a dedicated uart receiver task and join by char queue
         if(this->receiveChar(this->stream.getc()))
         { // escape sequence finished (not time sensitive)
             // Log::trace("shell", "c:%u t:%u %s", this->rxCursorIdx, this->rxCharsTotal, this->rxBuffer.data());
