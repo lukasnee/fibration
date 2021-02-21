@@ -31,6 +31,11 @@ Uart2 & Periph::getUart2()
 {
     static Uart2 uart2(115200); return uart2;
 }
+// For Audio
+I2s2 & Periph::getI2s2()
+{
+    static I2s2 i2s2; return i2s2;
+}
 
 Gpio & Periph::getGpio(Gpio::Port port, Gpio::Pin pin)
 {
