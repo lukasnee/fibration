@@ -83,6 +83,13 @@ public:
         this->rxBinarySemaphore.Give();
     };
 
+    ~UartInterface()
+    {
+        this->txBinarySemaphore.Take();
+        this->rxBinarySemaphore.Take();
+    };
+
+
     virtual bool init() = 0;
     virtual bool deinit() = 0;
 
