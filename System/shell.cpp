@@ -3,15 +3,15 @@
 #include "system.hpp"
 #include "peripherals.hpp"
 
-void Shell::start(Stream &stream, std::uint16_t stackDepth, BaseType_t priority)
+void Shell::start(TextStreamInterface &textStream, std::uint16_t stackDepth, BaseType_t priority)
 {
-    static Shell shell(stream, stackDepth, priority);
+    static Shell shell(textStream, stackDepth, priority);
 }
 
-Shell::Shell(Stream &stream, std::uint16_t stackDepth, BaseType_t priority)
-    : Thread("shell", stackDepth, priority), stream(stream)
+Shell::Shell(TextStreamInterface &textStream, std::uint16_t stackDepth, BaseType_t priority)
+    : Thread("shell", stackDepth, priority), textStream(textStream)
 {
-    this->stream.setOwner(this);
+    this->textStream.setOwner(this);
 
     if (Start() == false)
     {
@@ -50,7 +50,7 @@ void Shell::Run()
     {
         // NOTE: escape sequences are time sensitive !
         // TODO: move this to a dedicated uart receiver task and join by char queue
-        if(this->receiveChar(this->stream.getc()))
+        if(this->receiveChar(this->textStream.getc()))
         { // escape sequence finished (not time sensitive)
             // Log::trace("shell", "c:%u t:%u %s", this->rxCursorIdx, this->rxCharsTotal, this->rxBuffer.data());
         }
@@ -63,9 +63,9 @@ void Shell::echo(char c, std::size_t timesToRepeat)
     {
         if (c == '\n')
         {
-            this->stream.putc('\r');
+            this->textStream.putc('\r');
         }
-        this->stream.putc(c);
+        this->textStream.putc(c);
     }
 }
 

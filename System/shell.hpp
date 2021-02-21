@@ -5,7 +5,7 @@
 #include "thread.hpp"
 
 #include "uart2.hpp"
-#include "stream.hpp"
+#include "textStreamInterface.hpp"
 
 //#include <cstddef>
 #include <array>
@@ -21,7 +21,7 @@ namespace ShellConfig {
 class Shell : public cpp_freertos::Thread
 {
 public:
-    static void start(Stream &stream, std::uint16_t stackDepth, BaseType_t priority);
+    static void start(TextStreamInterface &textStream, std::uint16_t stackDepth, BaseType_t priority);
 
     int printf(const char *fmt, ...);
     void printc(const char c);
@@ -43,7 +43,7 @@ private:
 
     static const std::array<Shell::Command, 5> shellCmds;
 
-    Shell(Stream &stream, std::uint16_t stackDepth, BaseType_t priority);
+    Shell(TextStreamInterface &textStream, std::uint16_t stackDepth, BaseType_t priority);
 
     virtual void Run() override;
 
@@ -92,5 +92,5 @@ private:
     } config;
     
 
-    Stream &stream;
+    TextStreamInterface &textStream;
 };
