@@ -3,7 +3,7 @@
 #include <array>
 #include <cstring>
 
-UartStream::UartStream(UartInterface &uart) : Stream(), uart(uart)
+UartStream::UartStream(UartInterface &uart) : TextStreamInterface(), uart(uart)
 {
     this->uart.init();
 }

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "stream.hpp"
+#include "textStreamInterface.hpp"
 #include "uartInterface.hpp"
 
-class UartStream : public Stream, public UartInterface::TxIsrCallbacks, public UartInterface::RxIsrCallbacks
+class UartStream : public TextStreamInterface, public UartInterface::TxIsrCallbacks, public UartInterface::RxIsrCallbacks
 {
 public:
     UartStream(UartInterface &uart);

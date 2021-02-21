@@ -5,10 +5,10 @@
 #include "thread.hpp"
 #include "queue.hpp"
 
-class Stream
+class TextStreamInterface
 {
 public:
-    Stream(){};
+    TextStreamInterface(){};
 
     void setOwner(cpp_freertos::Thread *pOwner) { this->pOwner = pOwner; };
 
