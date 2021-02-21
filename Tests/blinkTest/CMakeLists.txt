@@ -104,6 +104,9 @@ set(SYSTEM_SRC
     ${ROOT}/System/uartStream.cpp
     ${ROOT}/System/uartStreamer.cpp
     ${ROOT}/System/uartStreamer.hpp
+
+    ${ROOT}/System/status.hpp
+    ${ROOT}/System/config.hpp
     ${ROOT}/System/log.cpp
     ${ROOT}/System/log.hpp
     ${ROOT}/System/shell.cpp
