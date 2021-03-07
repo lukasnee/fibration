@@ -13,16 +13,81 @@ set(ROOT ${CMAKE_SOURCE_DIR})
 
 set(SYSTEM_SRC
 
-# Hardware Platform
+# Fibration Framework
+# (NOTE: Following source list is ordered from highest to lowest abstraction)
+      
+    # FibSys (Fibration System) interface level
+    ${ROOT}/System/system.cpp
+    ${ROOT}/System/system.hpp
+    ${ROOT}/System/peripherals.cpp
+    ${ROOT}/System/peripherals.hpp
+    ${ROOT}/System/shellCommands.cpp
+    ${ROOT}/System/shell.cpp
+    ${ROOT}/System/shell.hpp
+    ${ROOT}/System/log.cpp
+    ${ROOT}/System/log.hpp
+    ${ROOT}/System/status.hpp
+    ${ROOT}/System/config.hpp
+    ${ROOT}/System/memory.cpp # this should really find better home...
+    ${ROOT}/System/FreeRTOSConfig.h # this too...
+    
+    # Streams Interfaces shaping interaction of whats above to whats below
+    ${ROOT}/System/Streams/Interfaces/textStreamInterface.hpp
+    ${ROOT}/System/Streams/Interfaces/audioStreamInterface.hpp
 
-    # STM32F303 MCU core components
-    ${ROOT}/System/MSP/stm32f3xx_hal_msp.c
-    ${ROOT}/System/MSP/stm32f3xx_hal_timebase_tim.c
-    ${ROOT}/System/MSP/stm32f3xx_it.c
-    ${ROOT}/System/MSP/syscalls.c
-    ${ROOT}/System/MSP/sysmem.c
-    ${ROOT}/System/MSP/system_stm32f3xx.c
-    ${ROOT}/System/MSP/startup_stm32f303cctx.s
+    # Streams Implementations - making use of peripherals efficiently
+    ${ROOT}/System/Streams/i2sAudioStream.cpp
+    ${ROOT}/System/Streams/i2sAudioStream.hpp
+    ${ROOT}/System/Streams/i2sAudioStreamer.cpp
+    ${ROOT}/System/Streams/i2sAudioStreamer.hpp
+    ${ROOT}/System/Streams/uartTextStream.hpp
+    ${ROOT}/System/Streams/uartTextStream.cpp
+    ${ROOT}/System/Streams/uartTextStreamer.cpp
+    ${ROOT}/System/Streams/uartTextStreamer.hpp
+
+    # Peripheral Interfaces shaping interaction of whats above to whats below
+    ${ROOT}/System/Peripherals/Interfaces/uartInterface.hpp
+    ${ROOT}/System/Peripherals/Interfaces/i2sInterface.hpp
+
+    # Peripherals Implementations - wrappers for limited resources that are available on the platform
+    ${ROOT}/System/Peripherals/gpio.cpp
+    ${ROOT}/System/Peripherals/gpio.hpp
+    ${ROOT}/System/Peripherals/tim6.cpp
+    ${ROOT}/System/Peripherals/tim6.hpp
+    ${ROOT}/System/Peripherals/uartIsrHandler.cpp
+    ${ROOT}/System/Peripherals/uart1.cpp
+    ${ROOT}/System/Peripherals/uart1.hpp
+    ${ROOT}/System/Peripherals/uart2.cpp
+    ${ROOT}/System/Peripherals/uart2.hpp
+    ${ROOT}/System/Peripherals/i2sIsrHandler.cpp
+    ${ROOT}/System/Peripherals/i2s2.cpp
+    ${ROOT}/System/Peripherals/i2s2.hpp
+    # TODO: finish work ! Make all peripherals work over interfaces
+
+# Real-Time Operating System
+
+    # freertos-addons submodule (FreeRTOS C++ wrapper and more)
+    ${ROOT}/System/freertos-addons/c++/Source/cmutex.cpp
+    ${ROOT}/System/freertos-addons/c++/Source/cqueue.cpp
+    ${ROOT}/System/freertos-addons/c++/Source/cread_write_lock.cpp
+    ${ROOT}/System/freertos-addons/c++/Source/csemaphore.cpp
+    ${ROOT}/System/freertos-addons/c++/Source/ctasklet.cpp
+    ${ROOT}/System/freertos-addons/c++/Source/cthread.cpp
+    ${ROOT}/System/freertos-addons/c++/Source/ctimer.cpp
+    ${ROOT}/System/freertos-addons/c++/Source/ctickhook.cpp
+    ${ROOT}/System/freertos-addons/c++/Source/cworkqueue.cpp
+    # FreeRTOS
+    ${ROOT}/System/FreeRTOS/Source/croutine.c
+    ${ROOT}/System/FreeRTOS/Source/event_groups.c
+    ${ROOT}/System/FreeRTOS/Source/list.c
+    ${ROOT}/System/FreeRTOS/Source/queue.c
+    ${ROOT}/System/FreeRTOS/Source/stream_buffer.c
+    ${ROOT}/System/FreeRTOS/Source/tasks.c
+    ${ROOT}/System/FreeRTOS/Source/timers.c
+    ${ROOT}/System/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c
+    ${ROOT}/System/FreeRTOS/Source/portable/MemMang/heap_4.c
+
+# MCU Support Package
 
     # STM32F3xx HAL (Hardware Abstraction Layer)
     ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal.c
@@ -40,78 +105,14 @@ set(SYSTEM_SRC
     ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_dma.c
     ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_i2s.c
     ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_i2s_ex.c
-
-# RTOS (Real-Time Operating System)
-
-    # FreeRTOS
-    ${ROOT}/System/FreeRTOS/Source/croutine.c
-    ${ROOT}/System/FreeRTOS/Source/event_groups.c
-    ${ROOT}/System/FreeRTOS/Source/list.c
-    ${ROOT}/System/FreeRTOS/Source/queue.c
-    ${ROOT}/System/FreeRTOS/Source/stream_buffer.c
-    ${ROOT}/System/FreeRTOS/Source/tasks.c
-    ${ROOT}/System/FreeRTOS/Source/timers.c
-    ${ROOT}/System/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c
-    ${ROOT}/System/FreeRTOS/Source/portable/MemMang/heap_4.c
-
-    # freertos-addons submodule (FreeRTOS C++ wrapper and more)
-    ${ROOT}/System/freertos-addons/c++/Source/cmutex.cpp
-    ${ROOT}/System/freertos-addons/c++/Source/cqueue.cpp
-    ${ROOT}/System/freertos-addons/c++/Source/cread_write_lock.cpp
-    ${ROOT}/System/freertos-addons/c++/Source/csemaphore.cpp
-    ${ROOT}/System/freertos-addons/c++/Source/ctasklet.cpp
-    ${ROOT}/System/freertos-addons/c++/Source/cthread.cpp
-    ${ROOT}/System/freertos-addons/c++/Source/ctimer.cpp
-    ${ROOT}/System/freertos-addons/c++/Source/ctickhook.cpp
-    ${ROOT}/System/freertos-addons/c++/Source/cworkqueue.cpp
-    # ${ROOT}/System/freertos-addons/c++/Source/ccondition_variable.cpp
-    # ${ROOT}/System/freertos-addons/c++/Source/cevent_groups.cpp
-    # ${ROOT}/System/freertos-addons/c++/Source/cmem_pool.cpp
-
-# Fibration Framework
-
-    # Hardware Peripheral Interface
-
-    ${ROOT}/System/memory.cpp
-    ${ROOT}/System/peripherals.cpp
-    ${ROOT}/System/peripherals.hpp
-    ${ROOT}/System/gpio.cpp
-    ${ROOT}/System/gpio.hpp
-
-    ${ROOT}/System/tim6.cpp
-    ${ROOT}/System/tim6.hpp
-
-    ${ROOT}/System/uartInterface.hpp
-    ${ROOT}/System/uartIsrHandler.cpp
-    ${ROOT}/System/uart1.cpp
-    ${ROOT}/System/uart1.hpp
-    ${ROOT}/System/uart2.cpp
-    ${ROOT}/System/uart2.hpp
-
-    ${ROOT}/System/i2sInterface.hpp
-    ${ROOT}/System/i2sIsrHandler.cpp
-    ${ROOT}/System/i2s2.cpp
-    ${ROOT}/System/i2s2.hpp
-
-    # FibSys (Fibration System) interface level
-
-    ${ROOT}/System/FreeRTOSConfig.h # FreeRTOS project specific configuration
-    ${ROOT}/System/system.cpp
-    ${ROOT}/System/system.hpp
-
-    ${ROOT}/System/textStreamInterface.hpp
-    ${ROOT}/System/uartStream.hpp
-    ${ROOT}/System/uartStream.cpp
-    ${ROOT}/System/uartStreamer.cpp
-    ${ROOT}/System/uartStreamer.hpp
-
-    ${ROOT}/System/status.hpp
-    ${ROOT}/System/config.hpp
-    ${ROOT}/System/log.cpp
-    ${ROOT}/System/log.hpp
-    ${ROOT}/System/shell.cpp
-    ${ROOT}/System/shell.hpp
-    ${ROOT}/System/shellCmd.cpp
+    # STM32F303 MCU core components
+    ${ROOT}/System/MSP/stm32f3xx_hal_msp.c
+    ${ROOT}/System/MSP/stm32f3xx_hal_timebase_tim.c
+    ${ROOT}/System/MSP/stm32f3xx_it.c
+    ${ROOT}/System/MSP/syscalls.c
+    ${ROOT}/System/MSP/sysmem.c
+    ${ROOT}/System/MSP/system_stm32f3xx.c
+    ${ROOT}/System/MSP/startup_stm32f303cctx.s
 )
 
 add_executable(${PROJECT_NAME} 
@@ -125,20 +126,24 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE 
-    
-    # Hardware Platform
-    ${ROOT}/System/MSP/CMSIS/Device/ST/STM32F3xx/Include
-    ${ROOT}/System/MSP/CMSIS/Include
-    ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Inc
-    ${ROOT}/System/MSP
-
-    # RTOS (Real-Time Operating System)
-    ${ROOT}/System/FreeRTOS/Source/include
-    ${ROOT}/System/FreeRTOS/Source/portable/GCC/ARM_CM4F
-    ${ROOT}/System/freertos-addons/c++/Source/include
 
     # Fibration Framework
     ${ROOT}/System
+    ${ROOT}/Stream/Interfaces
+    ${ROOT}/Stream
+    ${ROOT}/Peripherals/Interfaces
+    ${ROOT}/Peripherals
+
+    # Real-Time Operating System
+    ${ROOT}/System/FreeRTOS/Source/include
+    ${ROOT}/System/freertos-addons/c++/Source/include
+    ${ROOT}/System/FreeRTOS/Source/portable/GCC/ARM_CM4F
+    
+    # MCU Support Package
+    ${ROOT}/System/MSP
+    ${ROOT}/System/MSP/CMSIS/Include
+    ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Inc
+    ${ROOT}/System/MSP/CMSIS/Device/ST/STM32F3xx/Include
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "uartInterface.hpp"
+#include "Interfaces/uartInterface.hpp"
 #include <cstdint>
 
 class Uart2 : public UartInterface

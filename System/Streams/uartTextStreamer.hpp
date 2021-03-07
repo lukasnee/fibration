@@ -3,7 +3,7 @@
 #include <cstdint>
 #include "thread.hpp"
 #include "queue.hpp"
-#include "uartStream.hpp"
+#include "uartTextStream.hpp"
 
 class UartStreamer : public cpp_freertos::Thread, public UartStream
 {

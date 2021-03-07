@@ -1,6 +1,6 @@
 #pragma once
 
-#include "i2sInterface.hpp"
+#include "Interfaces/i2sInterface.hpp"
 #include <cstdint>
 
 class I2s2 : public I2sInterface

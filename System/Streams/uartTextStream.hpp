@@ -1,7 +1,7 @@
 #pragma once
 
-#include "textStreamInterface.hpp"
-#include "uartInterface.hpp"
+#include "Interfaces/textStreamInterface.hpp"
+#include "../Peripherals/Interfaces/uartInterface.hpp"
 
 class UartStream : public TextStreamInterface, public UartInterface::TxIsrCallbacks, public UartInterface::RxIsrCallbacks
 {
