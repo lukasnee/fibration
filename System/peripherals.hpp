@@ -1,10 +1,10 @@
 #pragma once 
 
-#include "tim6.hpp" 
-#include "uart1.hpp" 
-#include "uart2.hpp" 
-#include "i2s2.hpp" 
-#include "gpio.hpp"
+#include "Peripherals/tim6.hpp" 
+#include "Peripherals/uart1.hpp" 
+#include "Peripherals/uart2.hpp" 
+#include "Peripherals/i2s2.hpp" 
+#include "Peripherals/gpio.hpp"
 
 class Periph 
 {

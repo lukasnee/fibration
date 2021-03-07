@@ -1,9 +1,9 @@
 #include "system.hpp"
 #include "peripherals.hpp"
 #include "log.hpp"
-#include "uartStream.hpp"
+#include "Streams/uartTextStream.hpp"
 #include "shell.hpp"
-#include "uartStreamer.hpp"
+#include "Streams/uartTextStreamer.hpp"
 
 #include "ticks.hpp"
 #include "timer.hpp"

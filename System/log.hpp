@@ -3,7 +3,7 @@
 #define LOG_ENABLED true
 #define LOG_VERBOSITY_LEVEL Log::VERBOSITY_2
 
-#include "uartStreamer.hpp"
+#include "Streams/uartTextStreamer.hpp"
 #include <string_view>
 #include <cstdarg>
 

@@ -4,6 +4,7 @@
 #include <limits>
 // NOTE: peripheral instances should get constructer after MCU core and freertos initialization
 
+// TODO: cleanup tim6 mess below, put this logic to lower level source file
 // For FreeRTOS TimeGetStats
 Tim6 & Periph::getTim6()
 {
@@ -26,17 +27,18 @@ Uart1 & Periph::getUart1()
 {
     static Uart1 uart1(115200); return uart1;
 }
-// For Console
+// For Shell
 Uart2 & Periph::getUart2()
 {
     static Uart2 uart2(115200); return uart2;
 }
-// For Audio
+// For Audio Stream 1
 I2s2 & Periph::getI2s2()
 {
     static I2s2 i2s2; return i2s2;
 }
 
+// TODO: cleanup, put this logic to lower level source file
 Gpio & Periph::getGpio(Gpio::Port port, Gpio::Pin pin)
 {
     if (port == Gpio::Port::A)

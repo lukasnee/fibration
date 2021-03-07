@@ -4,8 +4,8 @@
 
 #include "thread.hpp"
 
-#include "uart2.hpp"
-#include "textStreamInterface.hpp"
+#include "Peripherals/uart2.hpp"
+#include "Streams/Interfaces/textStreamInterface.hpp"
 
 //#include <cstddef>
 #include <array>
