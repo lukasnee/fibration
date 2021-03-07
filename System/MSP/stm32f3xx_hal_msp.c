@@ -1,12 +1,6 @@
 #include "stm32f3xx_hal.h"
 #include "stm32f3xx_it.h"
 
-static void Error_Handler()
-{
-    // todo think again
-    UsageFault_Handler();
-}
-
 // Initializes the Global MSP.
 void HAL_MspInit(void)
 {
