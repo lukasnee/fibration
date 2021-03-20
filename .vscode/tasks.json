@@ -40,6 +40,19 @@
             "problemMatcher": []
         },
         {
+            "label": "Serial /dev/ttyACM0",
+            "type": "shell",
+            "linux": {
+                "command": "minicom --baudrate=115200 --device=/dev/ttyACM0 -c on",
+            },
+            "presentation": {
+                "focus": true,
+                "panel": "dedicated",
+                "revealProblems": "onProblem"
+            },
+            "problemMatcher": []
+        },
+        {
             "label": "Build All (Debug)",
             "type": "shell",
             "group": "build",
