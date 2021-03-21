@@ -56,8 +56,6 @@ extern uint32_t uint32GetRunTimeCounterValue();
 #define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() vConfigureTimerForRunTimeStats();
 #define portGET_RUN_TIME_COUNTER_VALUE() uint32GetRunTimeCounterValue();
 
-#define configUSE_TRACE_FACILITY                1
-
 /* Co-routine related definitions. */
 #define configUSE_CO_ROUTINES                   0
 #define configMAX_CO_ROUTINE_PRIORITIES         2
