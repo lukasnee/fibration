@@ -33,7 +33,8 @@ set(SYSTEM_SRC
     
     # Streams Interfaces shaping interaction of whats above to whats below
     ${ROOT}/System/Streams/Interfaces/textStreamInterface.hpp
-    ${ROOT}/System/Streams/Interfaces/audioStreamInterface.hpp
+    ${ROOT}/System/Streams/Interfaces/stereoAudioStreamInterface.hpp
+    ${ROOT}/System/Streams/Interfaces/stereoAudioStreamInterface.cpp
 
     # Streams Implementations - making use of peripherals efficiently
     ${ROOT}/System/Streams/i2sAudioStream.cpp
@@ -88,7 +89,11 @@ set(SYSTEM_SRC
     ${ROOT}/System/FreeRTOS/Source/portable/MemMang/heap_4.c
 
 # MCU Support Package
-
+    # DSP stuff
+    ${ROOT}/System/MSP/CMSIS/DSP_Lib/Source/CommonTables/arm_common_tables.c
+    ${ROOT}/System/MSP/CMSIS/DSP_Lib/Source/CommonTables/arm_const_structs.c
+    ${ROOT}/System/MSP/CMSIS/DSP_Lib/Source/FastMathFunctions/arm_sin_f32.c
+    ${ROOT}/System/MSP/CMSIS/DSP_Lib/Source/FastMathFunctions/arm_sin_f32.c
     # STM32F3xx HAL (Hardware Abstraction Layer)
     ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal.c
     ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_cortex.c
@@ -123,6 +128,7 @@ add_executable(${PROJECT_NAME}
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
     -DUSE_HAL_DRIVER
+    -DARM_MATH_CM4
     -DSTM32F303xC
     #-DSTM32F303xE
 )
@@ -192,7 +198,8 @@ target_link_options(${PROJECT_NAME} PRIVATE
     -mfpu=fpv4-sp-d16
     -mfloat-abi=hard
     
-    -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
+    -L${ROOT}/System/MSP/CMSIS/Lib
+    -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -larm_cortexM4lf_math -Wl,--end-group
     -specs=nosys.specs
     -specs=nano.specs
     -static

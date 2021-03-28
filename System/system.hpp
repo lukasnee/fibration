@@ -15,6 +15,7 @@ public:
 
     // should be called in case fatal error, could be used as run-time assert
     static void panic();
+    static BaseType_t getAudioPriority();
     static BaseType_t getSysMaxPriority();
     static BaseType_t getAppMaxPriority();
     //void collectStats();

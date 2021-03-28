@@ -41,7 +41,7 @@ private:
     static constexpr std::size_t rxBufferSize = 256;
     static constexpr std::size_t maxArgs = 16;
 
-    static const std::array<Shell::Command, 5> shellCmds;
+    static const std::array<Shell::Command, 6> shellCmds;
 
     Shell(TextStreamInterface &textStream, std::uint16_t stackDepth, BaseType_t priority);
 
