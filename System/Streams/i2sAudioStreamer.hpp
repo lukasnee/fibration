@@ -18,7 +18,7 @@ public:
 private:
     bool isStandby = true;
 
-    ProcessBufferF * processBufferF = nullptr;
+    ProcessBufferF *processBufferF = nullptr;
 
     virtual void Run() override; // thread entry
 };

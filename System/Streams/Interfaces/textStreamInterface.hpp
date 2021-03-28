@@ -1,9 +1,7 @@
 #pragma once
 
-#include <array>
-#include <optional>
 #include "thread.hpp"
-#include "queue.hpp"
+//#include <optional>
 
 class TextStreamInterface
 {
