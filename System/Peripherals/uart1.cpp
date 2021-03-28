@@ -39,14 +39,14 @@ bool Uart1::init()
 {
     // setup UART IRQ
     __HAL_RCC_USART1_CLK_ENABLE();
-    HAL_NVIC_SetPriority(USART1_IRQn, 5, 0);
+    HAL_NVIC_SetPriority(USART1_IRQn, 6, 0);
     HAL_NVIC_EnableIRQ(USART1_IRQn);
 
     // setup according DMA channels IRQ
     __HAL_RCC_DMA1_CLK_ENABLE();
-    HAL_NVIC_SetPriority(DMA1_Channel4_IRQn, 5, 0);
+    HAL_NVIC_SetPriority(DMA1_Channel4_IRQn, 6, 0);
     HAL_NVIC_EnableIRQ(DMA1_Channel4_IRQn);
-    // HAL_NVIC_SetPriority(DMA1_Channel5_IRQn, 5, 0);
+    // HAL_NVIC_SetPriority(DMA1_Channel5_IRQn, 6, 0);
     // HAL_NVIC_EnableIRQ(DMA1_Channel5_IRQn);
 
     // setup gpios for alternative function (uart tx/rx)
