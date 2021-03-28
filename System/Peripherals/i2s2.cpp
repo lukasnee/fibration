@@ -55,7 +55,7 @@ bool I2s2::init()
     hdma_spi2_tx.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
     hdma_spi2_tx.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
     hdma_spi2_tx.Init.Mode = DMA_CIRCULAR;
-    hdma_spi2_tx.Init.Priority = DMA_PRIORITY_LOW;
+    hdma_spi2_tx.Init.Priority = DMA_PRIORITY_VERY_HIGH;
     if (HAL_DMA_Init(&hdma_spi2_tx) != HAL_OK)
     {
         FibSys::panic();
@@ -63,8 +63,11 @@ bool I2s2::init()
 
     __HAL_LINKDMA(&hi2s2, hdmatx, hdma_spi2_tx);
 
+    // setup according DMA channel IRQ
+    HAL_NVIC_SetPriority(DMA1_Channel5_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(DMA1_Channel5_IRQn);
     /* I2S2 interrupt Init */
-    HAL_NVIC_SetPriority(SPI2_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(SPI2_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(SPI2_IRQn);
 
     hi2s2.Instance = SPI2;
@@ -86,7 +89,7 @@ bool I2s2::deinit()
     {
         return false;
     }
-    
+
     /* Peripheral clock disable */
     __HAL_RCC_SPI2_CLK_DISABLE();
 
@@ -110,16 +113,25 @@ bool I2s2::deinit()
     return true;
 }
 
-bool I2s2::txCircularUnsafe(const std::uint16_t *pData16, std::uint16_t size)
+bool I2s2::txCircularUnsafe(const std::uint16_t *pData16, std::uint16_t size16)
 {
     bool retval = false;
 
-    if (HAL_I2S_GetState(&hi2s2) == HAL_I2S_STATE_READY)
+    if (HAL_I2S_Transmit_DMA(&hi2s2, const_cast<std::uint16_t *>(pData16), size16) == HAL_OK)
     {
-        if (HAL_I2S_Transmit_DMA(&hi2s2, const_cast<std::uint16_t *>(pData16), size) == HAL_OK)
-        {
-            retval = true;
-        }
+        retval = true;
+    }
+    
+    return retval;
+}
+
+bool I2s2::txCircularStopUnsafe()
+{
+    bool retval = false;
+
+    if (HAL_I2S_DMAStop(&hi2s2) == HAL_OK)
+    {
+        retval = true;
     }
 
     return retval;

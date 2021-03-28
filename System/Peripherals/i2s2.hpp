@@ -11,7 +11,8 @@ public:
 
     bool init() override;
     bool deinit() override;
-    bool txCircularUnsafe(const std::uint16_t *pData16, std::uint16_t size) override;
+    bool txCircularUnsafe(const std::uint16_t *pData16, std::uint16_t size16) override;
+    bool txCircularStopUnsafe();
 
     void operator=(I2s2 const &) = delete;
     I2s2(I2s2 const &) = delete;

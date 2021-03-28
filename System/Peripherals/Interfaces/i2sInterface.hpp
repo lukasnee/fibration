@@ -16,12 +16,12 @@ public:
         virtual void onTxHalfCompleteIsrCallback(){};
     };
 
-    bool txCircular(const std::uint16_t *pData16, std::uint16_t size, TxIsrCallbacks *pTxIsrCallbacks = nullptr)
+    bool txCircular(const std::uint16_t *pData16, std::uint16_t size16, TxIsrCallbacks *pTxIsrCallbacks = nullptr)
     {
         bool retval = false;
 
         this->txBinarySemaphore.Take();
-        if (false == txCircularUnsafe(pData16, size))
+        if (false == txCircularUnsafe(pData16, size16))
         {
             this->txBinarySemaphore.Give();
         }
@@ -40,9 +40,6 @@ public:
         {
             this->pTxIsrCallbacks->onTxCompleteIsrCallback();
         }
-        // BaseType_t xHigherPriorityTaskWoken;
-        // this->txBinarySemaphore.GiveFromISR(&xHigherPriorityTaskWoken);
-        // portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
     }
 
     void txHalfCpltIsrCalback()
@@ -51,15 +48,27 @@ public:
         {
             this->pTxIsrCallbacks->onTxHalfCompleteIsrCallback();
         }
-        // BaseType_t xHigherPriorityTaskWoken;
-        // this->txBinarySemaphore.GiveFromISR(&xHigherPriorityTaskWoken);
-        // portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
     }
+
+    bool txCircularStop()
+    {
+        bool retval = false;
+
+        if (txCircularStopUnsafe())
+        {
+            retval = this->txBinarySemaphore.Give();
+        }
+
+        return retval;
+    }
+
+    // TODO: receive packets !
+
     I2sInterface()
     {
         this->txBinarySemaphore.Give();
     };
-    
+
     ~I2sInterface()
     {
         this->txBinarySemaphore.Take();
@@ -69,7 +78,8 @@ public:
     virtual bool deinit() = 0;
 
 protected:
-    virtual bool txCircularUnsafe(const std::uint16_t *pData16, std::uint16_t size) = 0;
+    virtual bool txCircularUnsafe(const std::uint16_t *pData16, std::uint16_t size16) = 0;
+    virtual bool txCircularStopUnsafe() = 0;
 
 private:
     cpp_freertos::BinarySemaphore txBinarySemaphore;

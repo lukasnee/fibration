@@ -115,9 +115,14 @@ void FibSys::panic()
     };
 }
 
-BaseType_t FibSys::getSysMaxPriority()
+BaseType_t FibSys::getAudioPriority()
 {
     return configMAX_PRIORITIES - 1;
+}
+
+BaseType_t FibSys::getSysMaxPriority()
+{
+    return getAudioPriority() - 1;
 }
 
 BaseType_t FibSys::getAppMaxPriority()
@@ -153,58 +158,20 @@ FibSys::FibSys(std::uint16_t stackDepth, BaseType_t priority) : Thread("FibSys",
 //     }
 // }
 
-#include <utility>
-#include <limits>
-#include <cmath>
-
-using I2sData = std::pair<std::uint16_t, std::uint16_t>;
-using I2sDataBuffer = std::array<I2sData, 0x40>;
-using I2sDataBufferCircluar = std::pair<I2sDataBuffer, I2sDataBuffer>;
-
-static I2sDataBufferCircluar I2s2DataBufferCircluar;
 
 //FibSys thread
 void FibSys::Run()
 {
-    static auto uartStreamerForLog = UartStreamer(Periph::getUart1(), "logUartStreamer", 0x200, 10);
+    static auto uartStreamerForLog = UartStreamer(Periph::getUart1(), "log", 0x200, 10);
     Log::setUartStreamer(&uartStreamerForLog);
 
     static auto uartStreamForShell = UartStream(Periph::getUart2());
     Shell::start(uartStreamForShell, 0x200, 10);
 
-    //static auto i2s2StreamForAudio = I2s2
-
-    std::uint16_t level16 = 0;
-    std::uint16_t u16max = std::numeric_limits<std::uint16_t>::max();
-
-    std::size_t it = 0;
-    for(auto &val16 : I2s2DataBufferCircluar.first)
-    {
-        val16.first = static_cast<std::uint16_t>((std::sin(2* M_PI * it / I2s2DataBufferCircluar.first.size()) / 3.0f + 1.0f) * u16max);
-        val16.second = val16.first;
-        it++;
-        //level16 += u16max/0x400;
-        // c.first = level16;
-        // c.second = level16 += std::numeric_limits<std::uint16_t>::max()/0x400;
-    } 
-    level16 = 0;
-    it = 0;
-    for(auto &val16 : I2s2DataBufferCircluar.second)
-    {
-        val16.first = static_cast<std::uint16_t>((std::sin(2* M_PI * it / I2s2DataBufferCircluar.first.size()) / 3.0f + 1.0f) * u16max);
-        val16.second = val16.first;
-        it++;
-        // c.first = level16;
-        // c.second = level16 -= std::numeric_limits<std::uint16_t>::max()/0x400;
-    }
-
-    Periph::getI2s2().txCircular(&I2s2DataBufferCircluar.first.at(0).first, 2 * I2s2DataBufferCircluar.first.size(), nullptr);
-
-    while (true)
-    {
-        // TODO:
-        // this->collectStats();
-        Delay(cpp_freertos::Ticks::MsToTicks(1000));
-    }
-    vTaskDelete(NULL);
+    // while (true)
+    // {
+    //     // TODO:
+    //     // this->collectStats();
+    //     Delay(cpp_freertos::Ticks::MsToTicks(1000));
+    // }
 }
