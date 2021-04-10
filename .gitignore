@@ -1,3 +1,4 @@
 Build/Debug
 Build/Release
 fib-log.txt
+.vscode/.cortex-debug.*
