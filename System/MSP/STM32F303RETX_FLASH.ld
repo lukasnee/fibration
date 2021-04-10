@@ -125,6 +125,19 @@ SECTIONS
   /* Used by the startup to initialize data */
   _sidata = LOADADDR(.data);
 
+  /* fast CCMRAM section */
+  .ccmram :
+  {
+    . = ALIGN(4);
+    _sccmram = .;      /* create a global symbol at ccmram start */
+    *(.ccmram)
+    *(.ccmram*)
+
+    . = ALIGN(4);
+    _eccmram = .;      /* create a global symbol at ccmram end */
+
+  } >CCMRAM AT> FLASH
+
   /* Initialized data sections into "RAM" Ram type memory */
   .data :
   {
