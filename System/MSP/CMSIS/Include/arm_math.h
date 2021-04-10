@@ -282,7 +282,8 @@
  * bilinear interpolation is used for 2-dimensional data.
  */
 
-#include "stm32f303xc.h"
+#include "stm32f303xe.h"
+//#include "stm32f303xc.h"
 /**
  * @defgroup groupExamples Examples
  */

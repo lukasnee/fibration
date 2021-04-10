@@ -85,7 +85,7 @@
   * @{
   */
 #if !defined  (HSE_VALUE) 
-  #define HSE_VALUE    ((uint32_t)16000000) /*!< Default value of the External oscillator in Hz.
+  #define HSE_VALUE    ((uint32_t)8000000) /*!< Default value of the External oscillator in Hz.
                                                 This value can be provided and adapted by the user application. */
 #endif /* HSE_VALUE */
 

@@ -117,8 +117,11 @@ set(SYSTEM_SRC
     ${ROOT}/System/MSP/syscalls.c
     ${ROOT}/System/MSP/sysmem.c
     ${ROOT}/System/MSP/system_stm32f3xx.c
-    #${ROOT}/System/MSP/startup_stm32f303retx.s
-    ${ROOT}/System/MSP/startup_stm32f303cbtx.s
+    ${ROOT}/System/MSP/startup_stm32f303retx.s
+    #${ROOT}/System/MSP/startup_stm32f303cbtx.s
+    ${ROOT}/System/MSP/CMSIS/Device/ST/STM32F3xx/Include/stm32f303xe.h
+    #${ROOT}/System/MSP/CMSIS/Device/ST/STM32F3xx/Include/stm32f303xc.h
+    
 )
 
 add_executable(${PROJECT_NAME} 
@@ -129,8 +132,8 @@ add_executable(${PROJECT_NAME}
 target_compile_definitions(${PROJECT_NAME} PRIVATE
     -DUSE_HAL_DRIVER
     -DARM_MATH_CM4
-    -DSTM32F303xC
-    #-DSTM32F303xE
+    #-DSTM32F303xC
+    -DSTM32F303xE
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE 
@@ -191,8 +194,8 @@ target_compile_options(${PROJECT_NAME} PRIVATE
 )
 
 target_link_options(${PROJECT_NAME} PRIVATE
-    -T${ROOT}/System/MSP/STM32F303CCTX_FLASH.ld
-    #-T${ROOT}/System/MSP/STM32F303RETX_FLASH.ld
+    #-T${ROOT}/System/MSP/STM32F303CCTX_FLASH.ld
+    -T${ROOT}/System/MSP/STM32F303RETX_FLASH.ld
     -mcpu=cortex-m4
     -mthumb
     -mfpu=fpv4-sp-d16

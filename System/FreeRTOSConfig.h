@@ -1,7 +1,8 @@
 #pragma once
 
-//#include "stm32f303xe.h"
-#include "stm32f303xc.h"
+#include "stm32f303xe.h"
+//#include "stm32f303xc.h"
+
 /* Ensure definitions are only used by the compiler and not by the assembler. */
 
 #if defined(__ICCARM__) || defined(__CC_ARM) || defined(__GNUC__)
@@ -38,7 +39,9 @@
 #define configSUPPORT_STATIC_ALLOCATION         1
 #define configSUPPORT_DYNAMIC_ALLOCATION        1 // todo 100% static system
 #define configAPPLICATION_ALLOCATED_HEAP        0
+/* 32K RAM total for STM32F303CB */ // todo maybe move out to fibsys
 /* 40K RAM total for STM32F303CC */ // todo maybe move out to fibsys
+/* 64K RAM total for STM32F303RE */ // todo maybe move out to fibsys
 #define configTOTAL_HEAP_SIZE                   ((size_t) 24*1024) 
 
 /* Hook function related definitions. */
