@@ -108,7 +108,7 @@
             "type": "shell",
             "group": "test",
             "linux": {
-                "command": "cd Build; ./build.debug.sh; ./flash-to-stm32.sh Debug/Tests/blinkTest/blinkTest.bin"
+                "command": "cd Build; ./build.debug.sh && ./flash-to-stm32.sh Debug/Tests/blinkTest/blinkTest.bin"
             }
         },
         {
@@ -119,7 +119,7 @@
                 "isDefault": true
             },
             "linux": {
-                "command": "cd Build; ./build.release.sh; ./flash-to-stm32.sh Release/Tests/blinkTest/blinkTest.bin"
+                "command": "cd Build; ./build.release.sh && ./flash-to-stm32.sh Release/Tests/blinkTest/blinkTest.bin"
             },
             "presentation": {
                 "focus": true
