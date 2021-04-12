@@ -33,14 +33,12 @@ set(SYSTEM_SRC
     
     # Streams Interfaces shaping interaction of whats above to whats below
     ${ROOT}/System/Streams/Interfaces/textStreamInterface.hpp
-    ${ROOT}/System/Streams/Interfaces/stereoAudioStreamInterface.hpp
-    ${ROOT}/System/Streams/Interfaces/stereoAudioStreamInterface.cpp
+    ${ROOT}/System/Streams/Interfaces/duplexStereoStreamInterface.hpp
+    ${ROOT}/System/Streams/Interfaces/duplexStereoStreamInterface.cpp
 
     # Streams Implementations - making use of peripherals efficiently
-    ${ROOT}/System/Streams/i2sAudioStream.cpp
-    ${ROOT}/System/Streams/i2sAudioStream.hpp
-    ${ROOT}/System/Streams/i2sAudioStreamer.cpp
-    ${ROOT}/System/Streams/i2sAudioStreamer.hpp
+    ${ROOT}/System/Streams/i2sDuplexStream.cpp
+    ${ROOT}/System/Streams/i2sDuplexStream.hpp
     ${ROOT}/System/Streams/uartTextStream.hpp
     ${ROOT}/System/Streams/uartTextStream.cpp
     ${ROOT}/System/Streams/uartTextStreamer.cpp
@@ -49,6 +47,7 @@ set(SYSTEM_SRC
     # Peripheral Interfaces shaping interaction of whats above to whats below
     ${ROOT}/System/Peripherals/Interfaces/uartInterface.hpp
     ${ROOT}/System/Peripherals/Interfaces/i2sInterface.hpp
+    ${ROOT}/System/Peripherals/Interfaces/i2sInterface.cpp
 
     # Peripherals Implementations - wrappers for limited resources that are available on the platform
     ${ROOT}/System/Peripherals/gpio.cpp

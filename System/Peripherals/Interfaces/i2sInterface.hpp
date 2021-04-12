@@ -1,7 +1,7 @@
 #pragma once
 
 /*
-    defines the required interface for I2S implementation 
+    defines the required interface for I2S implementation and secures as lockable resource in RTOS context.
 */
 
 #include <cstdint>
@@ -10,78 +10,38 @@
 class I2sInterface
 {
 public:
-    struct TxIsrCallbacks
-    {
-        virtual void onTxCompleteIsrCallback(){};
-        virtual void onTxHalfCompleteIsrCallback(){};
-    };
-
-    bool txCircular(const std::uint16_t *pData16, std::uint16_t size16, TxIsrCallbacks *pTxIsrCallbacks = nullptr)
-    {
-        bool retval = false;
-
-        this->txBinarySemaphore.Take();
-        if (false == txCircularUnsafe(pData16, size16))
-        {
-            this->txBinarySemaphore.Give();
-        }
-        else
-        {
-            this->pTxIsrCallbacks = pTxIsrCallbacks;
-            retval = true;
-        }
-
-        return retval;
-    }
-
-    void txCpltIsrCalback()
-    {
-        if (this->pTxIsrCallbacks)
-        {
-            this->pTxIsrCallbacks->onTxCompleteIsrCallback();
-        }
-    }
-
-    void txHalfCpltIsrCalback()
-    {
-        if (this->pTxIsrCallbacks)
-        {
-            this->pTxIsrCallbacks->onTxHalfCompleteIsrCallback();
-        }
-    }
-
-    bool txCircularStop()
-    {
-        bool retval = false;
-
-        if (txCircularStopUnsafe())
-        {
-            retval = this->txBinarySemaphore.Give();
-        }
-
-        return retval;
-    }
-
-    // TODO: receive packets !
-
-    I2sInterface()
-    {
-        this->txBinarySemaphore.Give();
-    };
-
-    ~I2sInterface()
-    {
-        this->txBinarySemaphore.Take();
-    };
-
     virtual bool init() = 0;
     virtual bool deinit() = 0;
 
+    virtual std::uint32_t getSampleRateInHz() const = 0;
+    virtual std::uint32_t getSampleBitDepthInBits() const = 0;
+    virtual std::uint32_t getSampleFrameSizeInBytes() const = 0;
+
+    struct TxRxIsrCallbacks
+    {
+        virtual void onTxRxCompleteIsrCallback(){};
+        virtual void onTxRxHalfCompleteIsrCallback(){};
+    };
+
+    void txRxCpltIsrCalback();
+    void txRxHalfCpltIsrCalback();
+
+    bool startTxRxCircularDma(const std::uint16_t *pTxData16,
+                              std::uint16_t *pRxData16,
+                              std::uint16_t size,
+                              TxRxIsrCallbacks *pTxRxIsrCallbacks = nullptr);
+    bool stopTxRxCircularDma();
+
 protected:
-    virtual bool txCircularUnsafe(const std::uint16_t *pData16, std::uint16_t size16) = 0;
-    virtual bool txCircularStopUnsafe() = 0;
+    I2sInterface();
+    ~I2sInterface();
+
+    virtual bool txRxCircularDmaUnsafe(const std::uint16_t *pTxData16,
+                                       std::uint16_t *pRxData16,
+                                       std::uint16_t size) = 0;
+    virtual bool txRxCircularDmaStopUnsafe() = 0;
 
 private:
-    cpp_freertos::BinarySemaphore txBinarySemaphore;
-    TxIsrCallbacks *pTxIsrCallbacks;
+    cpp_freertos::BinarySemaphore txRxBinarySemaphore;
+    TxRxIsrCallbacks *pTxRxIsrCallbacks;
 };

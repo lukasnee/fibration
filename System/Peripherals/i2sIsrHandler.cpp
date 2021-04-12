@@ -1,17 +1,19 @@
+extern "C" {
 #include "stm32f3xx_hal.h"
+}
 
 #include "peripherals.hpp"
 
 extern I2S_HandleTypeDef hi2s2;
 
-void HAL_I2S_TxCpltCallback(I2S_HandleTypeDef *hi2s)
+extern "C" void HAL_I2SEx_TxRxCpltCallback(I2S_HandleTypeDef *hi2s)
 {
-	if(hi2s == &hi2s2) { Periph::getI2s2().txCpltIsrCalback(); }
+    if(hi2s == &hi2s2) { Periph::getI2s2().txRxCpltIsrCalback(); }
 }
 
-void HAL_I2S_TxHalfCpltCallback(I2S_HandleTypeDef *hi2s)
+extern "C" void HAL_I2SEx_TxRxHalfCpltCallback(I2S_HandleTypeDef *hi2s)
 {
-	if(hi2s == &hi2s2) { Periph::getI2s2().txHalfCpltIsrCalback(); }
+    if(hi2s == &hi2s2) { Periph::getI2s2().txRxHalfCpltIsrCalback(); }
 }
 
 // TODO: if needed
