@@ -1,12 +1,33 @@
-#include "stereoAudioStreamInterface.hpp"
+#include "duplexStereoStreamInterface.hpp"
 
-bool StereoAudioStreamInterface::txStart()
+#include "system.hpp"
+
+DuplexStereoStreamInterface::DuplexStereoStreamInterface(const std::string pcName,
+                                                         uint16_t usStackDepth,
+                                                         UBaseType_t uxPriority,
+                                                         CircularBuffer &circularBufferTx,
+                                                         CircularBuffer &circularBufferRx,
+                                                         ProcessTxRxBufferF processTxRxBufferF)
+    : Thread(pcName, usStackDepth, uxPriority),
+      circularBufferTx(circularBufferTx),
+      circularBufferRx(circularBufferRx),
+      processTxRxBufferF(processTxRxBufferF)
+{
+    this->setOwner(this);
+
+    if (Thread::Start() == false)
+    {
+        FibSys::panic();
+    }
+};
+
+bool DuplexStereoStreamInterface::start()
 {
     bool retval = false;
 
     if (this->state == State::standby)
     {
-        if (this->txStartUnsafe())
+        if (this->startTxRxCircularDma())
         {
             this->state = State::ready;
             xTaskNotifyGive(this->pOwner->GetHandle());
@@ -17,7 +38,7 @@ bool StereoAudioStreamInterface::txStart()
     return retval;
 }
 
-bool StereoAudioStreamInterface::txStop()
+bool DuplexStereoStreamInterface::stop()
 {
     bool retval = false;
 
@@ -25,43 +46,58 @@ bool StereoAudioStreamInterface::txStop()
         this->state == State::firstStreamingSecondLoading ||
         this->state == State::firstStreamingSecondLoaded)
     {
-        retval = this->txStopUnsafe();
+        retval = this->stopTxRxCircularDma();
         this->state = State::standby;
     }
     else if (this->state == State::firstReadySecondStreaming ||
              this->state == State::firstLoadingSecondStreaming ||
              this->state == State::firstLoadedSecondStreaming)
     {
-        retval = this->txStopUnsafe();
+        retval = this->stopTxRxCircularDma();
         this->state = State::standby;
     }
 
     return retval;
 }
 
-std::uint16_t *StereoAudioStreamInterface::getCircularBuffer()
+std::uint16_t *DuplexStereoStreamInterface::getCircularBufferTx()
 {
-    return reinterpret_cast<std::uint16_t *>(&circularBuffer);
+    return reinterpret_cast<std::uint16_t *>(&this->circularBufferTx);
 }
 
-std::size_t StereoAudioStreamInterface::getCircularBufferSize()
+std::uint16_t *DuplexStereoStreamInterface::getCircularBufferRxUnsafe()
 {
-    return (sizeof(circularBuffer) / sizeof(decltype(StereoSample::left)));
+    return reinterpret_cast<std::uint16_t *>(&this->circularBufferRx);
 }
 
-StereoAudioStreamInterface::Buffer *StereoAudioStreamInterface::getStereoAudioBuffer()
+const std::uint16_t *DuplexStereoStreamInterface::getCircularBufferRx()
 {
-    Buffer *pStereoAudioBuffer = nullptr;
+    return reinterpret_cast<std::uint16_t *>(&this->circularBufferRx);
+}
+
+std::size_t DuplexStereoStreamInterface::getCircularBufferSize()
+{
+    return sizeof(circularBufferTx);
+}
+
+bool DuplexStereoStreamInterface::getStereoAudioBuffersTxRx(const DuplexStereoStreamInterface::Buffer *&pRxBuffer,
+                                                            DuplexStereoStreamInterface::Buffer *&pTxBuffer)
+{
+    bool result = false;
 
     if (this->state == State::firstStreamingSecondReady)
     {
         this->state = State::firstStreamingSecondLoading;
-        pStereoAudioBuffer = &this->circularBuffer.at(1);
+        pRxBuffer = &this->circularBufferRx.at(1);
+        pTxBuffer = &this->circularBufferTx.at(1);
+        result = true;
     }
     else if (this->state == State::firstReadySecondStreaming)
     {
         this->state = State::firstLoadingSecondStreaming;
-        pStereoAudioBuffer = &this->circularBuffer.at(0);
+        pRxBuffer = &this->circularBufferRx.at(0);
+        pTxBuffer = &this->circularBufferTx.at(0);
+        result = true;
     }
     else if (this->state == State::standby)
     {
@@ -71,13 +107,15 @@ StereoAudioStreamInterface::Buffer *StereoAudioStreamInterface::getStereoAudioBu
     if (this->state == State::ready)
     {
         this->state = State::firstStandbySecondLoading;
-        pStereoAudioBuffer = &this->circularBuffer.at(1);
+        pRxBuffer = &this->circularBufferRx.at(1);
+        pTxBuffer = &this->circularBufferTx.at(1);
+        result = true;
     }
 
-    return pStereoAudioBuffer;
+    return result;
 }
 
-bool StereoAudioStreamInterface::stereoAudioBufferLoaded()
+bool DuplexStereoStreamInterface::stereoAudioBufferLoaded()
 {
     bool retval = false;
 
@@ -106,7 +144,7 @@ bool StereoAudioStreamInterface::stereoAudioBufferLoaded()
     return retval;
 };
 
-void StereoAudioStreamInterface::firstBufferHalfCompletedStreamIsrCallback()
+void DuplexStereoStreamInterface::firstBufferHalfCompletedStreamIsrCallback()
 {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     if (this->state == State::firstStreamingSecondLoaded ||  // good case
@@ -122,7 +160,7 @@ void StereoAudioStreamInterface::firstBufferHalfCompletedStreamIsrCallback()
     // TODO: better handle bad cases
 }
 
-void StereoAudioStreamInterface::secondBufferHalfCompletedStreamIsrCallback()
+void DuplexStereoStreamInterface::secondBufferHalfCompletedStreamIsrCallback()
 {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     if (this->state == State::firstLoadedSecondStreaming ||  // good case
@@ -134,4 +172,28 @@ void StereoAudioStreamInterface::secondBufferHalfCompletedStreamIsrCallback()
         portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
     }
     // TODO: better handle bad cases
+}
+
+void DuplexStereoStreamInterface::Run() // task code
+{
+    cpp_freertos::Thread::Delay(50);
+    if (this->init())
+    {
+        while (true)
+        {
+            DuplexStereoStreamInterface::Buffer *pTxBuffer = nullptr;
+            const DuplexStereoStreamInterface::Buffer *pRxBuffer = nullptr;
+
+            if (this->processTxRxBufferF &&
+                this->getStereoAudioBuffersTxRx(pRxBuffer, pTxBuffer) &&
+                pRxBuffer &&
+                pTxBuffer)
+            {
+                this->processTxRxBufferF(pRxBuffer, pTxBuffer);
+            }
+
+            this->stereoAudioBufferLoaded();
+        }
+    }
+    this->deinit();
 }

@@ -35,7 +35,7 @@ Uart2 & Periph::getUart2()
 // For Audio Stream 1
 I2s2 & Periph::getI2s2()
 {
-    static I2s2 i2s2; return i2s2;
+    return I2s2::getInstance();
 }
 
 // TODO: cleanup, put this logic to lower level source file
