@@ -8,9 +8,11 @@
 #include "ticks.hpp"
 #include "timer.hpp"
 
+extern "C"
+{
 #include "stm32f3xx_hal.h"
 #include "stm32f3xx_it.h"
-
+}
 #include <limits>
 #include <cstdint>
 
@@ -84,7 +86,7 @@ static void SystemClock_Config(void)
     }
 }
 
-void sInitPlatform()
+void initPlatform()
 {
     HAL_Init();
     SystemClock_Config();
@@ -106,24 +108,9 @@ void FibSys::panic()
     };
 }
 
-BaseType_t FibSys::getAudioPriority()
+void FibSys::boot()
 {
-    return configMAX_PRIORITIES - 1;
-}
-
-BaseType_t FibSys::getSysMaxPriority()
-{
-    return getAudioPriority() - 1;
-}
-
-BaseType_t FibSys::getAppMaxPriority()
-{
-    return getSysMaxPriority() - 1;
-}
-
-void FibSys::start()
-{
-    sInitPlatform();
+    initPlatform();
     // init system task
     static FibSys fibSys(0x200, getSysMaxPriority());
     // start task scheduler
