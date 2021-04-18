@@ -23,13 +23,16 @@ int main()
 
 float randomF = 0.0f;
 
-class Timah : public cpp_freertos::Timer {
+class Timah : public cpp_freertos::Timer
+{
 public:
-    Timah() : Timer("snh",1000, true) {} 
-private:   
-   void Run() override {
-       randomF = static_cast<float>(((2.0f * std::rand()) / RAND_MAX) - 1.0f);
-   }
+    Timah() : Timer("snh", 1000, true) {}
+
+private:
+    void Run() override
+    {
+        randomF = static_cast<float>(((2.0f * std::rand()) / RAND_MAX) - 1.0f);
+    }
 };
 
 Timah timah;
@@ -44,30 +47,54 @@ uint32_t swap_uint32(uint32_t val)
 static I2sDuplexStream::CircularBuffer i2s2DuplexStreamCircularBufferTx;
 static I2sDuplexStream::CircularBuffer i2s2DuplexStreamCircularBufferRx;
 
+class Oscillator
+{
+public:
+    Oscillator(float frequencyInHz = 0.0f, float InitialPhaseInRad = (-1.0f * PI)) : frequencyInHz(frequencyInHz), phaseInRad(InitialPhaseInRad){};
+
+    float evaluateStep(float stepInSeconds)
+    {
+        this->phaseInRad += (2.0f * PI * this->frequencyInHz * stepInSeconds);
+
+        if (this->phaseInRad > PI)
+        {
+            this->phaseInRad = this->phaseInRad - (2.0f * PI);
+        }
+
+        return arm_sin_f32(this->phaseInRad);
+    }
+    float getFrequency() { return frequencyInHz; }
+    void setFrequency(float frequencyInHz) { this->frequencyInHz = frequencyInHz; }
+
+private:
+    float frequencyInHz;
+    float phaseInRad;
+
+    //const Oscillator(Oscillator &) = delete;
+    Oscillator(Oscillator &&) = delete;
+};
+
 static void processTxRxBufferI2s2(const DuplexStereoStreamInterface::Buffer *pStereoAudioRxBuffer, DuplexStereoStreamInterface::Buffer *pStereoAudioTxBuffer)
 {
     constexpr std::uint32_t u24max = (1 << 24) - 1;
     constexpr float u24maxf = u24max;
     constexpr float samplingRate = 44100.0f;  // [1/sec]
     constexpr float dt = 1.0f / samplingRate; // [sec]
-    static float frequecy = 1000;             // [Hz]
-    static float time = 0.0f;                 // [sec]
-    
+
+    static Oscillator main(440.0f);
+    static Oscillator mod(1.0f);
+
     if (pStereoAudioTxBuffer != nullptr)
     {
         // 1KHz FM modulation to DAC LEFT
         for (auto &stereoSample : *pStereoAudioTxBuffer)
         {
-            time += dt;
-            auto mod = arm_sin_f32((1.0f + randomF/3.0f) * PI * frequecy / 10000 * time);
-            auto fm = arm_sin_f32(2.0f * PI * time * frequecy * mod / 10);
-            auto fmSample = swap_uint32(1 + static_cast<std::uint32_t>((fm / 2.0f + 1.0f) * (u24maxf)));
+            main.setFrequency(440.0f + (220.0f * mod.evaluateStep(dt)));
+            auto fmSample = swap_uint32(1 + static_cast<std::uint32_t>((main.evaluateStep(dt) / 2.0f + 1.0f) * (u24maxf)));
 
             stereoSample.left = fmSample;
 
             // stereoSample.right = 0;
-            if (time > 10000.0f / frequecy)
-                time = -10000.0f / frequecy;
         }
 
         // dry pass ADC LEFT -> DAC RIGHT
@@ -79,12 +106,12 @@ static void processTxRxBufferI2s2(const DuplexStereoStreamInterface::Buffer *pSt
 }
 /*__attribute__((section(".ccmram")))*/
 static I2sDuplexStream i2s2DuplexStream(Periph::getI2s2(),
-                                "i2s2stream",
-                                0x500,
-                                FibSys::getAudioPriority(),
-                                i2s2DuplexStreamCircularBufferTx,
-                                i2s2DuplexStreamCircularBufferRx,
-                                processTxRxBufferI2s2);
+                                        "i2s2stream",
+                                        0x500,
+                                        FibSys::getAudioPriority(),
+                                        i2s2DuplexStreamCircularBufferTx,
+                                        i2s2DuplexStreamCircularBufferRx,
+                                        processTxRxBufferI2s2);
 
 class BlinkTestApp : public cpp_freertos::Thread
 {
