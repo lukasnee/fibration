@@ -1,14 +1,8 @@
 #include "i2sInterface.hpp"
 
-I2sInterface::I2sInterface()
-{
-    this->txRxBinarySemaphore.Give();
-};
+I2sInterface::I2sInterface() : txRxBinarySemaphore(true){};
 
-I2sInterface::~I2sInterface()
-{
-    this->txRxBinarySemaphore.Take();
-};
+I2sInterface::~I2sInterface(){};
 
 bool I2sInterface::startTxRxCircularDma(const std::uint16_t *pTxData16,
                                         std::uint16_t *pRxData16,
