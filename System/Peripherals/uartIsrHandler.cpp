@@ -1,15 +1,17 @@
+extern "C"
+{
 #include "stm32f3xx_hal.h"
-
+}
 #include "peripherals.hpp"
 
-extern UART_HandleTypeDef huart1;
 extern UART_HandleTypeDef huart2;
 
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
-    // TODO: remake uart1 with UartInterface
-	if(huart == &huart1) { Periph::getUart1().txCpltIsrCalback(); }
-	if(huart == &huart2) { Periph::getUart2().txCpltIsrCalback(); }
+    if (huart == &huart2)
+    {
+        Periph::getUart2().txCpltIsrCalback();
+    }
 }
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)

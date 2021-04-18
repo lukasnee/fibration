@@ -25,14 +25,10 @@ extern "C" void USART2_IRQHandler(void)
     HAL_UART_IRQHandler(&huart2);
 }
 
-Uart2::Uart2(std::uint32_t baudrate) : baudrate(baudrate)
-{
-    this->init();
-}
+Uart2::Uart2(std::uint32_t baudrate) : baudrate(baudrate) {} // TODO: better API for baudrate parametrization
 
 Uart2::~Uart2()
 {
-    this->deinit();
 }
 
 bool Uart2::init()

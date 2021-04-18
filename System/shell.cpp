@@ -41,20 +41,24 @@ void Shell::printc(const char c)
 
 void Shell::Run()
 {
-    this->echoEndLine();
-    this->echoLine("Type 'help' to list all commands");
-    this->promptNew();
-
-    // Consume and send characters to shell...forever
-    while (true)
+    if(this->textStream.init())
     {
-        // NOTE: escape sequences are time sensitive !
-        // TODO: move this to a dedicated uart receiver task and join by char queue
-        if(this->receiveChar(this->textStream.getc()))
-        { // escape sequence finished (not time sensitive)
-            // Log::trace("shell", "c:%u t:%u %s", this->rxCursorIdx, this->rxCharsTotal, this->rxBuffer.data());
+        this->echoEndLine();
+        this->echoLine("Type 'help' to list all commands");
+        this->promptNew();
+
+        // Consume and send characters to shell...forever
+        while (true)
+        {
+            // NOTE: escape sequences are time sensitive !
+            // TODO: move this to a dedicated uart receiver task and join by char queue
+            if(this->receiveChar(this->textStream.getc()))
+            { // escape sequence finished (not time sensitive)
+                // Log::trace("shell", "c:%u t:%u %s", this->rxCursorIdx, this->rxCharsTotal, this->rxBuffer.data());
+            }
         }
     }
+    this->textStream.deinit();
 }
 
 void Shell::echo(char c, std::size_t timesToRepeat)

@@ -8,7 +8,8 @@ class TextStreamInterface
 public:
     TextStreamInterface(){};
 
-    void setOwner(cpp_freertos::Thread *pOwner) { this->pOwner = pOwner; };
+    virtual bool init() = 0;
+    virtual bool deinit() = 0;
 
     virtual void putc(char c) = 0;
     virtual void puts(const char *s) = 0;
@@ -19,6 +20,10 @@ public:
     // virtual std::optional<char *> gets(void) = 0;
     // virtual std::optional<char *> gets(std::uint16_t len) = 0;
 
+    void setOwner(cpp_freertos::Thread *pOwner) { this->pOwner = pOwner; };
+    cpp_freertos::Thread * getOwner() { return this->pOwner; }
+
 protected:
+private:
     cpp_freertos::Thread *pOwner;
 };

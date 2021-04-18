@@ -9,6 +9,9 @@ public:
     UartStream(UartInterface &uart);
     ~UartStream();
 
+    bool init();
+    bool deinit();
+
     void putc(char c) override;
     void puts(const char *s) override;
     void puts(const char *s, std::uint16_t len) override;
