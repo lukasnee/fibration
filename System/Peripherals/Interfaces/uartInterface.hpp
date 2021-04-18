@@ -10,6 +10,9 @@
 class UartInterface
 {
 public:
+    UartInterface() : txBinarySemaphore(true), rxBinarySemaphore(true){};
+    ~UartInterface(){};
+
     struct TxIsrCallbacks
     {
         virtual void onTxCompleteIsrCallback(){};
@@ -76,19 +79,6 @@ public:
         this->rxBinarySemaphore.GiveFromISR(&xHigherPriorityTaskWoken);
         portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
     }
-
-    UartInterface()
-    {
-        this->txBinarySemaphore.Give();
-        this->rxBinarySemaphore.Give();
-    };
-
-    ~UartInterface()
-    {
-        this->txBinarySemaphore.Take();
-        this->rxBinarySemaphore.Take();
-    };
-
 
     virtual bool init() = 0;
     virtual bool deinit() = 0;

@@ -3,27 +3,31 @@
 #include <array>
 #include <cstring>
 
-UartStream::UartStream(UartInterface &uart) : TextStreamInterface(), uart(uart)
+UartStream::UartStream(UartInterface &uart) : TextStreamInterface(), uart(uart) {}
+
+UartStream::~UartStream() {}
+
+bool UartStream::init()
 {
-    this->uart.init();
+    return this->uart.init();
 }
 
-UartStream::~UartStream()
+bool UartStream::deinit()
 {
-    this->uart.deinit();
+    return this->uart.deinit();
 }
 
 void UartStream::onTxCompleteIsrCallback()
 {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-    vTaskNotifyGiveIndexedFromISR(this->pOwner->GetHandle(), 0, &xHigherPriorityTaskWoken);
+    vTaskNotifyGiveIndexedFromISR(this->getOwner()->GetHandle(), 0, &xHigherPriorityTaskWoken);
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
 void UartStream::onRxCompleteIsrCallback()
 {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-    vTaskNotifyGiveIndexedFromISR(this->pOwner->GetHandle(), 1, &xHigherPriorityTaskWoken);
+    vTaskNotifyGiveIndexedFromISR(this->getOwner()->GetHandle(), 1, &xHigherPriorityTaskWoken);
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
