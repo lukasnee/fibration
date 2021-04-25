@@ -41,8 +41,8 @@ set(SYSTEM_SRC
     ${ROOT}/System/Streams/i2sDuplexStream.hpp
     ${ROOT}/System/Streams/uartTextStream.hpp
     ${ROOT}/System/Streams/uartTextStream.cpp
-    ${ROOT}/System/Streams/uartTextStreamer.cpp
-    ${ROOT}/System/Streams/uartTextStreamer.hpp
+    ${ROOT}/System/Streams/uartTextService.cpp
+    ${ROOT}/System/Streams/uartTextService.hpp
 
     # Peripheral Interfaces shaping interaction of whats above to whats below
     ${ROOT}/System/Peripherals/Interfaces/uartInterface.hpp
@@ -55,10 +55,10 @@ set(SYSTEM_SRC
     ${ROOT}/System/Peripherals/tim6.cpp
     ${ROOT}/System/Peripherals/tim6.hpp
     ${ROOT}/System/Peripherals/uartIsrHandler.cpp
-    ${ROOT}/System/Peripherals/uart1.cpp
-    ${ROOT}/System/Peripherals/uart1.hpp
-    ${ROOT}/System/Peripherals/uart2.cpp
     ${ROOT}/System/Peripherals/uart2.hpp
+    ${ROOT}/System/Peripherals/uart2.cpp
+    ${ROOT}/System/Peripherals/uart3.hpp
+    ${ROOT}/System/Peripherals/uart3.cpp
     ${ROOT}/System/Peripherals/i2sIsrHandler.cpp
     ${ROOT}/System/Peripherals/i2s2.cpp
     ${ROOT}/System/Peripherals/i2s2.hpp

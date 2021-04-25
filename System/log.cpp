@@ -6,77 +6,88 @@
 #include <cstdio>
 #include <cstdarg>
 
-UartStreamer *Log::pUartStreamer = nullptr;
-
-bool Log::logColored = true;
-
-void Log::setUartStreamer(UartStreamer *pUartStreamer)
+Log &Log::getInstance()
 {
-    Log::pUartStreamer = pUartStreamer;
+    static Log instance;
+    return instance;
+};
+
+void Log::setUartService(UartService *pUartService)
+{
+    if(pUartService) 
+    {
+        if(Log::getInstance().pUartService)
+        {
+            Log::getInstance().pUartService->deinit();
+        }
+
+        Log::getInstance().pUartService = pUartService;
+        Log::getInstance().pUartService->init();
+    }
 }
 
 void Log::trace(const std::string_view context, const std::string_view fmt, ...)
 {
-    if (LOG_ENABLED)
+    if (LOG_ENABLED && Log::getInstance().pUartService)
     {
         va_list arglist;
         va_start(arglist, fmt);
-        log(VERBOSITY_0, LOG_TYPE_TRACE, context, fmt, arglist);
+        Log::getInstance().log(VERBOSITY_0, LOG_TYPE_TRACE, context, fmt, arglist);
         va_end(arglist);
     }
 };
 
 void Log::fatal(const std::string_view context, const std::string_view fmt, ...)
 {
-    if (LOG_ENABLED)
+    if (LOG_ENABLED && Log::getInstance().pUartService)
     {
         va_list arglist;
         va_start(arglist, fmt);
-        log(VERBOSITY_0, LOG_TYPE_FATAL, context, fmt, arglist);
+        Log::getInstance().log(VERBOSITY_0, LOG_TYPE_FATAL, context, fmt, arglist);
         va_end(arglist);
     }
 };
 
 void Log::system(const std::string_view context, const std::string_view fmt, ...)
 {
-    if (LOG_ENABLED)
+    if (LOG_ENABLED && Log::getInstance().pUartService)
     {
         va_list arglist;
         va_start(arglist, fmt);
-        log(VERBOSITY_0, LOG_TYPE_SYSTEM, context, fmt, arglist);
+        Log::getInstance().log(VERBOSITY_0, LOG_TYPE_SYSTEM, context, fmt, arglist);
         va_end(arglist);
     }
 };
 
 void Log::error(const std::string_view context, const std::string_view fmt, ...)
 {
-    if (LOG_ENABLED)
+    if (LOG_ENABLED && Log::getInstance().pUartService)
     {
         va_list arglist;
         va_start(arglist, fmt);
-        log(VERBOSITY_0, LOG_TYPE_ERROR, context, fmt, arglist);
+        Log::getInstance().log(VERBOSITY_0, LOG_TYPE_ERROR, context, fmt, arglist);
         va_end(arglist);
     }
 };
 
 void Log::warning(const std::string_view context, const std::string_view fmt, ...)
 {
-    if (LOG_ENABLED)
+    if (LOG_ENABLED && Log::getInstance().pUartService)
     {
         va_list arglist;
         va_start(arglist, fmt);
-        log(VERBOSITY_0, LOG_TYPE_WARNING, context, fmt, arglist);
+        Log::getInstance().log(VERBOSITY_0, LOG_TYPE_WARNING, context, fmt, arglist);
         va_end(arglist);
     }
 };
 
 void Log::info(const std::string_view context, const std::string_view fmt, ...)
 {
-    if (LOG_ENABLED)
+    if (LOG_ENABLED && Log::getInstance().pUartService)
     {
         va_list arglist;
         va_start(arglist, fmt);
-        log(VERBOSITY_0, LOG_TYPE_INFO, context, fmt, arglist);
+        Log::getInstance().log(VERBOSITY_0, LOG_TYPE_INFO, context, fmt, arglist);
         va_end(arglist);
     }
 };
@@ -84,28 +95,28 @@ void Log::info(const std::string_view context, const std::string_view fmt, ...)
 void Log::info(Verbosity verbosity,
                const std::string_view context, const std::string_view fmt, ...)
 {
-    if (LOG_ENABLED)
+    if (LOG_ENABLED && Log::getInstance().pUartService)
     {
         va_list arglist;
         va_start(arglist, fmt);
-        log(verbosity, LOG_TYPE_INFO, context, fmt, arglist);
+        Log::getInstance().log(verbosity, LOG_TYPE_INFO, context, fmt, arglist);
         va_end(arglist);
     }
 }
 
 void Log::direct(const std::string_view staticStrv)
 {
-    if (LOG_ENABLED)
+    if (LOG_ENABLED && Log::getInstance().pUartService)
     {
-        pUartStreamer->txPush(staticStrv.data(), staticStrv.length(), true);
+        Log::getInstance().pUartService->txPush(staticStrv.data(), staticStrv.length(), true);
     }
 }
 
 void Log::directFromISR(const std::string_view staticStrv)
 {
-    if (LOG_ENABLED)
+    if (LOG_ENABLED && Log::getInstance().pUartService)
     {
-        pUartStreamer->txPushFromISR(staticStrv.data(), staticStrv.length(), true);
+        Log::getInstance().pUartService->txPushFromISR(staticStrv.data(), staticStrv.length(), true);
     }
 }
 
@@ -123,7 +134,7 @@ void Log::logOutOfMem()
 
 void Log::log(Verbosity verbosity, Type type, const std::string_view context, const std::string_view fmt, va_list arglist)
 {
-    if (LOG_ENABLED)
+    if (LOG_ENABLED && Log::getInstance().pUartService)
     {
         if (verbosity <= LOG_VERBOSITY_LEVEL)
         {
@@ -175,7 +186,7 @@ void Log::log(Verbosity verbosity, Type type, const std::string_view context, co
                 if (len > maxStrLen)
                 {
                     // did not fit - push previous print, and try to print log message to a new mem alloc
-                    pUartStreamer->txPush(pStrBase, strLen, false);
+                    Log::getInstance().pUartService->txPush(pStrBase, strLen, false);
                     if (len < 0x400) // some limitation
                     {
                         allocSize = len + sizeof('\0');
@@ -200,7 +211,7 @@ void Log::log(Verbosity verbosity, Type type, const std::string_view context, co
                 maxStrLen -= len;
 
                 // push whats left
-                pUartStreamer->txPush(pStrBase, strLen, false);
+                Log::getInstance().pUartService->txPush(pStrBase, strLen, false);
             }
         }
     }

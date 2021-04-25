@@ -5,6 +5,7 @@ extern "C"
 #include "peripherals.hpp"
 
 extern UART_HandleTypeDef huart2;
+extern UART_HandleTypeDef huart3;
 
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
@@ -12,48 +13,57 @@ void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
     {
         Periph::getUart2().txCpltIsrCalback();
     }
+    else if (huart == &huart3)
+    {
+        Periph::getUart3().txCpltIsrCalback();
+    }
 }
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-	if(huart == &huart1) { Periph::getUart1().rxCpltIsrCalback(); }
-	if(huart == &huart2) { Periph::getUart2().rxCpltIsrCalback(); }
+    if (huart == &huart2)
+    {
+        Periph::getUart2().rxCpltIsrCalback();
+    }
+    else if (huart == &huart3)
+    {
+        Periph::getUart3().rxCpltIsrCalback();
+    }
 }
-
 
 // TODO: if needed
 // void HAL_UART_TxHalfCpltCallback(UART_HandleTypeDef *huart)
 // {
-// 	if(huart == &huart1) { Periph::getUart1().txHalfCpltIsrCalback(); }
 // 	if(huart == &huart2) { Periph::getUart2().txHalfCpltIsrCalback(); }
+// 	if(huart == &huart3) { Periph::getUart3().txHalfCpltIsrCalback(); }
 // }
 
 // void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart)
 // {
-// 	if(huart == &huart1) { Periph::getUart1().rxHalfCpltIsrCalback(); }
 // 	if(huart == &huart2) { Periph::getUart2().rxHalfCpltIsrCalback(); }
+// 	if(huart == &huart3) { Periph::getUart3().rxHalfCpltIsrCalback(); }
 // }
 
 // void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 // {
-// 	if(huart == &huart1) { Periph::getUart1().errorIsrCalback(); }
 // 	if(huart == &huart2) { Periph::getUart2().errorIsrCalback(); }
+// 	if(huart == &huart3) { Periph::getUart3().errorIsrCalback(); }
 // }
 
 // void HAL_UART_AbortCpltCallback(UART_HandleTypeDef *huart)
 // {
-// 	if(huart == &huart1) { Periph::getUart1().abortCpltIsrCalback(); }
 // 	if(huart == &huart2) { Periph::getUart2().abortCpltIsrCalback(); }
+// 	if(huart == &huart3) { Periph::getUart3().abortCpltIsrCalback(); }
 // }
 
 // void HAL_UART_AbortTransmitCpltCallback(UART_HandleTypeDef *huart)
 // {
-// 	if(huart == &huart1) { Periph::getUart1().abortTransmitCpltIsrCalback(); }
 // 	if(huart == &huart2) { Periph::getUart2().abortTransmitCpltIsrCalback(); }
+// 	if(huart == &huart3) { Periph::getUart3().abortTransmitCpltIsrCalback(); }
 // }
 
 // void HAL_UART_AbortReceiveCpltCallback(UART_HandleTypeDef *huart)
 // {
-// 	if(huart == &huart1) { Periph::getUart1().abortReceiveCpltIsrCalback(); }
 // 	if(huart == &huart2) { Periph::getUart2().abortReceiveCpltIsrCalback(); }
+// 	if(huart == &huart3) { Periph::getUart3().abortReceiveCpltIsrCalback(); }
 // }

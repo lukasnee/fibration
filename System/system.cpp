@@ -3,7 +3,7 @@
 #include "log.hpp"
 #include "Streams/uartTextStream.hpp"
 #include "shell.hpp"
-#include "Streams/uartTextStreamer.hpp"
+#include "Streams/uartTextService.hpp"
 
 #include "ticks.hpp"
 #include "timer.hpp"
@@ -79,6 +79,8 @@ static void SystemClock_Config(void)
 
     PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_I2S | RCC_PERIPHCLK_USART3 | RCC_PERIPHCLK_USART2 | RCC_PERIPHCLK_ADC12;
     PeriphClkInit.Usart2ClockSelection = RCC_USART2CLKSOURCE_PCLK1;
+    PeriphClkInit.Usart3ClockSelection = RCC_USART3CLKSOURCE_PCLK1; // TODO not sure what the clk NUMBA
+    PeriphClkInit.Adc12ClockSelection = RCC_ADC12PLLCLK_DIV1;
     PeriphClkInit.I2sClockSelection = RCC_I2SCLKSOURCE_SYSCLK;
     if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
     {
@@ -136,15 +138,14 @@ FibSys::FibSys(std::uint16_t stackDepth, BaseType_t priority) : Thread("FibSys",
 //     }
 // }
 
-
 //FibSys thread
 void FibSys::Run()
 {
-    static auto uartStreamerForLog = UartStreamer(Periph::getUart1(), "log", 0x200, 10);
-    Log::setUartStreamer(&uartStreamerForLog);
+    static UartService uartServiceForLog = UartService(Periph::getUart3(), "log", 0x200, FibSys::getAppMaxPriority());
+    Log::setUartService(&uartServiceForLog);
 
-    static auto uartStreamForShell = UartStream(Periph::getUart2());
-    Shell::start(uartStreamForShell, 0x200, 10);
+    static UartStream uartStreamForShell = UartStream(Periph::getUart2());
+    Shell::start(uartStreamForShell, 0x200, FibSys::getAppMaxPriority());
 
     // while (true)
     // {

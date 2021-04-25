@@ -19,8 +19,8 @@ public:
 
     static constexpr BaseType_t getSysMaxPriority() { return configMAX_PRIORITIES - 1; } 
     static constexpr BaseType_t getSysAvgPriority() { return (getSysMaxPriority() / 2); }
-    static constexpr BaseType_t getAudioPriority() { return (getSysAvgPriority() + 0); } // TODO: figure out what's better
-    static constexpr BaseType_t getAppMaxPriority() { return (getSysAvgPriority() - 0); } // TODO: figure out what's better
+    static constexpr BaseType_t getAudioPriority() { return (getSysAvgPriority() + 1); } // TODO: figure out what's better
+    static constexpr BaseType_t getAppMaxPriority() { return (getSysAvgPriority() - 1); } // TODO: figure out what's better
     //void collectStats();
     Stats stats;
 
