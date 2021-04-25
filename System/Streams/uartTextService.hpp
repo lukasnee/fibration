@@ -5,11 +5,11 @@
 #include "queue.hpp"
 #include "uartTextStream.hpp"
 
-class UartStreamer : public cpp_freertos::Thread, public UartStream
+class UartService : public UartStream, public cpp_freertos::Thread
 {
 public:
-    UartStreamer(UartInterface &uart, const std::string pcName, uint16_t usStackDepth, UBaseType_t uxPriority);
-    ~UartStreamer();
+    UartService(UartInterface &uart, const std::string pcName, uint16_t usStackDepth, UBaseType_t uxPriority);
+    ~UartService();
 
     struct Blob
     {

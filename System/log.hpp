@@ -3,21 +3,14 @@
 #define LOG_ENABLED true
 #define LOG_VERBOSITY_LEVEL Log::VERBOSITY_2
 
-#include "Streams/uartTextStreamer.hpp"
+#include "Streams/uartTextService.hpp"
 #include <string_view>
 #include <cstdarg>
 
 class Log
 {
 public:
-    static void setUartStreamer(UartStreamer *pUartStreamer);
-
-    enum Verbosity
-    {
-        VERBOSITY_0,
-        VERBOSITY_1,
-        VERBOSITY_2,
-    };
+    static void setUartService(UartService *pUartService);
 
     static void trace(const std::string_view context, const std::string_view fmt, ...);
     static void fatal(const std::string_view context, const std::string_view fmt, ...);
@@ -25,31 +18,33 @@ public:
     static void error(const std::string_view context, const std::string_view fmt, ...);
     static void warning(const std::string_view context, const std::string_view fmt, ...);
     static void info(const std::string_view context, const std::string_view fmt, ...);
+
+    enum Verbosity
+    {
+        VERBOSITY_0,
+        VERBOSITY_1,
+        VERBOSITY_2,
+    };
     static void info(Verbosity verbosity, const std::string_view context, const std::string_view fmt, ...);
 
     static void direct(const std::string_view rawMsg);
     static void directFromISR(const std::string_view staticStrv);
     static void clear();
 
-    // singleton pattern
-    static Log &get()
-    {
-        static Log instance;
-        return instance;
-    };
+    void colorEnable() { this->logColored = true; };
+    void colorDisable() { this->logColored = false; };
+
+protected:
+    void syserr(const std::string_view context, const std::string_view fmt, ...);
+
+private:
+    Log(){}
+    ~Log(){}
     Log(Log const &) = delete;
     void operator=(Log const &) = delete;
 
-    static void colorEnable() { logColored = true; };
-    static void colorDisable() { logColored = false; };
+    static Log &getInstance();
 
-    Log();
-    ~Log();
-
-protected:
-    static void syserr(const std::string_view context, const std::string_view fmt, ...);
-
-private:
     typedef enum Type_
     {
         LOG_TYPE_TRACE,
@@ -64,13 +59,13 @@ private:
 
     static const std::string_view arLogType[LOG_TYPE_MAX + 1];
 
-    static void log(Verbosity verbosity, Type type, const std::string_view context, const std::string_view fmt, va_list arglist);
-    static int formatPrefixAndContext(Type type, const std::string_view context, char *pOut, const std::size_t maxSize);
-
-    static UartStreamer *pUartStreamer;
+    void log(Verbosity verbosity, Type type, const std::string_view context, const std::string_view fmt, va_list arglist);
+    int formatPrefixAndContext(Type type, const std::string_view context, char *pOut, const std::size_t maxSize);
 
     // config
-    static bool logColored;
+    bool logColored = true;
 
-    static void logOutOfMem();
+    void logOutOfMem();
+
+    UartService *pUartService;
 };
