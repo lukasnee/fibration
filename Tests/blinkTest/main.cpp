@@ -15,6 +15,7 @@ extern "C"
 #include "peripherals.hpp"
 #include "../System/Streams/i2sDuplexStream.hpp"
 #include <limits>
+#include <cmath>
 
 int main()
 {
@@ -61,18 +62,25 @@ public:
             this->phaseInRad = this->phaseInRad - (2.0f * PI);
         }
 
-        return arm_sin_f32(this->phaseInRad);
+        return (amplitude * arm_sin_f32(this->phaseInRad));
     }
     float getFrequency() { return frequencyInHz; }
     void setFrequency(float frequencyInHz) { this->frequencyInHz = frequencyInHz; }
+    void setAmplitude(float amplitude) { this->amplitude = amplitude; }
 
 private:
-    float frequencyInHz;
-    float phaseInRad;
+    float amplitude = 0;
+    float frequencyInHz = 0;
+    float phaseInRad = 0;
 
     //const Oscillator(Oscillator &) = delete;
     Oscillator(Oscillator &&) = delete;
 };
+
+// constexpr float e = 2.7182818;
+// constexpr float e2 = (e*e);
+
+float mainFreqVar, mainAmplVar, modFreqVar, modAmplVar;
 
 static void processTxRxBufferI2s2(const DuplexStereoStreamInterface::Buffer *pStereoAudioRxBuffer, DuplexStereoStreamInterface::Buffer *pStereoAudioTxBuffer)
 {
@@ -82,14 +90,24 @@ static void processTxRxBufferI2s2(const DuplexStereoStreamInterface::Buffer *pSt
     constexpr float dt = 1.0f / samplingRate; // [sec]
 
     static Oscillator main(440.0f);
-    static Oscillator mod(1.0f);
+    static Oscillator mod(10.0f);
 
     if (pStereoAudioTxBuffer != nullptr)
     {
+        Periph::getAdc2().getValue(3, mainFreqVar);
+        Periph::getAdc2().getValue(4, mainAmplVar);
+        Periph::getAdc2().getValue(5, modFreqVar);
+        Periph::getAdc2().getValue(6, modAmplVar);
+        main.setAmplitude(mainAmplVar);
+        //mod.setFrequency(20000.0f * pow(2.0f, 10.0f * modFreqVar - 10.0f));
+        //mod.setFrequency(20000.0f * (pow(2.0f, 0.00863268f + (e2 * modFreqVar) - e2) - 0.00600166f));
+        mod.setFrequency(20000.0f * modFreqVar * modFreqVar * modFreqVar * modFreqVar);
+
+        mod.setAmplitude(modAmplVar);
         // 1KHz FM modulation to DAC LEFT
         for (auto &stereoSample : *pStereoAudioTxBuffer)
         {
-            main.setFrequency(440.0f + (220.0f * mod.evaluateStep(dt)));
+            main.setFrequency(20000.0f * mainFreqVar * mainFreqVar * mainFreqVar * mainFreqVar * (220.0f * mod.evaluateStep(dt)));
             auto fmSample = swap_uint32(1 + static_cast<std::uint32_t>((main.evaluateStep(dt) / 2.0f + 1.0f) * (u24maxf)));
 
             stereoSample.left = fmSample;
@@ -136,6 +154,9 @@ private:
         //rotaryButton.init(Gpio::Mode::input, Gpio::Pull::up);
 
         Delay(cpp_freertos::Ticks::MsToTicks(100));
+
+        Periph::getAdc2().init();
+
         i2s2DuplexStream.start();
         timah.Start();
         int i = 0;
