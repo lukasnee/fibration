@@ -48,6 +48,7 @@ set(SYSTEM_SRC
     ${ROOT}/System/Peripherals/Interfaces/uartInterface.hpp
     ${ROOT}/System/Peripherals/Interfaces/i2sInterface.hpp
     ${ROOT}/System/Peripherals/Interfaces/i2sInterface.cpp
+    ${ROOT}/System/Peripherals/Interfaces/adcInterface.hpp
 
     # Peripherals Implementations - wrappers for limited resources that are available on the platform
     ${ROOT}/System/Peripherals/gpio.cpp
@@ -62,6 +63,8 @@ set(SYSTEM_SRC
     ${ROOT}/System/Peripherals/i2sIsrHandler.cpp
     ${ROOT}/System/Peripherals/i2s2.cpp
     ${ROOT}/System/Peripherals/i2s2.hpp
+    ${ROOT}/System/Peripherals/adc2.cpp
+    ${ROOT}/System/Peripherals/adc2.hpp
     # TODO: finish work ! Make all peripherals work over interfaces
 
 # Real-Time Operating System
@@ -109,6 +112,8 @@ set(SYSTEM_SRC
     ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_dma.c
     ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_i2s.c
     ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_i2s_ex.c
+    ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_adc.c
+    ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_adc_ex.c
     # STM32F303 MCU core components
     ${ROOT}/System/MSP/stm32f3xx_hal_msp.c
     ${ROOT}/System/MSP/stm32f3xx_hal_timebase_tim.c

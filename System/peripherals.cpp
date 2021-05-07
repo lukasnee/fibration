@@ -40,6 +40,11 @@ I2s2 & Periph::getI2s2()
     return I2s2::getInstance();
 }
 
+Adc2 & Periph::getAdc2()
+{
+    return Adc2::getInstance();
+}
+
 // TODO: cleanup, put this logic to lower level source file
 Gpio & Periph::getGpio(Gpio::Port port, Gpio::Pin pin)
 {
