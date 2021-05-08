@@ -1,73 +1,71 @@
 #pragma once
 
-#define LOG_ENABLED true
-#define LOG_VERBOSITY_LEVEL Log::VERBOSITY_2
-
 #include "Streams/uartTextService.hpp"
+#include "stringContainer.hpp"
 #include <string_view>
 #include <cstdarg>
-
-class Log
+#include <functional>
+class Logger
 {
 public:
-    static void setUartService(UartService *pUartService);
-
-    static void log(const std::string_view fmt, ...);
-    static void trace(const std::string_view context, const std::string_view fmt, ...);
-    static void fatal(const std::string_view context, const std::string_view fmt, ...);
-    static void system(const std::string_view context, const std::string_view fmt, ...);
-    static void error(const std::string_view context, const std::string_view fmt, ...);
-    static void warning(const std::string_view context, const std::string_view fmt, ...);
-    static void info(const std::string_view context, const std::string_view fmt, ...);
-
-    enum Verbosity
+    enum struct Verbosity
     {
-        VERBOSITY_0,
-        VERBOSITY_1,
-        VERBOSITY_2,
+        low,
+        mid,
+        high
     };
-    static void info(Verbosity verbosity, const std::string_view context, const std::string_view fmt, ...);
 
-    static void direct(const std::string_view rawMsg);
-    static void directFromISR(const std::string_view staticStrv);
-    static void clear();
+    enum struct Type : std::size_t
+    {
+        none = 0,
+        trace,
+        fatal,
+        system,
+        error,
+        warning,
+        info,
 
-    void colorEnable() { this->logColored = true; };
-    void colorDisable() { this->logColored = false; };
+        _enumTypeSize
+    };
+
+    // CONFIGURATION
+    /* log messages will be fairly fast up to this length */
+    static constexpr std::size_t optimalLogStringLength = 128;
+    /* if log message turns out to be longer than this (@run-time), error will be printed out */
+    static constexpr std::size_t maxLogStringLength = 1024;
+    /* logger can be disabled here at @compile-time (hopefully optimized out @compile-time) */
+    static constexpr bool isEnabled = true;
+    /* lower verbosity level log entries will be optimized out @compile-time */
+    static constexpr Verbosity verbosityFloor = Verbosity::mid;
+
+    // SETUP
+    static bool setUartService(UartService *pUartService);
+    static void setColoring(bool state);
+    static bool isActive();
+
+    // USAGE (note: user is responsible for putting '\n' end line)
+    static bool log(const Verbosity &verbosity, const Type &type, const std::string_view fmt, ...);
+    static bool log(const std::string_view fmt, ...);
+    static bool logFast(const std::string_view string);
+    static bool logFastFromISR(const std::string_view string);
 
 protected:
-    void syserr(const std::string_view context, const std::string_view fmt, ...);
-
 private:
-    Log(){}
-    ~Log(){}
-    Log(Log const &) = delete;
-    void operator=(Log const &) = delete;
+    static Logger &getInstance();
 
-    static Log &getInstance();
+    Logger(Logger const &) = delete;
+    void operator=(Logger const &) = delete;
+    Logger();
+    ~Logger();
 
-    typedef enum Type_
-    {
-        LOG_TYPE_LOG,
-        LOG_TYPE_TRACE,
-        LOG_TYPE_FATAL,
-        LOG_TYPE_SYSTEM,
-        LOG_TYPE_ERROR,
-        LOG_TYPE_WARNING,
-        LOG_TYPE_INFO,
-
-        LOG_TYPE_MAX = LOG_TYPE_INFO
-    } Type;
-
-    static const std::string_view arLogType[LOG_TYPE_MAX + 1];
-
-    void log(Verbosity verbosity, Type type, const std::string_view context, const std::string_view fmt, va_list arglist);
-    int formatPrefixAndContext(Type type, const std::string_view context, char *pOut, const std::size_t maxSize);
-
-    // config
-    bool logColored = true;
-
+    bool log(const Verbosity &verbosity, const Type &type, const std::string_view fmt, const va_list &arglist);
+    bool printOptimallyInto(StringContainer &stringContainer,
+                            std::function<int(StringContainer &logString)> printF,
+                            std::function<void(StringContainer &logString)> optimalPrintFailedCallbackF);
+    int formatPrefix(const Type &type, char *pOut, const std::size_t &maxSize);
     void logOutOfMem();
+    void logStringTooLong();
 
+    bool logColored = true;
     UartService *pUartService;
 };

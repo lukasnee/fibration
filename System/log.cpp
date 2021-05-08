@@ -6,253 +6,220 @@
 #include <cstdio>
 #include <cstdarg>
 
-Log &Log::getInstance()
+bool Logger::setUartService(UartService *pUartService)
 {
-    static Log instance;
+    bool result = true;
+
+    if (pUartService)
+    {
+        if (Logger::getInstance().pUartService)
+        {
+            result &= Logger::getInstance().pUartService->deinit();
+        }
+
+        Logger::getInstance().pUartService = pUartService;
+        result &= Logger::getInstance().pUartService->init();
+    }
+    else
+    {
+        result = false;
+    }
+
+    return result;
+}
+
+void Logger::setColoring(bool state)
+{
+    Logger::getInstance().logColored = state;
+}
+
+bool Logger::isActive()
+{
+    return (Logger::isEnabled && Logger::getInstance().pUartService);
+}
+
+bool Logger::log(const std::string_view fmt, ...)
+{
+    bool result = false;
+
+    if (Logger::isActive())
+    {
+        va_list arglist;
+        va_start(arglist, fmt);
+        result = Logger::getInstance().log(Logger::Verbosity::low, Type::none, fmt, arglist);
+        va_end(arglist);
+    }
+
+    return result;
+}
+
+bool Logger::log(const Logger::Verbosity &verbosity, const Type &type, const std::string_view fmt, ...)
+{
+    bool result = false;
+
+    if (Logger::isActive())
+    {
+        va_list arglist;
+        va_start(arglist, fmt);
+        result = Logger::getInstance().log(verbosity, type, fmt, arglist);
+        va_end(arglist);
+    }
+
+    return result;
+}
+
+bool Logger::logFast(const std::string_view string)
+{
+    bool result = false;
+
+    if (Logger::isActive())
+    {
+        result = Logger::getInstance().pUartService->txPush(string.data(), string.length(), true);
+    }
+
+    return result;
+}
+
+bool Logger::logFastFromISR(const std::string_view string)
+{
+    bool result = false;
+
+    if (Logger::isActive())
+    {
+        result = Logger::getInstance().pUartService->txPushFromISR(string.data(), string.length(), true);
+    }
+
+    return result;
+}
+
+Logger &Logger::getInstance()
+{
+    static Logger instance;
     return instance;
 };
 
-void Log::setUartService(UartService *pUartService)
+Logger::Logger() {}
+
+Logger::~Logger() {}
+
+bool Logger::log(const Logger::Verbosity &verbosity,
+                 const Logger::Type &type,
+                 const std::string_view fmt,
+                 const va_list &arglist)
 {
-    if(pUartService) 
+    bool result = true;
+
+    if (Logger::isActive() && verbosity <= Logger::verbosityFloor)
     {
-        if(Log::getInstance().pUartService)
+        // prefix stage callbacks
+        const auto usingPrefixPrintF = [&](StringContainer &logString) {
+            return this->formatPrefix(type, logString.getHead(), logString.getCharsLeft());
+        };
+        const auto itShouldAlwaysFitButIfNot_FreeItAndReprint = [&](StringContainer &logString) {
+            logString.free();
+        };
+
+        // message stage callbacks
+        const auto usingMessagePrintF = [&](StringContainer &logString) {
+            return vsnprintf(logString.getHead(), logString.getCharsLeft(), fmt.data(), arglist);
+        };
+        const auto ifItDoesNotFitPushPrefixPartAndReprintMessage = [&](StringContainer &logString) {
+            this->pUartService->txPush(logString.getBase(), logString.getCharsUsed(), false);
+        };
+
+        StringContainer logString;
+        if (type != Type::none)
         {
-            Log::getInstance().pUartService->deinit();
-        }
-
-        Log::getInstance().pUartService = pUartService;
-        Log::getInstance().pUartService->init();
-    }
-}
-void Log::log(const std::string_view fmt, ...)
-{
-    if (LOG_ENABLED && Log::getInstance().pUartService)
-    {
-        va_list arglist;
-        va_start(arglist, fmt);
-        Log::getInstance().log(VERBOSITY_0, LOG_TYPE_TRACE, nullptr, fmt, arglist);
-        va_end(arglist);
-    }
-}
-
-void Log::trace(const std::string_view context, const std::string_view fmt, ...)
-{
-    if (LOG_ENABLED && Log::getInstance().pUartService)
-    {
-        va_list arglist;
-        va_start(arglist, fmt);
-        Log::getInstance().log(VERBOSITY_0, LOG_TYPE_TRACE, context, fmt, arglist);
-        va_end(arglist);
-    }
-};
-
-void Log::fatal(const std::string_view context, const std::string_view fmt, ...)
-{
-    if (LOG_ENABLED && Log::getInstance().pUartService)
-    {
-        va_list arglist;
-        va_start(arglist, fmt);
-        Log::getInstance().log(VERBOSITY_0, LOG_TYPE_FATAL, context, fmt, arglist);
-        va_end(arglist);
-    }
-};
-
-void Log::system(const std::string_view context, const std::string_view fmt, ...)
-{
-    if (LOG_ENABLED && Log::getInstance().pUartService)
-    {
-        va_list arglist;
-        va_start(arglist, fmt);
-        Log::getInstance().log(VERBOSITY_0, LOG_TYPE_SYSTEM, context, fmt, arglist);
-        va_end(arglist);
-    }
-};
-
-void Log::error(const std::string_view context, const std::string_view fmt, ...)
-{
-    if (LOG_ENABLED && Log::getInstance().pUartService)
-    {
-        va_list arglist;
-        va_start(arglist, fmt);
-        Log::getInstance().log(VERBOSITY_0, LOG_TYPE_ERROR, context, fmt, arglist);
-        va_end(arglist);
-    }
-};
-
-void Log::warning(const std::string_view context, const std::string_view fmt, ...)
-{
-    if (LOG_ENABLED && Log::getInstance().pUartService)
-    {
-        va_list arglist;
-        va_start(arglist, fmt);
-        Log::getInstance().log(VERBOSITY_0, LOG_TYPE_WARNING, context, fmt, arglist);
-        va_end(arglist);
-    }
-};
-
-void Log::info(const std::string_view context, const std::string_view fmt, ...)
-{
-    if (LOG_ENABLED && Log::getInstance().pUartService)
-    {
-        va_list arglist;
-        va_start(arglist, fmt);
-        Log::getInstance().log(VERBOSITY_0, LOG_TYPE_INFO, context, fmt, arglist);
-        va_end(arglist);
-    }
-};
-
-void Log::info(Verbosity verbosity,
-               const std::string_view context, const std::string_view fmt, ...)
-{
-    if (LOG_ENABLED && Log::getInstance().pUartService)
-    {
-        va_list arglist;
-        va_start(arglist, fmt);
-        Log::getInstance().log(verbosity, LOG_TYPE_INFO, context, fmt, arglist);
-        va_end(arglist);
-    }
-}
-
-void Log::direct(const std::string_view staticStrv)
-{
-    if (LOG_ENABLED && Log::getInstance().pUartService)
-    {
-        Log::getInstance().pUartService->txPush(staticStrv.data(), staticStrv.length(), true);
-    }
-}
-
-void Log::directFromISR(const std::string_view staticStrv)
-{
-    if (LOG_ENABLED && Log::getInstance().pUartService)
-    {
-        Log::getInstance().pUartService->txPushFromISR(staticStrv.data(), staticStrv.length(), true);
-    }
-}
-
-void Log::clear()
-{
-    static const std::string_view staticStrv = "\r\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
-    direct(staticStrv);
-}
-
-void Log::logOutOfMem()
-{
-    static const std::string_view staticStrv = "\e[31mstream out of mem\e[0m\r\n";
-    direct(staticStrv);
-}
-
-void Log::log(Verbosity verbosity, Type type, const std::string_view context, const std::string_view fmt, va_list arglist)
-{
-    if (LOG_ENABLED && Log::getInstance().pUartService)
-    {
-        if (verbosity <= LOG_VERBOSITY_LEVEL)
-        {
-            int allocSize = 0x80; // a typical log line should fit...
-
-            char *pStrBase = new char[allocSize];
-            if (pStrBase == nullptr)
+            if (this->printOptimallyInto(logString, usingPrefixPrintF, itShouldAlwaysFitButIfNot_FreeItAndReprint))
             {
-                logOutOfMem();
-                return;
+                result = false;
             }
-            else
+        }
+        result &= this->printOptimallyInto(logString, usingMessagePrintF, ifItDoesNotFitPushPrefixPartAndReprintMessage);
+
+        // push what's left
+        result &= this->pUartService->txPush(logString.getBase(), logString.getCharsUsed(), false);
+    }
+
+    return result;
+}
+
+// try to print fast within optimal string lenght. If string did not fit the container - reallocate and reprint
+bool Logger::printOptimallyInto(StringContainer &stringContainer,
+                                std::function<int(StringContainer &logString)> printF,
+                                std::function<void(StringContainer &logString)> optimalPrintFailedCallbackF)
+{
+    bool result = false;
+
+    if (stringContainer.getCharsLeft() == 0 && false == stringContainer.allocate(Logger::optimalLogStringLength))
+    {
+        this->logOutOfMem();
+        return false;
+    }
+
+    int stepInNumOfChars = printF(stringContainer);
+
+    if (stepInNumOfChars > stringContainer.getCharsLeft()) // string did not fit into optimally sized container
+    {
+        optimalPrintFailedCallbackF(stringContainer);
+        if (stepInNumOfChars >= static_cast<int>(Logger::maxLogStringLength)) // string is impossible to reprint
+        {
+            this->logStringTooLong();
+            stringContainer.free();
+            stepInNumOfChars = 0;
+        }
+        else // it is possible to reallocate and reprint
+        {
+            if (false == stringContainer.allocate(stepInNumOfChars)) // allocation failed
             {
-                int len;
-
-                char *pStrHead = pStrBase;
-                int maxStrLen = allocSize - sizeof('\0');
-                std::uint32_t strLen = 0;
-
-                if(context != nullptr)
-                {
-                    // try to print prefix and context
-                    len = Log::formatPrefixAndContext(type, context, pStrHead, maxStrLen);
-                    if (len > maxStrLen)
-                    {
-                        // did not fit - reallocate needed length buffer and try again
-                        delete[] pStrBase;
-                        if (len < 0x400) // some limitation
-                        {
-                            allocSize = len + sizeof('\0');
-                            pStrBase = new char[allocSize];
-                            if (pStrBase == nullptr)
-                            {
-                                Log::logOutOfMem();
-                                return;
-                            }
-                            else
-                            {
-                                pStrHead = pStrBase;
-                                maxStrLen = allocSize - sizeof('\0');
-                                strLen = 0;
-                                Log::formatPrefixAndContext(type, context, pStrHead, maxStrLen);
-                            }
-                        }
-                    }
-
-                    strLen += len; // notice printed prefix and context
-                    pStrHead += len;
-                    maxStrLen -= len;
-                }
-
-                // try to print log message
-                len = vsnprintf(reinterpret_cast<char *>(pStrHead), maxStrLen, fmt.data(), arglist);
-                if (len > maxStrLen)
-                {
-                    // did not fit - push previous print, and try to print log message to a new mem alloc
-                    Log::getInstance().pUartService->txPush(pStrBase, strLen, false);
-                    if (len < 0x400) // some limitation
-                    {
-                        allocSize = len + sizeof('\0');
-                        pStrBase = new char[allocSize]; // should fit
-                        if (pStrBase == nullptr)
-                        {
-                            logOutOfMem();
-                            return;
-                        }
-                        else
-                        {
-                            pStrHead = pStrBase;
-                            maxStrLen = allocSize - sizeof('\0');
-                            strLen = 0;
-                            vsnprintf(reinterpret_cast<char *>(pStrHead), maxStrLen, fmt.data(), arglist);
-                        }
-                    }
-                }
-
-                strLen += len; // notice printed log message
-                pStrHead += len;
-                maxStrLen -= len;
-
-                // push whats left
-                Log::getInstance().pUartService->txPush(pStrBase, strLen, false);
+                this->logOutOfMem();
+                stepInNumOfChars = 0;
+            }
+            else if (printF(stringContainer)) // success - printed (unfortunately not optimally)
+            {
+                result = true;
             }
         }
     }
+    else // success - printed optimally
+    {
+        result = true;
+    }
+    stringContainer.step(stepInNumOfChars);
+
+    return result;
 }
 
-// try just char pointer array... maybe more efficient?
-constexpr std::string_view Log::arLogType[LOG_TYPE_MAX + 1] = {
-    {nullptr}, // no type
-    {"\e[32mTRACE"}, // green
-    {"\e[35mFATAL"}, // magenta
-    {"\e[34mSYS  "}, // blue
-    {"\e[31mERROR"}, // red
-    {"\e[33mWARN "}, // yellow
-    {"\e[36mINFO "}, // cyan
-};
-
-int Log::formatPrefixAndContext(Type type, const std::string_view context, char *pStrBase, const std::size_t maxSize)
+int Logger::formatPrefix(const Logger::Type &type,
+                         char *pStringBase,
+                         const std::size_t &maxSize)
 {
-    std::uint32_t tick = FibSys::getSysTick();
-    std::uint32_t minutes = tick / 1000 / 60;
-    std::uint32_t seconds = tick / 1000 % 60;
-    std::uint32_t milliseconds = tick % 1000;
+    constexpr std::string_view types[static_cast<std::size_t>(Type::_enumTypeSize)] = {
+        nullptr,   // none
+        {"2mTRA"}, // green TRACE
+        {"5mFAT"}, // magenta FATAL
+        {"4mSYS"}, // blue SYSTEM
+        {"1mERR"}, // red ERROR
+        {"3mWAR"}, // yellow WARNING
+        {"6mINF"}, // cyan INFO
+    };
 
-    // print log prefix
-    return snprintf(reinterpret_cast<char *>(pStrBase),
-                    maxSize, logColored ? "\n\r%02lu:%02lu.%03lu %s \e[1m%s\e[0m " : "\n\r%02lu:%02lu.%03lu %s %s ",
-                    minutes, seconds, milliseconds,
-                    arLogType[type].data() + (logColored ? 0 : 5), context.data());
+    std::uint32_t hours, minutes, seconds, milliseconds;
+    FibSys::getUptime(hours, minutes, seconds, milliseconds);
+    const char *pFormat = logColored ? "%02lu:%02lu:%02lu.%03lu \e[3%s\e[0m " : "%02lu:%02lu:%02lu.%03lu %s ";
+    const char *pType = types[static_cast<std::size_t>(type)].data() + (logColored ? 0 : 5);
+
+    return snprintf(pStringBase, maxSize, pFormat, hours, minutes, seconds, milliseconds, pType);
+}
+
+void Logger::logOutOfMem()
+{
+    static constexpr std::string_view string = "\e[31mlogger out of mem\e[0m\n";
+    Logger::logFast(string);
+}
+
+void Logger::logStringTooLong()
+{
+    static constexpr std::string_view string = "\e[31mlog entry too long\e[0m\n";
+    Logger::logFast(string);
 }

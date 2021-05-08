@@ -153,7 +153,7 @@ private:
         onBoardLed.init(Gpio::Mode::outputPushPull, Gpio::PinState::low);
         //rotaryButton.init(Gpio::Mode::input, Gpio::Pull::up);
 
-        Delay(cpp_freertos::Ticks::MsToTicks(100));
+        DelayUntil(cpp_freertos::Ticks::MsToTicks(1000));
 
         Periph::getAdc2().init();
 
@@ -162,20 +162,28 @@ private:
         int i = 0;
         while (true)
         {
-            // rotaryButton.read() ? Log::colorEnable() : Log::colorDisable(); // todo config over uart
+            // rotaryButton.read() ? Logger::setColoring() : Logger::colorDisable(); // todo config over uart
 
-            // onBoardLed.write(Gpio::PinState::low);
-            // Delay(cpp_freertos::Ticks::MsToTicks(500));
-            // onBoardLed.write(Gpio::PinState::high);
-            // Delay(cpp_freertos::Ticks::MsToTicks(500));
+            onBoardLed.write(Gpio::PinState::low);
+            DelayUntil(cpp_freertos::Ticks::MsToTicks(500));
+            onBoardLed.write(Gpio::PinState::high);
+            DelayUntil(cpp_freertos::Ticks::MsToTicks((500)));
 
-            // Log::info("mainTask", "blink %d !", i++);
-            // vTaskList(buffer);
-            // Log::info("mainTask", "\r\nTask            State   Prio    Stack   Num\r\n%s", buffer);
-            // vTaskGetRunTimeStats(buffer);
-            // Log::info("mainTask", "\r\n%s", buffer);
-            Delay(cpp_freertos::Ticks::MsToTicks((1000/15)));
-            Log::log("\r\n%f\r\n%f\r\n%f\r\n%f", mainFreqVar, mainAmplVar, modFreqVar, modAmplVar);
+            Logger::log(Logger::Verbosity::mid, Logger::Type::info, "blink %d !\n", i++);
+            vTaskList(buffer);
+            Logger::log(Logger::Verbosity::mid, Logger::Type::info, "\nTask            State   Prio    Stack   Num\n%s\n", buffer);
+            vTaskGetRunTimeStats(buffer);
+            Logger::log(Logger::Verbosity::mid, Logger::Type::info, "\n%s\n", buffer);
+
+            Logger::logFast("logFast!\n");
+            Logger::logFastFromISR("logFastFromISR!\n");
+            Logger::log("%f\n%f\n%f\n%f\n", mainFreqVar, mainAmplVar, modFreqVar, modAmplVar);
+            Logger::log(Logger::Verbosity::mid, Logger::Type::error, "%f\n", mainFreqVar);
+            Logger::log(Logger::Verbosity::mid, Logger::Type::fatal, "%f\n", mainAmplVar);
+            Logger::log(Logger::Verbosity::mid, Logger::Type::info, "%f\n", modFreqVar);
+            Logger::log(Logger::Verbosity::mid, Logger::Type::system, "%f\n", mainFreqVar);
+            Logger::log(Logger::Verbosity::mid, Logger::Type::trace, "%f\n", mainAmplVar);
+            Logger::log(Logger::Verbosity::mid, Logger::Type::warning, "%f\n", modFreqVar);
         }
     }
 };
@@ -184,6 +192,6 @@ BlinkTestApp blinkTestApp("App1", 0x500, FibSys::getAppMaxPriority());
 
 // for (int y = 0; y < i; y++)
 // {
-//     Log::trace("mainTask", "%.*s", y, "=================================================================================");
+//     Logger::trace("mainTask", "%.*s", y, "=================================================================================");
 // }
 // i++;
