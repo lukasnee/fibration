@@ -25,13 +25,13 @@ extern "C" uint32_t uint32GetRunTimeCounterValue()
 // For Shell
 Uart2 & Periph::getUart2()
 {
-    static Uart2 uart2(115200); return uart2;
+    static Uart2 uart2(921600); return uart2;
 }
 
-// For Log
+// For Logger
 Uart3 & Periph::getUart3()
 {
-    static Uart3 uart3(115200); return uart3;
+    static Uart3 uart3(921600); return uart3;
 }
 
 // For Audio Stream 1

@@ -13,13 +13,15 @@ public:
 
     // 1KHz system tick time reference
     static std::uint32_t getSysTick();
+    static std::uint32_t getUptimeInMs();
+    static void getUptime(std::uint32_t &hours, std::uint32_t &minutes, std::uint32_t &seconds, std::uint32_t &milliseconds);
 
     // should be called in case fatal error, could be used as run-time assert
     static void panic();
 
-    static constexpr BaseType_t getSysMaxPriority() { return configMAX_PRIORITIES - 1; } 
+    static constexpr BaseType_t getSysMaxPriority() { return configMAX_PRIORITIES - 1; }
     static constexpr BaseType_t getSysAvgPriority() { return (getSysMaxPriority() / 2); }
-    static constexpr BaseType_t getAudioPriority() { return (getSysAvgPriority() + 1); } // TODO: figure out what's better
+    static constexpr BaseType_t getAudioPriority() { return (getSysAvgPriority() + 1); }  // TODO: figure out what's better
     static constexpr BaseType_t getAppMaxPriority() { return (getSysAvgPriority() - 1); } // TODO: figure out what's better
     //void collectStats();
     Stats stats;

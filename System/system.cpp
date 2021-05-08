@@ -99,9 +99,26 @@ uint32_t FibSys::getSysTick()
     return HAL_GetTick();
 }
 
+std::uint32_t FibSys::getUptimeInMs()
+{
+    return cpp_freertos::Ticks::TicksToMs(FibSys::getSysTick());
+}
+
+void FibSys::getUptime(std::uint32_t &hours, std::uint32_t &minutes, std::uint32_t &seconds, std::uint32_t &milliseconds)
+{
+    std::uint32_t uptimeInMs = getUptimeInMs();
+    std::uint32_t secondsTotal = uptimeInMs / 1000;
+    std::uint32_t minutesTotal = secondsTotal / 60;
+
+    milliseconds = uptimeInMs % 1000;
+    seconds = secondsTotal % 60;
+    minutes = minutesTotal % 60;
+    hours = minutesTotal / 60;
+}
+
 void FibSys::panic()
 {
-    Log::direct("\r\n\nsystem panic!\r\n\n"sv); // TODO does not work?!
+    Logger::log("\r\n\nsystem panic!\r\n\n"sv); // TODO does not work?!
     vTaskDelay(cpp_freertos::Ticks::MsToTicks(1000));
     vTaskSuspendAll();
     taskDISABLE_INTERRUPTS();
@@ -142,7 +159,7 @@ FibSys::FibSys(std::uint16_t stackDepth, BaseType_t priority) : Thread("FibSys",
 void FibSys::Run()
 {
     static UartService uartServiceForLog = UartService(Periph::getUart3(), "log", 0x200, FibSys::getAppMaxPriority());
-    Log::setUartService(&uartServiceForLog);
+    Logger::setUartService(&uartServiceForLog);
 
     static UartStream uartStreamForShell = UartStream(Periph::getUart2());
     Shell::start(uartStreamForShell, 0x200, FibSys::getAppMaxPriority());
