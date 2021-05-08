@@ -12,6 +12,7 @@ class Log
 public:
     static void setUartService(UartService *pUartService);
 
+    static void log(const std::string_view fmt, ...);
     static void trace(const std::string_view context, const std::string_view fmt, ...);
     static void fatal(const std::string_view context, const std::string_view fmt, ...);
     static void system(const std::string_view context, const std::string_view fmt, ...);
@@ -47,6 +48,7 @@ private:
 
     typedef enum Type_
     {
+        LOG_TYPE_LOG,
         LOG_TYPE_TRACE,
         LOG_TYPE_FATAL,
         LOG_TYPE_SYSTEM,
