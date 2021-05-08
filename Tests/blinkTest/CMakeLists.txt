@@ -24,6 +24,8 @@ set(SYSTEM_SRC
     ${ROOT}/System/shellCommands.cpp
     ${ROOT}/System/shell.cpp
     ${ROOT}/System/shell.hpp
+    ${ROOT}/System/stringContainer.hpp
+    ${ROOT}/System/stringContainer.cpp
     ${ROOT}/System/log.cpp
     ${ROOT}/System/log.hpp
     ${ROOT}/System/status.hpp
