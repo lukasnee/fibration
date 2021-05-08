@@ -164,16 +164,18 @@ private:
         {
             // rotaryButton.read() ? Log::colorEnable() : Log::colorDisable(); // todo config over uart
 
-            onBoardLed.write(Gpio::PinState::low);
-            Delay(cpp_freertos::Ticks::MsToTicks(500));
-            onBoardLed.write(Gpio::PinState::high);
-            Delay(cpp_freertos::Ticks::MsToTicks(500));
+            // onBoardLed.write(Gpio::PinState::low);
+            // Delay(cpp_freertos::Ticks::MsToTicks(500));
+            // onBoardLed.write(Gpio::PinState::high);
+            // Delay(cpp_freertos::Ticks::MsToTicks(500));
 
             // Log::info("mainTask", "blink %d !", i++);
             // vTaskList(buffer);
             // Log::info("mainTask", "\r\nTask            State   Prio    Stack   Num\r\n%s", buffer);
             // vTaskGetRunTimeStats(buffer);
             // Log::info("mainTask", "\r\n%s", buffer);
+            Delay(cpp_freertos::Ticks::MsToTicks((1000/15)));
+            Log::log("\r\n%f\r\n%f\r\n%f\r\n%f", mainFreqVar, mainAmplVar, modFreqVar, modAmplVar);
         }
     }
 };

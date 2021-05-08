@@ -204,6 +204,7 @@ target_link_options(${PROJECT_NAME} PRIVATE
     -mthumb
     -mfpu=fpv4-sp-d16
     -mfloat-abi=hard
+    -u _printf_float # enables floating point in printf
     
     -L${ROOT}/System/MSP/CMSIS/Lib
     -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -larm_cortexM4lf_math -Wl,--end-group

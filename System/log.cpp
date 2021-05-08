@@ -25,6 +25,16 @@ void Log::setUartService(UartService *pUartService)
         Log::getInstance().pUartService->init();
     }
 }
+void Log::log(const std::string_view fmt, ...)
+{
+    if (LOG_ENABLED && Log::getInstance().pUartService)
+    {
+        va_list arglist;
+        va_start(arglist, fmt);
+        Log::getInstance().log(VERBOSITY_0, LOG_TYPE_TRACE, nullptr, fmt, arglist);
+        va_end(arglist);
+    }
+}
 
 void Log::trace(const std::string_view context, const std::string_view fmt, ...)
 {
@@ -148,38 +158,43 @@ void Log::log(Verbosity verbosity, Type type, const std::string_view context, co
             }
             else
             {
+                int len;
+
                 char *pStrHead = pStrBase;
                 int maxStrLen = allocSize - sizeof('\0');
                 std::uint32_t strLen = 0;
 
-                // try to print prefix and context
-                int len = Log::formatPrefixAndContext(type, context, pStrHead, maxStrLen);
-                if (len > maxStrLen)
+                if(context != nullptr)
                 {
-                    // did not fit - reallocate needed length buffer and try again
-                    delete[] pStrBase;
-                    if (len < 0x400) // some limitation
+                    // try to print prefix and context
+                    len = Log::formatPrefixAndContext(type, context, pStrHead, maxStrLen);
+                    if (len > maxStrLen)
                     {
-                        allocSize = len + sizeof('\0');
-                        pStrBase = new char[allocSize];
-                        if (pStrBase == nullptr)
+                        // did not fit - reallocate needed length buffer and try again
+                        delete[] pStrBase;
+                        if (len < 0x400) // some limitation
                         {
-                            Log::logOutOfMem();
-                            return;
-                        }
-                        else
-                        {
-                            pStrHead = pStrBase;
-                            maxStrLen = allocSize - sizeof('\0');
-                            strLen = 0;
-                            Log::formatPrefixAndContext(type, context, pStrHead, maxStrLen);
+                            allocSize = len + sizeof('\0');
+                            pStrBase = new char[allocSize];
+                            if (pStrBase == nullptr)
+                            {
+                                Log::logOutOfMem();
+                                return;
+                            }
+                            else
+                            {
+                                pStrHead = pStrBase;
+                                maxStrLen = allocSize - sizeof('\0');
+                                strLen = 0;
+                                Log::formatPrefixAndContext(type, context, pStrHead, maxStrLen);
+                            }
                         }
                     }
-                }
 
-                strLen += len; // notice printed prefix and context
-                pStrHead += len;
-                maxStrLen -= len;
+                    strLen += len; // notice printed prefix and context
+                    pStrHead += len;
+                    maxStrLen -= len;
+                }
 
                 // try to print log message
                 len = vsnprintf(reinterpret_cast<char *>(pStrHead), maxStrLen, fmt.data(), arglist);
@@ -219,6 +234,7 @@ void Log::log(Verbosity verbosity, Type type, const std::string_view context, co
 
 // try just char pointer array... maybe more efficient?
 constexpr std::string_view Log::arLogType[LOG_TYPE_MAX + 1] = {
+    {nullptr}, // no type
     {"\e[32mTRACE"}, // green
     {"\e[35mFATAL"}, // magenta
     {"\e[34mSYS  "}, // blue
