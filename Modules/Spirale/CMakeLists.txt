@@ -1,5 +1,5 @@
 
-project(blinkTest)
+project(Spirale)
 
 enable_language(CXX C ASM)
 
@@ -16,22 +16,27 @@ set(SYSTEM_SRC
 # Fibration Framework
 # (NOTE: Following source list is ordered from highest to lowest abstraction)
       
-    # FibSys (Fibration System) interface level
-    ${ROOT}/System/system.cpp
-    ${ROOT}/System/system.hpp
-    ${ROOT}/System/peripherals.cpp
-    ${ROOT}/System/peripherals.hpp
-    ${ROOT}/System/shellCommands.cpp
-    ${ROOT}/System/shell.cpp
-    ${ROOT}/System/shell.hpp
-    ${ROOT}/System/stringContainer.hpp
-    ${ROOT}/System/stringContainer.cpp
-    ${ROOT}/System/log.cpp
-    ${ROOT}/System/log.hpp
-    ${ROOT}/System/status.hpp
-    ${ROOT}/System/config.hpp
-    ${ROOT}/System/memory.cpp # this should really find better home...
-    ${ROOT}/System/FreeRTOSConfig.h # this too...
+    # System Configuration
+    ${ROOT}/System/Config/FreeRTOSConfig.h
+    ${ROOT}/System/Config/config.hpp
+
+    # System Core stuff
+    ${ROOT}/System/Core/main.cpp
+    ${ROOT}/System/Core/memory.cpp
+    ${ROOT}/System/Core/status.hpp
+    ${ROOT}/System/Core/system.cpp
+    ${ROOT}/System/Core/system.hpp
+
+    # System Utilities
+    ${ROOT}/System/Utilities/stringContainer.hpp
+    ${ROOT}/System/Utilities/stringContainer.cpp
+
+    # System Components
+    ${ROOT}/System/Components/shellCommands.cpp
+    ${ROOT}/System/Components/shell.cpp
+    ${ROOT}/System/Components/shell.hpp
+    ${ROOT}/System/Components/logger.cpp
+    ${ROOT}/System/Components/logger.hpp
     
     # Streams Interfaces shaping interaction of whats above to whats below
     ${ROOT}/System/Streams/Interfaces/textStreamInterface.hpp
@@ -46,6 +51,10 @@ set(SYSTEM_SRC
     ${ROOT}/System/Streams/uartTextService.cpp
     ${ROOT}/System/Streams/uartTextService.hpp
 
+    # Peripheral Manager
+    ${ROOT}/System/Peripherals/peripherals.cpp
+    ${ROOT}/System/Peripherals/peripherals.hpp
+
     # Peripheral Interfaces shaping interaction of whats above to whats below
     ${ROOT}/System/Peripherals/Interfaces/uartInterface.hpp
     ${ROOT}/System/Peripherals/Interfaces/i2sInterface.hpp
@@ -53,44 +62,44 @@ set(SYSTEM_SRC
     ${ROOT}/System/Peripherals/Interfaces/adcInterface.hpp
 
     # Peripherals Implementations - wrappers for limited resources that are available on the platform
-    ${ROOT}/System/Peripherals/gpio.cpp
-    ${ROOT}/System/Peripherals/gpio.hpp
-    ${ROOT}/System/Peripherals/tim6.cpp
-    ${ROOT}/System/Peripherals/tim6.hpp
-    ${ROOT}/System/Peripherals/uartIsrHandler.cpp
-    ${ROOT}/System/Peripherals/uart2.hpp
-    ${ROOT}/System/Peripherals/uart2.cpp
-    ${ROOT}/System/Peripherals/uart3.hpp
-    ${ROOT}/System/Peripherals/uart3.cpp
-    ${ROOT}/System/Peripherals/i2sIsrHandler.cpp
-    ${ROOT}/System/Peripherals/i2s2.cpp
-    ${ROOT}/System/Peripherals/i2s2.hpp
-    ${ROOT}/System/Peripherals/adc2.cpp
-    ${ROOT}/System/Peripherals/adc2.hpp
+    ${ROOT}/System/Peripherals/STM32F303R/gpio.cpp
+    ${ROOT}/System/Peripherals/STM32F303R/gpio.hpp
+    ${ROOT}/System/Peripherals/STM32F303R/tim6.cpp
+    ${ROOT}/System/Peripherals/STM32F303R/tim6.hpp
+    ${ROOT}/System/Peripherals/STM32F303R/uartIsrHandler.cpp
+    ${ROOT}/System/Peripherals/STM32F303R/uart2.hpp
+    ${ROOT}/System/Peripherals/STM32F303R/uart2.cpp
+    ${ROOT}/System/Peripherals/STM32F303R/uart3.hpp
+    ${ROOT}/System/Peripherals/STM32F303R/uart3.cpp
+    ${ROOT}/System/Peripherals/STM32F303R/i2sIsrHandler.cpp
+    ${ROOT}/System/Peripherals/STM32F303R/i2s2.cpp
+    ${ROOT}/System/Peripherals/STM32F303R/i2s2.hpp
+    ${ROOT}/System/Peripherals/STM32F303R/adc2.cpp
+    ${ROOT}/System/Peripherals/STM32F303R/adc2.hpp
     # TODO: finish work ! Make all peripherals work over interfaces
 
 # Real-Time Operating System
 
     # freertos-addons submodule (FreeRTOS C++ wrapper and more)
-    ${ROOT}/System/freertos-addons/c++/Source/cmutex.cpp
-    ${ROOT}/System/freertos-addons/c++/Source/cqueue.cpp
-    ${ROOT}/System/freertos-addons/c++/Source/cread_write_lock.cpp
-    ${ROOT}/System/freertos-addons/c++/Source/csemaphore.cpp
-    ${ROOT}/System/freertos-addons/c++/Source/ctasklet.cpp
-    ${ROOT}/System/freertos-addons/c++/Source/cthread.cpp
-    ${ROOT}/System/freertos-addons/c++/Source/ctimer.cpp
-    ${ROOT}/System/freertos-addons/c++/Source/ctickhook.cpp
-    ${ROOT}/System/freertos-addons/c++/Source/cworkqueue.cpp
+    ${ROOT}/Libraries/freertos-addons/c++/Source/cmutex.cpp
+    ${ROOT}/Libraries/freertos-addons/c++/Source/cqueue.cpp
+    ${ROOT}/Libraries/freertos-addons/c++/Source/cread_write_lock.cpp
+    ${ROOT}/Libraries/freertos-addons/c++/Source/csemaphore.cpp
+    ${ROOT}/Libraries/freertos-addons/c++/Source/ctasklet.cpp
+    ${ROOT}/Libraries/freertos-addons/c++/Source/cthread.cpp
+    ${ROOT}/Libraries/freertos-addons/c++/Source/ctimer.cpp
+    ${ROOT}/Libraries/freertos-addons/c++/Source/ctickhook.cpp
+    ${ROOT}/Libraries/freertos-addons/c++/Source/cworkqueue.cpp
     # FreeRTOS
-    ${ROOT}/System/FreeRTOS/Source/croutine.c
-    ${ROOT}/System/FreeRTOS/Source/event_groups.c
-    ${ROOT}/System/FreeRTOS/Source/list.c
-    ${ROOT}/System/FreeRTOS/Source/queue.c
-    ${ROOT}/System/FreeRTOS/Source/stream_buffer.c
-    ${ROOT}/System/FreeRTOS/Source/tasks.c
-    ${ROOT}/System/FreeRTOS/Source/timers.c
-    ${ROOT}/System/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c
-    ${ROOT}/System/FreeRTOS/Source/portable/MemMang/heap_4.c
+    ${ROOT}/Libraries/FreeRTOS/Source/croutine.c
+    ${ROOT}/Libraries/FreeRTOS/Source/event_groups.c
+    ${ROOT}/Libraries/FreeRTOS/Source/list.c
+    ${ROOT}/Libraries/FreeRTOS/Source/queue.c
+    ${ROOT}/Libraries/FreeRTOS/Source/stream_buffer.c
+    ${ROOT}/Libraries/FreeRTOS/Source/tasks.c
+    ${ROOT}/Libraries/FreeRTOS/Source/timers.c
+    ${ROOT}/Libraries/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c
+    ${ROOT}/Libraries/FreeRTOS/Source/portable/MemMang/heap_4.c
 
 # MCU Support Package
     # DSP stuff
@@ -145,16 +154,21 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 target_include_directories(${PROJECT_NAME} PRIVATE 
 
     # Fibration Framework
+    ${ROOT}/System/Config/
+    ${ROOT}/System/Core/
+    ${ROOT}/System/Utilities/
+    ${ROOT}/System/Components/
     ${ROOT}/System
     ${ROOT}/Stream/Interfaces
     ${ROOT}/Stream
-    ${ROOT}/Peripherals/Interfaces
-    ${ROOT}/Peripherals
+    ${ROOT}/System/Peripherals/Interfaces
+    ${ROOT}/System/Peripherals/STM32F303R
+    ${ROOT}/System/Peripherals
 
     # Real-Time Operating System
-    ${ROOT}/System/FreeRTOS/Source/include
-    ${ROOT}/System/freertos-addons/c++/Source/include
-    ${ROOT}/System/FreeRTOS/Source/portable/GCC/ARM_CM4F
+    ${ROOT}/Libraries/FreeRTOS/Source/include
+    ${ROOT}/Libraries/freertos-addons/c++/Source/include
+    ${ROOT}/Libraries/FreeRTOS/Source/portable/GCC/ARM_CM4F
     
     # MCU Support Package
     ${ROOT}/System/MSP

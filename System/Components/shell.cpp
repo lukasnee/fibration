@@ -1,7 +1,9 @@
 #include "shell.hpp"
-#include "log.hpp"
+#include "logger.hpp"
 #include "system.hpp"
 #include "peripherals.hpp"
+
+//TODO: arrow up to echo and execute last request
 
 void Shell::start(TextStreamInterface &textStream, std::uint16_t stackDepth, BaseType_t priority)
 {

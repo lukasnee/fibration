@@ -17,8 +17,3 @@
 */
 
 #include "fibration.hpp"
-
-using namespace FIB;
-
-
-
