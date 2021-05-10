@@ -31,13 +31,18 @@ set(SYSTEM_SRC
     ${ROOT}/System/Utilities/stringContainer.hpp
     ${ROOT}/System/Utilities/stringContainer.cpp
 
+    ${ROOT}/Libraries/min/target/min.c
+    ${ROOT}/Libraries/min/target/min.h
+    ${ROOT}/System/Services/fibcom.hpp
+    ${ROOT}/System/Services/fibcom.cpp
+
     # System Components
     ${ROOT}/System/Components/shellCommands.cpp
     ${ROOT}/System/Components/shell.cpp
     ${ROOT}/System/Components/shell.hpp
     ${ROOT}/System/Components/logger.cpp
     ${ROOT}/System/Components/logger.hpp
-    
+
     # Streams Interfaces shaping interaction of whats above to whats below
     ${ROOT}/System/Streams/Interfaces/textStreamInterface.hpp
     ${ROOT}/System/Streams/Interfaces/duplexStereoStreamInterface.hpp
