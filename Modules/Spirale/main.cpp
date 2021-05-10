@@ -1,26 +1,10 @@
+#include "fibration.hpp"
+
 #include <cstdint>
-extern "C"
-{
-#include "arm_math.h"
-#include "FreeRTOS.h"
-}
-#include "thread.hpp"
-#include "timer.hpp"
-#include "ticks.hpp"
 
-#include "system.hpp"
-#include "peripherals.hpp"
-#include "log.hpp"
-
-#include "peripherals.hpp"
-#include "../System/Streams/i2sDuplexStream.hpp"
 #include <limits>
-#include <cmath>
 
-int main()
-{
-    FibSys::boot();
-}
+#include "../System/Streams/i2sDuplexStream.hpp"
 
 float randomF = 0.0f;
 

@@ -1,6 +1,6 @@
 #include "system.hpp"
 #include "peripherals.hpp"
-#include "log.hpp"
+#include "logger.hpp"
 #include "Streams/uartTextStream.hpp"
 #include "shell.hpp"
 #include "Streams/uartTextService.hpp"
