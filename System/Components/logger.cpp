@@ -46,7 +46,7 @@ bool Logger::log(const std::string_view fmt, ...)
     {
         va_list arglist;
         va_start(arglist, fmt);
-        result = Logger::getInstance().log(Logger::Verbosity::low, Type::none, fmt, arglist);
+        result = Logger::getInstance().log(Logger::Verbosity::high, Type::none, fmt, arglist);
         va_end(arglist);
     }
 
@@ -109,7 +109,7 @@ bool Logger::log(const Logger::Verbosity &verbosity,
 {
     bool result = true;
 
-    if (Logger::isActive() && verbosity <= Logger::verbosityFloor)
+    if (Logger::isActive() && verbosity >= Logger::verbosityFloor)
     {
         // prefix stage callbacks
         const auto usingPrefixPrintF = [&](StringContainer &logString) {
