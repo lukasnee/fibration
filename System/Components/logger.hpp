@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Streams/uartTextService.hpp"
+#include "uartTextService.hpp"
 #include "stringContainer.hpp"
 #include <string_view>
 #include <cstdarg>
