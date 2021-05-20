@@ -45,6 +45,7 @@ public:
 
     // USAGE (note: user is responsible for putting '\n' end line)
     static bool log(const Verbosity &verbosity, const Type &type, const std::string_view fmt, ...);
+    static bool log(const Verbosity &verbosity, const Type &type, const std::string_view fmt, const va_list &arglist);
     static bool log(const std::string_view fmt, ...);
     static bool logFast(const std::string_view string);
     static bool logFastFromISR(const std::string_view string);
@@ -58,7 +59,7 @@ private:
     Logger();
     ~Logger();
 
-    bool log(const Verbosity &verbosity, const Type &type, const std::string_view fmt, const va_list &arglist);
+    bool logArgList(const Verbosity &verbosity, const Type &type, const std::string_view fmt, const va_list &arglist);
     bool printOptimallyInto(StringContainer &stringContainer,
                             std::function<int(StringContainer &logString)> printF,
                             std::function<void(StringContainer &logString)> optimalPrintFailedCallbackF);

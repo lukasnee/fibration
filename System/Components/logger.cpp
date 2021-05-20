@@ -46,7 +46,7 @@ bool Logger::log(const std::string_view fmt, ...)
     {
         va_list arglist;
         va_start(arglist, fmt);
-        result = Logger::getInstance().log(Logger::Verbosity::high, Type::none, fmt, arglist);
+        result = Logger::getInstance().logFormatted(Logger::Verbosity::high, Type::none, fmt, arglist);
         va_end(arglist);
     }
 
@@ -61,11 +61,16 @@ bool Logger::log(const Logger::Verbosity &verbosity, const Type &type, const std
     {
         va_list arglist;
         va_start(arglist, fmt);
-        result = Logger::getInstance().log(verbosity, type, fmt, arglist);
+        result = Logger::getInstance().logFormatted(verbosity, type, fmt, arglist);
         va_end(arglist);
     }
 
     return result;
+}
+
+bool Logger::log(const Logger::Verbosity &verbosity, const Type &type, const std::string_view fmt, const va_list &arglist)
+{
+    return Logger::getInstance().logFormatted(verbosity, type, fmt, arglist);
 }
 
 bool Logger::logFast(const std::string_view string)
@@ -102,10 +107,10 @@ Logger::Logger() {}
 
 Logger::~Logger() {}
 
-bool Logger::log(const Logger::Verbosity &verbosity,
-                 const Logger::Type &type,
-                 const std::string_view fmt,
-                 const va_list &arglist)
+bool Logger::logFormatted(const Logger::Verbosity &verbosity,
+                        const Logger::Type &type,
+                        const std::string_view fmt,
+                        const va_list &arglist)
 {
     bool result = true;
 
