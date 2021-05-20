@@ -104,22 +104,22 @@
             }
         },
         {
-            "label": "GNU Debug: blinkTest",
+            "label": "GNU Debug: Spirale",
             "type": "shell",
             "group": "test",
             "linux": {
-                "command": "cd Build; ./build.debug.sh && ./flash-to-stm32.sh Debug/Tests/blinkTest/blinkTest.bin"
+                "command": "cd Build; ./build.debug.sh && ./flash-to-stm32.sh Debug/Modules/Spirale/Spirale.bin"
             }
         },
         {
-            "label": "Flash (Release): blinkTest",
+            "label": "Flash (Release): Spirale",
             "type": "shell",
             "group": {
                 "kind": "test",
                 "isDefault": true
             },
             "linux": {
-                "command": "cd Build; ./build.release.sh && ./flash-to-stm32.sh Release/Tests/blinkTest/blinkTest.bin"
+                "command": "cd Build; ./build.release.sh && ./flash-to-stm32.sh Release/Modules/Spirale/Spirale.bin"
             },
             "presentation": {
                 "focus": true
