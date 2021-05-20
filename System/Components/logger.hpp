@@ -36,7 +36,7 @@ public:
     /* logger can be disabled here at @compile-time (hopefully optimized out @compile-time) */
     static constexpr bool isEnabled = true;
     /* lower verbosity level log entries will be optimized out @compile-time */
-    static constexpr Verbosity verbosityFloor = Verbosity::mid;
+    static constexpr Verbosity verbosityFloor = Verbosity::low;
 
     // SETUP
     static bool setUartService(UartService *pUartService);
