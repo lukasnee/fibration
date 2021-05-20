@@ -59,7 +59,7 @@ private:
     Logger();
     ~Logger();
 
-    bool logArgList(const Verbosity &verbosity, const Type &type, const std::string_view fmt, const va_list &arglist);
+    bool logFormatted(const Verbosity &verbosity, const Type &type, const std::string_view fmt, const va_list &arglist);
     bool printOptimallyInto(StringContainer &stringContainer,
                             std::function<int(StringContainer &logString)> printF,
                             std::function<void(StringContainer &logString)> optimalPrintFailedCallbackF);
