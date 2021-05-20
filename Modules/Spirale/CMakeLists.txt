@@ -163,17 +163,17 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${ROOT}/System/Core/
     ${ROOT}/System/Utilities/
     ${ROOT}/System/Components/
-    ${ROOT}/System
-    ${ROOT}/Stream/Interfaces
-    ${ROOT}/Stream
-    ${ROOT}/System/Peripherals/Interfaces
-    ${ROOT}/System/Peripherals/STM32F303R
-    ${ROOT}/System/Peripherals
+    ${ROOT}/System/
+    ${ROOT}/System/Streams/Interfaces/
+    ${ROOT}/System/Streams/
+    ${ROOT}/System/Peripherals/Interfaces/
+    ${ROOT}/System/Peripherals/STM32F303R/
+    ${ROOT}/System/Peripherals/
 
     # Real-Time Operating System
-    ${ROOT}/Libraries/FreeRTOS/Source/include
-    ${ROOT}/Libraries/freertos-addons/c++/Source/include
-    ${ROOT}/Libraries/FreeRTOS/Source/portable/GCC/ARM_CM4F
+    ${ROOT}/Libraries/FreeRTOS/Source/include/
+    ${ROOT}/Libraries/freertos-addons/c++/Source/include/
+    ${ROOT}/Libraries/FreeRTOS/Source/portable/GCC/ARM_CM4F/
     
     # MCU Support Package
     ${ROOT}/System/MSP

@@ -5,7 +5,7 @@
 #include "thread.hpp"
 
 #include "uart2.hpp"
-#include "Streams/Interfaces/textStreamInterface.hpp"
+#include "textStreamInterface.hpp"
 
 //#include <cstddef>
 #include <array>

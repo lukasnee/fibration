@@ -4,6 +4,7 @@
 #include "Streams/uartTextStream.hpp"
 #include "shell.hpp"
 #include "Streams/uartTextService.hpp"
+#include "minCom.hpp"
 
 #include "ticks.hpp"
 #include "timer.hpp"
@@ -162,12 +163,15 @@ void FibSys::Run()
     Logger::setUartService(&uartServiceForLog);
 
     static UartStream uartStreamForShell = UartStream(Periph::getUart2());
-    Shell::start(uartStreamForShell, 0x200, FibSys::getAppMaxPriority());
+    // Shell::start(uartStreamForShell, 0x200, FibSys::getAppMaxPriority());
 
-    // while (true)
-    // {
-    //     // TODO:
-    //     // this->collectStats();
-    //     Delay(cpp_freertos::Ticks::MsToTicks(1000));
-    // }
+    MinCom::getInstance().init(uartStreamForShell, 1);
+    while (true)
+    {
+        // TODO:
+        // this->collectStats();
+
+        MinCom::getInstance().sendFrame(reinterpret_cast<const uint8_t *>("Hello World!\n"), 14);
+        Delay(cpp_freertos::Ticks::MsToTicks(1000));
+    }
 }
