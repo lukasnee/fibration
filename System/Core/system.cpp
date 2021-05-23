@@ -1,9 +1,8 @@
 #include "system.hpp"
 #include "peripherals.hpp"
 #include "logger.hpp"
-#include "Streams/uartTextStream.hpp"
+#include "uartStream.hpp"
 #include "shell.hpp"
-#include "Streams/uartTextService.hpp"
 #include "minCom.hpp"
 
 #include "ticks.hpp"
@@ -159,6 +158,13 @@ FibSys::FibSys(std::uint16_t stackDepth, BaseType_t priority) : Thread("FibSys",
 //FibSys thread
 void FibSys::Run()
 {
+    static UartStream uart3Stream(Periph::getUart3(),
+                                  "uart3streamTx", 0x200, FibSys::getSysAvgPriority(), 0x20,
+                                  "uart3streamRx", 0x200, FibSys::getSysAvgPriority(), 0x100);
+    if (false == Logger::setDataStream(uart3Stream))
+    {
+        FibSys::panic();
+    }
     static UartService uart3Service(Periph::getUart3(), "log", 0x200, FibSys::getAppMaxPriority());
     Logger::setUartService(uart3Service);
     static UartStream uart2Stream(Periph::getUart2());

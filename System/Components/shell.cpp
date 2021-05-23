@@ -5,16 +5,14 @@
 
 //TODO: arrow up to echo and execute last request
 
-void Shell::start(TextStreamInterface &textStream, std::uint16_t stackDepth, BaseType_t priority)
+void Shell::start(TextStream &textStream, std::uint16_t stackDepth, BaseType_t priority)
 {
     static Shell shell(textStream, stackDepth, priority);
 }
 
-Shell::Shell(TextStreamInterface &textStream, std::uint16_t stackDepth, BaseType_t priority)
+Shell::Shell(TextStream &textStream, std::uint16_t stackDepth, BaseType_t priority)
     : Thread("shell", stackDepth, priority), textStream(textStream)
 {
-    this->textStream.setOwner(this);
-
     if (Start() == false)
     {
         FibSys::panic();

@@ -44,19 +44,17 @@ set(SYSTEM_SRC
     ${ROOT}/System/Components/logger.hpp
 
     # Streams Interfaces shaping interaction of whats above to whats below
-    ${ROOT}/System/Streams/Interfaces/textStreamInterface.hpp
-    ${ROOT}/System/Streams/Interfaces/duplexStereoStreamInterface.hpp
-    ${ROOT}/System/Streams/Interfaces/duplexStereoStreamInterface.cpp
+    ${ROOT}/System/Streams/Interfaces/dataStreamIF.hpp
     ${ROOT}/System/Streams/Interfaces/duplexStereoStreamIF.hpp
     ${ROOT}/System/Streams/Interfaces/duplexStereoStreamIF.cpp
+    ${ROOT}/System/Streams/Interfaces/textStreamIF.hpp
+    ${ROOT}/System/Streams/Interfaces/textStreamIF.cpp
 
     # Streams Implementations - making use of peripherals efficiently
     ${ROOT}/System/Streams/i2sDuplexStream.cpp
     ${ROOT}/System/Streams/i2sDuplexStream.hpp
-    ${ROOT}/System/Streams/uartTextStream.hpp
-    ${ROOT}/System/Streams/uartTextStream.cpp
-    ${ROOT}/System/Streams/uartTextService.cpp
-    ${ROOT}/System/Streams/uartTextService.hpp
+    ${ROOT}/System/Streams/uartStream.hpp
+    ${ROOT}/System/Streams/uartStream.cpp
 
     # Peripheral Manager
     ${ROOT}/System/Peripherals/peripherals.cpp
