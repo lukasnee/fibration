@@ -4,10 +4,10 @@
     Hardware I2S driver (single resource)
 */
 
-#include "Interfaces/i2sInterface.hpp"
+#include "i2sIF.hpp"
 #include <cstdint>
 
-class I2s2 : public I2sInterface
+class I2s2 : public I2sIF
 {
 public:
     static I2s2 &getInstance();

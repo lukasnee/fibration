@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Interfaces/adcInterface.hpp"
+#include "adcIF.hpp"
 #include <cstdint>
 
-class Adc2 : public AdcInterface
+class Adc2 : public AdcIF
 {
 public:
     static Adc2 &getInstance();

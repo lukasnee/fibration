@@ -66,7 +66,7 @@ private:
 
 float mainFreqVar, mainAmplVar, modFreqVar, modAmplVar;
 
-static void processTxRxBufferI2s2(const DuplexStereoStreamInterface::Buffer *pStereoAudioRxBuffer, DuplexStereoStreamInterface::Buffer *pStereoAudioTxBuffer)
+static void processTxRxBufferI2s2(const DuplexStereoStreamIF::Buffer *pStereoAudioRxBuffer, DuplexStereoStreamIF::Buffer *pStereoAudioTxBuffer)
 {
     constexpr std::uint32_t u24max = (1 << 24) - 1;
     constexpr float u24maxf = u24max;

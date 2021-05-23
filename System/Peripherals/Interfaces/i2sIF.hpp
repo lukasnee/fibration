@@ -7,7 +7,7 @@
 #include <cstdint>
 #include <semaphore.hpp>
 
-class I2sInterface
+class I2sIF
 {
 public:
     virtual bool init() = 0;
@@ -33,8 +33,8 @@ public:
     bool stopTxRxCircularDma();
 
 protected:
-    I2sInterface();
-    ~I2sInterface();
+    I2sIF();
+    ~I2sIF();
 
     virtual bool txRxCircularDmaUnsafe(const std::uint16_t *pTxData16,
                                        std::uint16_t *pRxData16,

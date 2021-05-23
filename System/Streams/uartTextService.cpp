@@ -2,8 +2,7 @@
 #include "system.hpp"
 #include <cstring>
 // TODO:rename to TextStreamService injected with textStreamInterface
-UartService::UartService(UartInterface &uart, const std::string pcName, uint16_t usStackDepth, UBaseType_t uxPriority)
-    : UartStream(uart), Thread{pcName, usStackDepth, uxPriority}, txQueue(0x20, sizeof(UartService::Blob))
+UartService::UartService(UartIF &uart, const std::string pcName, uint16_t usStackDepth, UBaseType_t uxPriority)
 {
     this->setOwner(this);
 

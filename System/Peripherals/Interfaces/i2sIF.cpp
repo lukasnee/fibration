@@ -1,10 +1,10 @@
-#include "i2sInterface.hpp"
+#include "i2sIF.hpp"
 
-I2sInterface::I2sInterface() : txRxBinarySemaphore(true){};
+I2sIF::I2sIF() : txRxBinarySemaphore(true){};
 
-I2sInterface::~I2sInterface(){};
+I2sIF::~I2sIF(){};
 
-bool I2sInterface::startTxRxCircularDma(const std::uint16_t *pTxData16,
+bool I2sIF::startTxRxCircularDma(const std::uint16_t *pTxData16,
                                         std::uint16_t *pRxData16,
                                         std::uint16_t size8,
                                         TxRxIsrCallbacks *pTxRxIsrCallbacks)
@@ -25,7 +25,7 @@ bool I2sInterface::startTxRxCircularDma(const std::uint16_t *pTxData16,
     return retval;
 }
 
-bool I2sInterface::stopTxRxCircularDma()
+bool I2sIF::stopTxRxCircularDma()
 {
     bool retval = false;
 
@@ -37,7 +37,7 @@ bool I2sInterface::stopTxRxCircularDma()
     return retval;
 }
 
-void I2sInterface::txRxCpltIsrCalback()
+void I2sIF::txRxCpltIsrCalback()
 {
     if (this->pTxRxIsrCallbacks)
     {
@@ -45,7 +45,7 @@ void I2sInterface::txRxCpltIsrCalback()
     }
 }
 
-void I2sInterface::txRxHalfCpltIsrCalback()
+void I2sIF::txRxHalfCpltIsrCalback()
 {
     if (this->pTxRxIsrCallbacks)
     {

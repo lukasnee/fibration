@@ -7,11 +7,11 @@
 #include <cstdint>
 #include <semaphore.hpp>
 
-class UartInterface
+class UartIF
 {
 public:
-    UartInterface() : txBinarySemaphore(true), rxBinarySemaphore(true){};
-    ~UartInterface(){};
+    UartIF() : txBinarySemaphore(true), rxBinarySemaphore(true){};
+    ~UartIF(){};
 
     struct TxIsrCallbacks
     {

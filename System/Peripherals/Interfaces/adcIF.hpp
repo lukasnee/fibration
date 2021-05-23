@@ -6,7 +6,7 @@
 #include <cstdint>
 #include <semaphore.hpp>
 
-class AdcInterface
+class AdcIF
 {
 public:
     bool getValue(std::uint32_t channelNo, float &value)
@@ -25,8 +25,8 @@ public:
 
     std::uint32_t getMaxValue() { return ((1 << this->getBitDepth()) - 1); }
 
-    AdcInterface() : txBinarySemaphore(true){};
-    ~AdcInterface(){};
+    AdcIF() : txBinarySemaphore(true){};
+    ~AdcIF(){};
 
     virtual std::uint32_t getBitDepth() = 0;
     virtual std::uint32_t getChannelsTotal() = 0;

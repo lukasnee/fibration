@@ -4,20 +4,20 @@
     I2S full duplex stream implementation
 */
 
-#include "Interfaces/duplexStereoStreamInterface.hpp"
-#include "../Peripherals/Interfaces/i2sInterface.hpp"
+#include "duplexStereoStreamIF.hpp"
+#include "i2sIF.hpp"
 
 #include "thread.hpp"
 
-class I2sDuplexStream : public DuplexStereoStreamInterface, private I2sInterface::TxRxIsrCallbacks
+class I2sDuplexStream : public DuplexStereoStreamIF, private I2sIF::TxRxIsrCallbacks
 {
 public:
-    I2sDuplexStream(I2sInterface &i2s,
+    I2sDuplexStream(I2sIF &i2s,
                     const std::string pcName,
                     uint16_t usStackDepth,
                     UBaseType_t uxPriority,
-                    DuplexStereoStreamInterface::CircularBuffer &circularBufferTx,
-                    DuplexStereoStreamInterface::CircularBuffer &circularBufferRx,
+                    DuplexStereoStreamIF::CircularBuffer &circularBufferTx,
+                    DuplexStereoStreamIF::CircularBuffer &circularBufferRx,
                     ProcessTxRxBufferF processTxRxBufferF);
     ~I2sDuplexStream();
 
@@ -35,5 +35,5 @@ private:
     I2sDuplexStream(const I2sDuplexStream &) = delete;
     I2sDuplexStream(I2sDuplexStream &&) = delete;
 
-    I2sInterface &i2s;
+    I2sIF &i2s;
 };
