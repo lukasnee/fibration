@@ -39,7 +39,7 @@ public:
     static constexpr Verbosity verbosityFloor = Verbosity::low;
 
     // SETUP
-    static bool setUartService(UartService *pUartService);
+    static bool setUartService(UartService &uartService);
     static void setColoring(bool state);
     static bool isActive();
 

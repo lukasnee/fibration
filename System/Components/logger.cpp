@@ -6,24 +6,17 @@
 #include <cstdio>
 #include <cstdarg>
 
-bool Logger::setUartService(UartService *pUartService)
+bool Logger::setUartService(UartService &uartService)
 {
     bool result = true;
 
-    if (pUartService)
+    if (Logger::getInstance().pUartService)
     {
-        if (Logger::getInstance().pUartService)
-        {
-            result &= Logger::getInstance().pUartService->deinit();
-        }
+        result &= Logger::getInstance().pUartService->deinit();
+    }
 
-        Logger::getInstance().pUartService = pUartService;
-        result &= Logger::getInstance().pUartService->init();
-    }
-    else
-    {
-        result = false;
-    }
+    Logger::getInstance().pUartService = &uartService;
+    result &= Logger::getInstance().pUartService->init();
 
     return result;
 }
