@@ -1,6 +1,6 @@
 #pragma once
 
-#include "uartTextService.hpp"
+#include "dataStreamIF.hpp"
 #include "stringContainer.hpp"
 #include <string_view>
 #include <cstdarg>
@@ -39,7 +39,7 @@ public:
     static constexpr Verbosity verbosityFloor = Verbosity::low;
 
     // SETUP
-    static bool setUartService(UartService &uartService);
+    static bool setDataStream(DataStreamIF &dataStream);
     static void setColoring(bool state);
     static bool isActive();
 
@@ -68,5 +68,6 @@ private:
     void logStringTooLong();
 
     bool logColored = true;
-    UartService *pUartService;
+
+    DataStreamIF *pDataStream = nullptr;
 };

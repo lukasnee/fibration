@@ -6,17 +6,17 @@
 #include <cstdio>
 #include <cstdarg>
 
-bool Logger::setUartService(UartService &uartService)
+bool Logger::setDataStream(DataStreamIF &dataStream)
 {
     bool result = true;
 
-    if (Logger::getInstance().pUartService)
+    if (Logger::getInstance().pDataStream)
     {
-        result &= Logger::getInstance().pUartService->deinit();
+        Logger::getInstance().pDataStream->deinit();
     }
 
-    Logger::getInstance().pUartService = &uartService;
-    result &= Logger::getInstance().pUartService->init();
+    Logger::getInstance().pDataStream = &dataStream;
+    result = Logger::getInstance().pDataStream->init();
 
     return result;
 }
@@ -28,7 +28,7 @@ void Logger::setColoring(bool state)
 
 bool Logger::isActive()
 {
-    return (Logger::isEnabled && Logger::getInstance().pUartService);
+    return (Logger::isEnabled && Logger::getInstance().pDataStream);
 }
 
 bool Logger::log(const std::string_view fmt, ...)
@@ -72,7 +72,7 @@ bool Logger::logFast(const std::string_view string)
 
     if (Logger::isActive())
     {
-        result = Logger::getInstance().pUartService->txPush(string.data(), string.length(), true);
+        result = Logger::getInstance().pDataStream->push(reinterpret_cast<const uint8_t*>(string.data()), string.length(), true, 1);
     }
 
     return result;
@@ -84,7 +84,7 @@ bool Logger::logFastFromISR(const std::string_view string)
 
     if (Logger::isActive())
     {
-        result = Logger::getInstance().pUartService->txPushFromISR(string.data(), string.length(), true);
+        result = Logger::getInstance().pDataStream->pushFromISR(reinterpret_cast<const uint8_t*>(string.data()), string.length(), true);
     }
 
     return result;
@@ -122,7 +122,7 @@ bool Logger::logFormatted(const Logger::Verbosity &verbosity,
             return vsnprintf(logString.getHead(), logString.getCharsLeft(), fmt.data(), arglist);
         };
         const auto ifItDoesNotFitPushPrefixPartAndReprintMessage = [&](StringContainer &logString) {
-            this->pUartService->txPush(logString.getBase(), logString.getCharsUsed(), false);
+            this->pDataStream->push(reinterpret_cast<const uint8_t*>(logString.getBase()), logString.getCharsUsed(), false, 1);
         };
 
         StringContainer logString;
@@ -136,7 +136,7 @@ bool Logger::logFormatted(const Logger::Verbosity &verbosity,
         result &= this->printOptimallyInto(logString, usingMessagePrintF, ifItDoesNotFitPushPrefixPartAndReprintMessage);
 
         // push what's left
-        result &= this->pUartService->txPush(logString.getBase(), logString.getCharsUsed(), false);
+        result &= this->pDataStream->push(reinterpret_cast<const uint8_t*>(logString.getBase()), logString.getCharsUsed(), false, 1);
     }
 
     return result;
