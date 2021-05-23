@@ -8,7 +8,7 @@
 class UartService : public UartStream, public cpp_freertos::Thread
 {
 public:
-    UartService(UartInterface &uart, const std::string pcName, uint16_t usStackDepth, UBaseType_t uxPriority);
+    UartService(UartIF &uart, const std::string pcName, uint16_t usStackDepth, UBaseType_t uxPriority);
     ~UartService();
 
     struct Blob

@@ -1,13 +1,13 @@
 #include "i2sDuplexStream.hpp"
 
-I2sDuplexStream::I2sDuplexStream(I2sInterface &i2s,
+I2sDuplexStream::I2sDuplexStream(I2sIF &i2s,
                                  const std::string pcName,
                                  uint16_t usStackDepth,
                                  UBaseType_t uxPriority,
                                  CircularBuffer &circularBufferTx,
                                  CircularBuffer &circularBufferRx,
                                  ProcessTxRxBufferF processTxRxBufferF)
-    : DuplexStereoStreamInterface(pcName, usStackDepth, uxPriority, circularBufferTx, circularBufferRx, processTxRxBufferF),
+    : DuplexStereoStreamIF(pcName, usStackDepth, uxPriority, circularBufferTx, circularBufferRx, processTxRxBufferF),
       i2s(i2s) {}
 
 I2sDuplexStream::~I2sDuplexStream() {}
