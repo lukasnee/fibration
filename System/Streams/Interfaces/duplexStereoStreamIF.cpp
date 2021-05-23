@@ -1,8 +1,8 @@
-#include "duplexStereoStreamInterface.hpp"
+#include "duplexStereoStreamIF.hpp"
 
 #include "system.hpp"
 
-DuplexStereoStreamInterface::DuplexStereoStreamInterface(const std::string pcName,
+DuplexStereoStreamIF::DuplexStereoStreamIF(const std::string pcName,
                                                          uint16_t usStackDepth,
                                                          UBaseType_t uxPriority,
                                                          CircularBuffer &circularBufferTx,
@@ -21,7 +21,7 @@ DuplexStereoStreamInterface::DuplexStereoStreamInterface(const std::string pcNam
     }
 };
 
-bool DuplexStereoStreamInterface::start()
+bool DuplexStereoStreamIF::start()
 {
     bool retval = false;
 
@@ -38,7 +38,7 @@ bool DuplexStereoStreamInterface::start()
     return retval;
 }
 
-bool DuplexStereoStreamInterface::stop()
+bool DuplexStereoStreamIF::stop()
 {
     bool retval = false;
 
@@ -60,28 +60,28 @@ bool DuplexStereoStreamInterface::stop()
     return retval;
 }
 
-std::uint16_t *DuplexStereoStreamInterface::getCircularBufferTx()
+std::uint16_t *DuplexStereoStreamIF::getCircularBufferTx()
 {
     return reinterpret_cast<std::uint16_t *>(&this->circularBufferTx);
 }
 
-std::uint16_t *DuplexStereoStreamInterface::getCircularBufferRxUnsafe()
+std::uint16_t *DuplexStereoStreamIF::getCircularBufferRxUnsafe()
 {
     return reinterpret_cast<std::uint16_t *>(&this->circularBufferRx);
 }
 
-const std::uint16_t *DuplexStereoStreamInterface::getCircularBufferRx()
+const std::uint16_t *DuplexStereoStreamIF::getCircularBufferRx()
 {
     return reinterpret_cast<std::uint16_t *>(&this->circularBufferRx);
 }
 
-std::size_t DuplexStereoStreamInterface::getCircularBufferSize()
+std::size_t DuplexStereoStreamIF::getCircularBufferSize()
 {
     return sizeof(circularBufferTx);
 }
 
-bool DuplexStereoStreamInterface::getStereoAudioBuffersTxRx(const DuplexStereoStreamInterface::Buffer *&pRxBuffer,
-                                                            DuplexStereoStreamInterface::Buffer *&pTxBuffer)
+bool DuplexStereoStreamIF::getStereoAudioBuffersTxRx(const DuplexStereoStreamIF::Buffer *&pRxBuffer,
+                                                            DuplexStereoStreamIF::Buffer *&pTxBuffer)
 {
     bool result = false;
 
@@ -115,7 +115,7 @@ bool DuplexStereoStreamInterface::getStereoAudioBuffersTxRx(const DuplexStereoSt
     return result;
 }
 
-bool DuplexStereoStreamInterface::stereoAudioBufferLoaded()
+bool DuplexStereoStreamIF::stereoAudioBufferLoaded()
 {
     bool retval = false;
 
@@ -144,7 +144,7 @@ bool DuplexStereoStreamInterface::stereoAudioBufferLoaded()
     return retval;
 };
 
-void DuplexStereoStreamInterface::firstBufferHalfCompletedStreamIsrCallback()
+void DuplexStereoStreamIF::firstBufferHalfCompletedStreamIsrCallback()
 {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     if (this->state == State::firstStreamingSecondLoaded ||  // good case
@@ -160,7 +160,7 @@ void DuplexStereoStreamInterface::firstBufferHalfCompletedStreamIsrCallback()
     // TODO: better handle bad cases
 }
 
-void DuplexStereoStreamInterface::secondBufferHalfCompletedStreamIsrCallback()
+void DuplexStereoStreamIF::secondBufferHalfCompletedStreamIsrCallback()
 {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     if (this->state == State::firstLoadedSecondStreaming ||  // good case
@@ -174,15 +174,15 @@ void DuplexStereoStreamInterface::secondBufferHalfCompletedStreamIsrCallback()
     // TODO: better handle bad cases
 }
 
-void DuplexStereoStreamInterface::Run() // task code
+void DuplexStereoStreamIF::Run() // task code
 {
     cpp_freertos::Thread::Delay(50);
     if (this->init())
     {
         while (true)
         {
-            DuplexStereoStreamInterface::Buffer *pTxBuffer = nullptr;
-            const DuplexStereoStreamInterface::Buffer *pRxBuffer = nullptr;
+            DuplexStereoStreamIF::Buffer *pTxBuffer = nullptr;
+            const DuplexStereoStreamIF::Buffer *pRxBuffer = nullptr;
 
             if (this->processTxRxBufferF &&
                 this->getStereoAudioBuffersTxRx(pRxBuffer, pTxBuffer) &&

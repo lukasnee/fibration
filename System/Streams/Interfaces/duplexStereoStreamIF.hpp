@@ -7,7 +7,7 @@
 #include "thread.hpp"
 #include <array>
 
-class DuplexStereoStreamInterface : cpp_freertos::Thread
+class DuplexStereoStreamIF : cpp_freertos::Thread
 {
 public:
     struct StereoSample
@@ -21,13 +21,13 @@ public:
     using CircularBuffer = std::array<Buffer, 2>;
 
     // TODO: pass SampleRateInHz
-    using ProcessTxRxBufferF = void(const DuplexStereoStreamInterface::Buffer *rxBuffer, DuplexStereoStreamInterface::Buffer *txBuffer);
+    using ProcessTxRxBufferF = void(const DuplexStereoStreamIF::Buffer *rxBuffer, DuplexStereoStreamIF::Buffer *txBuffer);
 
     bool start();
     bool stop();
 
 protected:
-    DuplexStereoStreamInterface(const std::string pcName,
+    DuplexStereoStreamIF(const std::string pcName,
                                 uint16_t usStackDepth,
                                 UBaseType_t uxPriority, CircularBuffer &circularBufferTx, CircularBuffer &circularBufferRx,
                                 ProcessTxRxBufferF processTxRxBufferF);
