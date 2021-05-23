@@ -159,19 +159,18 @@ FibSys::FibSys(std::uint16_t stackDepth, BaseType_t priority) : Thread("FibSys",
 //FibSys thread
 void FibSys::Run()
 {
-    static UartService uartServiceForLog = UartService(Periph::getUart3(), "log", 0x200, FibSys::getAppMaxPriority());
-    Logger::setUartService(&uartServiceForLog);
-
-    static UartStream uartStreamForShell = UartStream(Periph::getUart2());
+    static UartService uart3Service(Periph::getUart3(), "log", 0x200, FibSys::getAppMaxPriority());
+    Logger::setUartService(uart3Service);
+    static UartStream uart2Stream(Periph::getUart2());
     // Shell::start(uartStreamForShell, 0x200, FibSys::getAppMaxPriority());
+    MinCom::getInstance().init(uart2Stream, 1);
 
-    MinCom::getInstance().init(uartStreamForShell, 1);
     while (true)
     {
         // TODO:
         // this->collectStats();
 
-        MinCom::getInstance().sendFrame(reinterpret_cast<const uint8_t *>("Hello World!\n"), 14);
         Delay(cpp_freertos::Ticks::MsToTicks(1000));
+        MinCom::getInstance().sendQueueFrame(reinterpret_cast<const uint8_t *>("Hello World!\n"), 13);
     }
 }
