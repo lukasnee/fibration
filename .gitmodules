@@ -1,6 +1,6 @@
 [submodule "Libraries/freertos-addons"]
 	path = Libraries/freertos-addons
-	url = https://github.com/michaelbecker/freertos-addons.git
+	url = https://github.com/lukasnee/freertos-addons.git
 
 [submodule "Libraries/min"]
 	path = Libraries/min
