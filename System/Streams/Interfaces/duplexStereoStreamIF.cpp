@@ -27,7 +27,7 @@ bool DuplexStereoStreamIF::start()
 
     if (this->state == State::standby)
     {
-        if (this->startTxRxCircularDma())
+        if (this->startTxRxCircularDma()) // TODO: make DMA start only after the first buffer half is filled with data
         {
             this->state = State::ready;
             xTaskNotifyGive(this->pOwner->GetHandle());
@@ -176,7 +176,7 @@ void DuplexStereoStreamIF::secondBufferHalfCompletedStreamIsrCallback()
 
 void DuplexStereoStreamIF::Run() // task code
 {
-    cpp_freertos::Thread::Delay(50);
+    cpp_freertos::Thread::Delay(50); // TODO necessary ???
     if (this->init())
     {
         while (true)

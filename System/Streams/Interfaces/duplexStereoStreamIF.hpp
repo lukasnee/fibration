@@ -60,6 +60,8 @@ private:
 
     ProcessTxRxBufferF *processTxRxBufferF = nullptr;
 
+    // TODO group into a struct `CircularDmaTxRxStream` like in ADC2 driver
+
     enum State
     {
         standby = 0,
