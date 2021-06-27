@@ -1,7 +1,7 @@
 #include "shell.hpp"
 #include "logger.hpp"
 #include "system.hpp"
-#include "peripherals.hpp"
+#include "resources.hpp"
 
 //TODO: arrow up to echo and execute last request
 

@@ -1,6 +1,6 @@
 #include "logger.hpp"
 #include "system.hpp"
-#include "peripherals.hpp"
+#include "resources.hpp"
 
 #include <string_view>
 #include <cstdio>

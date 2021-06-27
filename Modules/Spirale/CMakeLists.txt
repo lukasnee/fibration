@@ -11,108 +11,16 @@ set(CMAKE_CXX_STANDARD 17)
 
 set(ROOT ${CMAKE_SOURCE_DIR})
 
-set(SYSTEM_SRC
+set(STM32F3xx_CORE_SRC
+    ${ROOT}/System/MSP/stm32f3xx_hal_msp.c
+    ${ROOT}/System/MSP/stm32f3xx_hal_timebase_tim.c
+    ${ROOT}/System/MSP/stm32f3xx_it.c
+    ${ROOT}/System/MSP/syscalls.c
+    ${ROOT}/System/MSP/sysmem.c
+    ${ROOT}/System/MSP/system_stm32f3xx.c
+)
 
-# Fibration Framework
-# (NOTE: Following source list is ordered from highest to lowest abstraction)
-      
-    # System Configuration
-    ${ROOT}/System/Config/FreeRTOSConfig.h
-    ${ROOT}/System/Config/config.hpp
-
-    # System Core stuff
-    ${ROOT}/System/Core/main.cpp
-    ${ROOT}/System/Core/memory.cpp
-    ${ROOT}/System/Core/status.hpp
-    ${ROOT}/System/Core/system.cpp
-    ${ROOT}/System/Core/system.hpp
-
-    # System Utilities
-    ${ROOT}/System/Utilities/stringContainer.hpp
-    ${ROOT}/System/Utilities/stringContainer.cpp
-
-    ${ROOT}/Libraries/min/target/min.c
-    ${ROOT}/Libraries/min/target/min.h
-    ${ROOT}/System/Services/fibcom.hpp
-    ${ROOT}/System/Services/fibcom.cpp
-
-    # System Components
-    ${ROOT}/System/Components/shellCommands.cpp
-    ${ROOT}/System/Components/shell.cpp
-    ${ROOT}/System/Components/shell.hpp
-    ${ROOT}/System/Components/logger.cpp
-    ${ROOT}/System/Components/logger.hpp
-
-    # Streams Interfaces shaping interaction of whats above to whats below
-    ${ROOT}/System/Streams/Interfaces/dataStreamIF.hpp
-    ${ROOT}/System/Streams/Interfaces/duplexStereoStreamIF.hpp
-    ${ROOT}/System/Streams/Interfaces/duplexStereoStreamIF.cpp
-    ${ROOT}/System/Streams/Interfaces/textStreamIF.hpp
-    ${ROOT}/System/Streams/Interfaces/textStreamIF.cpp
-
-    # Streams Implementations - making use of peripherals efficiently
-    ${ROOT}/System/Streams/i2sDuplexStream.cpp
-    ${ROOT}/System/Streams/i2sDuplexStream.hpp
-    ${ROOT}/System/Streams/uartStream.hpp
-    ${ROOT}/System/Streams/uartStream.cpp
-
-    # Peripheral Manager
-    ${ROOT}/System/Peripherals/peripherals.cpp
-    ${ROOT}/System/Peripherals/peripherals.hpp
-
-    # Peripheral Interfaces shaping interaction of whats above to whats below
-    ${ROOT}/System/Peripherals/Interfaces/uartIF.hpp
-    ${ROOT}/System/Peripherals/Interfaces/i2sIF.hpp
-    ${ROOT}/System/Peripherals/Interfaces/i2sIF.cpp
-    ${ROOT}/System/Peripherals/Interfaces/adcIF.hpp
-
-    # Peripherals Implementations - wrappers for limited resources that are available on the platform
-    ${ROOT}/System/Peripherals/STM32F303R/gpio.cpp
-    ${ROOT}/System/Peripherals/STM32F303R/gpio.hpp
-    ${ROOT}/System/Peripherals/STM32F303R/tim6.cpp
-    ${ROOT}/System/Peripherals/STM32F303R/tim6.hpp
-    ${ROOT}/System/Peripherals/STM32F303R/uartIsrHandler.cpp
-    ${ROOT}/System/Peripherals/STM32F303R/uart2.hpp
-    ${ROOT}/System/Peripherals/STM32F303R/uart2.cpp
-    ${ROOT}/System/Peripherals/STM32F303R/uart3.hpp
-    ${ROOT}/System/Peripherals/STM32F303R/uart3.cpp
-    ${ROOT}/System/Peripherals/STM32F303R/i2sIsrHandler.cpp
-    ${ROOT}/System/Peripherals/STM32F303R/i2s2.cpp
-    ${ROOT}/System/Peripherals/STM32F303R/i2s2.hpp
-    ${ROOT}/System/Peripherals/STM32F303R/adc2.cpp
-    ${ROOT}/System/Peripherals/STM32F303R/adc2.hpp
-    # TODO: finish work ! Make all peripherals work over interfaces
-
-# Real-Time Operating System
-
-    # freertos-addons submodule (FreeRTOS C++ wrapper and more)
-    ${ROOT}/Libraries/freertos-addons/c++/Source/cmutex.cpp
-    ${ROOT}/Libraries/freertos-addons/c++/Source/cqueue.cpp
-    ${ROOT}/Libraries/freertos-addons/c++/Source/cread_write_lock.cpp
-    ${ROOT}/Libraries/freertos-addons/c++/Source/csemaphore.cpp
-    ${ROOT}/Libraries/freertos-addons/c++/Source/ctasklet.cpp
-    ${ROOT}/Libraries/freertos-addons/c++/Source/cthread.cpp
-    ${ROOT}/Libraries/freertos-addons/c++/Source/ctimer.cpp
-    ${ROOT}/Libraries/freertos-addons/c++/Source/ctickhook.cpp
-    ${ROOT}/Libraries/freertos-addons/c++/Source/cworkqueue.cpp
-    # FreeRTOS
-    ${ROOT}/Libraries/FreeRTOS/Source/croutine.c
-    ${ROOT}/Libraries/FreeRTOS/Source/event_groups.c
-    ${ROOT}/Libraries/FreeRTOS/Source/list.c
-    ${ROOT}/Libraries/FreeRTOS/Source/queue.c
-    ${ROOT}/Libraries/FreeRTOS/Source/stream_buffer.c
-    ${ROOT}/Libraries/FreeRTOS/Source/tasks.c
-    ${ROOT}/Libraries/FreeRTOS/Source/timers.c
-    ${ROOT}/Libraries/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c
-    ${ROOT}/Libraries/FreeRTOS/Source/portable/MemMang/heap_4.c
-
-# MCU Support Package
-    # DSP stuff
-    ${ROOT}/System/MSP/CMSIS/DSP_Lib/Source/CommonTables/arm_common_tables.c
-    ${ROOT}/System/MSP/CMSIS/DSP_Lib/Source/CommonTables/arm_const_structs.c
-    ${ROOT}/System/MSP/CMSIS/DSP_Lib/Source/FastMathFunctions/arm_sin_f32.c
-    ${ROOT}/System/MSP/CMSIS/DSP_Lib/Source/FastMathFunctions/arm_sin_f32.c
-    # STM32F3xx HAL (Hardware Abstraction Layer)
+set(STM32F3xx_HAL_SRC # (Hardware Abstraction Layer)
     ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal.c
     ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_cortex.c
     ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_exti.c
@@ -130,47 +38,172 @@ set(SYSTEM_SRC
     ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_i2s_ex.c
     ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_adc.c
     ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_adc_ex.c
-    # STM32F303 MCU core components
-    ${ROOT}/System/MSP/stm32f3xx_hal_msp.c
-    ${ROOT}/System/MSP/stm32f3xx_hal_timebase_tim.c
-    ${ROOT}/System/MSP/stm32f3xx_it.c
-    ${ROOT}/System/MSP/syscalls.c
-    ${ROOT}/System/MSP/sysmem.c
-    ${ROOT}/System/MSP/system_stm32f3xx.c
+)
+
+set(ARM_CMSIS_DSP_SRC
+    ${ROOT}/System/MSP/CMSIS/DSP_Lib/Source/CommonTables/arm_common_tables.c
+    ${ROOT}/System/MSP/CMSIS/DSP_Lib/Source/CommonTables/arm_const_structs.c
+    ${ROOT}/System/MSP/CMSIS/DSP_Lib/Source/FastMathFunctions/arm_sin_f32.c
+    ${ROOT}/System/MSP/CMSIS/DSP_Lib/Source/FastMathFunctions/arm_sin_f32.c
+)
+
+set(STM32F3_MSP_SRC # (MCU Support Package)
+    ${STM32F3xx_CORE_SRC}
+    ${STM32F3xx_HAL_SRC}
+    ${ARM_CMSIS_DSP_SRC}
+)
+
+
+set(STM32F303RC_CORE_SRC
+    ${ROOT}/System/MSP/startup_stm32f303cbtx.s
+    ${ROOT}/System/MSP/CMSIS/Device/ST/STM32F3xx/Include/stm32f303xc.h
+)
+
+set(STM32F303CE_MSP_SRC 
+    ${STM32F3_MSP_SRC}
+    ${STM32F303C_CORE_SRC}
+)
+
+
+set(STM32F303R_CORE_SRC
     ${ROOT}/System/MSP/startup_stm32f303retx.s
-    #${ROOT}/System/MSP/startup_stm32f303cbtx.s
     ${ROOT}/System/MSP/CMSIS/Device/ST/STM32F3xx/Include/stm32f303xe.h
-    #${ROOT}/System/MSP/CMSIS/Device/ST/STM32F3xx/Include/stm32f303xc.h
+)
+
+set(STM32F303RE_MSP_SRC 
+    ${STM32F3_MSP_SRC}
+    ${STM32F303R_CORE_SRC}
+)
+
+
+set(FREERTOS_BARE_SRC
+    ${ROOT}/Libraries/FreeRTOS/Source/croutine.c
+    ${ROOT}/Libraries/FreeRTOS/Source/event_groups.c
+    ${ROOT}/Libraries/FreeRTOS/Source/list.c
+    ${ROOT}/Libraries/FreeRTOS/Source/queue.c
+    ${ROOT}/Libraries/FreeRTOS/Source/stream_buffer.c
+    ${ROOT}/Libraries/FreeRTOS/Source/tasks.c
+    ${ROOT}/Libraries/FreeRTOS/Source/timers.c
+    ${ROOT}/Libraries/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c
+    ${ROOT}/Libraries/FreeRTOS/Source/portable/MemMang/heap_4.c
+)
+
+set(FREERTOS_SRC
+    # freertos-addons submodule (FreeRTOS C++ wrapper and more)
+    ${ROOT}/Libraries/freertos-addons/c++/Source/cmutex.cpp
+    ${ROOT}/Libraries/freertos-addons/c++/Source/cqueue.cpp
+    ${ROOT}/Libraries/freertos-addons/c++/Source/cread_write_lock.cpp
+    ${ROOT}/Libraries/freertos-addons/c++/Source/csemaphore.cpp
+    ${ROOT}/Libraries/freertos-addons/c++/Source/ctasklet.cpp
+    ${ROOT}/Libraries/freertos-addons/c++/Source/cthread.cpp
+    ${ROOT}/Libraries/freertos-addons/c++/Source/ctimer.cpp
+    ${ROOT}/Libraries/freertos-addons/c++/Source/ctickhook.cpp
+    ${ROOT}/Libraries/freertos-addons/c++/Source/cworkqueue.cpp
+    ${FREERTOS_BARE_SRC}
+)
+
+
+set(FIBSYS_CORE_SRC
+    ${ROOT}/System/Core/main.cpp
+    ${ROOT}/System/Core/memory.cpp
+    ${ROOT}/System/Core/system.cpp
+)
+
+set(FIBSYS_UTILITIES_SRC
+    ${ROOT}/System/Utilities/stringContainer.cpp
+)
+
+# TODO: Make all peripherals work over interfaces
+set(FIBSYS_PERIPHERALS_SRC
+    # Peripheral Interfaces shaping interaction of whats above to whats below
+    ${ROOT}/System/Peripherals/Interfaces/uartIF.hpp
+    ${ROOT}/System/Peripherals/Interfaces/i2sIF.cpp
+    ${ROOT}/System/Peripherals/Interfaces/adcIF.hpp
+
+    # Peripherals Implementations - wrappers for limited resources that are available on the platform
+    ${ROOT}/System/Peripherals/STM32F303R/gpio.cpp
+    ${ROOT}/System/Peripherals/STM32F303R/tim6.cpp
+    ${ROOT}/System/Peripherals/STM32F303R/uartIsrHandler.cpp
+    ${ROOT}/System/Peripherals/STM32F303R/uart2.cpp
+    ${ROOT}/System/Peripherals/STM32F303R/uart3.cpp
+    ${ROOT}/System/Peripherals/STM32F303R/i2sIsrHandler.cpp
+    ${ROOT}/System/Peripherals/STM32F303R/i2s2.cpp
+    ${ROOT}/System/Peripherals/STM32F303R/adc2.cpp
+
+    ${ROOT}/System/Peripherals/resources.cpp
+)
+
+set(FIBSYS_STREAMS_SRC
+    # Streams Interfaces shaping interaction of whats above to whats below
+    ${ROOT}/System/Streams/Interfaces/dataStreamIF.hpp
+    ${ROOT}/System/Streams/Interfaces/duplexStereoStreamIF.cpp
+    ${ROOT}/System/Streams/Interfaces/textStreamIF.cpp
     
+    # Streams Implementations - making use of peripherals efficiently
+    ${ROOT}/System/Streams/i2sDuplexStream.cpp
+    ${ROOT}/System/Streams/uartStream.cpp
+)
+
+set(FIBSYS_COMPONENTS_SRC
+    ${ROOT}/System/Components/shellCommands.cpp
+    ${ROOT}/System/Components/shell.cpp
+    ${ROOT}/System/Components/shell.hpp
+    ${ROOT}/System/Components/logger.cpp
+    ${ROOT}/System/Components/logger.hpp
+    ${ROOT}/System/Components/minCom.hpp
+    ${ROOT}/System/Components/minCom.cpp
+)
+
+#TODO: maybe move system libraries to System/ dir. 
+# Libs used should be split into two lib categories: fibsys dependant and particular apllication dependant libs.
+set(FIBSYS_SRC
+    ${FIBSYS_CORE_SRC}
+    ${FIBSYS_UTILITIES_SRC}
+    ${FIBSYS_PERIPHERALS_SRC}
+    ${FIBSYS_STREAMS_SRC}
+    ${FIBSYS_COMPONENTS_SRC}
+
+    ${ROOT}/Libraries/min/target/min.c
+    ${ROOT}/System/Services/fibcom.cpp
+
+    ${FREERTOS_SRC}
+    ${STM32F303RE_MSP_SRC}
+)
+
+# TODO: all above should roughly be distributed to other subdir cmakelists
+
+set(SPIRALE_SRC
+    main.cpp
 )
 
 add_executable(${PROJECT_NAME} 
-    main.cpp
-    ${SYSTEM_SRC}
+    ${FIBSYS_SRC}
+    ${SPIRALE_SRC}
 )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
     -DUSE_HAL_DRIVER
     -DARM_MATH_CM4
-    #-DSTM32F303xC
     -DSTM32F303xE
+    #-DSTM32F303xC
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE 
 
     # Fibration Framework
+    ${ROOT}/System/
     ${ROOT}/System/Config/
     ${ROOT}/System/Core/
     ${ROOT}/System/Utilities/
-    ${ROOT}/System/Components/
-    ${ROOT}/System/
     ${ROOT}/System/Streams/Interfaces/
     ${ROOT}/System/Streams/
     ${ROOT}/System/Peripherals/Interfaces/
     ${ROOT}/System/Peripherals/STM32F303R/
     ${ROOT}/System/Peripherals/
+    ${ROOT}/System/Components/
 
     # Real-Time Operating System
+    ${ROOT}/Libraries/min/target/
     ${ROOT}/Libraries/FreeRTOS/Source/include/
     ${ROOT}/Libraries/freertos-addons/c++/Source/include/
     ${ROOT}/Libraries/FreeRTOS/Source/portable/GCC/ARM_CM4F/
