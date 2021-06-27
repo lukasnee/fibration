@@ -1,4 +1,4 @@
- 
+
 /*
     defines the required interface for ADC implementation 
 */
@@ -9,7 +9,7 @@
 class AdcIF
 {
 public:
-    bool getValue(std::uint32_t channelNo, float &value)
+    bool getValue(std::size_t channelNo, float &value)
     {
         this->txBinarySemaphore.Take();
         bool retval = false;
@@ -28,13 +28,18 @@ public:
     AdcIF() : txBinarySemaphore(true){};
     ~AdcIF(){};
 
-    virtual std::uint32_t getBitDepth() = 0;
     virtual std::uint32_t getChannelsTotal() = 0;
+    virtual std::uint32_t getBitDepth() = 0;
+    virtual std::uint32_t getFrameBitWidth() = 0;
+
     virtual bool init() = 0;
     virtual bool deinit() = 0;
 
+    virtual bool start() = 0;
+    virtual bool stop() = 0;
+
 protected:
-    virtual bool getValueUnsafe(std::uint32_t channelNo, float &value) = 0;
+    virtual bool getValueUnsafe(std::size_t channelNo, float &value) = 0;
 
 private:
     cpp_freertos::BinarySemaphore txBinarySemaphore;
