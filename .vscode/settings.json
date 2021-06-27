@@ -57,8 +57,9 @@
     "cstring": "cpp",
     "list": "cpp",
     "iostream": "cpp",
-    "map": "cpp"
-  },
+    "map": "cpp",
+    "cinttypes": "cpp"
+},
   "cmake.configureOnOpen": true,
   "C_Cpp.errorSquiggles": "Enabled",
   "python.pythonPath": "/usr/bin/python3"
