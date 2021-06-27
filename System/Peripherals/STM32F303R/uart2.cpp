@@ -141,7 +141,7 @@ bool Uart2::txUnsafe(const std::uint8_t *pData, std::uint16_t size)
     bool retval = false;
 
     HAL_UART_StateTypeDef status = HAL_UART_GetState(&huart2);
-    if ((status == HAL_UART_STATE_READY | HAL_UART_STATE_BUSY_RX) || status == HAL_UART_STATE_READY)
+    if ((status == (HAL_UART_STATE_READY | HAL_UART_STATE_BUSY_RX)) || status == HAL_UART_STATE_READY)
     {
         if (HAL_UART_Transmit_DMA(&huart2, const_cast<std::uint8_t *>(pData), size) == HAL_OK)
         {
@@ -157,7 +157,7 @@ bool Uart2::rxUnsafe(std::uint8_t *pData, std::uint16_t size)
     bool retval = false;
 
     HAL_UART_StateTypeDef status = HAL_UART_GetState(&huart2);
-    if ((status == HAL_UART_STATE_READY | HAL_UART_STATE_BUSY_TX) || status == HAL_UART_STATE_READY)
+    if ((status == (HAL_UART_STATE_READY | HAL_UART_STATE_BUSY_TX)) || status == HAL_UART_STATE_READY)
     {
         if (HAL_UART_Receive_DMA(&huart2, pData, size) == HAL_OK)
         {
