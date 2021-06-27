@@ -2,7 +2,7 @@ extern "C" {
 #include "stm32f3xx_hal.h"
 }
 
-#include "peripherals.hpp"
+#include "resources.hpp"
 
 extern I2S_HandleTypeDef hi2s2;
 

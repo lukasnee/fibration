@@ -1,5 +1,5 @@
 #include "system.hpp"
-#include "peripherals.hpp"
+#include "resources.hpp"
 #include "logger.hpp"
 #include "uartStream.hpp"
 #include "shell.hpp"

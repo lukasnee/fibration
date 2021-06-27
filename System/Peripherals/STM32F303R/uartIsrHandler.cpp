@@ -2,7 +2,7 @@ extern "C"
 {
 #include "stm32f3xx_hal.h"
 }
-#include "peripherals.hpp"
+#include "resources.hpp"
 
 extern UART_HandleTypeDef huart2;
 extern UART_HandleTypeDef huart3;
