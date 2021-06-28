@@ -21,42 +21,33 @@ set(STM32F3xx_CORE_SRC
 )
 
 set(STM32F3xx_HAL_SRC # (Hardware Abstraction Layer)
-    ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal.c
-    ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_cortex.c
-    ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_exti.c
-    ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_gpio.c
-    ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_pwr.c
-    ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_pwr_ex.c
-    ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc.c
-    ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc_ex.c
-    ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.c
-    ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim_ex.c
-    ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.c
-    ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart_ex.c
-    ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_dma.c
-    ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_i2s.c
-    ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_i2s_ex.c
-    ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_adc.c
-    ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_adc_ex.c
-)
-
-set(ARM_CMSIS_DSP_SRC
-    ${ROOT}/System/MSP/CMSIS/DSP_Lib/Source/CommonTables/arm_common_tables.c
-    ${ROOT}/System/MSP/CMSIS/DSP_Lib/Source/CommonTables/arm_const_structs.c
-    ${ROOT}/System/MSP/CMSIS/DSP_Lib/Source/FastMathFunctions/arm_sin_f32.c
-    ${ROOT}/System/MSP/CMSIS/DSP_Lib/Source/FastMathFunctions/arm_sin_f32.c
+    ${ROOT}/System/MSP/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal.c
+    ${ROOT}/System/MSP/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_cortex.c
+    ${ROOT}/System/MSP/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_exti.c
+    ${ROOT}/System/MSP/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_gpio.c
+    ${ROOT}/System/MSP/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_pwr.c
+    ${ROOT}/System/MSP/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_pwr_ex.c
+    ${ROOT}/System/MSP/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc.c
+    ${ROOT}/System/MSP/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc_ex.c
+    ${ROOT}/System/MSP/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.c
+    ${ROOT}/System/MSP/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim_ex.c
+    ${ROOT}/System/MSP/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.c
+    ${ROOT}/System/MSP/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart_ex.c
+    ${ROOT}/System/MSP/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_dma.c
+    ${ROOT}/System/MSP/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_i2s.c
+    ${ROOT}/System/MSP/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_i2s_ex.c
+    ${ROOT}/System/MSP/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_adc.c
+    ${ROOT}/System/MSP/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_adc_ex.c
 )
 
 set(STM32F3_MSP_SRC # (MCU Support Package)
     ${STM32F3xx_CORE_SRC}
     ${STM32F3xx_HAL_SRC}
-    ${ARM_CMSIS_DSP_SRC}
 )
 
 
 set(STM32F303RC_CORE_SRC
     ${ROOT}/System/MSP/startup_stm32f303cbtx.s
-    ${ROOT}/System/MSP/CMSIS/Device/ST/STM32F3xx/Include/stm32f303xc.h
 )
 
 set(STM32F303CE_MSP_SRC 
@@ -67,7 +58,6 @@ set(STM32F303CE_MSP_SRC
 
 set(STM32F303R_CORE_SRC
     ${ROOT}/System/MSP/startup_stm32f303retx.s
-    ${ROOT}/System/MSP/CMSIS/Device/ST/STM32F3xx/Include/stm32f303xe.h
 )
 
 set(STM32F303RE_MSP_SRC 
@@ -77,28 +67,28 @@ set(STM32F303RE_MSP_SRC
 
 
 set(FREERTOS_BARE_SRC
-    ${ROOT}/Libraries/FreeRTOS/Source/croutine.c
-    ${ROOT}/Libraries/FreeRTOS/Source/event_groups.c
-    ${ROOT}/Libraries/FreeRTOS/Source/list.c
-    ${ROOT}/Libraries/FreeRTOS/Source/queue.c
-    ${ROOT}/Libraries/FreeRTOS/Source/stream_buffer.c
-    ${ROOT}/Libraries/FreeRTOS/Source/tasks.c
-    ${ROOT}/Libraries/FreeRTOS/Source/timers.c
-    ${ROOT}/Libraries/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c
-    ${ROOT}/Libraries/FreeRTOS/Source/portable/MemMang/heap_4.c
+    ${ROOT}/System/MSP/FreeRTOS-Kernel/croutine.c
+    ${ROOT}/System/MSP/FreeRTOS-Kernel/event_groups.c
+    ${ROOT}/System/MSP/FreeRTOS-Kernel/list.c
+    ${ROOT}/System/MSP/FreeRTOS-Kernel/queue.c
+    ${ROOT}/System/MSP/FreeRTOS-Kernel/stream_buffer.c
+    ${ROOT}/System/MSP/FreeRTOS-Kernel/tasks.c
+    ${ROOT}/System/MSP/FreeRTOS-Kernel/timers.c
+    ${ROOT}/System/MSP/FreeRTOS-Kernel/portable/GCC/ARM_CM4F/port.c
+    ${ROOT}/System/MSP/FreeRTOS-Kernel/portable/MemMang/heap_4.c
 )
 
 set(FREERTOS_SRC
     # freertos-addons submodule (FreeRTOS C++ wrapper and more)
-    ${ROOT}/Libraries/freertos-addons/c++/Source/cmutex.cpp
-    ${ROOT}/Libraries/freertos-addons/c++/Source/cqueue.cpp
-    ${ROOT}/Libraries/freertos-addons/c++/Source/cread_write_lock.cpp
-    ${ROOT}/Libraries/freertos-addons/c++/Source/csemaphore.cpp
-    ${ROOT}/Libraries/freertos-addons/c++/Source/ctasklet.cpp
-    ${ROOT}/Libraries/freertos-addons/c++/Source/cthread.cpp
-    ${ROOT}/Libraries/freertos-addons/c++/Source/ctimer.cpp
-    ${ROOT}/Libraries/freertos-addons/c++/Source/ctickhook.cpp
-    ${ROOT}/Libraries/freertos-addons/c++/Source/cworkqueue.cpp
+    ${ROOT}/System/MSP/freertos-addons/c++/Source/cmutex.cpp
+    ${ROOT}/System/MSP/freertos-addons/c++/Source/cqueue.cpp
+    ${ROOT}/System/MSP/freertos-addons/c++/Source/cread_write_lock.cpp
+    ${ROOT}/System/MSP/freertos-addons/c++/Source/csemaphore.cpp
+    ${ROOT}/System/MSP/freertos-addons/c++/Source/ctasklet.cpp
+    ${ROOT}/System/MSP/freertos-addons/c++/Source/cthread.cpp
+    ${ROOT}/System/MSP/freertos-addons/c++/Source/ctimer.cpp
+    ${ROOT}/System/MSP/freertos-addons/c++/Source/ctickhook.cpp
+    ${ROOT}/System/MSP/freertos-addons/c++/Source/cworkqueue.cpp
     ${FREERTOS_BARE_SRC}
 )
 
@@ -168,6 +158,7 @@ set(FIBSYS_SRC
 
     ${FREERTOS_SRC}
     ${STM32F303RE_MSP_SRC}
+    # ${STM32F303CE_MSP_SRC}
 )
 
 # TODO: all above should roughly be distributed to other subdir cmakelists
@@ -184,6 +175,7 @@ add_executable(${PROJECT_NAME}
 target_compile_definitions(${PROJECT_NAME} PRIVATE
     -DUSE_HAL_DRIVER
     -DARM_MATH_CM4
+    # -D__FPU_PRESENT=1
     -DSTM32F303xE
     #-DSTM32F303xC
 )
@@ -203,16 +195,18 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${ROOT}/System/Components/
 
     # Real-Time Operating System
-    ${ROOT}/Libraries/min/target/
-    ${ROOT}/Libraries/FreeRTOS/Source/include/
-    ${ROOT}/Libraries/freertos-addons/c++/Source/include/
-    ${ROOT}/Libraries/FreeRTOS/Source/portable/GCC/ARM_CM4F/
+    ${ROOT}/System/MSP/FreeRTOS-Kernel/include/
+    ${ROOT}/System/MSP/FreeRTOS-Kernel/portable/GCC/ARM_CM4F/
+    ${ROOT}/System/MSP/freertos-addons/c++/Source/include/
     
     # MCU Support Package
     ${ROOT}/System/MSP
-    ${ROOT}/System/MSP/CMSIS/Include
-    ${ROOT}/System/MSP/STM32F3xx_HAL_Driver/Inc
-    ${ROOT}/System/MSP/CMSIS/Device/ST/STM32F3xx/Include
+
+    # STM32F3 support
+    ${ROOT}/System/MSP/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Inc
+    ${ROOT}/System/MSP/STM32CubeF3/Drivers/CMSIS/Include
+    ${ROOT}/System/MSP/STM32CubeF3/Drivers/CMSIS/DSP/Include/
+    ${ROOT}/System/MSP/STM32CubeF3/Drivers/CMSIS/Device/ST/STM32F3xx/Include
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE
@@ -220,6 +214,7 @@ target_compile_options(${PROJECT_NAME} PRIVATE
     -mthumb
     -mfpu=fpv4-sp-d16
     -mfloat-abi=hard
+    -fsingle-precision-constant 
 
     -specs=nano.specs
     -fstack-usage
@@ -258,28 +253,29 @@ target_link_options(${PROJECT_NAME} PRIVATE
     -mthumb
     -mfpu=fpv4-sp-d16
     -mfloat-abi=hard
+    -fsingle-precision-constant
+
     -u _printf_float # enables floating point in printf
     
-    -L${ROOT}/System/MSP/CMSIS/Lib
-    -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -larm_cortexM4lf_math -Wl,--end-group
+    -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
     -specs=nosys.specs
     -specs=nano.specs
     -static
     -Wl,--gc-sections
 
-    -Wl,-Map=${PROJECT_NAME}.map,--cref
+    -Wl,-Map=${PROJECT_NAME}.map
+    -Wl,--cref
     -Wl,--print-memory-usage
 )
 
-# Print executable size
-add_custom_command(TARGET ${PROJECT_NAME}
-    POST_BUILD
-    COMMAND arm-none-eabi-size ${PROJECT_NAME}
+target_link_libraries(${PROJECT_NAME}
+    ${ROOT}/System/MSP/STM32CubeF3/Drivers/CMSIS/Lib/GCC/libarm_cortexM4lf_math.a
 )
 
-# Create hex file
+# Create hex file and print executable size
 add_custom_command(TARGET ${PROJECT_NAME}
     POST_BUILD
     COMMAND arm-none-eabi-objcopy -O ihex ${PROJECT_NAME} ${PROJECT_NAME}.hex
     COMMAND arm-none-eabi-objcopy -O binary ${PROJECT_NAME} ${PROJECT_NAME}.bin
+    COMMAND arm-none-eabi-size ${PROJECT_NAME}
 )
