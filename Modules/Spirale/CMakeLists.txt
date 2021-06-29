@@ -140,8 +140,6 @@ set(FIBSYS_COMPONENTS_SRC
     ${ROOT}/System/Components/shell.hpp
     ${ROOT}/System/Components/logger.cpp
     ${ROOT}/System/Components/logger.hpp
-    ${ROOT}/System/Components/minCom.hpp
-    ${ROOT}/System/Components/minCom.cpp
 )
 
 #TODO: maybe move system libraries to System/ dir. 
@@ -152,9 +150,6 @@ set(FIBSYS_SRC
     ${FIBSYS_PERIPHERALS_SRC}
     ${FIBSYS_STREAMS_SRC}
     ${FIBSYS_COMPONENTS_SRC}
-
-    ${ROOT}/Libraries/min/target/min.c
-    ${ROOT}/System/Services/fibcom.cpp
 
     ${FREERTOS_SRC}
     ${STM32F303RE_MSP_SRC}

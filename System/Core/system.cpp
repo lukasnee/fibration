@@ -3,7 +3,6 @@
 #include "logger.hpp"
 #include "uartStream.hpp"
 #include "shell.hpp"
-#include "minCom.hpp"
 
 #include "ticks.hpp"
 #include "timer.hpp"
@@ -158,18 +157,21 @@ FibSys::FibSys(std::uint16_t stackDepth, BaseType_t priority) : Thread("FibSys",
 //FibSys thread
 void FibSys::Run()
 {
+    static UartStream uart2Stream(Periph::getUart2(),
+                                  "uart2streamTx", 0x100, FibSys::getSysAvgPriority(), 0x20,
+                                  "uart2streamRx", 0x100, FibSys::getSysAvgPriority(), 0x100);
+
+    static TextStream uart2TextStream(uart2Stream);
+    Shell::start(uart2TextStream, 0x200, FibSys::getAppMaxPriority());
+
+    // TODO: use the same console uart2 for commands and logging
     static UartStream uart3Stream(Periph::getUart3(),
-                                  "uart3streamTx", 0x200, FibSys::getSysAvgPriority(), 0x20,
-                                  "uart3streamRx", 0x200, FibSys::getSysAvgPriority(), 0x100);
+                                  "uart3streamTx", 0x100, FibSys::getSysAvgPriority(), 0x20,
+                                  "uart3streamRx", 0x100, FibSys::getSysAvgPriority(), 0x100);
     if (false == Logger::setDataStream(uart3Stream))
     {
         FibSys::panic();
     }
-    static UartService uart3Service(Periph::getUart3(), "log", 0x200, FibSys::getAppMaxPriority());
-    Logger::setUartService(uart3Service);
-    static UartStream uart2Stream(Periph::getUart2());
-    // Shell::start(uartStreamForShell, 0x200, FibSys::getAppMaxPriority());
-    MinCom::getInstance().init(uart2Stream, 1);
 
     while (true)
     {
@@ -177,6 +179,5 @@ void FibSys::Run()
         // this->collectStats();
 
         Delay(cpp_freertos::Ticks::MsToTicks(1000));
-        MinCom::getInstance().sendQueueFrame(reinterpret_cast<const uint8_t *>("Hello World!\n"), 13);
     }
 }
