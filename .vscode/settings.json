@@ -58,7 +58,9 @@
     "list": "cpp",
     "iostream": "cpp",
     "map": "cpp",
-    "cinttypes": "cpp"
+    "cinttypes": "cpp",
+    "arm_math.h": "c",
+    "core_cm4.h": "c"
 },
   "cmake.configureOnOpen": true,
   "C_Cpp.errorSquiggles": "Enabled",

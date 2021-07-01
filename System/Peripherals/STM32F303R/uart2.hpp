@@ -9,8 +9,9 @@ public:
     Uart2(std::uint32_t baudrate = 115200);
     ~Uart2();
 
-    bool init() override;
-    bool deinit() override;
+protected:
+    bool initUnsafe() override;
+    bool deinitUnsafe() override;
     bool txUnsafe(const std::uint8_t *pData, std::uint16_t size) override;
     bool rxUnsafe(std::uint8_t *pData, std::uint16_t size) override;
 

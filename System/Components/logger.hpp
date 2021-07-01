@@ -34,7 +34,7 @@ public:
     /* if log message turns out to be longer than this (@run-time), error will be printed out */
     static constexpr std::size_t maxLogStringLength = 1024;
     /* logger can be disabled here at @compile-time (hopefully optimized out @compile-time) */
-    static constexpr bool isEnabled = true;
+    static constexpr bool isEnabledCompileTime = true;
     /* lower verbosity level log entries will be optimized out @compile-time */
     static constexpr Verbosity verbosityFloor = Verbosity::low;
 
@@ -43,6 +43,7 @@ public:
     static void setColoring(bool state);
     static bool isActive();
 
+    static void setEnable(bool state);
     // USAGE (note: user is responsible for putting '\n' end line)
     static bool log(const Verbosity &verbosity, const Type &type, const std::string_view fmt, ...);
     static bool log(const Verbosity &verbosity, const Type &type, const std::string_view fmt, const va_list &arglist);
@@ -70,4 +71,5 @@ private:
     bool logColored = true;
 
     DataStreamIF *pDataStream = nullptr;
+    bool isEnabled = true;
 };

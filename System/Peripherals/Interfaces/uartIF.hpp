@@ -40,6 +40,49 @@ public:
         return retval;
     }
 
+    bool init()
+    {
+        bool result = false;
+
+        if (this->isInitialized)
+        {
+            result = true;
+        }
+        else
+        {
+            result = this->initUnsafe();
+
+            if (result)
+            {
+                this->isInitialized = true;
+            }
+        }
+
+        return result;
+    }
+    
+    bool deinit()
+    {
+        bool result = false;
+
+        if (this->isInitialized)
+        {
+            result = this->deinitUnsafe();
+
+            if (result)
+            {
+                this->isInitialized = false;
+            }
+        }
+        else
+        {
+            result = true;
+        }
+
+        return result;
+    }
+    
+
     bool rx(std::uint8_t *pData, std::uint16_t size, RxIsrCallbacks *pRxIsrCallbacks = nullptr)
     {
         bool retval = false;
@@ -80,10 +123,10 @@ public:
         portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
     }
 
-    virtual bool init() = 0;
-    virtual bool deinit() = 0;
-
 protected:
+    virtual bool initUnsafe() = 0;
+    virtual bool deinitUnsafe() = 0;
+
     virtual bool txUnsafe(const std::uint8_t *pData, std::uint16_t size) = 0;
     virtual bool rxUnsafe(std::uint8_t *pData, std::uint16_t size) = 0;
 
@@ -92,4 +135,5 @@ private:
     cpp_freertos::BinarySemaphore rxBinarySemaphore;
     TxIsrCallbacks *pTxIsrCallbacks;
     RxIsrCallbacks *pRxIsrCallbacks;
+    bool isInitialized = false;
 };

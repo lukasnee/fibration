@@ -31,7 +31,7 @@ Uart2::~Uart2()
 {
 }
 
-bool Uart2::init()
+bool Uart2::initUnsafe()
 {
     // setup UART IRQ
     __HAL_RCC_USART2_CLK_ENABLE();
@@ -106,7 +106,7 @@ bool Uart2::init()
     return (HAL_UART_Init(&huart2) == HAL_OK);
 }
 
-bool Uart2::deinit()
+bool Uart2::deinitUnsafe()
 {
 
     if (HAL_UART_DeInit(&huart2) == HAL_OK)
