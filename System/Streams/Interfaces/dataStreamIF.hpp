@@ -40,12 +40,32 @@ protected:
 
     bool init()
     {
-        return this->Start();
+        bool result = false;
+
+        if (this->isStarted)
+        {
+            result = true;
+        }
+        else
+        {
+            result = this->Start();
+
+            if (result)
+            {
+                this->isStarted = true;
+            }
+        }
+
+        return result;
     }
 
     void deinit()
     {
-        this->Suspend();
+        if (this->isStarted)
+        {
+            this->Suspend();
+            this->isStarted = false;
+        }
     }
 
 private:
@@ -82,6 +102,7 @@ private:
     }
 
     cpp_freertos::Queue txQueue;
+    bool isStarted = false;
 };
 
 class RxStream : public cpp_freertos::Thread
@@ -111,12 +132,32 @@ protected:
 
     bool init()
     {
-        return this->Start();
+        bool result = false;
+
+        if (this->isStarted)
+        {
+            result = true;
+        }
+        else
+        {
+            result = this->Start();
+
+            if (result)
+            {
+                this->isStarted = true;
+            }
+        }
+
+        return result;
     }
 
     void deinit()
     {
-        this->Suspend();
+        if (this->isStarted)
+        {
+            this->Suspend();
+            this->isStarted = false;
+        }
     }
 
 private:
@@ -138,6 +179,7 @@ private:
     }
 
     cpp_freertos::Queue rxQueue;
+    bool isStarted = false;
 };
 
 class DataStreamIF : public TxStream, public RxStream

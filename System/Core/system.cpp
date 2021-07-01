@@ -165,10 +165,10 @@ void FibSys::Run()
     Shell::start(uart2TextStream, 0x200, FibSys::getAppMaxPriority());
 
     // TODO: use the same console uart2 for commands and logging
-    static UartStream uart3Stream(Periph::getUart3(),
-                                  "uart3streamTx", 0x100, FibSys::getSysAvgPriority(), 0x20,
-                                  "uart3streamRx", 0x100, FibSys::getSysAvgPriority(), 0x100);
-    if (false == Logger::setDataStream(uart3Stream))
+    // static UartStream uart3Stream(Periph::getUart3(),
+    //                               "uart3streamTx", 0x100, FibSys::getSysAvgPriority(), 0x20,
+    //                               "uart3streamRx", 0x100, FibSys::getSysAvgPriority(), 0x100);
+    if (false == Logger::setDataStream(uart2Stream))
     {
         FibSys::panic();
     }

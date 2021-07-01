@@ -29,7 +29,7 @@ Uart3::Uart3(std::uint32_t baudrate) : baudrate(baudrate) {}
 
 Uart3::~Uart3() {}
 
-bool Uart3::init()
+bool Uart3::initUnsafe()
 {
     bool result = false;
 
@@ -106,7 +106,7 @@ bool Uart3::init()
     return result;
 }
 
-bool Uart3::deinit()
+bool Uart3::deinitUnsafe()
 {
     if (HAL_UART_DeInit(&huart3) != HAL_OK)
     {

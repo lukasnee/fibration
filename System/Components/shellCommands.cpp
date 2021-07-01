@@ -34,9 +34,11 @@ int shellCmdClear(Shell &shell, int argc, char *argv[])
 
 int shellCmdHelp(Shell &shell, int argc, char *argv[])
 {
-    static int i = 0;
-    shell.printf("Hello World! %d\n", i++);
-    return -2;
+        for (auto &cmd : Shell::shellCmds)
+        {
+            shell.printf("%s - %s\n", cmd.name, cmd.help);
+        }
+        return 0;
 }
 
 int shellCmdStatus(Shell &shell, int argc, char *argv[])
@@ -47,9 +49,9 @@ int shellCmdStatus(Shell &shell, int argc, char *argv[])
     shell.printf(/*"initialFreeHeapSize:%lu\n\r"
                  "       freeHeapSize:%lu\n\r"
                  "    minFreeHeapSize:%lu\n\r"*/
-                 "uptime: %lu s\n\r"
-                 "RunTimeStatsCntVal:%lu\n\r"
-                 "Task\t\ttime,.1ms\ttime,%%\n\r%s",
+                 "uptime: %lu s\n"
+                 "RunTimeStatsCntVal:%lu\n"
+                 "Task\t\ttime,.1ms\ttime,%%\n%s",
                  /*initialFreeHeapSize,
                  freeHeapSize,
                  minFreeHeapSize,*/
@@ -66,40 +68,40 @@ int shellPanic(Shell &shell, int argc, char *argv[])
     return 0;
 }
 
-
-int shellStereo(Shell &shell, int argc, char *argv[])
+int shellCmdLogToggle(Shell &shell, int argc, char *argv[])
 {
+    int result = -1;
 
-    return 0;
+    if (argc == 2)
+    {
+        if (!std::strcmp(argv[1], "on"))
+        {
+            Logger::setEnable(true);
+            result = 0;
+}
+        else if (!std::strcmp(argv[1], "off"))
+        {
+
+            Logger::setEnable(false);
+            result = 0;
+        }
+        else
+{
+            shell.printf("bad arg\n");
+        }
+    }
+    else
+    {
+        shell.printf("no arg\n");
+    }
 }
 
 const std::array<Shell::Command, 6> Shell::shellCmds{{
-    {"echo", "echos typed content", shellCmdEcho},
-    {"clear", "clear screen", shellCmdClear},
     {"help", "Lists all commands", shellCmdHelp},
-    {"status", "show system status", shellCmdStatus},
-    {"panic", "cause system panic", shellPanic},
-    {"stereo", "start i2s2 <0/1>", shellStereo},
+    {"echo", "echos typed content", shellCmdEcho},
+    {"panic", "cause system panic", shellCmdPanic},
+    {"c", "clear screen", shellCmdClear},
+    {"s", "show system status", shellCmdStatus},
+    {"p", "cause system panic", shellCmdPanic},
+    {"l", "<on|off>", shellCmdLogToggle},
 }};
-
-// #include <array>
-// #include <string_view>
-// #include <stdexcept>
-// #include <algorithm>
-
-// template <typename Key, typename Value, std::size_t Size>
-// struct Map {
-//   std::array<std::pair<Key, Value>, Size> data;
-
-//   [[nodiscard]] constexpr Value at(const Key &key) const {
-//     const auto itr =
-//         std::find_if(begin(data), end(data),
-//                      [&key](const auto &v) { return v.first == key; });
-//     if (itr != end(data)) {
-//       return itr->second;
-//     } else {
-//       throw std::range_error("Not Found");
-//     }
-//   }
-
-// };

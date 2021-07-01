@@ -28,7 +28,12 @@ void Logger::setColoring(bool state)
 
 bool Logger::isActive()
 {
-    return (Logger::isEnabled && Logger::getInstance().pDataStream);
+    return (Logger::isEnabledCompileTime && Logger::getInstance().isEnabled && Logger::getInstance().pDataStream);
+}
+
+void Logger::setEnable(bool state)
+{
+    Logger::getInstance().isEnabled = state;
 }
 
 bool Logger::log(const std::string_view fmt, ...)
