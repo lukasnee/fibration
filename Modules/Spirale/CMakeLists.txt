@@ -127,7 +127,7 @@ set(FIBSYS_STREAMS_SRC
     # Streams Interfaces shaping interaction of whats above to whats below
     ${ROOT}/System/Streams/Interfaces/dataStreamIF.hpp
     ${ROOT}/System/Streams/Interfaces/duplexStereoStreamIF.cpp
-    ${ROOT}/System/Streams/Interfaces/textStreamIF.cpp
+    ${ROOT}/System/Streams/Interfaces/asciiStreamIF.cpp
     
     # Streams Implementations - making use of peripherals efficiently
     ${ROOT}/System/Streams/i2sDuplexStream.cpp

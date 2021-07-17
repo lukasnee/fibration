@@ -1,34 +1,34 @@
-#include "textStreamIF.hpp"
+#include "asciiStreamIF.hpp"
 #include <cstring>
 
-TextStream::TextStream(DataStreamIF &dataStream) : dataStream(dataStream) {}
+AsciiStream::AsciiStream(DataStreamIF &dataStream) : dataStream(dataStream) {}
 
-bool TextStream::init()
+bool AsciiStream::init()
 {
     return this->dataStream.init();
 }
 
-void TextStream::deinit()
+void AsciiStream::deinit()
 {
     this->dataStream.deinit(); // NOTE: result ignored
 }
 
-void TextStream::putChar(const char &c, TickType_t timeout)
+void AsciiStream::putChar(const char &c, TickType_t timeout)
 {
     this->dataStream.push(reinterpret_cast<const std::uint8_t *>(&c), 1, timeout);
 }
 
-void TextStream::puts(const char *s, uint16_t len, TickType_t timeout)
+void AsciiStream::puts(const char *s, uint16_t len, TickType_t timeout)
 {
     this->dataStream.push(reinterpret_cast<const std::uint8_t *>(s), len, timeout);
 }
 
-void TextStream::puts(const char *s, TickType_t timeout)
+void AsciiStream::puts(const char *s, TickType_t timeout)
 {
     puts(s, std::strlen(s), timeout);
 }
 
-char TextStream::getc(TickType_t timeout)
+char AsciiStream::getc(TickType_t timeout)
 {
     char c;
     this->dataStream.pull(reinterpret_cast<std::uint8_t&>(c), timeout);

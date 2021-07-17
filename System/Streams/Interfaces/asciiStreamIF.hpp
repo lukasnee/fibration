@@ -4,10 +4,10 @@
 #include "thread.hpp"
 //#include <optional>
 
-class TextStream
+class AsciiStream
 {
 public:
-    TextStream(DataStreamIF &dataStream);
+    AsciiStream(DataStreamIF &dataStream);
 
     bool init();
     void deinit();
@@ -18,7 +18,6 @@ public:
 
     char getc(TickType_t timeout = portMAX_DELAY);
 
-protected:
 private:
     DataStreamIF &dataStream;
 };
