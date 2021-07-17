@@ -16,7 +16,7 @@ public:
         std::uint32_t right; // 24-bit value in 32-bit frame
     };
 
-    static constexpr std::size_t stereoBufferSize = 0x40;
+    static constexpr std::size_t stereoBufferSize = 0x20; // TODO experiment on this one
     using Buffer = std::array<StereoSample, stereoBufferSize>;
     using CircularBuffer = std::array<Buffer, 2>;
 

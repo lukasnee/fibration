@@ -13,9 +13,9 @@ void TextStream::deinit()
     this->dataStream.deinit(); // NOTE: result ignored
 }
 
-void TextStream::putc(char c, TickType_t timeout)
+void TextStream::putChar(const char &c, TickType_t timeout)
 {
-    this->dataStream.push(reinterpret_cast<std::uint8_t *>(&c), 1, timeout);
+    this->dataStream.push(reinterpret_cast<const std::uint8_t *>(&c), 1, timeout);
 }
 
 void TextStream::puts(const char *s, uint16_t len, TickType_t timeout)
