@@ -161,8 +161,7 @@ void FibSys::Run()
                                   "uart2streamTx", 0x100, FibSys::getSysAvgPriority(), 0x20,
                                   "uart2streamRx", 0x100, FibSys::getSysAvgPriority(), 0x100);
 
-    static TextStream uart2TextStream(uart2Stream);
-    Shell::start(uart2TextStream, 0x200, FibSys::getAppMaxPriority());
+    static AsciiStream uart2TextStream(uart2Stream);
 
     // TODO: use the same console uart2 for commands and logging
     // static UartStream uart3Stream(Periph::getUart3(),
