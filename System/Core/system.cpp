@@ -117,7 +117,8 @@ void FibSys::getUptime(std::uint32_t &hours, std::uint32_t &minutes, std::uint32
 
 void FibSys::panic()
 {
-    Logger::log("\r\n\nsystem panic!\r\n\n"sv); // TODO does not work?!
+    Logger::log("\n\nsystem panic !\n"
+    "SysTick: %lu\n\n"sv, FibSys::getSysTick()); // TODO does not work?!
     vTaskDelay(cpp_freertos::Ticks::MsToTicks(1000));
     vTaskSuspendAll();
     taskDISABLE_INTERRUPTS();
@@ -130,7 +131,7 @@ void FibSys::boot()
 {
     initPlatform();
     // init system task
-    static FibSys fibSys(0x200, getSysMaxPriority());
+    static FibSys fibSys(0x200, FibSys::Priority::highest);
     // start task scheduler
     vTaskStartScheduler();
 }
@@ -158,15 +159,16 @@ FibSys::FibSys(std::uint16_t stackDepth, BaseType_t priority) : Thread("FibSys",
 void FibSys::Run()
 {
     static UartStream uart2Stream(Periph::getUart2(),
-                                  "uart2streamTx", 0x100, FibSys::getSysAvgPriority(), 0x20,
-                                  "uart2streamRx", 0x100, FibSys::getSysAvgPriority(), 0x100);
+                                  "uart2streamTx", 0x100, FibSys::Priority::sysMedium, 0x20,
+                                  "uart2streamRx", 0x100, FibSys::Priority::sysMedium, 0x100);
 
     static AsciiStream uart2TextStream(uart2Stream);
-
+    Shell::start(uart2TextStream, 0x200, FibSys::Priority::appHigh);
+ 
     // TODO: use the same console uart2 for commands and logging
     // static UartStream uart3Stream(Periph::getUart3(),
-    //                               "uart3streamTx", 0x100, FibSys::getSysAvgPriority(), 0x20,
-    //                               "uart3streamRx", 0x100, FibSys::getSysAvgPriority(), 0x100);
+    //                               "uart3streamTx", 0x100, FibSys::Priority::sysMedium, 0x20,
+    //                               "uart3streamRx", 0x100, FibSys::Priority::sysMedium, 0x100);
     if (false == Logger::setDataStream(uart2Stream))
     {
         FibSys::panic();

@@ -45,6 +45,7 @@ Adc2 & Periph::getAdc2()
     return Adc2::getInstance();
 }
 
+// TODO: maybe join port and pin so it would be eg. `Gpio::C3`
 // TODO: cleanup, put this logic to lower level source file
 Gpio & Periph::getGpio(Gpio::Port port, Gpio::Pin pin)
 {

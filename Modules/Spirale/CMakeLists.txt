@@ -97,6 +97,9 @@ set(FIBSYS_CORE_SRC
     ${ROOT}/System/Core/main.cpp
     ${ROOT}/System/Core/memory.cpp
     ${ROOT}/System/Core/system.cpp
+    ${ROOT}/System/Core/systemCommands.cpp
+    ${ROOT}/System/Core/watchCommand.cpp
+)
 )
 
 set(FIBSYS_UTILITIES_SRC
@@ -135,11 +138,11 @@ set(FIBSYS_STREAMS_SRC
 )
 
 set(FIBSYS_COMPONENTS_SRC
-    ${ROOT}/System/Components/shellCommands.cpp
-    ${ROOT}/System/Components/shell.cpp
-    ${ROOT}/System/Components/shell.hpp
+    ${ROOT}/System/Components/Shell/shell.cpp
+    ${ROOT}/System/Components/Shell/input.cpp
+    ${ROOT}/System/Components/Shell/argVector.cpp
+    ${ROOT}/System/Components/Shell/argBuffer.cpp
     ${ROOT}/System/Components/logger.cpp
-    ${ROOT}/System/Components/logger.hpp
 )
 
 #TODO: maybe move system libraries to System/ dir. 
@@ -188,6 +191,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${ROOT}/System/Peripherals/STM32F303R/
     ${ROOT}/System/Peripherals/
     ${ROOT}/System/Components/
+    ${ROOT}/System/Components/Shell
 
     # Real-Time Operating System
     ${ROOT}/System/MSP/FreeRTOS-Kernel/include/
