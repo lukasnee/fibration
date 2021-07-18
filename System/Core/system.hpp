@@ -19,10 +19,30 @@ public:
     // should be called in case fatal error, could be used as run-time assert
     static void panic();
 
-    static constexpr BaseType_t getSysMaxPriority() { return configMAX_PRIORITIES - 1; }
-    static constexpr BaseType_t getSysAvgPriority() { return (getSysMaxPriority() / 2); }
-    static constexpr BaseType_t getAudioPriority() { return (getSysAvgPriority() + 1); }  // TODO: figure out what's better
-    static constexpr BaseType_t getAppMaxPriority() { return (getSysAvgPriority() - 1); } // TODO: figure out what's better
+    enum Priority : BaseType_t
+    {
+        lowest = 0,
+        veryLow = 1,
+        low = 2,
+        medium = 3,
+        high = 4,
+        veryHigh = 5,
+        highest = 6,
+
+// configuration
+        appLow = lowest,
+        appMedium = veryLow,
+        appHigh = low,
+        sysLow = medium,
+        sysMedium = high,
+        sysHigh = veryHigh,
+        audioStream = highest,
+
+        _enumSize
+    };
+
+    static_assert(Priority::_enumSize <= configMAX_PRIORITIES, "invalid priority configration!");
+
     //void collectStats();
     Stats stats;
 
