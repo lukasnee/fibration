@@ -17,6 +17,7 @@ public:
 
     ArgBuffer();
     ArgBuffer(std::size_t argc, const char **argv);
+    ArgBuffer(const char * argString);
 
     bool resolveIntoArgs();
 
