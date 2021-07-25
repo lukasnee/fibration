@@ -4,7 +4,9 @@
 #include "resources.hpp"
 #include "version.hpp"
 
-//TODO: command name sinonyms. for example: "help" and "h" could call the same command 
+#include <cstring>
+
+//TODO: command name sinonyms. for example: "help" and "h" could call the same command
 //TODO: arrow up to echo and execute last request
 
 Shell::Command *Shell::pCommandRoot = nullptr;
@@ -154,15 +156,42 @@ Shell::Command::Command(Command &parent, const char *name, const char *usage, co
     }
 }
 
+bool commaSeparatedStringCompare(const char *strCommaSeparatedTokens, const char *strToken)
+{
+    bool result = false;
+
+    const std::size_t strTokenLength = std::strlen(strToken);
+
+    const char *strThisToken = strCommaSeparatedTokens;
+    for (const char *strCharIt = strCommaSeparatedTokens; *strCharIt != '\0'; strCharIt++)
+    {
+        if (*strCharIt == ',' || *(strCharIt + 1) == '\0')
+        {
+            if (!std::strncmp(strThisToken, strToken, strTokenLength))
+            {
+                result = true;
+                break;
+            }
+            else
+            {
+                strThisToken = strCharIt + 1;
+            }
+        }
+    }
+
+    return result;
+}
+
 const Shell::Command *Shell::Command::findNeighbourCommand(const char *name) const
 {
     const Command *result = nullptr;
 
     for (const Command *pNext = this; pNext != nullptr; pNext = pNext->pNext)
     {
-        if (std::strcmp(pNext->name, name) == 0)
+        if (commaSeparatedStringCompare(pNext->name, name))
         {
             result = pNext;
+            break;
         }
     }
 
@@ -175,9 +204,10 @@ const Shell::Command *Shell::Command::findSubcommand(const char *name) const
 
     for (const Command *pNext = this->pSubcommands; pNext != nullptr; pNext = pNext->pNext)
     {
-        if (std::strcmp(pNext->name, name) == 0)
+        if (commaSeparatedStringCompare(pNext->name, name))
         {
             result = pNext;
+            break;
         }
     }
 
@@ -262,6 +292,12 @@ Shell::Command::Result Shell::execute(const Shell::Command &command, std::size_t
     }
 
     return result;
+}
+
+Shell::Command::Result Shell::execute(const Command &command, const char *argString, const char *outputColorEscapeSequence)
+{
+    ArgBuffer argBuffer(argString);
+    return this->execute(command, argBuffer.getArgc(), argBuffer.getArgv(), outputColorEscapeSequence);
 }
 
 Shell::Command::Result Shell::help(Shell &shell, const Shell::Command *pCommand, bool recurse, const std::size_t maxDepth, std::size_t depth, std::size_t indent)

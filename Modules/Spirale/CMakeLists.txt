@@ -97,8 +97,15 @@ set(FIBSYS_CORE_SRC
     ${ROOT}/System/Core/main.cpp
     ${ROOT}/System/Core/memory.cpp
     ${ROOT}/System/Core/system.cpp
-    ${ROOT}/System/Core/systemCommands.cpp
-    ${ROOT}/System/Core/watchCommand.cpp
+
+    ${ROOT}/System/Core/Commands/clear.cpp
+    ${ROOT}/System/Core/Commands/config.cpp
+    ${ROOT}/System/Core/Commands/echo.cpp
+    ${ROOT}/System/Core/Commands/hexdump.cpp
+    ${ROOT}/System/Core/Commands/panic.cpp
+    ${ROOT}/System/Core/Commands/reset.cpp
+    ${ROOT}/System/Core/Commands/status.cpp
+    ${ROOT}/System/Core/Commands/watch.cpp
 )
 )
 
