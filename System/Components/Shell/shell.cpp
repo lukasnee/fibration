@@ -4,6 +4,7 @@
 #include "resources.hpp"
 #include "version.hpp"
 
+//TODO: command name sinonyms. for example: "help" and "h" could call the same command 
 //TODO: arrow up to echo and execute last request
 
 Shell::Command *Shell::pCommandRoot = nullptr;
