@@ -87,32 +87,39 @@ bool ArgVector::printTo(char *pBufferOut, std::size_t bufferOutSize, const char 
 
             for (auto &arg : this->args)
             {
-                if (!cnt || arg == nullptr)
+                if (!cnt || arg == nullptr || bufferOutSizeLeft <= 0)
                 {
                     result = true;
                     break;
                 }
-
-                if (bufferOutSizeLeft <= 0)
+                else
                 {
-                    result = false;
-                    break;
-                }
-
-                int snprintfResult = snprintf(pBufferOutHead, bufferOutSizeLeft, fmt.data(), arg);
-                if (snprintfResult > 0)
-                {
-                    pBufferOutHead += snprintfResult;
-                    bufferOutSizeLeft -= snprintfResult;
-
-                    if (nullSeparated && bufferOutSizeLeft)
+                    int snprintfResult = snprintf(pBufferOutHead, bufferOutSizeLeft, arg);
+                    if (snprintfResult > 0)
                     {
-                        *pBufferOutHead = '\0';
-                        pBufferOutHead += sizeof('\0');
-                        bufferOutSizeLeft -= sizeof('\0');
+                        pBufferOutHead += snprintfResult;
+                        bufferOutSizeLeft -= snprintfResult;
+
+                        if (nullSeparated && bufferOutSizeLeft)
+                        {
+                            *pBufferOutHead = '\0';
+                            pBufferOutHead += sizeof('\0');
+                            bufferOutSizeLeft -= sizeof('\0');
+                        }
                     }
+
+                    if (cnt > 1)
+                    {
+                        int snprintfResult = snprintf(pBufferOutHead, bufferOutSizeLeft, delimiter);
+                        if (snprintfResult > 0)
+                        {
+                            pBufferOutHead += snprintfResult;
+                            bufferOutSizeLeft -= snprintfResult;
+                        }
+                    }
+
+                    cnt--;
                 }
-                cnt--;
             }
         }
     }

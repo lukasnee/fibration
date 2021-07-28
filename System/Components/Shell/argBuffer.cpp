@@ -3,9 +3,36 @@
 
 ArgBuffer::ArgBuffer() : ArgVector() {}
 
-ArgBuffer::ArgBuffer(std::size_t argc, const char **argv) : ArgVector(argc, argv)
+ArgBuffer::ArgBuffer(std::size_t argc, const char *argv[])
 {
-    this->printTo(this->buffer.data(), this->buffer.size(), "", true);
+    this->copyFrom(argc, argv);
+}
+
+bool ArgBuffer::copyFrom(std::size_t argc, const char *argv[])
+{
+    bool result = true;
+
+    this->count = 0;
+    this->args.fill(nullptr);
+    std::size_t bufferLeft = this->buffer.size();
+    for (const char **argvIt = argv; (*argvIt && argvIt < (argv + argc) && count < this->args.size()); argvIt++)
+    {
+        const auto strLength = std::strlen(*argvIt);
+        if (strLength < bufferLeft)
+        {
+            char *pArg = &this->buffer[this->buffer.size() - bufferLeft];
+            std::strncpy(pArg, *argvIt, bufferLeft);
+            bufferLeft -= strLength + sizeof('\0');
+            this->args[this->count++] = pArg;
+        }
+        else
+        {
+            result = false;
+            break;
+        }
+    }
+
+    return result;
 }
 
 ArgBuffer::ArgBuffer(const char *argString)
