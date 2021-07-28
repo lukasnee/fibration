@@ -16,9 +16,10 @@ public:
     using Buffer = std::array<char, Config::bufferSize>;
 
     ArgBuffer();
-    ArgBuffer(std::size_t argc, const char **argv);
+    ArgBuffer(std::size_t argc, const char *argv[]);
     ArgBuffer(const char * argString);
 
+    bool copyFrom(std::size_t argc, const char *argv[]);
     bool resolveIntoArgs();
 
 protected:

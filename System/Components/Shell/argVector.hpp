@@ -42,7 +42,6 @@ protected:
      */
     bool resolveStringToArgs(char *pString, std::size_t stringLength);
 
-private:
     std::size_t count = 0;
     std::array<const char *, Config::maxArgs> args{{nullptr}};
 };

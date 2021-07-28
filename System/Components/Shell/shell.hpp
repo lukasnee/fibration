@@ -81,7 +81,7 @@ public:
         friend Shell;
     };
 
-    static const Shell::Command *findCommand(std::size_t argcIn, const char *argvIn[], std::size_t &argcLeft, const char **&argvLeft);
+    static const Shell::Command *findCommand(std::size_t argcIn, const char *argvIn[], std::size_t &argCmdOffsetOut);
     static Command::Result help(Shell &shell, const Shell::Command *pCommand, bool recurse = false, const std::size_t maxDepth = 1, std::size_t depth = 0, std::size_t indent = 0);
     static Command helpCommand;
 

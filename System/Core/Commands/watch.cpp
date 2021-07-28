@@ -13,8 +13,13 @@
 class WatchThread : public cpp_freertos::Thread
 {
 public:
-    WatchThread(Shell &shell, std::size_t periodMs, const Shell::Command &command, std::size_t argc, const char **argv)
-        : Thread("watch", 1000, FibSys::Priority::appLow), pShell(&shell), periodMs(periodMs), pCommand(&command), argBuffer(argc, argv)
+    WatchThread(Shell &shell, std::size_t periodMs, const Shell::Command &command, std::size_t argc, const char **argv, std::size_t commandArgOffset)
+        : Thread("watch", 1000, FibSys::Priority::appLow),
+          pShell(&shell),
+          periodMs(periodMs),
+          pCommand(&command),
+          commandArgOffset(commandArgOffset),
+          argBuffer(argc, argv)
     {
     }
 
@@ -25,13 +30,13 @@ private:
         {
             if (this->pShell && this->pCommand)
             {
-                this->pShell->printf("watching \'");
-                Core::Commands::hexdumpCb(*this->pShell, reinterpret_cast<uint32_t>(&argBuffer), sizeof(argBuffer));
-                this->pShell->execute(Core::Commands::echo, argBuffer.getArgc(), argBuffer.getArgv());
-                
-                this->pShell->printf("\' every %lu ms\n\n", this->periodMs);
-
-                this->pShell->execute(*this->pCommand, this->argBuffer.getArgc(), this->argBuffer.getArgv(), "\e[36m");
+                std::array<char, 256> array;
+                this->argBuffer.printTo(array.data(), array.size(), " ");
+                this->pShell->printf("watching \'%s\' every %lu ms\n\n", array.data(), this->periodMs);
+                this->pShell->execute(*this->pCommand,
+                                      this->argBuffer.getArgc() - this->commandArgOffset,
+                                      this->argBuffer.getArgv() + this->commandArgOffset,
+                                      "\e[36m");
             }
             this->Delay(cpp_freertos::Ticks::MsToTicks(this->periodMs));
         }
@@ -40,6 +45,7 @@ private:
     Shell *pShell = nullptr;
     std::size_t periodMs;
     const Shell::Command *pCommand;
+    std::size_t commandArgOffset;
     ArgBuffer argBuffer;
 };
 
@@ -56,15 +62,24 @@ namespace Core::Commands
 
             if (argc > 2)
             {
-                std::size_t argcLeft;
-                const char **argvLeft;
-                const Shell::Command *pCommand = shell.findCommand(argc - 2, &argv[2], argcLeft, argvLeft);
+                constexpr std::size_t watchCmdArgOffset = 2;
+                std::size_t watchedCmdArgOffset;
+                const Shell::Command *pCommand = shell.findCommand(
+                    argc - watchCmdArgOffset,
+                    argv + watchCmdArgOffset,
+                    watchedCmdArgOffset);
 
                 if (pCommand)
                 {
                     if (!isWatchThreadStarted)
                     {
-                        pWatchThread = new WatchThread(shell, std::strtoul(argv[1], nullptr, 10), *pCommand, argcLeft, argvLeft);
+                        pWatchThread = new WatchThread(shell,
+                                                       std::strtoul(argv[1], nullptr, 10),
+                                                       *pCommand,
+                                                       argc - watchCmdArgOffset,
+                                                       argv + watchCmdArgOffset,
+                                                       watchedCmdArgOffset);
+
                         isWatchThreadStarted = pWatchThread->Start();
                         if (isWatchThreadStarted)
                         {

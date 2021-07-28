@@ -214,30 +214,29 @@ const Shell::Command *Shell::Command::findSubcommand(const char *name) const
     return result;
 }
 
-const Shell::Command *Shell::findCommand(std::size_t argcIn, const char *argvIn[], std::size_t &argcLeft, const char **&argvLeft)
+const Shell::Command *Shell::findCommand(std::size_t argcIn, const char *argvIn[], std::size_t &argCmdOffsetOut)
 {
     const Command *pCommand = Shell::pCommandRoot;
     std::size_t argIt = 0;
+
+    argCmdOffsetOut = 0;
 
     if (pCommand)
     {
         if (argcIn && argvIn[argIt])
         {
-            argcLeft = argcIn;
-            argvLeft = argvIn;
-
-            pCommand = pCommand->findNeighbourCommand(argvLeft[argIt]);
+            pCommand = pCommand->findNeighbourCommand(argvIn[argCmdOffsetOut]);
 
             if (pCommand)
             {
-                while (argcLeft - 1)
+                while (argcIn - argCmdOffsetOut - 1)
                 {
-                    const Command *pSubcommand = pCommand->findSubcommand(argvLeft[argIt + 1]);
+                    const Command *pSubcommand = pCommand->findSubcommand(argvIn[argCmdOffsetOut + 1 + argIt]);
 
                     if (pSubcommand)
                     {
                         argIt++;
-                        argcLeft--;
+                        argCmdOffsetOut++;
                         pCommand = pSubcommand;
                         continue;
                     }
@@ -248,14 +247,6 @@ const Shell::Command *Shell::findCommand(std::size_t argcIn, const char *argvIn[
                 }
             }
         }
-
-        argvLeft = &argvLeft[argIt];
-    }
-
-    if (!pCommand)
-    {
-        argcLeft = 0;
-        argvLeft = nullptr;
     }
 
     return pCommand;
@@ -367,9 +358,9 @@ Shell::Command Shell::helpCommand = Shell::Command(
             }
             else if (argc > 1)
             {
-                std::size_t argcLeft;
-                const char **argvLeft;
-                const Command *pCommandFound = Shell::findCommand(argc - 1, argv + 1, argcLeft, argvLeft);
+                constexpr std::size_t helpCommandOffset = 1;
+                std::size_t argOffset;
+                const Command *pCommandFound = Shell::findCommand(argc - helpCommandOffset, argv + helpCommandOffset, argOffset);
                 if (pCommandFound)
                 {
                     result = Shell::help(shell, pCommandFound, 1, true);
@@ -586,9 +577,8 @@ bool Shell::lineFeed()
 
     if (this->input.resolveIntoArgs())
     {
-        std::size_t argcLeft;
-        const char **argvLeft;
-        pCommand = this->findCommand(this->input.getArgc(), this->input.getArgv(), argcLeft, argvLeft);
+        std::size_t argCmdOffset;
+        pCommand = this->findCommand(this->input.getArgc(), this->input.getArgv(), argCmdOffset);
         if (!pCommand)
         {
             this->putString("\e[39mcommand not found\n");
@@ -596,7 +586,7 @@ bool Shell::lineFeed()
         }
         else
         {
-            this->execute(*pCommand, argcLeft, argvLeft);
+            this->execute(*pCommand, this->input.getArgc() - argCmdOffset, this->input.getArgv() + argCmdOffset);
             result = true;
         }
     }
