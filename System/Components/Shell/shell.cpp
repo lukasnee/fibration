@@ -300,20 +300,33 @@ Shell::Command::Result Shell::help(Shell &shell, const Shell::Command *pCommand,
     }
     else
     {
+        constexpr int commandColumnWidth = 40;
+
         for (const Shell::Command *pCmdIt = pCommand; pCmdIt != nullptr; pCmdIt = pCmdIt->pNext)
         {
             shell.putChar(' ', indent);
 
+            int charsPrinted = 0;
             if (pCmdIt->usage)
             {
-                if (shell.printf("%s %s - %s\n", pCmdIt->name, pCmdIt->usage, pCmdIt->description) > 0)
-                {
-                    result = Command::Result::ok;
-                }
+                charsPrinted = shell.printf("%s %s ", pCmdIt->name, pCmdIt->usage);
             }
             else
             {
-                if (shell.printf("%s - %s\n", pCmdIt->name, pCmdIt->description) > 0)
+                charsPrinted = shell.printf("%s  ", pCmdIt->name);
+            }
+
+            if (charsPrinted > 0)
+            {
+                if (charsPrinted < commandColumnWidth)
+                {
+                    for (std::size_t i = commandColumnWidth - charsPrinted; i; i--)
+                    {
+                        shell.putChar(' ');
+                    }
+                }
+                charsPrinted = shell.printf("%s\n", pCmdIt->description);
+                if (charsPrinted > 0)
                 {
                     result = Command::Result::ok;
                 }
