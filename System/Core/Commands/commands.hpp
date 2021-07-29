@@ -13,5 +13,5 @@ namespace Core::Commands
     extern Shell::Command panic;
     extern Shell::Command reset;
     extern Shell::Command status;
-    extern Shell::Command watch;
+    extern Shell::Command repeat;
 } // namespace Core::Commands
