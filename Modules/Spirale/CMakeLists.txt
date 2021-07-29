@@ -105,7 +105,7 @@ set(FIBSYS_CORE_SRC
     ${ROOT}/System/Core/Commands/panic.cpp
     ${ROOT}/System/Core/Commands/reset.cpp
     ${ROOT}/System/Core/Commands/status.cpp
-    ${ROOT}/System/Core/Commands/watch.cpp
+    ${ROOT}/System/Core/Commands/repeat.cpp
 )
 )
 
