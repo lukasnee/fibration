@@ -6,9 +6,6 @@
 
 #include <cstring>
 
-//TODO: command name sinonyms. for example: "help" and "h" could call the same command
-//TODO: arrow up to echo and execute last request
-
 Shell::Command *Shell::pCommandRoot = nullptr;
 
 void Shell::start(AsciiStream &asciiStream, std::uint16_t stackDepth, BaseType_t priority)
@@ -156,23 +153,25 @@ Shell::Command::Command(Command &parent, const char *name, const char *usage, co
     }
 }
 
-bool commaSeparatedStringCompare(const char *strCommaSeparatedTokens, const char *strToken)
+bool Shell::Command::matchToken(const char *strTokens, const char *strToken)
 {
     bool result = false;
 
     const std::size_t strTokenLength = std::strlen(strToken);
+    const char *strThisToken = strTokens;
 
-    const char *strThisToken = strCommaSeparatedTokens;
-    for (const char *strCharIt = strCommaSeparatedTokens; *strCharIt != '\0'; strCharIt++)
+    for (const char *strCharIt = strThisToken; *strCharIt != '\0'; strCharIt++)
     {
-        if (*strCharIt == ',' || *(strCharIt + 1) == '\0')
+        const bool itAtLastChar = (*(strCharIt + 1) == '\0');
+        if (*strCharIt == ',' || itAtLastChar)
         {
-            if (!std::strncmp(strThisToken, strToken, strTokenLength))
+            const std::size_t thisTokenLength = strCharIt + (itAtLastChar ? 1 : 0) - strThisToken;
+            if (strTokenLength == thisTokenLength && 0 == std::strncmp(strToken, strThisToken, thisTokenLength))
             {
                 result = true;
                 break;
             }
-            else
+            else if (*strCharIt == ',')
             {
                 strThisToken = strCharIt + 1;
             }
@@ -188,7 +187,7 @@ const Shell::Command *Shell::Command::findNeighbourCommand(const char *name) con
 
     for (const Command *pNext = this; pNext != nullptr; pNext = pNext->pNext)
     {
-        if (commaSeparatedStringCompare(pNext->name, name))
+        if (Command::matchToken(pNext->name, name))
         {
             result = pNext;
             break;
@@ -204,7 +203,7 @@ const Shell::Command *Shell::Command::findSubcommand(const char *name) const
 
     for (const Command *pNext = this->pSubcommands; pNext != nullptr; pNext = pNext->pNext)
     {
-        if (commaSeparatedStringCompare(pNext->name, name))
+        if (Command::matchToken(pNext->name, name))
         {
             result = pNext;
             break;
@@ -335,7 +334,7 @@ Shell::Command::Result Shell::help(Shell &shell, const Shell::Command *pCommand,
 }
 
 Shell::Command Shell::helpCommand = Shell::Command(
-    "help", "[all]", "show command usage",
+    "help", "[all|[COMMAND...]]", "show command usage",
     [](Shell &shell, std::size_t argc, const char *argv[]) -> Shell::Command::Result
     {
         Shell::Command::Result result = Shell::Command::Result::unknown;

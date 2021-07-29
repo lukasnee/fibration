@@ -67,6 +67,8 @@ public:
         const Command *findNeighbourCommand(const char *name) const;
         const Command *findSubcommand(const char *name) const;
 
+        static bool matchToken(const char *strTokens, const char *strToken);
+
         const char *name = nullptr;
         const char *usage = nullptr;
         const char *description = nullptr;
