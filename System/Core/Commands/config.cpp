@@ -9,14 +9,7 @@ namespace Core::Commands
         "system configuration",
         [](Shell &shell, std::size_t argc, const char *argv[]) -> Shell::Command::Result
         {
-            if (argc)
-            {
-                shell.printf("unknown command\n");
-                return Shell::Command::Result::fail;
-            }
-
-            shell.printf("I can configure !\n");
-            return Shell::Command::Result::okQuiet;
+            return shell.help(shell, &config, true);
         },
         []()
         {
