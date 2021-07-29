@@ -10,11 +10,11 @@
 #include <array>
 #include <stdint.h>
 
-class WatchThread : public cpp_freertos::Thread
+class RepeatCommandThread : public cpp_freertos::Thread
 {
 public:
-    WatchThread(Shell &shell, std::size_t periodMs, const Shell::Command &command, std::size_t argc, const char **argv, std::size_t commandArgOffset)
-        : Thread("watch", 1000, FibSys::Priority::appLow),
+    RepeatCommandThread(Shell &shell, std::size_t periodMs, const Shell::Command &command, std::size_t argc, const char **argv, std::size_t commandArgOffset)
+        : Thread("repeat", 1000, FibSys::Priority::appLow),
           pShell(&shell),
           periodMs(periodMs),
           pCommand(&command),
@@ -32,13 +32,13 @@ private:
             {
                 std::array<char, 256> array;
                 this->argBuffer.printTo(array.data(), array.size(), " ");
-                this->pShell->printf("watching \'%s\' every %lu ms\n\n", array.data(), this->periodMs);
+                this->pShell->printf("repeating command \'%s\' every %lu ms\n\n", array.data(), this->periodMs);
                 this->pShell->execute(*this->pCommand,
                                       this->argBuffer.getArgc() - this->commandArgOffset,
                                       this->argBuffer.getArgv() + this->commandArgOffset,
                                       "\e[36m");
             }
-            this->Delay(cpp_freertos::Ticks::MsToTicks(this->periodMs));
+            this->DelayUntil(cpp_freertos::Ticks::MsToTicks(this->periodMs));
         }
     }
 
@@ -51,37 +51,37 @@ private:
 
 namespace Core::Commands
 {
-    Shell::Command watch(
-        "watch,w",
+    Shell::Command repeat(
+        "repeat,r",
         "<periodMs> <COMMAND...>",
-        "watch command at a given period",
+        "repeat command at a given period",
         [](Shell &shell, std::size_t argc, const char *argv[]) -> Shell::Command::Result
         {
-            static bool isWatchThreadStarted = false;
-            static WatchThread *pWatchThread = nullptr;
+            static bool isRepeatCommandThreadStarted = false;
+            static RepeatCommandThread *pRepeatCommandThread = nullptr;
 
             if (argc > 2)
             {
-                constexpr std::size_t watchCmdArgOffset = 2;
-                std::size_t watchedCmdArgOffset;
+                constexpr std::size_t repeatCommandArgOffset = 2;
+                std::size_t repeatedCommandArgOffset;
                 const Shell::Command *pCommand = shell.findCommand(
-                    argc - watchCmdArgOffset,
-                    argv + watchCmdArgOffset,
-                    watchedCmdArgOffset);
+                    argc - repeatCommandArgOffset,
+                    argv + repeatCommandArgOffset,
+                    repeatedCommandArgOffset);
 
                 if (pCommand)
                 {
-                    if (!isWatchThreadStarted)
+                    if (!isRepeatCommandThreadStarted)
                     {
-                        pWatchThread = new WatchThread(shell,
+                        pRepeatCommandThread = new RepeatCommandThread(shell,
                                                        std::strtoul(argv[1], nullptr, 10),
                                                        *pCommand,
-                                                       argc - watchCmdArgOffset,
-                                                       argv + watchCmdArgOffset,
-                                                       watchedCmdArgOffset);
+                                                       argc - repeatCommandArgOffset,
+                                                       argv + repeatCommandArgOffset,
+                                                       repeatCommandArgOffset);
 
-                        isWatchThreadStarted = pWatchThread->Start();
-                        if (isWatchThreadStarted)
+                        isRepeatCommandThreadStarted = pRepeatCommandThread->Start();
+                        if (isRepeatCommandThreadStarted)
                         {
                             return Shell::Command::Result::ok;
                         }
@@ -102,12 +102,11 @@ namespace Core::Commands
             }
             else if (argc == 1)
             {
-                if (isWatchThreadStarted)
+                if (isRepeatCommandThreadStarted)
                 {
-                    delete pWatchThread;
-                    isWatchThreadStarted = false;
-                    //TODO maybe clear screen here
-                    shell.printf("watch stopped\n");
+                    delete pRepeatCommandThread;
+                    isRepeatCommandThreadStarted = false;
+                    shell.printf("repeat thread stopped\n");
                     return Shell::Command::Result::ok;
                 }
             }

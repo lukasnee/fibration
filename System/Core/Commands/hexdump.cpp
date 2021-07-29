@@ -26,7 +26,7 @@ namespace Core::Commands
 
     Shell::Command hexdump(
         "hexdump,hd",
-        "<address> <size>",
+        "<addressHex> <sizeHex>",
         "hex dump",
         [](Shell &shell, std::size_t argc, const char *argv[]) -> Shell::Command::Result
         {
