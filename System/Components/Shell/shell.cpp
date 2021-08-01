@@ -381,7 +381,7 @@ Shell::Command Shell::helpCommand = Shell::Command(
 
 void Shell::promptNew(void)
 {
-    this->input.reset();
+    this->isPrompted = true;
     this->printPrompt();
 }
 
@@ -475,12 +475,14 @@ bool Shell::processAnsiCursorControl(const char &c)
     }
     else if (c == 'A') // cursor up
     {
-        /* commands scrolling unsupported */
+        this->input.restoreIntoString();
+        this->printf(this->input.getBufferAtBase());
         return true;
     }
     else if (c == 'B') // cursor down
     {
-        /* commands scrolling unsupported */
+        this->input.reset();
+        this->isPrompted = true;
         return true;
     }
     else if (c == 'C') // cursor right
@@ -619,19 +621,30 @@ bool Shell::receiveChar(const char &c)
     {
         escaped = this->escape(c);
     }
-    else if (c == '\b') // backspaceChar
+    else if (c == '\b')
     {
         result = true;
         this->backspaceChar();
     }
-    else if (c >= 0x20 && c <= 0x7E) // ascii text symbols
+    else if (' ' <= c && c <= '~')
     {
         result = true;
+
+        if (this->isPrompted)
+        {
+            this->input.reset();
+            this->isPrompted = false;
+        }
         this->insertChar(c);
     }
-    else if (c == '\r') // line feed
+    else if (c == '\r')
     {
         result = true;
+
+        if (this->isPrompted)
+        {
+            this->input.reset();
+        }
         this->lineFeed();
     }
     return result;
