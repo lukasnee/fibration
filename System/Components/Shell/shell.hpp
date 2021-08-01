@@ -116,6 +116,7 @@ private:
     bool processAnsiEscapeSequences(const char &c);
 
     Input input;
+    bool isPrompted = true;
     static Command *pCommandRoot;
 
     AsciiStream &asciiStream;
