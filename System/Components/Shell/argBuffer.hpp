@@ -17,10 +17,11 @@ public:
 
     ArgBuffer();
     ArgBuffer(std::size_t argc, const char *argv[]);
-    ArgBuffer(const char * argString);
+    ArgBuffer(const char *argString);
 
     bool copyFrom(std::size_t argc, const char *argv[]);
     bool resolveIntoArgs();
+    bool restoreIntoString();
 
 protected:
     Buffer buffer{'\0'};

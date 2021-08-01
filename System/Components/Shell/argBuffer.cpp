@@ -45,3 +45,27 @@ bool ArgBuffer::resolveIntoArgs()
 {
     return this->resolveStringToArgs(reinterpret_cast<char *>(this->buffer.data()), this->buffer.size());
 }
+
+bool ArgBuffer::restoreIntoString()
+{
+    bool result = false;
+
+    for (std::size_t argIt = 1; argIt < this->count; argIt++)
+    {
+        std::size_t charBufferOffset = this->args[argIt] - this->buffer.data();
+        if (charBufferOffset < this->buffer.size())
+        {
+            if (this->buffer[charBufferOffset] == '\0')
+            {
+                this->buffer[charBufferOffset] == ' ';
+            }
+            result = true;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    return result;
+}
