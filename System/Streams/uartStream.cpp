@@ -6,9 +6,9 @@
 UartStream::UartStream(
     UartIF &uart,
     const char *txTaskName, uint16_t txTaskStackDepth, UBaseType_t txTaskPriority, UBaseType_t txQueueMaxItems,
-    const char *rxTaskName, uint16_t rxTaskStackDepth, UBaseType_t rxTaskPriority, UBaseType_t rxQueueMaxItems)
+    UBaseType_t rxQueueMaxItems)
     : DataStreamIF(txTaskName, txTaskStackDepth, txTaskPriority, txQueueMaxItems,
-                   rxTaskName, rxTaskStackDepth, rxTaskPriority, rxQueueMaxItems),
+                   rxQueueMaxItems),
       uart(uart)
 {
 }
@@ -30,7 +30,7 @@ void UartStream::deinitTxResource()
     if (true == this->isTxInitialized)
     {
         this->isTxInitialized = false;
-        if(false == this->isTxInitialized && false == this->isRxInitialized)
+        if (false == this->isTxInitialized && false == this->isRxInitialized)
         {
             this->uart.deinit(); // NOTE: result ignored
         }
@@ -47,7 +47,7 @@ void UartStream::deinitRxResource()
     if (true == this->isRxInitialized)
     {
         this->isRxInitialized = false;
-        if(false == this->isTxInitialized && false == this->isRxInitialized)
+        if (false == this->isTxInitialized && false == this->isRxInitialized)
         {
             this->uart.deinit(); // NOTE: result ignored
         }
@@ -61,23 +61,31 @@ bool UartStream::tx(const std::uint8_t *pData, std::uint32_t size)
     return result;
 }
 
-bool UartStream::rx(std::uint8_t *pData, std::uint32_t size)
+bool UartStream::txFromIsr(const std::uint8_t *pData, std::uint32_t size)
 {
-    bool result = this->uart.rx(pData, size, this);
-    ulTaskNotifyTakeIndexed(1, pdTRUE, portMAX_DELAY);
+    bool result = this->uart.txFromIsr(pData, size, this);
+    ulTaskNotifyTakeIndexed(0, pdTRUE, portMAX_DELAY);
     return result;
 }
 
-void UartStream::onTxCompleteIsrCallback()
+bool UartStream::rx(std::uint8_t *pData, std::uint32_t size)
+{
+    return this->uart.rx(pData, size, this);
+}
+
+bool UartStream::rxFromIsr(std::uint8_t *pData, std::uint32_t size)
+{
+    return this->uart.rxFromIsr(pData, size, this);
+}
+
+void UartStream::onTxComplete()
 {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     vTaskNotifyGiveIndexedFromISR(this->DataStreamIF::TxStream::GetHandle(), 0, &xHigherPriorityTaskWoken);
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
-void UartStream::onRxCompleteIsrCallback()
+void UartStream::onRxComplete()
 {
-    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-    vTaskNotifyGiveIndexedFromISR(this->DataStreamIF::RxStream::GetHandle(), 1, &xHigherPriorityTaskWoken);
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+    this->rxDataFromISR();
 }
