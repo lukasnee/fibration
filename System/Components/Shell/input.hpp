@@ -17,7 +17,8 @@ public:
     bool isEmpty();
 
     const char &getCharAtCursor();
-    const char *getStringAtCursor(std::size_t &lengthOut);
+    const char *getBufferAtCursor(std::size_t &lengthOut);
+    const char *getBufferAtBase();
 
     bool isCursorOnBase();
     bool isCursorOnEnd();

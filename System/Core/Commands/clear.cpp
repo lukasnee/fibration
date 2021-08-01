@@ -12,7 +12,7 @@ namespace Core::Commands
             std::size_t i = 0x20;
             while (i--)
             {
-                shell.putChar('\n');
+                shell.print('\n');
             }
 
             return Shell::Command::Result::okQuiet;

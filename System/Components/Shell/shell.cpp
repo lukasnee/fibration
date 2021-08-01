@@ -2,8 +2,7 @@
 #include "logger.hpp"
 #include "system.hpp"
 #include "resources.hpp"
-#include "version.hpp"
-
+// TODO: make arrow up repeat buffer
 #include <cstring>
 
 Shell::Command *Shell::pCommandRoot = nullptr;
@@ -26,17 +25,16 @@ void Shell::Run()
 {
     if (this->asciiStream.init())
     {
-        this->putEOL();
-        this->printf("Fibration v%u.%u.%u\n", Fib::Version::major, Fib::Version::minor, Fib::Version::patch);
-        this->putString("Type 'help [COMMAND...]' to list commands\n");
-        this->putEOL();
+        this->printEOL();
+        this->printf("Type '%s %s' to view available commands\n", this->helpCommand.name, this->helpCommand.usage);
+        this->printEOL();
         this->promptNew();
 
         while (true)
         {
             // NOTE: escape sequences are time sensitive !
             // TODO: move this to a dedicated uart receiver task and join by char queue
-            if (this->receiveChar(this->asciiStream.getc()))
+            if (this->receiveChar(this->asciiStream.getChar()))
             { // escape sequence finished (not time sensitive)
                 // Logger::trace("shell", "c:%u t:%u %s", this->rxCursorIdx, this->rxCharsTotal, this->input.data());
             }
@@ -45,7 +43,7 @@ void Shell::Run()
     this->asciiStream.deinit();
 }
 
-void Shell::putChar(const char &c, std::size_t timesToRepeat)
+void Shell::print(const char &c, std::size_t timesToRepeat)
 {
     while (timesToRepeat--)
     {
@@ -58,7 +56,7 @@ void Shell::putChar(const char &c, std::size_t timesToRepeat)
     }
 }
 
-void Shell::putData(const char *pData, const std::size_t len, std::size_t timesToRepeat)
+void Shell::printUnformatted(const char *pData, const std::size_t len, std::size_t timesToRepeat)
 {
     while (timesToRepeat--)
     {
@@ -67,25 +65,25 @@ void Shell::putData(const char *pData, const std::size_t len, std::size_t timesT
 
         while (lenIt--)
         {
-            this->putChar(*(pDataIt++));
+            this->print(*(pDataIt++));
         }
     }
 }
 
-void Shell::putEOL()
+void Shell::printEOL()
 {
     if (Config::printEndLineCR)
     {
-        this->putChar('\r');
+        this->print('\r');
     }
 
     if (Config::printEndLineLF)
     {
-        this->putChar('\n');
+        this->print('\n');
     }
 }
 
-int Shell::putString(const char *string, std::size_t timesToRepeat)
+int Shell::print(const char *string, std::size_t timesToRepeat)
 {
     int charsPrinted = 0;
 
@@ -93,7 +91,7 @@ int Shell::putString(const char *string, std::size_t timesToRepeat)
     {
         for (const char *c = string; *c != '\0'; ++c)
         {
-            this->putChar(*c);
+            this->print(*c);
             charsPrinted++;
         }
     }
@@ -106,10 +104,9 @@ int Shell::printf(const char *fmt, ...)
     va_list args;
     va_start(args, fmt);
 
-    std::array<char, Config::txBufferSize> txBuffer;
-
+    std::array<char, Config::printfBufferSize> txBuffer;
     vsnprintf(txBuffer.data(), txBuffer.size(), fmt, args);
-    int charsPrinted = this->putString(txBuffer.data());
+    int charsPrinted = this->print(txBuffer.data());
 
     va_end(args);
 
@@ -257,18 +254,18 @@ Shell::Command::Result Shell::execute(const Shell::Command &command, std::size_t
 
     if (command.commandF == nullptr)
     {
-        this->putString("\e[31mcommand has no method\n"); // red
+        this->print("\e[31mcommand has no method\n"); // red
     }
     else
     {
-        this->putString(outputColorEscapeSequence); // response in green
+        this->print(outputColorEscapeSequence); // response in green
         result = command.commandF(*this, argc, argv);
 
         if (Config::regularResponseIsEnabled)
         {
             if (result == Shell::Command::Result::ok)
             {
-                this->putString("\n\e[32mOK\n"); // green
+                this->print("\n\e[32mOK\n"); // green
             }
             else if (static_cast<std::int8_t>(result) < 0)
             {
@@ -304,7 +301,7 @@ Shell::Command::Result Shell::help(Shell &shell, const Shell::Command *pCommand,
 
         for (const Shell::Command *pCmdIt = pCommand; pCmdIt != nullptr; pCmdIt = pCmdIt->pNext)
         {
-            shell.putChar(' ', indent);
+            shell.print(' ', indent);
 
             int charsPrinted = 0;
             if (pCmdIt->usage)
@@ -322,7 +319,7 @@ Shell::Command::Result Shell::help(Shell &shell, const Shell::Command *pCommand,
                 {
                     for (std::size_t i = commandColumnWidth - charsPrinted; i; i--)
                     {
-                        shell.putChar(' ');
+                        shell.print(' ');
                     }
                 }
                 charsPrinted = shell.printf("%s\n", pCmdIt->description);
@@ -390,7 +387,7 @@ void Shell::promptNew(void)
 
 void Shell::printPrompt(void)
 {
-    this->putString(Config::prompt.data());
+    this->print(Config::prompt.data());
 }
 
 bool Shell::visualCursorStep()
@@ -398,7 +395,7 @@ bool Shell::visualCursorStep()
     if (false == this->input.isFull())
     {
         // ovewrite char with same value effectively moving cursor right
-        this->putChar(this->input.getCharAtCursor());
+        this->print(this->input.getCharAtCursor());
         return true;
     }
     return false;
@@ -408,7 +405,7 @@ bool Shell::visualCursorStepBack()
 {
     if (false == this->input.isCursorOnBase())
     {
-        this->putChar('\b'); // backspaceChar moves cursor back
+        this->print('\b'); // backspaceChar moves cursor back
         return true;
     }
     return false;
@@ -429,10 +426,10 @@ bool Shell::deleteChar()
     if (this->input.deleteCharAtCursor())
     {
         std::size_t stringAtCursorLength;
-        const char *stringAtCursor = this->input.getStringAtCursor(stringAtCursorLength);
-        this->putData(stringAtCursor, stringAtCursorLength + 1);
-        this->putString("  ");
-        this->putChar('\b', stringAtCursorLength + 1);
+        const char *stringAtCursor = this->input.getBufferAtCursor(stringAtCursorLength);
+        this->printUnformatted(stringAtCursor, stringAtCursorLength + 1);
+        this->print("  ");
+        this->print('\b', stringAtCursorLength + 1);
 
         return true;
     }
@@ -545,9 +542,9 @@ bool Shell::backspaceChar()
     if (this->input.backspaceCharAtCursor())
     {
         std::size_t stringAtCursorLength;
-        const char *stringAtCursor = this->input.getStringAtCursor(stringAtCursorLength);
-        this->putData(stringAtCursor, stringAtCursorLength);
-        this->putString("\b \b");
+        const char *stringAtCursor = this->input.getBufferAtCursor(stringAtCursorLength);
+        this->printUnformatted(stringAtCursor, stringAtCursorLength);
+        this->print("\b \b");
         result = true;
     }
     return result;
@@ -564,15 +561,15 @@ bool Shell::insertChar(const char &c)
         if (this->input.isCursorOnEnd())
         {
             // append char
-            this->putChar(c);
+            this->print(c);
         }
         else
         {
             // insertChar within line
             std::size_t length;
-            this->putChar(c);                                       // overwrite new char
-            this->putString(this->input.getStringAtCursor(length)); // overwrite everything on right
-            this->putChar('\b', length - sizeof(c));                // backspaceChar to where the cursor should be
+            this->print(c);                                     // overwrite new char
+            this->print(this->input.getBufferAtCursor(length)); // overwrite everything on right
+            this->print('\b', length - sizeof(c));              // backspaceChar to where the cursor should be
         }
     }
 
@@ -583,22 +580,22 @@ bool Shell::lineFeed()
 {
     bool result = false;
 
-    this->putEOL();
+    this->printEOL();
 
     const Shell::Command *pCommand = nullptr;
 
     if (this->input.resolveIntoArgs())
     {
-        std::size_t argCmdOffset;
-        pCommand = this->findCommand(this->input.getArgc(), this->input.getArgv(), argCmdOffset);
+        std::size_t argOffset;
+        pCommand = this->findCommand(this->input.getArgc(), this->input.getArgv(), argOffset);
         if (!pCommand)
         {
-            this->putString("\e[39mcommand not found\n");
+            this->print("\e[39mcommand not found\n");
             result = false;
         }
         else
         {
-            this->execute(*pCommand, this->input.getArgc() - argCmdOffset, this->input.getArgv() + argCmdOffset);
+            this->execute(*pCommand, this->input.getArgc() - argOffset, this->input.getArgv() + argOffset);
             result = true;
         }
     }

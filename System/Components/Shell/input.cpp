@@ -69,10 +69,15 @@ bool Input::deleteCharAtCursor()
     return false;
 }
 
-const char *Input::getStringAtCursor(std::size_t &lengthOut)
+const char *Input::getBufferAtCursor(std::size_t &lengthOut)
 {
     lengthOut = this->charsUsed - this->cursorIdx;
     return &this->buffer[this->cursorIdx];
+}
+
+const char *Input::getBufferAtBase()
+{
+    return &this->buffer[0];
 }
 
 bool Input::backspaceCharAtCursor()

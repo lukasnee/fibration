@@ -15,12 +15,12 @@ namespace Core::Commands
                 if (i + j < buflen)
                     shell.printf("%02x ", buf[i + j]);
                 else
-                    shell.printf("   ");
-            shell.printf(" ");
+                    shell.print("   ");
+            shell.print(' ');
             for (j = 0; j < 16; j++)
                 if (i + j < buflen)
-                    shell.printf("%c", isprint(buf[i + j]) ? buf[i + j] : '.');
-            shell.printf("\n");
+                    shell.print(isprint(buf[i + j]) ? buf[i + j] : '.');
+            shell.print('\n');
         }
     }
 
