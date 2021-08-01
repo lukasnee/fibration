@@ -57,7 +57,7 @@ bool ArgBuffer::restoreIntoString()
         {
             if (this->buffer[charBufferOffset] == '\0')
             {
-                this->buffer[charBufferOffset] == ' ';
+                this->buffer[charBufferOffset] = ' ';
             }
             result = true;
         }

@@ -37,12 +37,12 @@ namespace Core::Commands
                         }
                         else
                         {
-                            shell.printf("bad arg\n");
+                            shell.print("bad arg\n");
                         }
                     }
                     else
                     {
-                        shell.printf("no arg\n");
+                        shell.print("no arg\n");
                     }
 
                     return result;

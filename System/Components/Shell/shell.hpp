@@ -23,7 +23,7 @@ public:
     {
         // prompt in blue, command entry in yellow
         static constexpr std::string_view prompt = "\e[34mFIB> \e[33m"sv;
-        static constexpr std::size_t txBufferSize = 256;
+        static constexpr std::size_t printfBufferSize = 256;
         static constexpr bool printEndLineCR = false;
         static constexpr bool printEndLineLF = true;
         static constexpr bool regularResponseIsEnabled = true;
@@ -35,12 +35,12 @@ public:
 
     static void start(AsciiStream &asciiStream, std::uint16_t stackDepth, BaseType_t priority);
 
-    void putChar(const char &c, std::size_t timesToRepeat = 1);
-    void putData(const char *pData, const std::size_t len, std::size_t timesToRepeat = 1);
-    void putEOL();
-    int putString(const char *str, std::size_t timesToRepeat = 1);
-    int printf(const char *fmt, ...);
+    void print(const char &c, std::size_t timesToRepeat = 1);
+    void printUnformatted(const char *pData, const std::size_t len, std::size_t timesToRepeat = 1);
+    void printEOL();
 
+    int print(const char *str, std::size_t timesToRepeat = 1);
+    int printf(const char *fmt, ...);
     class Command
     {
     public:

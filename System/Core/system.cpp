@@ -1,4 +1,5 @@
 #include "system.hpp"
+#include "version.hpp"
 #include "resources.hpp"
 #include "logger.hpp"
 #include "uartStream.hpp"
@@ -118,7 +119,8 @@ void FibSys::getUptime(std::uint32_t &hours, std::uint32_t &minutes, std::uint32
 void FibSys::panic()
 {
     Logger::log("\n\nsystem panic !\n"
-    "SysTick: %lu\n\n"sv, FibSys::getSysTick()); // TODO does not work?!
+                "SysTick: %lu\n\n"sv,
+                FibSys::getSysTick()); // TODO does not work?!
     vTaskDelay(cpp_freertos::Ticks::MsToTicks(1000));
     vTaskSuspendAll();
     taskDISABLE_INTERRUPTS();
@@ -163,8 +165,9 @@ void FibSys::Run()
                                   "uart2streamRx", 0x100, FibSys::Priority::sysMedium, 0x100);
 
     static AsciiStream uart2TextStream(uart2Stream);
+    uart2TextStream.printf("\r\nFibration v%u.%u.%u\r\n", Fib::Version::major, Fib::Version::minor, Fib::Version::patch);
     Shell::start(uart2TextStream, 0x200, FibSys::Priority::appHigh);
- 
+
     // TODO: use the same console uart2 for commands and logging
     // static UartStream uart3Stream(Periph::getUart3(),
     //                               "uart3streamTx", 0x100, FibSys::Priority::sysMedium, 0x20,
