@@ -15,12 +15,31 @@ public:
 
     struct TxIsrCallbacks
     {
-        virtual void onTxCompleteIsrCallback(){};
+        virtual void onTxComplete(){};
     };
     struct RxIsrCallbacks
     {
-        virtual void onRxCompleteIsrCallback(){};
+        virtual void onRxComplete(){};
     };
+
+    bool init()
+    {
+        bool result = false;
+
+        if (this->isInitialized)
+        {
+            result = true;
+        }
+        else if (false == this->initUnsafe())
+        {
+        }
+        else
+        {
+            result = this->isInitialized = true;
+        }
+
+        return result;
+    }
 
     bool tx(const std::uint8_t *pData, std::uint16_t size, TxIsrCallbacks *pTxIsrCallbacks = nullptr)
     {
@@ -40,23 +59,84 @@ public:
         return retval;
     }
 
-    bool init()
+    bool txFromIsr(const std::uint8_t *pData, std::uint16_t size, TxIsrCallbacks *pTxIsrCallbacks = nullptr)
     {
-        bool result = false;
+        bool retval = false;
 
-        if (this->isInitialized)
+        BaseType_t xHigherPriorityTaskWoken;
+        this->txBinarySemaphore.TakeFromISR(&xHigherPriorityTaskWoken);
+        if (false == txUnsafe(pData, size))
         {
-            result = true;
-        }
-        else if (false == this->initUnsafe())
-        {
+            this->txBinarySemaphore.GiveFromISR(&xHigherPriorityTaskWoken);
         }
         else
         {
-            result = this->isInitialized = true;
+            this->pTxIsrCallbacks = pTxIsrCallbacks;
+            retval = true;
+        }
+        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+
+        return retval;
+    }
+
+    void txCpltIsrCalback()
+    {
+        BaseType_t xHigherPriorityTaskWoken;
+        this->txBinarySemaphore.GiveFromISR(&xHigherPriorityTaskWoken);
+        if (this->pTxIsrCallbacks)
+        {
+            this->pTxIsrCallbacks->onTxComplete();
+        }
+        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+    }
+
+    bool rx(std::uint8_t *pData, std::uint16_t size, RxIsrCallbacks *pRxIsrCallbacks = nullptr)
+    {
+        bool retval = false;
+
+        this->rxBinarySemaphore.Take();
+        if (false == rxUnsafe(pData, size))
+        {
+            this->rxBinarySemaphore.Give();
+        }
+        else
+        {
+            this->pRxIsrCallbacks = pRxIsrCallbacks;
+            retval = true;
         }
 
-        return result;
+        return retval;
+    }
+
+    bool rxFromIsr(std::uint8_t *pData, std::uint16_t size, RxIsrCallbacks *pRxIsrCallbacks = nullptr)
+    {
+        bool retval = false;
+
+        BaseType_t xHigherPriorityTaskWoken;
+        this->rxBinarySemaphore.TakeFromISR(&xHigherPriorityTaskWoken);
+        if (false == rxUnsafe(pData, size))
+        {
+            this->rxBinarySemaphore.GiveFromISR(&xHigherPriorityTaskWoken);
+        }
+        else
+        {
+            this->pRxIsrCallbacks = pRxIsrCallbacks;
+            retval = true;
+        }
+        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+
+        return retval;
+    }
+
+    void rxCpltIsrCalback()
+    {
+        BaseType_t xHigherPriorityTaskWoken;
+        this->rxBinarySemaphore.GiveFromISR(&xHigherPriorityTaskWoken);
+        if (this->pRxIsrCallbacks)
+        {
+            this->pRxIsrCallbacks->onRxComplete();
+        }
+        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
     }
 
     bool deinit()
@@ -78,47 +158,6 @@ public:
         }
 
         return result;
-    }
-
-    bool rx(std::uint8_t *pData, std::uint16_t size, RxIsrCallbacks *pRxIsrCallbacks = nullptr)
-    {
-        bool retval = false;
-
-        this->rxBinarySemaphore.Take();
-        if (false == rxUnsafe(pData, size))
-        {
-            this->rxBinarySemaphore.Give();
-        }
-        else
-        {
-            this->pRxIsrCallbacks = pRxIsrCallbacks;
-            retval = true;
-        }
-
-        return retval;
-    }
-
-    void txCpltIsrCalback()
-    {
-
-        BaseType_t xHigherPriorityTaskWoken;
-        this->txBinarySemaphore.GiveFromISR(&xHigherPriorityTaskWoken);
-        if (this->pTxIsrCallbacks)
-        {
-            this->pTxIsrCallbacks->onTxCompleteIsrCallback();
-        }
-        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
-    }
-
-    void rxCpltIsrCalback()
-    {
-        BaseType_t xHigherPriorityTaskWoken;
-        this->rxBinarySemaphore.GiveFromISR(&xHigherPriorityTaskWoken);
-        if (this->pRxIsrCallbacks)
-        {
-            this->pRxIsrCallbacks->onRxCompleteIsrCallback();
-        }
-        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
     }
 
 protected:

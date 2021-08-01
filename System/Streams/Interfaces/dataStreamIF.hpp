@@ -2,6 +2,7 @@
 
 #include "thread.hpp"
 #include "queue.hpp"
+#include "stream_buffer.h"
 
 class TxStream : public cpp_freertos::Thread
 {
@@ -30,6 +31,7 @@ public:
 protected:
     virtual bool initTxResource() = 0;
     virtual bool tx(const std::uint8_t *pData, std::uint32_t size) = 0;
+    virtual bool txFromIsr(const std::uint8_t *pData, std::uint32_t size) = 0;
     virtual void deinitTxResource() = 0;
 
     TxStream(const char *taskName, uint16_t taskStackDepth, UBaseType_t taskPriority, UBaseType_t queueMaxItems)
@@ -105,28 +107,46 @@ private:
     bool isStarted = false;
 };
 
-class RxStream : public cpp_freertos::Thread
+class RxStream
 {
 public:
     using RxData = std::uint8_t;
 
     bool pull(RxData &rxData, TickType_t timeout = portMAX_DELAY)
     {
-        return this->rxQueue.Dequeue(reinterpret_cast<void *>(&rxData), timeout);
+        bool result = false;
+
+        std::size_t xReceivedBytes = xStreamBufferReceive(this->xStreamBuffer, &rxData, sizeof(rxData), timeout);
+        if (xReceivedBytes > 0)
+        {
+            result = true;
+        }
+
+        return result;
     }
 
     bool pullFromISR(RxData &rxData, BaseType_t *pxHigherPriorityTaskWoken)
     {
-        return this->rxQueue.DequeueFromISR(reinterpret_cast<void *>(&rxData), pxHigherPriorityTaskWoken);
+        bool result = false;
+
+        BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+        std::size_t xReceivedBytes = xStreamBufferReceiveFromISR(this->xStreamBuffer, &rxData, sizeof(rxData), &xHigherPriorityTaskWoken);
+        if (xReceivedBytes > 0)
+        {
+            result = true;
+        }
+        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+
+        return result;
     }
 
 protected:
     virtual bool initRxResource() = 0;
     virtual bool rx(std::uint8_t *pData, std::uint32_t size) = 0;
+    virtual bool rxFromIsr(std::uint8_t *pData, std::uint32_t size) = 0;
     virtual void deinitRxResource() = 0;
 
-    RxStream(const char *taskName, uint16_t taskStackDepth, UBaseType_t taskPriority, UBaseType_t queueMaxItems)
-        : Thread(taskName, taskStackDepth, taskPriority), rxQueue(queueMaxItems, sizeof(RxData))
+    RxStream(UBaseType_t queueMaxItems)
     {
     }
 
@@ -138,14 +158,47 @@ protected:
         {
             result = true;
         }
+        else if (false == this->initRxResource())
+        {
+        }
+        else if (false == this->rx(&this->rxData, sizeof(RxData)))
+        {
+        }
         else
         {
-            result = this->Start();
-
-            if (result)
+            this->xStreamBuffer = xStreamBufferCreateStatic(sizeof(this->ucBufferStorage),
+                                                            this->xTriggerLevel,
+                                                            this->ucBufferStorage,
+                                                            &this->xStreamBufferStruct);
+            if (this->xStreamBuffer)
             {
-                this->isStarted = true;
+                result = this->isStarted = true;
             }
+        }
+
+        return result;
+    }
+
+    bool rxDataFromISR()
+    {
+        bool result = false;
+
+        size_t xBytesSent;
+        BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+        xBytesSent = xStreamBufferSendFromISR(this->xStreamBuffer,
+                                              &this->rxData,
+                                              sizeof(this->rxData),
+                                              &xHigherPriorityTaskWoken);
+
+        if (xBytesSent != sizeof(this->rxData))
+        {
+        }
+        else if (false == this->rxFromIsr(&this->rxData, sizeof(RxData)))
+        {
+        }
+        else
+        {
+            result = true;
         }
 
         return result;
@@ -155,30 +208,18 @@ protected:
     {
         if (this->isStarted)
         {
-            this->Suspend();
+            vStreamBufferDelete(this->xStreamBuffer);
+            this->deinitRxResource();
             this->isStarted = false;
         }
     }
 
 private:
-    void Run() override
-    {
-        if (this->initRxResource())
-        {
-            constexpr TickType_t timeout = portMAX_DELAY;
-            RxData rxData;
-            while (true)
-            {
-                if (this->rx(reinterpret_cast<std::uint8_t *>(&rxData), sizeof(rxData)))
-                {
-                    this->rxQueue.Enqueue(reinterpret_cast<void *>(&rxData), timeout);
-                }
-            }
-        }
-        this->deinitRxResource();
-    }
-
-    cpp_freertos::Queue rxQueue;
+    RxData rxData;
+    StaticStreamBuffer_t xStreamBufferStruct;
+    StreamBufferHandle_t xStreamBuffer;
+    const std::size_t xTriggerLevel = 1;
+    std::uint8_t ucBufferStorage[256];
     bool isStarted = false;
 };
 
@@ -186,11 +227,12 @@ class DataStreamIF : public TxStream, public RxStream
 {
 public:
     DataStreamIF(const char *txTaskName, uint16_t txTaskStackDepth, UBaseType_t txTaskPriority, UBaseType_t txQueueMaxItems,
-                 const char *rxTaskName, uint16_t rxTaskStackDepth, UBaseType_t rxTaskPriority, UBaseType_t rxQueueMaxItems)
+                 UBaseType_t rxQueueMaxItems)
         : TxStream(txTaskName, txTaskStackDepth, txTaskPriority, txQueueMaxItems),
-          RxStream(rxTaskName, rxTaskStackDepth, rxTaskPriority, rxQueueMaxItems)
+          RxStream(rxQueueMaxItems)
     {
     }
+
     bool init()
     {
         bool result = false;
@@ -200,6 +242,7 @@ public:
         }
         return result;
     }
+
     void deinit()
     {
         this->TxStream::deinit();
