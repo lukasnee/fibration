@@ -4,28 +4,35 @@
 #include "queue.hpp"
 #include "stream_buffer.h"
 
-class TxStream : public cpp_freertos::Thread
+#include <array>
+
+class TxStream
 {
 public:
     struct TxData
     {
         const uint8_t *pData = nullptr;
         std::uint32_t size = 0;
-        bool isDataStatic = false;
+        bool isDynamic = false;
+    };
+
+    struct Config
+    {
+        static constexpr std::size_t streamBufferSize = 16 * sizeof(TxData);
     };
 
     bool push(const std::uint8_t *pData, std::uint32_t size,
-              bool isDataStatic = false, TickType_t timeout = portMAX_DELAY)
+              bool isDynamic = false, TickType_t timeout = portMAX_DELAY)
     {
-        const TxData txData = {.pData = pData, .size = size, .isDataStatic = isDataStatic};
+        const TxData txData = {.pData = pData, .size = size, .isDynamic = isDynamic};
         return this->push(txData, timeout);
     }
 
-    bool pushFromISR(const std::uint8_t *pData, std::uint32_t size,
-                     bool isDataStatic = false, BaseType_t *pxHigherPriorityTaskWoken = nullptr)
+    bool pushFromIsr(const std::uint8_t *pData, std::uint32_t size,
+                     bool isDynamic = false)
     {
-        const TxData txData = {.pData = pData, .size = size, .isDataStatic = isDataStatic};
-        return this->pushFromISR(txData, pxHigherPriorityTaskWoken);
+        const TxData txData = {.pData = pData, .size = size, .isDynamic = isDynamic};
+        return this->pushFromIsr(txData);
     }
 
 protected:
@@ -34,9 +41,7 @@ protected:
     virtual bool txFromIsr(const std::uint8_t *pData, std::uint32_t size) = 0;
     virtual void deinitTxResource() = 0;
 
-    TxStream(const char *taskName, uint16_t taskStackDepth, UBaseType_t taskPriority, UBaseType_t queueMaxItems)
-        : Thread(taskName, taskStackDepth, taskPriority),
-          txQueue(queueMaxItems, sizeof(TxData))
+    TxStream()
     {
     }
 
@@ -48,14 +53,58 @@ protected:
         {
             result = true;
         }
+        else if (false == this->initTxResource())
+        {
+        }
         else
         {
-            result = this->Start();
-
-            if (result)
+            this->xStreamBuffer = xStreamBufferCreateStatic(this->ucBufferStorage.size(),
+                                                            this->xTriggerLevel,
+                                                            this->ucBufferStorage.data(),
+                                                            &this->xStreamBufferStruct);
+            if (this->xStreamBuffer == nullptr)
             {
-                this->isStarted = true;
             }
+            else
+            {
+                result = this->isStarted = true;
+            }
+        }
+
+        return result;
+    }
+
+    bool txDataCompleteFromIsr()
+    {
+        bool result = false;
+
+        if (this->txData.pData)
+        {
+            if (txData.isDynamic)
+            {
+                delete[] txData.pData;
+            }
+
+            this->txData.pData = nullptr;
+        }
+
+        size_t xBytesSent;
+        BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+        xBytesSent = xStreamBufferReceiveFromISR(this->xStreamBuffer,
+                                                 &this->txData,
+                                                 sizeof(this->txData),
+                                                 &xHigherPriorityTaskWoken);
+        if (xBytesSent != sizeof(this->txData))
+        {
+            this->txData.pData = nullptr;
+            this->txData.size = 0;
+        }
+        else if (this->txData.pData == nullptr || this->txData.size == 0)
+        {
+        }
+        else if (false == this->txFromIsr(txData.pData, txData.size))
+        {
+            result = true;
         }
 
         return result;
@@ -65,7 +114,9 @@ protected:
     {
         if (this->isStarted)
         {
-            this->Suspend();
+            vStreamBufferDelete(this->xStreamBuffer);
+            this->xStreamBuffer = nullptr;
+            this->deinitTxResource();
             this->isStarted = false;
         }
     }
@@ -73,37 +124,59 @@ protected:
 private:
     bool push(const TxData &txData, TickType_t timeout = portMAX_DELAY)
     {
-        return this->txQueue.Enqueue(reinterpret_cast<const void *>(&txData), timeout);
-    }
+        bool result = false;
 
-    bool pushFromISR(const TxData &txData, BaseType_t *pxHigherPriorityTaskWoken)
-    {
-        return this->txQueue.EnqueueFromISR(reinterpret_cast<const void *>(&txData), pxHigherPriorityTaskWoken);
-    }
-
-    void Run() override
-    {
-        if (this->initTxResource())
+        if (false == this->isStarted)
         {
-            TxData txData;
-            while (true)
+        }
+        else if (this->txData.pData == nullptr || this->txData.size == 0)
+        {
+            this->txData = txData;
+            result = this->tx(txData.pData, txData.size);
+        }
+        else
+        {
+            std::size_t xBytesSent = xStreamBufferSend(this->xStreamBuffer, &txData, sizeof(txData), timeout);
+            if (xBytesSent == sizeof(txData))
             {
-                if (this->txQueue.Dequeue(reinterpret_cast<void *>(&txData)))
-                {
-                    if (this->tx(txData.pData, txData.size))
-                    {
-                        if (txData.isDataStatic == false)
-                        {
-                            delete[] txData.pData;
-                        }
-                    }
-                }
+                result = true;
             }
         }
-        this->deinitTxResource();
+
+        return result;
     }
 
-    cpp_freertos::Queue txQueue;
+    bool pushFromIsr(const TxData &txData)
+    {
+        bool result = false;
+
+        if (false == this->isStarted)
+        {
+        }
+        if (this->txData.pData == nullptr || this->txData.size == 0)
+        {
+            this->txData = txData;
+            result = this->tx(txData.pData, txData.size);
+        }
+        else
+        {
+            BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+            std::size_t xBytesSent = xStreamBufferSendFromISR(this->xStreamBuffer, &txData, sizeof(txData), &xHigherPriorityTaskWoken);
+            if (xBytesSent == sizeof(txData))
+            {
+                result = true;
+            }
+            portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+        }
+
+        return result;
+    }
+
+    TxData txData;
+    StaticStreamBuffer_t xStreamBufferStruct;
+    StreamBufferHandle_t xStreamBuffer;
+    const std::size_t xTriggerLevel = 1;
+    std::array<std::uint8_t, Config::streamBufferSize> ucBufferStorage;
     bool isStarted = false;
 };
 
@@ -111,6 +184,11 @@ class RxStream
 {
 public:
     using RxData = std::uint8_t;
+
+    struct Config
+    {
+        static constexpr std::size_t streamBufferSize = 256 * sizeof(RxData);
+    };
 
     bool pull(RxData &rxData, TickType_t timeout = portMAX_DELAY)
     {
@@ -146,7 +224,7 @@ protected:
     virtual bool rxFromIsr(std::uint8_t *pData, std::uint32_t size) = 0;
     virtual void deinitRxResource() = 0;
 
-    RxStream(UBaseType_t queueMaxItems)
+    RxStream()
     {
     }
 
@@ -161,16 +239,19 @@ protected:
         else if (false == this->initRxResource())
         {
         }
-        else if (false == this->rx(&this->rxData, sizeof(RxData)))
-        {
-        }
         else
         {
-            this->xStreamBuffer = xStreamBufferCreateStatic(sizeof(this->ucBufferStorage),
+            this->xStreamBuffer = xStreamBufferCreateStatic(this->ucBufferStorage.size(),
                                                             this->xTriggerLevel,
-                                                            this->ucBufferStorage,
+                                                            this->ucBufferStorage.data(),
                                                             &this->xStreamBufferStruct);
-            if (this->xStreamBuffer)
+            if (this->xStreamBuffer == nullptr)
+            {
+            }
+            else if (false == this->rx(&this->rxData, sizeof(RxData)))
+            {
+            }
+            else
             {
                 result = this->isStarted = true;
             }
@@ -179,7 +260,7 @@ protected:
         return result;
     }
 
-    bool rxDataFromISR()
+    bool rxDataCompleteFromIsr()
     {
         bool result = false;
 
@@ -193,7 +274,7 @@ protected:
         if (xBytesSent != sizeof(this->rxData))
         {
         }
-        else if (false == this->rxFromIsr(&this->rxData, sizeof(RxData)))
+        else if (false == this->rxFromIsr(&this->rxData, sizeof(this->rxData)))
         {
         }
         else
@@ -209,6 +290,7 @@ protected:
         if (this->isStarted)
         {
             vStreamBufferDelete(this->xStreamBuffer);
+            this->xStreamBuffer = nullptr;
             this->deinitRxResource();
             this->isStarted = false;
         }
@@ -219,17 +301,15 @@ private:
     StaticStreamBuffer_t xStreamBufferStruct;
     StreamBufferHandle_t xStreamBuffer;
     const std::size_t xTriggerLevel = 1;
-    std::uint8_t ucBufferStorage[256];
+    std::array<RxData, Config::streamBufferSize> ucBufferStorage;
     bool isStarted = false;
 };
 
+// TODO: rename to "class IOStream : public OutStream, public InStream"
 class DataStreamIF : public TxStream, public RxStream
 {
 public:
-    DataStreamIF(const char *txTaskName, uint16_t txTaskStackDepth, UBaseType_t txTaskPriority, UBaseType_t txQueueMaxItems,
-                 UBaseType_t rxQueueMaxItems)
-        : TxStream(txTaskName, txTaskStackDepth, txTaskPriority, txQueueMaxItems),
-          RxStream(rxQueueMaxItems)
+    DataStreamIF()
     {
     }
 

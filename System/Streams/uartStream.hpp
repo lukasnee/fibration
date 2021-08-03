@@ -6,10 +6,7 @@
 class UartStream : public DataStreamIF, public UartIF::TxIsrCallbacks, public UartIF::RxIsrCallbacks
 {
 public:
-    UartStream(
-        UartIF &uart,
-        const char *txTaskName, uint16_t txTaskStackDepth, UBaseType_t txTaskPriority, UBaseType_t txQueueMaxItems,
-        UBaseType_t rxQueueMaxItems);
+    UartStream(UartIF &uart);
 
 protected:
     bool initTxResource() override;

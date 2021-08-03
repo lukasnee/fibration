@@ -89,7 +89,7 @@ bool Logger::logFastFromISR(const std::string_view string)
 
     if (Logger::isActive())
     {
-        result = Logger::getInstance().pDataStream->pushFromISR(reinterpret_cast<const uint8_t*>(string.data()), string.length(), true);
+        result = Logger::getInstance().pDataStream->pushFromIsr(reinterpret_cast<const uint8_t*>(string.data()), string.length(), true);
     }
 
     return result;
