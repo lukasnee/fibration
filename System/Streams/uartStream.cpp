@@ -3,13 +3,7 @@
 #include <array>
 #include <cstring>
 
-UartStream::UartStream(
-    UartIF &uart,
-    const char *txTaskName, uint16_t txTaskStackDepth, UBaseType_t txTaskPriority, UBaseType_t txQueueMaxItems,
-    UBaseType_t rxQueueMaxItems)
-    : DataStreamIF(txTaskName, txTaskStackDepth, txTaskPriority, txQueueMaxItems,
-                   rxQueueMaxItems),
-      uart(uart)
+UartStream::UartStream(UartIF &uart) : uart(uart)
 {
 }
 
@@ -56,16 +50,12 @@ void UartStream::deinitRxResource()
 
 bool UartStream::tx(const std::uint8_t *pData, std::uint32_t size)
 {
-    bool result = this->uart.tx(pData, size, this);
-    ulTaskNotifyTakeIndexed(0, pdTRUE, portMAX_DELAY);
-    return result;
+    return this->uart.tx(pData, size, this);
 }
 
 bool UartStream::txFromIsr(const std::uint8_t *pData, std::uint32_t size)
 {
-    bool result = this->uart.txFromIsr(pData, size, this);
-    ulTaskNotifyTakeIndexed(0, pdTRUE, portMAX_DELAY);
-    return result;
+    return this->uart.txFromIsr(pData, size, this);
 }
 
 bool UartStream::rx(std::uint8_t *pData, std::uint32_t size)
@@ -80,12 +70,10 @@ bool UartStream::rxFromIsr(std::uint8_t *pData, std::uint32_t size)
 
 void UartStream::onTxComplete()
 {
-    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-    vTaskNotifyGiveIndexedFromISR(this->DataStreamIF::TxStream::GetHandle(), 0, &xHigherPriorityTaskWoken);
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+    this->txDataCompleteFromIsr();
 }
 
 void UartStream::onRxComplete()
 {
-    this->rxDataFromISR();
+    this->rxDataCompleteFromIsr();
 }

@@ -160,11 +160,12 @@ FibSys::FibSys(std::uint16_t stackDepth, BaseType_t priority) : Thread("FibSys",
 //FibSys thread
 void FibSys::Run()
 {
-    static UartStream uart2Stream(Periph::getUart2(),
-                                  "uart2streamTx", 0x100, FibSys::Priority::sysMedium, 0x20,
-                                  "uart2streamRx", 0x100, FibSys::Priority::sysMedium, 0x100);
-
+    static UartStream uart2Stream(Periph::getUart2());
     static AsciiStream uart2TextStream(uart2Stream);
+    if (false == Logger::setDataStream(uart2Stream))
+    {
+        FibSys::panic();
+    }
     uart2TextStream.printf("\r\nFibration v%u.%u.%u\r\n", Fib::Version::major, Fib::Version::minor, Fib::Version::patch);
     Shell::start(uart2TextStream, 0x200, FibSys::Priority::appHigh);
 
@@ -172,10 +173,6 @@ void FibSys::Run()
     // static UartStream uart3Stream(Periph::getUart3(),
     //                               "uart3streamTx", 0x100, FibSys::Priority::sysMedium, 0x20,
     //                               "uart3streamRx", 0x100, FibSys::Priority::sysMedium, 0x100);
-    if (false == Logger::setDataStream(uart2Stream))
-    {
-        FibSys::panic();
-    }
 
     while (true)
     {
