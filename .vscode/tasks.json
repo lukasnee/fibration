@@ -4,7 +4,7 @@
             "label": "Serial /dev/serial0",
             "type": "shell",
             "linux": {
-                "command": "minicom --baudrate=921600 --device=/dev/serial0 -c on",
+                "command": "./Utils/serial.sh /dev/serial0",
             },
             "presentation": {
                 "focus": true,
@@ -17,7 +17,7 @@
             "label": "Serial /dev/ttyUSB0",
             "type": "shell",
             "linux": {
-                "command": "minicom --baudrate=921600 --device=/dev/ttyUSB0 -c on",
+                "command": "./Utils/serial.sh /dev/ttyUSB0",
             },
             "presentation": {
                 "focus": true,
@@ -30,7 +30,7 @@
             "label": "Serial /dev/ttyUSB1",
             "type": "shell",
             "linux": {
-                "command": "minicom --baudrate=921600 --device=/dev/ttyUSB1 -c on",
+                "command": "./Utils/serial.sh /dev/ttyUSB1",
             },
             "presentation": {
                 "focus": true,
@@ -43,7 +43,7 @@
             "label": "Serial /dev/ttyACM0",
             "type": "shell",
             "linux": {
-                "command": "minicom --baudrate=921600 --device=/dev/ttyACM0 -c on",
+                "command": "./Utils/serial.sh /dev/ttyACM0",
             },
             "presentation": {
                 "focus": true,
@@ -53,11 +53,11 @@
             "problemMatcher": []
         },
         {
-            "label": "Build All (Debug)",
+            "label": "Build All [Debug]",
             "type": "shell",
             "group": "build",
             "linux": {
-                "command": "cd Build; ./build.debug.sh",
+                "command": "./Utils/build.sh Debug",
                 "problemMatcher": "$gcc"
             },
             "presentation": {
@@ -65,11 +65,11 @@
             }
         },
         {
-            "label": "Rebuild All (Debug)",
+            "label": "Rebuild All [Debug]",
             "type": "shell",
             "group": "build",
             "linux": {
-                "command": "cd Build; ./rebuild.debug.sh",
+                "command": "./Utils/build.sh Debug -r",
                 "problemMatcher": "$gcc"
             },
             "presentation": {
@@ -77,14 +77,14 @@
             }
         },
         {
-            "label": "Build All (Release)",
+            "label": "Build All [Release]",
             "type": "shell",
             "group": {
                 "kind": "build",
                 "isDefault": true
             },
             "linux": {
-                "command": "cd Build; ./build.release.sh",
+                "command": "./Utils/build.sh Release",
                 "problemMatcher": "$gcc"
             },
             "presentation": {
@@ -92,11 +92,11 @@
             }
         },
         {
-            "label": "Rebuild All (Release)",
+            "label": "Rebuild All [Release]",
             "type": "shell",
             "group": "build",
             "linux": {
-                "command": "cd Build; ./rebuild.release.sh",
+                "command": "./Utils/build.sh Release -r",
                 "problemMatcher": "$gcc"
             },
             "presentation": {
@@ -104,22 +104,22 @@
             }
         },
         {
-            "label": "GNU Debug: Spirale",
+            "label": "Build and Flash Spirale [Debug]",
             "type": "shell",
             "group": "test",
             "linux": {
-                "command": "cd Build; ./build.debug.sh && ./flash-to-stm32.sh Debug/Modules/Spirale/Spirale.bin"
+                "command": "./Utils/flash.sh Spirale Debug -r -b"
             }
         },
         {
-            "label": "Flash (Release): Spirale",
+            "label": "Build and Flash Spirale [Release]",
             "type": "shell",
             "group": {
                 "kind": "test",
                 "isDefault": true
             },
             "linux": {
-                "command": "cd Build; ./build.release.sh && ./flash-to-stm32.sh Release/Modules/Spirale/Spirale.bin"
+                "command": "./Utils/flash.sh Spirale Release -r -b"
             },
             "presentation": {
                 "focus": true

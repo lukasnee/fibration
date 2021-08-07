@@ -11,7 +11,7 @@
       "type": "cortex-debug",
       "servertype": "stutil",
       "cpu": "cortex-m4",
-      "preLaunchTask": "GNU Debug: Spirale",
+      "preLaunchTask": "Build and Flash Spirale [Debug]",
       "executable": "${workspaceRoot}/Build/Debug/Modules/Spirale/Spirale",
       "svdFile": "${workspaceRoot}/System/MSP/STM32F303.svd",
       "interface": "swd",
