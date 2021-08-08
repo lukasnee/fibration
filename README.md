@@ -1,34 +1,49 @@
-![Hopf Fibration](Misc/hopf-fibration.png)
-# Fibration
+<!-- ![Hopf Fibration](Misc/hopf-fibration.png) -->
 
-Fibration is an open source synthesizer framework for embedded applications. Currently being developed for STM32F303 MCU but aim is to be portable. Very much in progress (nothing really works ATM). 
 
-Key features: 
-- Written in C++
-- based on FreeRTOS (wrapped in [ccp_freertos](https://github.com/michaelbecker/freertos-addons))
-- unified peripheral API (for ease of use and future portability)
-- use of DMA enabled I2S + FPU for efficient real-time digital signal processing.
-- quick drivers for common synth components (signalIn, signalOut, knob, slider, button, led, rotary encoder...)
-- lightweight command shell over UART ! (cool, could be used for configuring system in real-time, helpful for debugging)
-- lightweight logger over UART ! (helpful for debugging)
-- Tracealyzer support (TBD? would be helpful for debugging)
+                                       _____ __            __  _
+                                      / __(_) /  _______ _/ /_(_)__  ___
+                                     / _// / _ \/ __/ _ `/ __/ / _ \/ _ \
+                                    /_/ /_/_.__/_/  \_,_/\__/_/\___/_//_/
+                                            FOSS Modular Synth Framework
 
-# Framework
+Open source modular synthesizer embedded software framework [WIP]
+
+## Feature Idea
+- C++
+- based on STM32 (F303xx atm) 
+- based on FreeRTOS and interfaced over [ccp_freertos](https://github.com/michaelbecker/freertos-addons) wrapper
+- DMA/I2S driven audio streamer for easy external ADC/DAC interfacing
+- hardware FPU enabled CMSIS DSP support
+- thread-safe and DSP oriented peripheral hardware resource manager (In progress)
+- Common synth component high-level implementations (pot, slider, button, led, rotary encoder... TBD)
+- lightweight command shell and logger over UART (nice for experimenting and debugging)
+- *Tracealyzer* support (TBD)
+
+## Framework Idea
+
+                          MSA #1      MSA #2       MSA #3     MSA #...     MSA #N
+                            |___________|___________|___________|____________|
+                                                    |
+                                           +--------+--------+
+                             +-------------| Fibration (C++) +------------------+
+                             |             +--------+--------+                  |
+                      ccp_freertos (C++)            |                     Third-party
+                             |                      |                   libraries (C/C++)
+                        FreeRTOS (C)         STM32_HAL lib (C)
+                                                    |
+                                                STM32F303XX
+
 > MSA - Modular Synth Application
 
-                              MSA #1      MSA #2       MSA #3     MSA #...     MSA #N
-                                |___________|___________|___________|____________|
-                                                        |
-                                                  ______|________
-                                  ________________|Fib lib (C++)|__________________
-                                 |                |_____________|                  |
-                          ccp_freertos (C++)            |                  Third-party libraries
-                                 |                      |                       (C/C++)                                             
-                            FreeRTOS (C)        STM32_HAL/LL lib (C)
-                                                        |
-                                                    HARDWARE 
-                                                (STM32F303 for now) 
+# Status
+
+Unreleased, still very much work in progress.
+
+# Development Enviroment
+Linux. Developed on Raspberry Pi4 (Raspbian OS) remotely using VSCode "Remote Development" extension from Windows PC. Pretty weird but flexible setup IMO.
 
 # License
 - software GNU GPL-3.0
-- hardware CERN OHL-2.0 
+- hardware CERN OHL-2.0
+
