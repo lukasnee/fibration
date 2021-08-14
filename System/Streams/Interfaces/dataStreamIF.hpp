@@ -18,7 +18,7 @@ public:
 
     struct Config
     {
-        static constexpr std::size_t streamBufferSize = 16 * sizeof(TxData);
+        static constexpr std::size_t streamBufferSize = 16;
     };
 
     bool push(const std::uint8_t *pData, std::uint32_t size,
@@ -176,7 +176,7 @@ private:
     StaticStreamBuffer_t xStreamBufferStruct;
     StreamBufferHandle_t xStreamBuffer;
     const std::size_t xTriggerLevel = 1;
-    std::array<std::uint8_t, Config::streamBufferSize> ucBufferStorage;
+    std::array<std::uint8_t, Config::streamBufferSize * sizeof(TxData)> ucBufferStorage;
     bool isStarted = false;
 };
 
@@ -187,7 +187,7 @@ public:
 
     struct Config
     {
-        static constexpr std::size_t streamBufferSize = 256 * sizeof(RxData);
+        static constexpr std::size_t streamBufferSize = 256;
     };
 
     bool pull(RxData &rxData, TickType_t timeout = portMAX_DELAY)
@@ -301,7 +301,7 @@ private:
     StaticStreamBuffer_t xStreamBufferStruct;
     StreamBufferHandle_t xStreamBuffer;
     const std::size_t xTriggerLevel = 1;
-    std::array<RxData, Config::streamBufferSize> ucBufferStorage;
+    std::array<RxData, Config::streamBufferSize * sizeof(RxData)> ucBufferStorage;
     bool isStarted = false;
 };
 
