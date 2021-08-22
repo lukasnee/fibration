@@ -43,7 +43,7 @@ PROJECT_DIR="$BUILD_DIR/$TARGET/Modules/$PROJECT"
 BINARY_PATH="$PROJECT_DIR/$PROJECT.bin"
 [[ ! -f $BINARY_PATH ]] && ( printf "${Red}project ${Purple}$PROJECT ${Red}binary does not exist or not built\n"; exit -6 )
 
-[[ $BUILD_FLAG == "-r" ]] && $SCRIPT_DIR/build.sh $TARGET
+[[ $BUILD_FLAG == "-b" ]] && $SCRIPT_DIR/build.sh $TARGET
 
 printf "${Yellow}\nst-info:\n"
 printf "  ${Yellow}version  ${Cyan}" ; st-info --version
