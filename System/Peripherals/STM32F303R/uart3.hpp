@@ -1,9 +1,9 @@
 #pragma once
 
-#include "uartIF.hpp"
+#include "ioDataIF.hpp"
 #include <cstdint>
 
-class Uart3 : public UartIF
+class Uart3 : public IODataIF
 {
 public:
     Uart3(std::uint32_t baudrate = 115200);

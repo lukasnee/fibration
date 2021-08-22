@@ -6,17 +6,17 @@
 #include <cstdio>
 #include <cstdarg>
 
-bool Logger::setDataStream(DataStreamIF &dataStream)
+bool Logger::setIoStream(IOStream &ioStream)
 {
     bool result = true;
 
-    if (Logger::getInstance().pDataStream)
+    if (Logger::getInstance().pIoStream)
     {
-        Logger::getInstance().pDataStream->deinit();
+        Logger::getInstance().pIoStream->deinit();
     }
 
-    Logger::getInstance().pDataStream = &dataStream;
-    result = Logger::getInstance().pDataStream->init();
+    Logger::getInstance().pIoStream = &ioStream;
+    result = Logger::getInstance().pIoStream->init();
 
     return result;
 }
@@ -28,7 +28,7 @@ void Logger::setColoring(bool state)
 
 bool Logger::isActive()
 {
-    return (Logger::isEnabledCompileTime && Logger::getInstance().isEnabled && Logger::getInstance().pDataStream);
+    return (Logger::isEnabledCompileTime && Logger::getInstance().isEnabled && Logger::getInstance().pIoStream);
 }
 
 void Logger::setEnable(bool state)
@@ -77,7 +77,10 @@ bool Logger::logFast(const std::string_view string)
 
     if (Logger::isActive())
     {
-        result = Logger::getInstance().pDataStream->push(reinterpret_cast<const uint8_t*>(string.data()), string.length(), true, 1);
+        result = Logger::getInstance().pIoStream->push(reinterpret_cast<const uint8_t *>(string.data()),
+                                                       string.length(),
+                                                       true,
+                                                       1);
     }
 
     return result;
@@ -89,7 +92,9 @@ bool Logger::logFastFromISR(const std::string_view string)
 
     if (Logger::isActive())
     {
-        result = Logger::getInstance().pDataStream->pushFromIsr(reinterpret_cast<const uint8_t*>(string.data()), string.length(), true);
+        result = Logger::getInstance().pIoStream->pushFromIsr(reinterpret_cast<const uint8_t *>(string.data()),
+                                                              string.length(),
+                                                              true);
     }
 
     return result;
@@ -106,42 +111,56 @@ Logger::Logger() {}
 Logger::~Logger() {}
 
 bool Logger::logFormatted(const Logger::Verbosity &verbosity,
-                        const Logger::Type &type,
-                        const std::string_view fmt,
-                        const va_list &arglist)
+                          const Logger::Type &type,
+                          const std::string_view fmt,
+                          const va_list &arglist)
 {
     bool result = true;
 
     if (Logger::isActive() && verbosity >= Logger::verbosityFloor)
     {
         // prefix stage callbacks
-        const auto usingPrefixPrintF = [&](StringContainer &logString) {
+        const auto usingPrefixPrintF = [&](StringContainer &logString)
+        {
             return this->formatPrefix(type, logString.getHead(), logString.getCharsLeft());
         };
-        const auto itShouldAlwaysFitButIfNot_FreeItAndReprint = [&](StringContainer &logString) {
+        const auto itShouldAlwaysFitButIfNot_FreeItAndReprint = [&](StringContainer &logString)
+        {
             logString.free();
         };
 
         // message stage callbacks
-        const auto usingMessagePrintF = [&](StringContainer &logString) {
+        const auto usingMessagePrintF = [&](StringContainer &logString)
+        {
             return vsnprintf(logString.getHead(), logString.getCharsLeft(), fmt.data(), arglist);
         };
-        const auto ifItDoesNotFitPushPrefixPartAndReprintMessage = [&](StringContainer &logString) {
-            this->pDataStream->push(reinterpret_cast<const uint8_t*>(logString.getBase()), logString.getCharsUsed(), false, 1);
+        const auto ifItDoesNotFitPushPrefixPartAndReprintMessage = [&](StringContainer &logString)
+        {
+            this->pIoStream->push(reinterpret_cast<const uint8_t *>(logString.getBase()),
+                                  logString.getCharsUsed(),
+                                  false,
+                                  1);
         };
 
         StringContainer logString;
         if (type != Type::none)
         {
-            if (this->printOptimallyInto(logString, usingPrefixPrintF, itShouldAlwaysFitButIfNot_FreeItAndReprint))
+            if (this->printOptimallyInto(logString,
+                                         usingPrefixPrintF,
+                                         itShouldAlwaysFitButIfNot_FreeItAndReprint))
             {
                 result = false;
             }
         }
-        result &= this->printOptimallyInto(logString, usingMessagePrintF, ifItDoesNotFitPushPrefixPartAndReprintMessage);
+        result &= this->printOptimallyInto(logString,
+                                           usingMessagePrintF,
+                                           ifItDoesNotFitPushPrefixPartAndReprintMessage);
 
         // push what's left
-        result &= this->pDataStream->push(reinterpret_cast<const uint8_t*>(logString.getBase()), logString.getCharsUsed(), false, 1);
+        result &= this->pIoStream->push(reinterpret_cast<const uint8_t *>(logString.getBase()),
+                                        logString.getCharsUsed(),
+                                        false,
+                                        1);
     }
 
     return result;

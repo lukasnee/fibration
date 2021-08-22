@@ -1,6 +1,6 @@
 #pragma once
 
-#include "dataStreamIF.hpp"
+#include "ioStream.hpp"
 #include "thread.hpp"
 //#include <optional>
 
@@ -12,7 +12,7 @@ public:
         static constexpr std::size_t printfBufferSize = 256;
     };
 
-    AsciiStream(DataStreamIF &dataStream);
+    AsciiStream(IOStream &ioStream);
 
     bool init();
     void deinit();
@@ -26,5 +26,5 @@ public:
     int printf(const char *fmt, ...);
 
 private:
-    DataStreamIF &dataStream;
+    IOStream &ioStream;
 };

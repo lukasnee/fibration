@@ -4,26 +4,26 @@
 #include <cstdio>
 #include <array>
 
-AsciiStream::AsciiStream(DataStreamIF &dataStream) : dataStream(dataStream) {}
+AsciiStream::AsciiStream(IOStream &ioStream) : ioStream(ioStream) {}
 
 bool AsciiStream::init()
 {
-    return this->dataStream.init();
+    return this->ioStream.init();
 }
 
 void AsciiStream::deinit()
 {
-    this->dataStream.deinit(); // NOTE: result ignored
+    this->ioStream.deinit(); // NOTE: result ignored
 }
 
 void AsciiStream::putChar(const char &c, TickType_t timeout)
 {
-    this->dataStream.push(reinterpret_cast<const std::uint8_t *>(&c), 1, timeout);
+    this->ioStream.push(reinterpret_cast<const std::uint8_t *>(&c), 1, timeout);
 }
 
 void AsciiStream::putString(const char *s, uint16_t len, TickType_t timeout)
 {
-    this->dataStream.push(reinterpret_cast<const std::uint8_t *>(s), len, timeout);
+    this->ioStream.push(reinterpret_cast<const std::uint8_t *>(s), len, timeout);
 }
 
 void AsciiStream::putString(const char *s, TickType_t timeout)
@@ -34,7 +34,7 @@ void AsciiStream::putString(const char *s, TickType_t timeout)
 char AsciiStream::getChar(TickType_t timeout)
 {
     char c;
-    this->dataStream.pull(reinterpret_cast<std::uint8_t &>(c), timeout);
+    this->ioStream.pull(reinterpret_cast<std::uint8_t &>(c), timeout);
     return c;
 }
 

@@ -2,7 +2,7 @@
 #include "version.hpp"
 #include "resources.hpp"
 #include "logger.hpp"
-#include "uartStream.hpp"
+#include "ioStream.hpp"
 #include "shell.hpp"
 
 #include "ticks.hpp"
@@ -160,19 +160,14 @@ FibSys::FibSys(std::uint16_t stackDepth, BaseType_t priority) : Thread("FibSys",
 //FibSys thread
 void FibSys::Run()
 {
-    static UartStream uart2Stream(Periph::getUart2());
-    static AsciiStream uart2TextStream(uart2Stream);
-    if (false == Logger::setDataStream(uart2Stream))
+    static IOStream ioStreamUart2(Periph::getUart2());
+    static AsciiStream textStreamUart2(ioStreamUart2);
+    if (false == Logger::setIoStream(ioStreamUart2))
     {
         FibSys::panic();
     }
-    uart2TextStream.printf("\r\nFibration v%u.%u.%u\r\n", Fib::Version::major, Fib::Version::minor, Fib::Version::patch);
-    Shell::start(uart2TextStream, 0x200, FibSys::Priority::appHigh);
-
-    // TODO: use the same console uart2 for commands and logging
-    // static UartStream uart3Stream(Periph::getUart3(),
-    //                               "uart3streamTx", 0x100, FibSys::Priority::sysMedium, 0x20,
-    //                               "uart3streamRx", 0x100, FibSys::Priority::sysMedium, 0x100);
+    textStreamUart2.printf("\r\nFibration v%u.%u.%u\r\n", Fib::Version::major, Fib::Version::minor, Fib::Version::patch);
+    Shell::start(textStreamUart2, 0x200, FibSys::Priority::appHigh);
 
     while (true)
     {
