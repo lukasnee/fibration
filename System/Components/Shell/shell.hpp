@@ -88,7 +88,7 @@ public:
     static Command helpCommand;
 
     Command::Result execute(const Command &command, std::size_t argc, const char *argv[], const char *outputColorEscapeSequence = "\e[32m"); // default in green
-    Command::Result execute(const Command &command, const char *strArgs, const char *outputColorEscapeSequence = "\e[33m");
+    Command::Result execute(const Command &command, const char *strArgs = nullptr, const char *outputColorEscapeSequence = "\e[33m");
 
 private:
     Shell(AsciiStream &asciiStream, std::uint16_t stackDepth, BaseType_t priority);

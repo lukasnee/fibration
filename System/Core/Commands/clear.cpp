@@ -9,7 +9,7 @@ namespace Core::Commands
         "clear screen",
         [](Shell &shell, std::size_t argc, const char *argv[]) -> Shell::Command::Result
         {
-            std::size_t i = 0x20;
+            std::size_t i = 0x30;
             while (i--)
             {
                 shell.print('\n');

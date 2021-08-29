@@ -106,6 +106,7 @@ set(FIBSYS_CORE_SRC
     ${ROOT}/System/Core/Commands/reset.cpp
     ${ROOT}/System/Core/Commands/status.cpp
     ${ROOT}/System/Core/Commands/repeat.cpp
+    ${ROOT}/System/Core/Commands/donut.cpp
 )
 )
 
