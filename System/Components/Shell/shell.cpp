@@ -91,7 +91,7 @@ int Shell::print(const char *string, std::size_t timesToRepeat)
     {
         for (const char *c = string; *c != '\0'; ++c)
         {
-            this->print(*c);
+            this->print(*c); // TODO print whole sentence not char by char !
             charsPrinted++;
         }
     }

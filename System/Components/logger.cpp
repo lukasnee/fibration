@@ -77,10 +77,7 @@ bool Logger::logFast(const std::string_view string)
 
     if (Logger::isActive())
     {
-        result = Logger::getInstance().pIoStream->push(reinterpret_cast<const uint8_t *>(string.data()),
-                                                       string.length(),
-                                                       true,
-                                                       1);
+        result = Logger::getInstance().pIoStream->push(reinterpret_cast<const uint8_t *>(string.data()), string.length(), 1);
     }
 
     return result;
@@ -92,9 +89,7 @@ bool Logger::logFastFromISR(const std::string_view string)
 
     if (Logger::isActive())
     {
-        result = Logger::getInstance().pIoStream->pushFromIsr(reinterpret_cast<const uint8_t *>(string.data()),
-                                                              string.length(),
-                                                              true);
+        result = Logger::getInstance().pIoStream->pushFromIsr(reinterpret_cast<const uint8_t *>(string.data()), string.length());
     }
 
     return result;
@@ -136,10 +131,8 @@ bool Logger::logFormatted(const Logger::Verbosity &verbosity,
         };
         const auto ifItDoesNotFitPushPrefixPartAndReprintMessage = [&](StringContainer &logString)
         {
-            this->pIoStream->push(reinterpret_cast<const uint8_t *>(logString.getBase()),
-                                  logString.getCharsUsed(),
-                                  false,
-                                  1);
+            this->pIoStream->push(reinterpret_cast<const uint8_t *>(logString.getBase()), logString.getCharsUsed(), 1);
+            logString.free(); // remove dynamic allocation
         };
 
         StringContainer logString;
@@ -157,10 +150,8 @@ bool Logger::logFormatted(const Logger::Verbosity &verbosity,
                                            ifItDoesNotFitPushPrefixPartAndReprintMessage);
 
         // push what's left
-        result &= this->pIoStream->push(reinterpret_cast<const uint8_t *>(logString.getBase()),
-                                        logString.getCharsUsed(),
-                                        false,
-                                        1);
+        result &= this->pIoStream->push(reinterpret_cast<const uint8_t *>(logString.getBase()), logString.getCharsUsed(), 1);
+        logString.free(); // TODO remove dynamic allocation
     }
 
     return result;
