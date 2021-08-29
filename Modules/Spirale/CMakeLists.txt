@@ -116,7 +116,7 @@ set(FIBSYS_UTILITIES_SRC
 # TODO: Make all peripherals work over interfaces
 set(FIBSYS_PERIPHERALS_SRC
     # Peripheral Interfaces shaping interaction of whats above to whats below
-    ${ROOT}/System/Peripherals/Interfaces/uartIF.hpp
+    ${ROOT}/System/Peripherals/Interfaces/ioDataIF.hpp
     ${ROOT}/System/Peripherals/Interfaces/i2sIF.cpp
     ${ROOT}/System/Peripherals/Interfaces/adcIF.hpp
 
@@ -135,13 +135,13 @@ set(FIBSYS_PERIPHERALS_SRC
 
 set(FIBSYS_STREAMS_SRC
     # Streams Interfaces shaping interaction of whats above to whats below
-    ${ROOT}/System/Streams/Interfaces/dataStreamIF.hpp
     ${ROOT}/System/Streams/Interfaces/duplexStereoStreamIF.cpp
     ${ROOT}/System/Streams/Interfaces/asciiStreamIF.cpp
     
     # Streams Implementations - making use of peripherals efficiently
     ${ROOT}/System/Streams/i2sDuplexStream.cpp
-    ${ROOT}/System/Streams/uartStream.cpp
+    ${ROOT}/System/Streams/ioStream.cpp
+    ${ROOT}/System/Streams/txStream.cpp
 )
 
 set(FIBSYS_COMPONENTS_SRC

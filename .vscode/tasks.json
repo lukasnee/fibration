@@ -1,49 +1,34 @@
 {
     "tasks": [
-            {
-            "label": "Serial /dev/serial0",
+        {
+            "label": "Reset ST-LINK USB device",
             "type": "shell",
             "linux": {
-                "command": "./Utils/serial.sh /dev/serial0",
+                "command": "./Utils/reset-stlink.sh"
             },
             "presentation": {
                 "focus": true,
                 "panel": "dedicated",
                 "revealProblems": "onProblem"
-            },
-            "problemMatcher": []
+            }
         },
         {
-            "label": "Serial /dev/ttyUSB0",
+            "label": "Serial /dev/serial0 [RPI4 UART]",
             "type": "shell",
             "linux": {
-                "command": "./Utils/serial.sh /dev/ttyUSB0",
+                "command": "./Utils/serial.sh /dev/serial0"
             },
             "presentation": {
                 "focus": true,
                 "panel": "dedicated",
                 "revealProblems": "onProblem"
-            },
-            "problemMatcher": []
+            }
         },
         {
-            "label": "Serial /dev/ttyUSB1",
+            "label": "Serial /dev/ttyACM0 [ST-LINK UART]",
             "type": "shell",
             "linux": {
-                "command": "./Utils/serial.sh /dev/ttyUSB1",
-            },
-            "presentation": {
-                "focus": true,
-                "panel": "dedicated",
-                "revealProblems": "onProblem"
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "Serial /dev/ttyACM0",
-            "type": "shell",
-            "linux": {
-                "command": "./Utils/serial.sh /dev/ttyACM0",
+                "command": "./Utils/serial.sh /dev/ttyACM0"
             },
             "presentation": {
                 "focus": true,
