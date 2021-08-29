@@ -3,13 +3,14 @@
 
 namespace Core::Commands
 {
+    char szRunTimeStats[20 * 40];
+    
     Shell::Command status(
         "status,s",
         nullptr,
         "show system status",
         [](Shell &shell, std::size_t argc, const char *argv[]) -> Shell::Command::Result
         {
-            char szRunTimeStats[20 * 40];
             vTaskGetRunTimeStats(szRunTimeStats);
 
             shell.printf(/*"initialFreeHeapSize:%lu\n\r"
