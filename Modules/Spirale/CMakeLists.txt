@@ -129,6 +129,7 @@ set(FIBSYS_PERIPHERALS_SRC
     ${ROOT}/System/Peripherals/STM32F303R/uart3.cpp
     ${ROOT}/System/Peripherals/STM32F303R/i2sIsr.cpp
     ${ROOT}/System/Peripherals/STM32F303R/i2s2.cpp
+    ${ROOT}/System/Peripherals/STM32F303R/adcIsr.cpp
     ${ROOT}/System/Peripherals/STM32F303R/adc2.cpp
 
     ${ROOT}/System/Peripherals/resources.cpp
