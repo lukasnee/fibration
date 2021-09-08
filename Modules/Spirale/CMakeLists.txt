@@ -124,10 +124,10 @@ set(FIBSYS_PERIPHERALS_SRC
     # Peripherals Implementations - wrappers for limited resources that are available on the platform
     ${ROOT}/System/Peripherals/STM32F303R/gpio.cpp
     ${ROOT}/System/Peripherals/STM32F303R/tim6.cpp
-    ${ROOT}/System/Peripherals/STM32F303R/uartIsrHandler.cpp
+    ${ROOT}/System/Peripherals/STM32F303R/uartIsr.cpp
     ${ROOT}/System/Peripherals/STM32F303R/uart2.cpp
     ${ROOT}/System/Peripherals/STM32F303R/uart3.cpp
-    ${ROOT}/System/Peripherals/STM32F303R/i2sIsrHandler.cpp
+    ${ROOT}/System/Peripherals/STM32F303R/i2sIsr.cpp
     ${ROOT}/System/Peripherals/STM32F303R/i2s2.cpp
     ${ROOT}/System/Peripherals/STM32F303R/adc2.cpp
 
