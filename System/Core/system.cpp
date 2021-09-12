@@ -162,7 +162,7 @@ void FibSys::Run()
 {
     static IOStream ioStreamUart2(Periph::getUart2());
     static AsciiStream textStreamUart2(ioStreamUart2);
-    if (false == Logger::setIoStream(ioStreamUart2))
+    if (false == Logger::setAsciiStream(textStreamUart2))
     {
         FibSys::panic();
     }

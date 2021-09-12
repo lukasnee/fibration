@@ -1,6 +1,11 @@
 #include "stm32f3xx_hal.h"
 #include "stm32f3xx_it.h"
 
+#include "FreeRTOS.h"
+#include "task.h"
+
+#include "logger.h"
+
 extern TIM_HandleTypeDef htim7;
 extern TIM_HandleTypeDef htim6;
 
@@ -32,11 +37,11 @@ static void blinkErrorLed(uint8_t numberOfTimes)
     while (numberOfTimes--)
     {
         HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
-        HAL_Delay(BLINK_TIME_MS);
+        vTaskDelay(BLINK_TIME_MS);
         HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
-        HAL_Delay(BLINK_TIME_MS);
+        vTaskDelay(BLINK_TIME_MS);
     }
-    HAL_Delay(OFF_TIME_MS);
+    vTaskDelay(OFF_TIME_MS);
 };
 
 enum TimesToBlinkOnFault
@@ -55,6 +60,7 @@ void NMI_Handler(void)
 // This function handles Hard fault interrupt.
 void HardFault_Handler(void)
 {
+    logFast("HardFault_Handler\n");
     while (1)
     {
         blinkErrorLed(TIMES_TO_BLINK_ON_HARD_FAULT);
@@ -64,6 +70,7 @@ void HardFault_Handler(void)
 // This function handles Memory management fault.
 void MemManage_Handler(void)
 {
+    logFast("MemManage_Handler\n");
     while (1)
     {
         blinkErrorLed(TIMES_TO_BLINK_ON_MEM_FAULT);
@@ -73,6 +80,7 @@ void MemManage_Handler(void)
 // This function handles Pre-fetch fault, memory access fault.
 void BusFault_Handler(void)
 {
+    logFast("BusFault_Handler\n");
     while (1)
     {
         blinkErrorLed(TIMES_TO_BLINK_ON_BUS_FAULT);
@@ -82,6 +90,7 @@ void BusFault_Handler(void)
 // This function handles Undefined instruction or illegal state.
 void UsageFault_Handler(void)
 {
+    logFast("UsageFault_Handler\n");
     while (1)
     {
         blinkErrorLed(TIMES_TO_BLINK_ON_USAGE_FAULT);
