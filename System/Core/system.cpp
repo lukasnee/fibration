@@ -166,7 +166,7 @@ void FibSys::Run()
     {
         FibSys::panic();
     }
-    textStreamUart2.printf("\r\nFibration v%u.%u.%u\r\n", Fib::Version::major, Fib::Version::minor, Fib::Version::patch);
+    Logger::log(Logger::Verbosity::high, Logger::Type::system, "Fibration %s v%u.%u.%u\n", Fib::Version::moduleName, Fib::Version::major, Fib::Version::minor, Fib::Version::patch);
     Shell::start(textStreamUart2, 0x200, FibSys::Priority::appHigh);
 
     while (true)
