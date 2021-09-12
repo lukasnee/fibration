@@ -1,10 +1,10 @@
 #pragma once
 
-#include "ioStream.hpp"
-#include "stringContainer.hpp"
+#include "asciiStreamIF.hpp"
+
 #include <string_view>
+
 #include <cstdarg>
-#include <functional>
 class Logger
 {
 public:
@@ -39,18 +39,15 @@ public:
     static constexpr Verbosity verbosityFloor = Verbosity::low;
 
     // SETUP
-    static bool setIoStream(IOStream &ioStream);
+    static bool setAsciiStream(AsciiStream &asciiStream);
     static void setColoring(bool state);
     static bool isActive();
 
     static void setEnable(bool state);
     // USAGE (note: user is responsible for putting '\n' end line)
-    static bool log(const Verbosity &verbosity, const Type &type, const std::string_view fmt, ...);
-    static bool log(const Verbosity &verbosity, const Type &type, const std::string_view fmt, const va_list &arglist);
-    static bool log(const std::string_view fmt, ...);
-    static bool logFast(const std::string_view string);
-    static bool logFastFromISR(const std::string_view string);
-
+    static void log(const std::string_view fmt, ...);
+    static void log(const Verbosity &verbosity, const Type &type, const std::string_view fmt, ...);
+    static void log(const Verbosity &verbosity, const Type &type, const std::string_view fmt, const va_list &argList);
 protected:
 private:
     static Logger &getInstance();
@@ -60,16 +57,12 @@ private:
     Logger();
     ~Logger();
 
-    bool logFormatted(const Verbosity &verbosity, const Type &type, const std::string_view fmt, const va_list &arglist);
-    bool printOptimallyInto(StringContainer &stringContainer,
-                            std::function<int(StringContainer &logString)> printF,
-                            std::function<void(StringContainer &logString)> optimalPrintFailedCallbackF);
-    int formatPrefix(const Type &type, char *pOut, const std::size_t &maxSize);
-    void logOutOfMem();
-    void logStringTooLong();
+    int logf(const Logger::Verbosity &verbosity, const Logger::Type &type, const std::string_view fmt, const va_list &argList);
+
+    int printPrefix(const Type &type);
 
     bool logColored = true;
 
-    IOStream *pIoStream = nullptr;
+    AsciiStream *pAsciiStream = nullptr;
     bool isEnabled = true;
 };
