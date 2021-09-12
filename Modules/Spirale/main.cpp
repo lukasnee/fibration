@@ -131,6 +131,7 @@ private:
 
     virtual void Run() override
     {
+        Logger::log(Logger::Verbosity::high, Logger::Type::trace, "BlinkTestApp started\n");
         Gpio &onBoardLed = Periph::getGpio(Gpio::Port::A, Gpio::Pin::pin5);
         //Gpio &rotaryButton = Periph::getGpio(Gpio::Port::C, Gpio::Pin::pin14);
 
