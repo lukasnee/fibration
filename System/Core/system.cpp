@@ -169,6 +169,9 @@ void FibSys::Run()
     Logger::log(Logger::Verbosity::high, Logger::Type::system, "Fibration %s v%u.%u.%u\n", Fib::Version::moduleName, Fib::Version::major, Fib::Version::minor, Fib::Version::patch);
     Shell::start(textStreamUart2, 0x200, FibSys::Priority::appHigh);
 
+    Periph::getAdc2().init();
+    Periph::getAdc2().start();
+
     while (true)
     {
         // TODO:
