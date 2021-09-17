@@ -27,16 +27,16 @@ struct Channel
 };
 /* NOTE: GPIO and ADC channel pairs are hardware defined */
 constexpr std::array<Channel, Config::channelsTotal> channels =
-    {{{GPIOA, GPIO_PIN_6, ADC_CHANNEL_3},
-      {GPIOA, GPIO_PIN_7, ADC_CHANNEL_4},
-      {GPIOC, GPIO_PIN_4, ADC_CHANNEL_5},
-      {GPIOC, GPIO_PIN_0, ADC_CHANNEL_6},
-      {GPIOC, GPIO_PIN_1, ADC_CHANNEL_7},
-      {GPIOC, GPIO_PIN_2, ADC_CHANNEL_8},
-      {GPIOC, GPIO_PIN_3, ADC_CHANNEL_9},
-      {GPIOC, GPIO_PIN_5, ADC_CHANNEL_11},
-      {GPIOB, GPIO_PIN_2, ADC_CHANNEL_12},
-      {GPIOB, GPIO_PIN_11, ADC_CHANNEL_14}}};
+    {{{.port = GPIOA, .pin = GPIO_PIN_6, .channel = ADC_CHANNEL_3},
+      {.port = GPIOA, .pin = GPIO_PIN_7, .channel = ADC_CHANNEL_4},
+      {.port = GPIOC, .pin = GPIO_PIN_4, .channel = ADC_CHANNEL_5},
+      {.port = GPIOC, .pin = GPIO_PIN_0, .channel = ADC_CHANNEL_6},
+      {.port = GPIOC, .pin = GPIO_PIN_1, .channel = ADC_CHANNEL_7},
+      {.port = GPIOC, .pin = GPIO_PIN_2, .channel = ADC_CHANNEL_8},
+      {.port = GPIOC, .pin = GPIO_PIN_3, .channel = ADC_CHANNEL_9},
+      {.port = GPIOC, .pin = GPIO_PIN_5, .channel = ADC_CHANNEL_11},
+      {.port = GPIOB, .pin = GPIO_PIN_2, .channel = ADC_CHANNEL_12},
+      {.port = GPIOB, .pin = GPIO_PIN_11, .channel = ADC_CHANNEL_14}}};
 
 Adc2 &Adc2::getInstance()
 {
@@ -44,17 +44,14 @@ Adc2 &Adc2::getInstance()
     return instance;
 }
 
-// TODO: maybe init and start in ctor is a bad idea... MAYBE!
 Adc2::Adc2()
 {
-    if (false == this->init() or false == this->start())
-    {
-        FibSys::panic();
-    }
 }
 
 std::uint32_t Adc2::getChannelsTotal() { return Config::channelsTotal; }
+
 std::uint32_t Adc2::getBitDepth() { return Config::bitDepth; }
+
 std::uint32_t Adc2::getFrameBitWidth() { return Config::frameBitWidth; }
 
 bool Adc2::init()
@@ -187,10 +184,6 @@ bool Adc2::deinit()
 
 Adc2::~Adc2()
 {
-    if (false == this->stop() or false == this->deinit())
-    {
-        FibSys::panic();
-    }
 }
 
 bool Adc2::getValueUnsafe(std::size_t channelNo, std::uint32_t &valueOut)
@@ -205,7 +198,7 @@ bool Adc2::getValueUnsafe(std::size_t channelNo, std::uint32_t &valueOut)
     return result;
 }
 
-bool Adc2::Dma::init()
+bool Adc2::Internal::init()
 {
     bool result = false;
 
@@ -249,18 +242,7 @@ bool Adc2::Dma::init()
     return result;
 }
 
-// TODO: maybe implement flip-flop pattern for reading ADC value securely ???. Not sure if it's an actual problem tho.
-void Adc2::Dma::handle()
-{
-    HAL_DMA_IRQHandler(&hdma_adc2);
-}
-
-void Adc2::Dma::convCpltCallback() {}
-
-void Adc2::Dma::convHalfCpltCallback() {}
-
-
-bool Adc2::Dma::deinit()
+bool Adc2::Internal::deinit()
 {
     bool result = false;
 
@@ -282,6 +264,16 @@ bool Adc2::Dma::deinit()
 
     return result;
 }
+
+// TODO: maybe implement flip-flop pattern for reading ADC value securely ???. Not sure if it's an actual problem tho.
+void Adc2::Internal::Irq::handle()
+{
+    HAL_DMA_IRQHandler(&hdma_adc2);
+}
+
+void Adc2::Internal::Irq::convCpltCallback() {}
+
+void Adc2::Internal::Irq::convHalfCpltCallback() {}
 
 // TODO: maybe implement flip-flow read/write sequence
 // template <typename SampleFrame, std::size_t samplesTotal>

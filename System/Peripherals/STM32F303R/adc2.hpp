@@ -17,14 +17,18 @@ public:
     virtual bool stop() override;
     virtual bool deinit() override;
 
-    struct Dma
+    struct Internal
     {
         bool init();
-        void handle();
-        void convCpltCallback();
-        void convHalfCpltCallback();
         bool deinit();
-    } dma;
+
+        struct Irq
+        {
+            void handle();
+            void convHalfCpltCallback();
+            void convCpltCallback();
+        } irq;
+    } internal;
 
 protected:
     virtual bool getValueUnsafe(std::size_t channelNo, std::uint32_t &valueOut) override;
