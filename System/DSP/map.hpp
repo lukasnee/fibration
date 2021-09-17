@@ -1,4 +1,5 @@
 #include <cstdint>
+#include <limits>
 #include "stm32f303xe.h"
 extern "C"
 {
@@ -12,13 +13,15 @@ namespace Fib
         /**
          * @brief get the max value for the given bit depth
          * 
-         * @param bitDepth word width in bits, i.e.: 32 to get 32-bit max value
+         * @param bitDepth word width in bits from 1 to 32 !
          * @return constexpr std::uint32_t max value
+         * 
+         * @note 1-32 bitDepth max !
          */
         template <std::uint32_t bitDepth>
         constexpr std::uint32_t bitDepthToMaxValue()
         {
-            return ((bitDepth << 1) - 1);
+            return (std::numeric_limits<std::uint32_t>::max() >> (32 - bitDepth));
         }
 
         /**
@@ -27,8 +30,8 @@ namespace Fib
          * @param bitDepth 
          * @return constexpr std::uint32_t 
          */
-        template <std::uint32_t bitDepth>
-        constexpr std::uint32_t bitDepthToCenterValue()
+        template <std::uint64_t bitDepth>
+        constexpr std::uint64_t bitDepthToCenterValue()
         {
             return (bitDepthToMaxValue<bitDepth>() / 2);
         }
@@ -41,13 +44,14 @@ namespace Fib
          * @param inMax input max value, the upper limit
          * @param outMin output min value, the lower limit
          * @param outMax output max value, the upper limit
-         * @return std::uint32_t mapped (scaled) output value
+         * @return T mapped (scaled) output value
          */
-        std::uint32_t map(const std::uint32_t &in,
-                          const std::uint32_t &inMin,
-                          const std::uint32_t &inMax,
-                          const std::uint32_t &outMin,
-                          const std::uint32_t &outMax)
+        template <typename T>
+        T map(const T &in,
+              const T &inMin,
+              const T &inMax,
+              const T &outMin,
+              const T &outMax)
         {
             return (in - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
         }
@@ -58,13 +62,24 @@ namespace Fib
          * @param in input value to scale
          * @param inMax input max value, the upper limit
          * @param outMax output max value, the upper limit
-         * @return std::uint32_t mapped (scaled) output value
+         * @return T mapped (scaled) output value
          */
-        std::uint32_t map(const std::uint32_t &in,
-                          const std::uint32_t &inMax,
-                          const std::uint32_t &outMax)
+        template <typename T>
+        T map(const T &in,
+              const T &inMax,
+              const T &outMax)
         {
-            return map(in, 0, inMax, 0, outMax);
+            return map(in, static_cast<T>(0), inMax, static_cast<T>(0), outMax);
+        }
+
+        constexpr q31_t floatToQ31(float in)
+        {
+            return (in > 0.99999997f ? std::numeric_limits<q31_t>::max()
+                    : in < -1.0f
+                        ? std::numeric_limits<q31_t>::min()
+                        : static_cast<q31_t>(
+                              in *
+                              (static_cast<float>(std::numeric_limits<q31_t>::max()))));
         }
 
         /**
@@ -77,13 +92,13 @@ namespace Fib
         {
             q31_t result;
 
-            if (sample < bitDepthToCenterValue<32UL>())
+            if (sample < bitDepthToCenterValue<32>())
             {
-                result = static_cast<q31_t>(sample) - bitDepthToCenterValue<32UL>();
+                result = static_cast<q31_t>(sample) - bitDepthToCenterValue<32>();
             }
             else
             {
-                result = static_cast<q31_t>(sample - bitDepthToCenterValue<32UL>());
+                result = static_cast<q31_t>(sample - bitDepthToCenterValue<32>());
             }
 
             return result;
@@ -102,7 +117,7 @@ namespace Fib
             {
                 q31_t result;
 
-                u32ToQ31(map(sample, bitDepthToMaxValue<sampleBitDepth>(), bitDepthToMaxValue<32UL>()));
+                result = u32ToQ31(map<std::uint32_t>(sample, bitDepthToMaxValue<sampleBitDepth>(), bitDepthToMaxValue<32>()));
 
                 return result;
             }
@@ -120,11 +135,11 @@ namespace Fib
 
             if (q31 < 0)
             {
-                result = static_cast<std::uint32_t>(q31 + bitDepthToCenterValue<32UL>());
+                result = static_cast<std::uint32_t>(q31 + bitDepthToCenterValue<32>());
             }
             else
             {
-                result = static_cast<std::uint32_t>(q31) + bitDepthToCenterValue<32UL>();
+                result = static_cast<std::uint32_t>(q31) + bitDepthToCenterValue<32>();
             }
 
             return result;
@@ -142,7 +157,7 @@ namespace Fib
         {
             std::uint32_t result;
 
-            result = map(q31ToU32(q31), bitDepthToMaxValue<32UL>(), bitDepthToMaxValue<sampleBitDepth>());
+            result = map<std::uint32_t>(q31ToU32(q31), bitDepthToMaxValue<32>(), bitDepthToMaxValue<sampleBitDepth>());
 
             return result;
         }
