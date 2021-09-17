@@ -23,7 +23,6 @@
 extern "C"
 {
 #include "FreeRTOS.h"
-#include "arm_math.h"
 }
 
 #include "thread.hpp"

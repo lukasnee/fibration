@@ -108,6 +108,9 @@ set(FIBSYS_CORE_SRC
     ${ROOT}/System/Core/Commands/repeat.cpp
     ${ROOT}/System/Core/Commands/donut.cpp
 )
+
+set(FIBSYS_DSP_SRC
+    ${ROOT}/System/DSP/map.cpp
 )
 
 set(FIBSYS_UTILITIES_SRC
@@ -159,6 +162,7 @@ set(FIBSYS_COMPONENTS_SRC
 set(FIBSYS_SRC
     ${FIBSYS_CORE_SRC}
     ${FIBSYS_UTILITIES_SRC}
+    ${FIBSYS_DSP_SRC}
     ${FIBSYS_PERIPHERALS_SRC}
     ${FIBSYS_STREAMS_SRC}
     ${FIBSYS_COMPONENTS_SRC}
@@ -191,6 +195,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 
     # Fibration Framework
     ${ROOT}/System/
+    ${ROOT}/System/DSP
     ${ROOT}/System/Config/
     ${ROOT}/System/Core/
     ${ROOT}/System/Utilities/
