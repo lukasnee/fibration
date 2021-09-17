@@ -15,7 +15,7 @@ set(STM32F3xx_CORE_SRC
     ${ROOT}/System/MSP/stm32f3xx_hal_msp.c
     ${ROOT}/System/MSP/stm32f3xx_hal_timebase_tim.c
     ${ROOT}/System/MSP/stm32f3xx_it.c
-    ${ROOT}/System/MSP/syscalls.c
+    ${ROOT}/System/MSP/syscalls.cpp
     ${ROOT}/System/MSP/sysmem.c
     ${ROOT}/System/MSP/system_stm32f3xx.c
 )
