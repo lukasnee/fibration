@@ -10,7 +10,8 @@
                 "focus": true,
                 "panel": "dedicated",
                 "revealProblems": "onProblem"
-            }
+            },
+            "problemMatcher": []
         },
         {
             "label": "Serial /dev/serial0 [RPI4 UART]",

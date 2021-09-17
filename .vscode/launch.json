@@ -12,6 +12,8 @@
       "servertype": "stutil",
       "cpu": "cortex-m4",
       "preLaunchTask": "Build and Flash Spirale [Debug]",
+      "preRestartCommands": [ "jump __NVIC_SystemReset"],
+      "postRestartCommands": [],
       "executable": "${workspaceRoot}/Build/Debug/Modules/Spirale/Spirale",
       "svdFile": "${workspaceRoot}/System/MSP/STM32F303.svd",
       "interface": "swd",
