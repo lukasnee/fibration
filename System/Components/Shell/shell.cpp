@@ -261,16 +261,17 @@ Shell::Command::Result Shell::execute(const Shell::Command &command, std::size_t
         {
             if (result == Shell::Command::Result::ok)
             {
-                this->print("\n\e[32mOK\n"); // green
+                this->print("\n" ANSI_COLOR_GREEN "OK");
             }
             else if (static_cast<std::int8_t>(result) < 0)
             {
-                this->printf("\n\e[31mFAIL: %d\n", static_cast<std::int8_t>(result)); // red
+                this->printf("\n" ANSI_COLOR_RED "FAIL: %d", static_cast<std::int8_t>(result));
             }
             else if (result == Shell::Command::Result::okQuiet)
             {
                 /* nothin */
             }
+            this->print(ANSI_COLOR_RESET "\n");
         }
     }
 
@@ -297,7 +298,8 @@ Shell::Command::Result Shell::help(Shell &shell, const Shell::Command *pCommand,
 
         for (const Shell::Command *pCmdIt = pCommand; pCmdIt != nullptr; pCmdIt = pCmdIt->pNext)
         {
-            if (indent >= 3) {
+            if (indent >= 3)
+            {
                 shell.print(' ', indent - 3);
                 // shell.print("|\n");
                 // shell.print(' ', indent - 3);
@@ -305,13 +307,17 @@ Shell::Command::Result Shell::help(Shell &shell, const Shell::Command *pCommand,
             }
 
             int charsPrinted = 0;
-            if (pCmdIt->usage)
+
+            if (pCmdIt->name)
             {
-                charsPrinted = shell.printf("%s %s ", pCmdIt->name, pCmdIt->usage);
-            }
-            else
-            {
-                charsPrinted = shell.printf("%s  ", pCmdIt->name);
+                if (pCmdIt->usage)
+                {
+                    charsPrinted = shell.printf("%s %s ", pCmdIt->name, pCmdIt->usage);
+                }
+                else
+                {
+                    charsPrinted = shell.printf("%s  ", pCmdIt->name);
+                }
             }
 
             if (charsPrinted > 0)
@@ -320,8 +326,15 @@ Shell::Command::Result Shell::help(Shell &shell, const Shell::Command *pCommand,
                 {
                     shell.print(' ', commandColumnWidth - charsPrinted - indent);
                 }
-                charsPrinted = shell.printf("%s\n", pCmdIt->description);
-                if (charsPrinted > 0)
+
+                if (pCmdIt->description)
+                {
+                    charsPrinted = shell.print(pCmdIt->description);
+                }
+
+                shell.print('\n');
+
+                if (charsPrinted >= 0)
                 {
                     result = Command::Result::ok;
                 }
@@ -647,3 +660,31 @@ bool Shell::receiveChar(const char &c)
     }
     return result;
 }
+
+Shell::Command::Result Shell::Command::Helper::onOffCommand(bool &onOffControl, const char *strOnOffControlName, SHELLCMDPARAMS)
+{
+    Shell::Command::Result result = Shell::Command::Result::fail;
+
+    if (argc != 2)
+    {
+        shell.print(Literal::noArg);
+    }
+    else if (!std::strcmp(argv[1], Literal::on))
+    {
+        onOffControl = true;
+        shell.printf("%s %s %s\n", strOnOffControlName, Literal::verb, Literal::on);
+        result = Shell::Command::Result::ok;
+    }
+    else if (!std::strcmp(argv[1], Literal::off))
+    {
+        onOffControl = false;
+        shell.printf("%s %s %s\n", strOnOffControlName, Literal::verb, Literal::off);
+        result = Shell::Command::Result::ok;
+    }
+    else
+    {
+        shell.print(Literal::badArg);
+    }
+
+    return result;
+};
