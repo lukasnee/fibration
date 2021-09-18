@@ -162,5 +162,17 @@ namespace Fib
             return result;
         }
 
+        /**
+         * @brief swap uint32 endianness
+         * 
+         * @param val 
+         * @return std::uint32_t 
+         */
+        std::uint32_t swap(std::uint32_t val)
+        {
+            val = ((val << 8) & 0xFF00FF00) | ((val >> 8) & 0xFF00FF);
+            return (val << 16) | (val >> 16);
+        }
+
     } // namespace DSP
 } // namespace FibUtil
