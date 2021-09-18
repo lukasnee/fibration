@@ -358,7 +358,7 @@ Shell::Command Shell::helpCommand = Shell::Command(
             {
                 for (const Shell::Command *pCmdIt = Shell::pCommandRoot; pCmdIt != nullptr; pCmdIt = pCmdIt->pNext)
                 {
-                    result = Shell::help(shell, pCmdIt, 7, true);
+                    result = Shell::help(shell, pCmdIt, true, 7);
                 }
             }
             else if (argc > 1)
