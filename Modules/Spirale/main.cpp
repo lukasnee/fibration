@@ -1,103 +1,87 @@
 #include "fibration.hpp"
+#include "oscillator.hpp"
+#include "map.hpp"
 
 #include <cstdint>
 
 #include <limits>
+#include <array>
 
 #include "../System/Streams/i2sDuplexStream.hpp"
 
-float randomF = 0.0f;
+// float randomF = 0.0f;
 
-class Timah : public cpp_freertos::Timer
-{
-public:
-    Timah() : Timer("snh", 1000, true) {}
+// class Timah : public cpp_freertos::Timer
+// {
+// public:
+//     Timah() : Timer("snh", 1000, true) {}
 
-private:
-    void Run() override
-    {
-        randomF = static_cast<float>(((2.0f * std::rand()) / RAND_MAX) - 1.0f);
-    }
-};
+// private:
+//     void Run() override
+//     {
+//         randomF = static_cast<float>(((2.0f * std::rand()) / RAND_MAX) - 1.0f);
+//     }
+// };
 
-Timah timah;
-
-//! Byte swap unsigned int
-uint32_t swap_uint32(uint32_t val)
-{
-    val = ((val << 8) & 0xFF00FF00) | ((val >> 8) & 0xFF00FF);
-    return (val << 16) | (val >> 16);
-}
+// Timah timah;
 
 static I2sDuplexStream::CircularBuffer i2s2DuplexStreamCircularBufferTx;
 static I2sDuplexStream::CircularBuffer i2s2DuplexStreamCircularBufferRx;
 
-class Oscillator
-{
-public:
-    Oscillator(float frequencyInHz = 0.0f, float InitialPhaseInRad = (-1.0f * PI)) : frequencyInHz(frequencyInHz), phaseInRad(InitialPhaseInRad){};
-
-    float evaluateStep(float stepInSeconds)
-    {
-        this->phaseInRad += (2.0f * PI * this->frequencyInHz * stepInSeconds);
-
-        if (this->phaseInRad > PI)
-        {
-            this->phaseInRad = this->phaseInRad - (2.0f * PI);
-        }
-
-        return (amplitude * arm_sin_f32(this->phaseInRad));
-    }
-    float getFrequency() { return frequencyInHz; }
-    void setFrequency(float frequencyInHz) { this->frequencyInHz = frequencyInHz; }
-    void setAmplitude(float amplitude) { this->amplitude = amplitude; }
-
-private:
-    float amplitude = 0;
-    float frequencyInHz = 0;
-    float phaseInRad = 0;
-
-    //const Oscillator(Oscillator &) = delete;
-    Oscillator(Oscillator &&) = delete;
-};
-
-// constexpr float e = 2.7182818;
-// constexpr float e2 = (e*e);
-
-float mainFreqVar, mainAmplVar, modFreqVar, modAmplVar;
-
 static void processTxRxBufferI2s2(const DuplexStereoStreamIF::Buffer *pStereoAudioRxBuffer, DuplexStereoStreamIF::Buffer *pStereoAudioTxBuffer)
 {
-    constexpr std::uint32_t u24max = (1 << 24) - 1;
-    constexpr float u24maxf = u24max;
-    constexpr float samplingRate = 44100.0f;  // [1/sec]
-    constexpr float dt = 1.0f / samplingRate; // [sec]
+    constexpr float samplingRate = 44100.f;  // [1/sec]
+    constexpr float dt = 1.f / samplingRate; //1.0f / samplingRate; // [sec]
 
-    static Oscillator main(440.0f);
-    static Oscillator mod(10.0f);
+    static auto main = OscillatorF32();
+    static auto mod = OscillatorF32();
 
     if (pStereoAudioTxBuffer != nullptr)
     {
-        Periph::getAdc2().getValue(3, mainFreqVar);
-        Periph::getAdc2().getValue(4, mainAmplVar);
-        Periph::getAdc2().getValue(5, modFreqVar);
-        Periph::getAdc2().getValue(6, modAmplVar);
-        main.setAmplitude(mainAmplVar);
-        //mod.setFrequency(20000.0f * pow(2.0f, 10.0f * modFreqVar - 10.0f));
-        //mod.setFrequency(20000.0f * (pow(2.0f, 0.00863268f + (e2 * modFreqVar) - e2) - 0.00600166f));
-        mod.setFrequency(20000.0f * modFreqVar * modFreqVar * modFreqVar * modFreqVar);
+       static std::array<float, 4> potValues;
+        Periph::getAdc2().getValue(5, potValues[0]);
+        Periph::getAdc2().getValue(2, potValues[1]);
+        Periph::getAdc2().getValue(3, potValues[2]);
+        Periph::getAdc2().getValue(4, potValues[3]);
 
-        mod.setAmplitude(modAmplVar);
+        arm_mult_f32(potValues.data(), potValues.data(), potValues.data(), potValues.size());
+        arm_mult_f32(potValues.data(), potValues.data(), potValues.data(), potValues.size());
+
+        main.setFrequencyInHz(Fib::DSP::map(potValues[0], 1.f, 20'000.f));
+        main.setAmplitudeNormal(potValues[1]);
+        mod.setFrequencyInHz(Fib::DSP::map(potValues[2], 1.f, 20'000.f));
+        mod.setAmplitudeNormal(potValues[3]);
+
+        static std::size_t logPrescaler = 0;
+        if (logPrescaler % 500 == 0)
+        {
+            Logger::log(Logger::Verbosity::low, Logger::Type::trace, "%f,%f,%f,%f\n",
+                        main.getFrequencyInHz(),
+                        main.getAmplitudeNormal(),
+                        mod.getFrequencyInHz(),
+                        mod.getAmplitudeNormal());
+        }
         // 1KHz FM modulation to DAC LEFT
         for (auto &stereoSample : *pStereoAudioTxBuffer)
         {
-            main.setFrequency(20000.0f * mainFreqVar * mainFreqVar * mainFreqVar * mainFreqVar * (220.0f * mod.evaluateStep(dt)));
-            auto fmSample = swap_uint32(1 + static_cast<std::uint32_t>((main.evaluateStep(dt) / 2.0f + 1.0f) * (u24maxf)));
 
-            stereoSample.left = fmSample;
+            auto outf32 = (main.step(dt) + mod.step(dt)) / 2.f;
+            auto outQ31 = Fib::DSP::floatToQ31(outf32) >> 8;
 
+            // auto outSample = static_cast<std::uint32_t>(Fib::DSP::map(outf32, -1.f, 1.f, 0.f, static_cast<float>(Fib::DSP::bitDepthToMaxValue<24>())));
+            // auto outSample = Fib::DSP::q31ToSample<24>(outQ31);
+            stereoSample.left = Fib::DSP::swap(outQ31);
+            static float time = 0.f;
+            time += dt;
+            logPrescaler++;
+            if (logPrescaler % 5000 == 0)
+            {
+                // Logger::log(Logger::Verbosity::low, Logger::Type::trace, "%+f,%+ld,%lu,%lu,%f\n", outf32, outQ31, outSample, stereoSample.left, time);
+            }
             // stereoSample.right = 0;
         }
+
+        // Logger::log("fmSample: %lu\n",  *pStereoAudioTxBuffer);
 
         // dry pass ADC LEFT -> DAC RIGHT
         for (std::size_t i = 0; i < pStereoAudioTxBuffer->size(); i++)
@@ -110,7 +94,7 @@ static void processTxRxBufferI2s2(const DuplexStereoStreamIF::Buffer *pStereoAud
 static I2sDuplexStream i2s2DuplexStream(Periph::getI2s2(),
                                         "i2s2stream",
                                         0x500,
-                                        FibSys::getAudioPriority(),
+                                        FibSys::Priority::audioStream,
                                         i2s2DuplexStreamCircularBufferTx,
                                         i2s2DuplexStreamCircularBufferRx,
                                         processTxRxBufferI2s2);
@@ -133,47 +117,28 @@ private:
     {
         Logger::log(Logger::Verbosity::high, Logger::Type::trace, "BlinkTestApp started\n");
         Gpio &onBoardLed = Periph::getGpio(Gpio::Port::A, Gpio::Pin::pin5);
-        //Gpio &rotaryButton = Periph::getGpio(Gpio::Port::C, Gpio::Pin::pin14);
-
         onBoardLed.init(Gpio::Mode::outputPushPull, Gpio::PinState::low);
+
+        //Gpio &rotaryButton = Periph::getGpio(Gpio::Port::C, Gpio::Pin::pin14);
         //rotaryButton.init(Gpio::Mode::input, Gpio::Pull::up);
 
         DelayUntil(cpp_freertos::Ticks::MsToTicks(1000));
 
-        Periph::getAdc2().init();
-
         i2s2DuplexStream.start();
-        timah.Start();
-        int i = 0;
+        //timah.Start();
         while (true)
         {
             // rotaryButton.read() ? Logger::setColoring() : Logger::colorDisable(); // todo config over uart
 
             onBoardLed.write(Gpio::PinState::low);
-            DelayUntil(cpp_freertos::Ticks::MsToTicks(500));
+            DelayUntil(cpp_freertos::Ticks::MsToTicks(50));
             onBoardLed.write(Gpio::PinState::high);
-            DelayUntil(cpp_freertos::Ticks::MsToTicks((500)));
-
-            Logger::log(Logger::Verbosity::mid, Logger::Type::info, "blink %d !\n", i++);
-            vTaskList(buffer);
-            Logger::log(Logger::Verbosity::mid, Logger::Type::info, "\nTask            State   Prio    Stack   Num\n%s\n", buffer);
-            vTaskGetRunTimeStats(buffer);
-            Logger::log(Logger::Verbosity::mid, Logger::Type::info, "\n%s\n", buffer);
-
-            Logger::logFast("logFast!\n");
-            Logger::logFastFromISR("logFastFromISR!\n");
-            Logger::log("%f\n%f\n%f\n%f\n", mainFreqVar, mainAmplVar, modFreqVar, modAmplVar);
-            Logger::log(Logger::Verbosity::mid, Logger::Type::error, "%f\n", mainFreqVar);
-            Logger::log(Logger::Verbosity::mid, Logger::Type::fatal, "%f\n", mainAmplVar);
-            Logger::log(Logger::Verbosity::mid, Logger::Type::info, "%f\n", modFreqVar);
-            Logger::log(Logger::Verbosity::mid, Logger::Type::system, "%f\n", mainFreqVar);
-            Logger::log(Logger::Verbosity::mid, Logger::Type::trace, "%f\n", mainAmplVar);
-            Logger::log(Logger::Verbosity::mid, Logger::Type::warning, "%f\n", modFreqVar);
+            DelayUntil(cpp_freertos::Ticks::MsToTicks((50)));
         }
     }
 };
 
-BlinkTestApp blinkTestApp("App1", 0x500, FibSys::getAppMaxPriority());
+BlinkTestApp blinkTestApp("App1", 0x500, FibSys::Priority::appHigh);
 
 // for (int y = 0; y < i; y++)
 // {
