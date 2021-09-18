@@ -213,25 +213,21 @@ const Shell::Command *Shell::Command::findSubcommand(const char *name) const
 const Shell::Command *Shell::findCommand(std::size_t argcIn, const char *argvIn[], std::size_t &argCmdOffsetOut)
 {
     const Command *pCommand = Shell::pCommandRoot;
-    std::size_t argIt = 0;
 
     argCmdOffsetOut = 0;
 
     if (pCommand)
     {
-        if (argcIn && argvIn[argIt])
+        if (argcIn && argvIn[0])
         {
             pCommand = pCommand->findNeighbourCommand(argvIn[argCmdOffsetOut]);
-
             if (pCommand)
             {
                 while (argcIn - argCmdOffsetOut - 1)
                 {
-                    const Command *pSubcommand = pCommand->findSubcommand(argvIn[argCmdOffsetOut + 1 + argIt]);
-
+                    const Command *pSubcommand = pCommand->findSubcommand(argvIn[argCmdOffsetOut + 1]);
                     if (pSubcommand)
                     {
-                        argIt++;
                         argCmdOffsetOut++;
                         pCommand = pSubcommand;
                         continue;
