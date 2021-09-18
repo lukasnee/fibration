@@ -9,7 +9,7 @@
             "presentation": {
                 "focus": true,
                 "panel": "dedicated",
-                "revealProblems": "onProblem"
+                // "revealProblems": "onProblem"
             },
             "problemMatcher": []
         },
@@ -22,7 +22,7 @@
             "presentation": {
                 "focus": true,
                 "panel": "dedicated",
-                "revealProblems": "onProblem"
+                // "revealProblems": "onProblem"
             }
         },
         {
@@ -34,7 +34,7 @@
             "presentation": {
                 "focus": true,
                 "panel": "dedicated",
-                "revealProblems": "onProblem"
+                // "revealProblems": "onProblem"
             },
             "problemMatcher": []
         },
@@ -47,7 +47,7 @@
                 "problemMatcher": "$gcc"
             },
             "presentation": {
-                "revealProblems": "onProblem"
+                // "revealProblems": "onProblem"
             }
         },
         {
@@ -59,7 +59,7 @@
                 "problemMatcher": "$gcc"
             },
             "presentation": {
-                "revealProblems": "onProblem"
+                // "revealProblems": "onProblem"
             }
         },
         {
@@ -74,7 +74,7 @@
                 "problemMatcher": "$gcc"
             },
             "presentation": {
-                "revealProblems": "onProblem"
+                // "revealProblems": "onProblem"
             }
         },
         {
@@ -86,7 +86,7 @@
                 "problemMatcher": "$gcc"
             },
             "presentation": {
-                "revealProblems": "onProblem"
+                // "revealProblems": "onProblem"
             }
         },
         {
