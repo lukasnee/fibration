@@ -297,7 +297,12 @@ Shell::Command::Result Shell::help(Shell &shell, const Shell::Command *pCommand,
 
         for (const Shell::Command *pCmdIt = pCommand; pCmdIt != nullptr; pCmdIt = pCmdIt->pNext)
         {
-            shell.print(' ', indent);
+            if (indent >= 3) {
+                shell.print(' ', indent - 3);
+                // shell.print("|\n");
+                // shell.print(' ', indent - 3);
+                shell.print("`- ");
+            }
 
             int charsPrinted = 0;
             if (pCmdIt->usage)
@@ -313,10 +318,7 @@ Shell::Command::Result Shell::help(Shell &shell, const Shell::Command *pCommand,
             {
                 if (charsPrinted < commandColumnWidth)
                 {
-                    for (std::size_t i = commandColumnWidth - charsPrinted; i; i--)
-                    {
-                        shell.print(' ');
-                    }
+                    shell.print(' ', commandColumnWidth - charsPrinted - indent);
                 }
                 charsPrinted = shell.printf("%s\n", pCmdIt->description);
                 if (charsPrinted > 0)
