@@ -1,3 +1,5 @@
+#pragma once
+
 #include <cstdint>
 #include <limits>
 #include "stm32f303xe.h"
@@ -174,5 +176,21 @@ namespace Fib
             return (val << 16) | (val >> 16);
         }
 
+        template <typename T>
+        class Range
+        {
+        public:
+            constexpr Range(T const &lower, T const &upper) : upper(upper),lower(lower) {}
+            bool isInRange(T value) const
+            {
+                return (this->lower < value && value < this->upper);
+            };
+            constexpr T getUpper() const { return this->upper; }
+            constexpr T getLower() const { return this->lower; }
+
+        private:
+            const T upper;
+            const T lower;
+        };
     } // namespace DSP
 } // namespace FibUtil
