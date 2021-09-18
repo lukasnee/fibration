@@ -14,7 +14,7 @@ public:
     // 1KHz system tick time reference
     static std::uint32_t getSysTick();
     static std::uint32_t getUptimeInMs();
-    static void getUptime(std::uint32_t &hours, std::uint32_t &minutes, std::uint32_t &seconds, std::uint32_t &milliseconds);
+    static void getUptime(std::uint32_t &days, std::uint32_t &hours, std::uint32_t &minutes, std::uint32_t &seconds, std::uint32_t &milliseconds);
 
     // should be called in case fatal error, could be used as run-time assert
     static void panic();
