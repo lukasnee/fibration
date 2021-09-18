@@ -13,8 +13,20 @@
 #include <cstring>
 #include <cstdarg>
 #include <string_view>
+#include <limits>
 
 using namespace std::string_view_literals;
+
+#define ANSI_COLOR_BLACK "\e[30m"
+#define ANSI_COLOR_RED "\e[31m"
+#define ANSI_COLOR_GREEN "\e[32m"
+#define ANSI_COLOR_YELLOW "\e[33m"
+#define ANSI_COLOR_BLUE "\e[34m"
+#define ANSI_COLOR_MAGENTA "\e[35m"
+#define ANSI_COLOR_CYAN "\e[36m"
+#define ANSI_COLOR_WHITE "\e[37m"
+#define ANSI_COLOR_DEFAULT "\e[39m"
+#define ANSI_COLOR_RESET "\e[0m"
 
 class Shell : public cpp_freertos::Thread
 {
@@ -22,7 +34,7 @@ public:
     struct Config
     {
         // prompt in blue, command entry in yellow
-        static constexpr std::string_view prompt = "\e[34mFIB> \e[33m"sv;
+        static constexpr std::string_view prompt = ANSI_COLOR_BLUE "FIB> " ANSI_COLOR_YELLOW ""sv;
         static constexpr std::size_t printfBufferSize = 256;
         static constexpr bool printEndLineCR = false;
         static constexpr bool printEndLineLF = true;
@@ -46,6 +58,7 @@ public:
     public:
         enum Result : std::int8_t
         {
+            unknown = std::numeric_limits<std::int8_t>::min(),
             fail8 = -8,
             fail7 = -7,
             fail6 = -6,
@@ -56,11 +69,13 @@ public:
             fail = -1,
             ok = 0,
             okQuiet,
-            unknown,
         };
 
+#define SHELLCMDPARAMS Shell &shell, std::size_t argc, const char *argv[]
+#define SHELLCMDARGS shell, argc, argv
+
         using CtorCallbackF = void(void); // method for constructing subcommands
-        using CommandF = Result(Shell &shell, std::size_t argc, const char *argv[]);
+        using CommandF = Result(SHELLCMDPARAMS);
 
         Command(const char *name, const char *usage = "", const char *description = "", CommandF commandF = nullptr, CtorCallbackF ctorCallbackF = nullptr);
         Command(Command &parent, const char *name, const char *usage = "", const char *description = "", CommandF commandF = nullptr, CtorCallbackF ctorCallbackF = nullptr);
@@ -73,6 +88,21 @@ public:
         const char *usage = nullptr;
         const char *description = nullptr;
         const CommandF *commandF = nullptr;
+
+        struct Helper
+        {
+            struct Literal
+            {
+                static constexpr const char *onOffUsage = "<on|off>";
+                static constexpr const char *badArg = "bad arg\n";
+                static constexpr const char *noArg = "no arg\n";
+                static constexpr const char *verb = "turned";
+                static constexpr const char *on = "on";
+                static constexpr const char *off = "off";
+            };
+
+            static Result onOffCommand(bool &onOffControl, const char *strOnOffControlName, SHELLCMDPARAMS);
+        };
 
     protected:
         void linkTo(Command *&pParent);
