@@ -30,15 +30,12 @@ static I2sDuplexStream::CircularBuffer i2s2DuplexStreamCircularBufferRx;
 
 static void processTxRxBufferI2s2(const DuplexStereoStreamIF::Buffer *pStereoAudioRxBuffer, DuplexStereoStreamIF::Buffer *pStereoAudioTxBuffer)
 {
-    constexpr float samplingRate = 44100.f;  // [1/sec]
-    constexpr float dt = 1.f / samplingRate; //1.0f / samplingRate; // [sec]
-
-    static auto main = OscillatorF32();
-    static auto mod = OscillatorF32();
+    static auto osc1 = OscillatorF32();
+    static auto osc2 = OscillatorF32();
 
     if (pStereoAudioTxBuffer != nullptr)
     {
-       static std::array<float, 4> potValues;
+        static std::array<float, 4> potValues;
         Periph::getAdc2().getValue(5, potValues[0]);
         Periph::getAdc2().getValue(2, potValues[1]);
         Periph::getAdc2().getValue(3, potValues[2]);
@@ -47,47 +44,51 @@ static void processTxRxBufferI2s2(const DuplexStereoStreamIF::Buffer *pStereoAud
         arm_mult_f32(potValues.data(), potValues.data(), potValues.data(), potValues.size());
         arm_mult_f32(potValues.data(), potValues.data(), potValues.data(), potValues.size());
 
-        main.setFrequencyInHz(Fib::DSP::map(potValues[0], 1.f, 20'000.f));
-        main.setAmplitudeNormal(potValues[1]);
-        mod.setFrequencyInHz(Fib::DSP::map(potValues[2], 1.f, 20'000.f));
-        mod.setAmplitudeNormal(potValues[3]);
+        osc1.setFrequencyInHz(Fib::DSP::map(potValues[0], 1.f, 20'000.f));
+        osc1.setAmplitudeNormal(potValues[1]);
+        osc2.setFrequencyInHz(Fib::DSP::map(potValues[2], 1.f, 20'000.f));
+        osc2.setAmplitudeNormal(potValues[3]);
 
         static std::size_t logPrescaler = 0;
         if (logPrescaler % 500 == 0)
         {
             Logger::log(Logger::Verbosity::low, Logger::Type::trace, "%f,%f,%f,%f\n",
-                        main.getFrequencyInHz(),
-                        main.getAmplitudeNormal(),
-                        mod.getFrequencyInHz(),
-                        mod.getAmplitudeNormal());
+                        osc1.getFrequencyInHz(),
+                        osc1.getAmplitudeNormal(),
+                        osc2.getFrequencyInHz(),
+                        osc2.getAmplitudeNormal());
         }
         // 1KHz FM modulation to DAC LEFT
         for (auto &stereoSample : *pStereoAudioTxBuffer)
         {
 
-            auto outf32 = (main.step(dt) + mod.step(dt)) / 2.f;
+            auto outf32 = (osc1.step());
             auto outQ31 = Fib::DSP::floatToQ31(outf32) >> 8;
+            stereoSample.left = Fib::DSP::swap(outQ31);
+
+            auto out2f32 = (osc2.step());
+            auto out2Q31 = Fib::DSP::floatToQ31(out2f32) >> 8;
+            stereoSample.right = Fib::DSP::swap(out2Q31);
 
             // auto outSample = static_cast<std::uint32_t>(Fib::DSP::map(outf32, -1.f, 1.f, 0.f, static_cast<float>(Fib::DSP::bitDepthToMaxValue<24>())));
             // auto outSample = Fib::DSP::q31ToSample<24>(outQ31);
-            stereoSample.left = Fib::DSP::swap(outQ31);
+
             static float time = 0.f;
-            time += dt;
+            time += 1 / 44'100.f;
             logPrescaler++;
             if (logPrescaler % 5000 == 0)
             {
                 // Logger::log(Logger::Verbosity::low, Logger::Type::trace, "%+f,%+ld,%lu,%lu,%f\n", outf32, outQ31, outSample, stereoSample.left, time);
             }
-            // stereoSample.right = 0;
         }
 
         // Logger::log("fmSample: %lu\n",  *pStereoAudioTxBuffer);
 
         // dry pass ADC LEFT -> DAC RIGHT
-        for (std::size_t i = 0; i < pStereoAudioTxBuffer->size(); i++)
-        {
-            (*pStereoAudioTxBuffer)[i].right = (*pStereoAudioRxBuffer)[i].left;
-        }
+        // for (std::size_t i = 0; i < pStereoAudioTxBuffer->size(); i++)
+        // {
+        //     (*pStereoAudioTxBuffer)[i].right = (*pStereoAudioRxBuffer)[i].left;
+        // }
     }
 }
 /*__attribute__((section(".ccmram")))*/
