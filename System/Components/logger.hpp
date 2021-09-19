@@ -44,7 +44,7 @@ public:
         /* lower verbosity level log entries will be optimized out @compile-time */
         static constexpr Verbosity verbosityFloor = Verbosity::low;
 
-        bool logging = true;
+        bool logging = false;
         bool color = true;
         bool prefix = true;
     };
