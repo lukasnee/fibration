@@ -18,13 +18,14 @@ public:
         };
     };
 
-    OscillatorF32(float frequencyInHz = 0.f, float initialPhaseInRad = 0.f) : frequencyInHz(frequencyInHz), phaseInRad(initialPhaseInRad){};
-
-    float step(float stepInSeconds)
+    OscillatorF32(float sampleRateInHz = 44'100.f, float frequencyInHz = 0.f, float initialPhaseInRad = 0.f)
+        : sampleRateInHz(sampleRateInHz), frequencyInHz(frequencyInHz), phaseInRad(initialPhaseInRad){};
+    float step()
     {
+        const float samplePeriod = 2 * PI / this->sampleRateInHz;
         float phaseShiftInRad;
-        arm_mult_f32(&stepInSeconds, &this->frequencyInHz, &phaseShiftInRad, 1); /* phaseShiftInRad = t * f */
-        arm_add_f32(&this->phaseInRad, &phaseShiftInRad, &this->phaseInRad, 1);  /* phaseInRad += phaseShiftInRad */
+        arm_scale_f32(&this->frequencyInHz, samplePeriod, &phaseShiftInRad, 1); /* phaseShiftInRad = f * t */
+        arm_add_f32(&this->phaseInRad, &phaseShiftInRad, &this->phaseInRad, 1); /* phaseInRad += phaseShiftInRad */
         while (this->phaseInRad > Config::Ranges::phaseInRad.getUpper())
         {
             this->phaseInRad = this->phaseInRad - Config::Ranges::phaseInRad.getUpper();
@@ -72,6 +73,7 @@ public:
     }
 
 private:
+    const float sampleRateInHz = 44'100.f;
     float amplitudeNormal = 0.f;
     float frequencyInHz = 0.f;
     float phaseInRad = 0.f;
