@@ -28,6 +28,13 @@
 static I2sDuplexStream::CircularBuffer i2s2DuplexStreamCircularBufferTx;
 static I2sDuplexStream::CircularBuffer i2s2DuplexStreamCircularBufferRx;
 
+static bool switchas = false;
+Shell::Command switchasCommand("q", nullptr, nullptr, [&switchas](SHELLCMDPARAMS)
+                               {
+                                   switchas = !switchas;
+                                   return Shell::Command::Result::okQuiet;
+                               });
+
 static void processTxRxBufferI2s2(const DuplexStereoStreamIF::Buffer *pStereoAudioRxBuffer, DuplexStereoStreamIF::Buffer *pStereoAudioTxBuffer)
 {
     static auto osc1 = OscillatorF32();
@@ -49,20 +56,36 @@ static void processTxRxBufferI2s2(const DuplexStereoStreamIF::Buffer *pStereoAud
         osc2.setFrequencyInHz(Fib::DSP::map(potValues[2], 0.f, 1.f, 0.f, 20'000.f));
         osc2.setAmplitudeNormal(potValues[3]);
 
-        Fib::DSP::SampleBlocks<float, 8> ch1SampleBlocksF32;
-        osc1.step(ch1SampleBlocksF32);
-
-        Fib::DSP::SampleBlocks<float, 8> ch2SampleBlocksF32;
-        osc2.step(ch2SampleBlocksF32);
-
-        for (std::size_t i = 0; i < ch2SampleBlocksF32.size(); i++)
+        if (switchas)
         {
-            for (std::size_t j = 0; j < ch2SampleBlocksF32.front().size(); j++)
+            Fib::DSP::SampleBlocks<float, 8> ch1SampleBlocksF32;
+            osc1.step(ch1SampleBlocksF32);
+
+            Fib::DSP::SampleBlocks<float, 8> ch2SampleBlocksF32;
+            osc2.step(ch2SampleBlocksF32);
+
+            for (std::size_t i = 0; i < ch2SampleBlocksF32.size(); i++)
             {
-                auto ch1SampleQ31 = Fib::DSP::floatToQ31(ch1SampleBlocksF32[i][j]) >> 8;
-                auto ch2SampleQ31 = Fib::DSP::floatToQ31(ch2SampleBlocksF32[i][j]) >> 8;
-                (*pStereoAudioTxBuffer)[i * ch1SampleBlocksF32.front().size() + j].left = Fib::DSP::swap(ch1SampleQ31);
-                (*pStereoAudioTxBuffer)[i * ch2SampleBlocksF32.front().size() + j].right = Fib::DSP::swap(ch2SampleQ31);
+                for (std::size_t j = 0; j < ch2SampleBlocksF32.front().size(); j++)
+                {
+                    auto ch1SampleQ31 = Fib::DSP::floatToQ31(ch1SampleBlocksF32[i][j]) >> 8;
+                    auto ch2SampleQ31 = Fib::DSP::floatToQ31(ch2SampleBlocksF32[i][j]) >> 8;
+                    (*pStereoAudioTxBuffer)[i * ch1SampleBlocksF32.front().size() + j].left = Fib::DSP::swap(ch1SampleQ31);
+                    (*pStereoAudioTxBuffer)[i * ch2SampleBlocksF32.front().size() + j].right = Fib::DSP::swap(ch2SampleQ31);
+                }
+            }
+        }
+        else
+        {
+            for (auto &stereoSample : *pStereoAudioTxBuffer)
+            {
+                auto outf32 = osc1.step();
+                auto out2f32 = osc2.step();
+
+                auto outQ31 = Fib::DSP::floatToQ31(outf32) >> 8;
+                auto out2Q31 = Fib::DSP::floatToQ31(out2f32) >> 8;
+                stereoSample.left = Fib::DSP::swap(outQ31);
+                stereoSample.right = Fib::DSP::swap(out2Q31);
             }
         }
 
