@@ -180,7 +180,7 @@ namespace Fib
         class Range
         {
         public:
-            constexpr Range(T const &lower, T const &upper) : upper(upper),lower(lower) {}
+            constexpr Range(T const &lower, T const &upper) : upper(upper), lower(lower) {}
             bool isInRange(T value) const
             {
                 return (this->lower < value && value < this->upper);
@@ -192,5 +192,10 @@ namespace Fib
             const T upper;
             const T lower;
         };
+
+        template <typename Type>
+        using SampleBlock = std::array<Type, 4>;
+        template <typename Type, std::size_t numOfBlocks>
+        using SampleBlocks = std::array<SampleBlock<Type>, numOfBlocks>;
     } // namespace DSP
 } // namespace FibUtil
