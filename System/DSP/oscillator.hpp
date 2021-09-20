@@ -1,5 +1,6 @@
 #pragma once
 
+#include "logger.hpp"
 #include "map.hpp"
 #include "arm_math.h"
 
@@ -34,6 +35,38 @@ public:
         float sinAmplified;
         arm_mult_f32(&sinPure, &this->amplitudeNormal, &sinAmplified, 1);
         return sinAmplified;
+    }
+
+    template <std::size_t numOfSampleBlocks>
+    void step(Fib::DSP::SampleBlocks<float, numOfSampleBlocks> &sampleBlocksOut)
+    {
+        const float samplePeriod = 2 * PI / this->sampleRateInHz;
+        const float phaseDeltaInRad = this->frequencyInHz * samplePeriod;
+
+        Fib::DSP::SampleBlock<float> phaseStepsInRadSampleBlockF32 = {{1.f, 2.f, 3.f, 4.f}};
+        arm_scale_f32(phaseStepsInRadSampleBlockF32.data(), phaseDeltaInRad, phaseStepsInRadSampleBlockF32.data(), phaseStepsInRadSampleBlockF32.size());
+
+        for (std::size_t i = 0; i < sampleBlocksOut.size(); i++)
+        {
+            /* get sample phases */
+            Fib::DSP::SampleBlock<float> phaseInRadSampleBlockF32;
+            arm_offset_f32(phaseStepsInRadSampleBlockF32.data(), this->phaseInRad, phaseInRadSampleBlockF32.data(), phaseInRadSampleBlockF32.size());
+
+            /* loop phase around 2*PI and get sine values */
+            Fib::DSP::SampleBlock<float> sampleBlockF32;
+            for (std::size_t j = 0; j < phaseInRadSampleBlockF32.size(); j++)
+            {
+                while (phaseInRadSampleBlockF32[j] > Config::Ranges::phaseInRad.getUpper())
+                {
+                    phaseInRadSampleBlockF32[j] = phaseInRadSampleBlockF32[j] - Config::Ranges::phaseInRad.getUpper();
+                }
+                sampleBlockF32[j] = arm_sin_f32(phaseInRadSampleBlockF32[j]);
+            }
+
+            /* scale to amplitude normal */
+            arm_scale_f32(sampleBlockF32.data(), this->amplitudeNormal, sampleBlocksOut[i].data(), sampleBlocksOut[i].size());
+            this->phaseInRad = phaseInRadSampleBlockF32.back();
+        }
     }
 
     float getAmplitudeNormal() { return this->amplitudeNormal; }
