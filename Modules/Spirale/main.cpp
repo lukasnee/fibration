@@ -138,7 +138,7 @@ public:
     {
         if (!Start())
         {
-            FibSys::panic();
+            FIBSYS_PANIC();
         }
     };
 

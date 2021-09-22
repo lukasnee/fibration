@@ -8,7 +8,7 @@ namespace Core::Commands
         "panic", nullptr, "cause system panic",
         [](Shell &shell, std::size_t argc, const char *argv[]) -> Shell::Command::Result
         {
-            FibSys::panic();
+            FIBSYS_PANIC();
             // will never be reached
             return Shell::Command::Result::ok;
         });

@@ -94,6 +94,6 @@ Gpio & Periph::getGpio(Gpio::Port port, Gpio::Pin pin)
         else if (pin == Gpio::Pin::pin15) { static Gpio gpio(port, pin); return gpio; }
     }
 
-    FibSys::panic(); // never returns...
+    FIBSYS_PANIC(); // never returns...
     static Gpio dummy(port, pin); return dummy;
 }

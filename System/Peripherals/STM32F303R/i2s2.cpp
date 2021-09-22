@@ -82,7 +82,7 @@ extern "C" void DMA1_Channel5_IRQHandler(void)
 
 static void Error_Handler()
 {
-    FibSys::panic();
+    FIBSYS_PANIC();
 }
 
 extern "C" void HAL_I2S_MspInit(I2S_HandleTypeDef *hi2s)

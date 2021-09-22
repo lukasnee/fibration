@@ -17,7 +17,7 @@ Shell::Shell(AsciiStream &asciiStream, std::uint16_t stackDepth, BaseType_t prio
 {
     if (Start() == false)
     {
-        FibSys::panic();
+        FIBSYS_PANIC();
     }
 };
 

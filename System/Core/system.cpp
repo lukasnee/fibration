@@ -18,7 +18,7 @@ extern "C"
 
 extern "C" void vApplicationMallocFailedHook(void)
 {
-    FibSys::panic();
+    FIBSYS_PANIC();
 }
 
 extern "C" void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
@@ -58,7 +58,7 @@ static void SystemClock_Config(void)
     RCC_OscInitStruct.PLL.PREDIV = RCC_PREDIV_DIV1;
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
     {
-        FibSys::panic();
+        FIBSYS_PANIC();
     }
     /* Initializes the CPU, AHB and APB buses clocks */
     RCC_ClkInitStruct.ClockType =
@@ -74,7 +74,7 @@ static void SystemClock_Config(void)
 
     if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
     {
-        FibSys::panic();
+        FIBSYS_PANIC();
     }
 
     PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_I2S | RCC_PERIPHCLK_USART3 | RCC_PERIPHCLK_USART2 | RCC_PERIPHCLK_ADC12;
@@ -84,7 +84,7 @@ static void SystemClock_Config(void)
     PeriphClkInit.I2sClockSelection = RCC_I2SCLKSOURCE_SYSCLK;
     if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
     {
-        FibSys::panic();
+        FIBSYS_PANIC();
     }
 }
 
@@ -119,17 +119,47 @@ void FibSys::getUptime(std::uint32_t &days, std::uint32_t &hours, std::uint32_t 
     days = daysTotal;
 }
 
-void FibSys::panic()
+extern "C" void fibsys_panic(const char * strFile, std::uint32_t line)
 {
-    Logger::log("\n\nsystem panic !\n"
-                "SysTick: %lu\n\n"sv,
-                FibSys::getSysTick()); // TODO does not work?!
-    vTaskDelay(cpp_freertos::Ticks::MsToTicks(1000));
+    FibSys::panic(strFile, line);
+}
+
+void FibSys::panic(const char * strFile, std::uint32_t line)
+{
+    auto hexDumpWords = [](std::uint32_t address, std::size_t size, std::size_t width)
+    {
+        for (std::size_t i = 0; i < size; i += width)
+        {
+            printf("%08lX: ", address);
+            auto pAddress = reinterpret_cast<std::uint32_t *>(address);
+            for (std::size_t j = 0; j < width; j++)
+                if (i + j < size)
+                    printf("%08lX ", pAddress[i + j]);
+                else
+                    printf("   ");
+            printf("\n");
+        }
+    };
+
+    printf(
+        ANSI_COLOR_RESET
+        "-------------------------------\n"
+        "system panic !!! ");
+    printf("uptime: %lu ms\n", FibSys::getUptimeInMs());
+    printf("in %s:%lu\n", strFile, line);
+    printf("PSP dump:\n");
+    hexDumpWords(__get_PSP(), 32, 4);
+
     vTaskSuspendAll();
     taskDISABLE_INTERRUPTS();
-    while (true)
-    {
-    };
+    HAL_Delay(3000);
+    FibSys::hardwareReboot();
+}
+
+void FibSys::hardwareReboot()
+{
+    __NVIC_SystemReset();
+    /* shall never return ! */
 }
 
 void FibSys::boot()
@@ -145,7 +175,7 @@ FibSys::FibSys(std::uint16_t stackDepth, BaseType_t priority) : Thread("FibSys",
 {
     if (Start() == false)
     {
-        FibSys::panic();
+        FIBSYS_PANIC();
     }
 };
 
@@ -167,7 +197,7 @@ void FibSys::Run()
     static AsciiStream textStreamUart2(ioStreamUart2);
     if (false == Logger::setAsciiStream(textStreamUart2))
     {
-        FibSys::panic();
+        FIBSYS_PANIC();
     }
     Logger::log(Logger::Verbosity::high, Logger::Type::system, "Fibration %s v%u.%u.%u\n", Fib::Version::moduleName, Fib::Version::major, Fib::Version::minor, Fib::Version::patch);
     Shell::start(textStreamUart2, 0x200, FibSys::Priority::appHigh);

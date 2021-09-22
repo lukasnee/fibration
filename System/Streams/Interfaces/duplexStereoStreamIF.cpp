@@ -17,7 +17,7 @@ DuplexStereoStreamIF::DuplexStereoStreamIF(const std::string pcName,
 
     if (Thread::Start() == false)
     {
-        FibSys::panic();
+        FIBSYS_PANIC();
     }
 };
 
