@@ -76,9 +76,9 @@ public:
 
         using CtorCallbackF = void(void); // method for constructing subcommands
         using CommandF = Result(SHELLCMDPARAMS);
-
-        Command(const char *name, const char *usage = "", const char *description = "", CommandF commandF = nullptr, CtorCallbackF ctorCallbackF = nullptr);
-        Command(Command &parent, const char *name, const char *usage = "", const char *description = "", CommandF commandF = nullptr, CtorCallbackF ctorCallbackF = nullptr);
+        Command(const char *name, const char *usage = nullptr, const char *description = nullptr, CommandF commandF = nullptr, CtorCallbackF ctorCallbackF = nullptr);
+        Command(Command &parent, const char *name, const char *usage = nullptr, const char *description = nullptr, CommandF commandF = nullptr, CtorCallbackF ctorCallbackF = nullptr);
+        Command(const char *name, CommandF commandF = nullptr);
         const Command *findNeighbourCommand(const char *name) const;
         const Command *findSubcommand(const char *name) const;
 

@@ -29,7 +29,7 @@ static I2sDuplexStream::CircularBuffer i2s2DuplexStreamCircularBufferTx;
 static I2sDuplexStream::CircularBuffer i2s2DuplexStreamCircularBufferRx;
 
 static bool switchas = false;
-Shell::Command switchasCommand("q", nullptr, nullptr, [&switchas](SHELLCMDPARAMS)
+Shell::Command switchasCommand("q", [&switchas](SHELLCMDPARAMS)
                                {
                                    switchas = !switchas;
                                    return Shell::Command::Result::okQuiet;

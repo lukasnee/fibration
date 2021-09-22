@@ -150,6 +150,13 @@ Shell::Command::Command(Command &parent, const char *name, const char *usage, co
     }
 }
 
+Shell::Command::Command(const char *name, CommandF commandF)
+    : name(name), usage(nullptr), description(nullptr), commandF(commandF)
+{
+    this->linkTo(Shell::pCommandRoot);
+}
+
+
 bool Shell::Command::matchToken(const char *strTokens, const char *strToken)
 {
     bool result = false;
