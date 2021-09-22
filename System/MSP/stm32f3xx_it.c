@@ -1,10 +1,10 @@
-#include "stm32f3xx_hal.h"
+#include "system.h"
+
 #include "stm32f3xx_it.h"
+#include "stm32f3xx_hal.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
-
-#include "logger.h"
 
 extern TIM_HandleTypeDef htim7;
 extern TIM_HandleTypeDef htim6;
@@ -60,7 +60,7 @@ void NMI_Handler(void)
 // This function handles Hard fault interrupt.
 void HardFault_Handler(void)
 {
-    printf("HardFault_Handler\n");
+    FIBSYS_PANIC();
     return;
     while (1)
     {
@@ -71,7 +71,7 @@ void HardFault_Handler(void)
 // This function handles Memory management fault.
 void MemManage_Handler(void)
 {
-    printf("MemManage_Handler\n");
+    FIBSYS_PANIC();
     while (1)
     {
         blinkErrorLed(TIMES_TO_BLINK_ON_MEM_FAULT);
@@ -81,7 +81,7 @@ void MemManage_Handler(void)
 // This function handles Pre-fetch fault, memory access fault.
 void BusFault_Handler(void)
 {
-    printf("BusFault_Handler\n");
+    FIBSYS_PANIC();
     while (1)
     {
         blinkErrorLed(TIMES_TO_BLINK_ON_BUS_FAULT);
@@ -91,7 +91,7 @@ void BusFault_Handler(void)
 // This function handles Undefined instruction or illegal state.
 void UsageFault_Handler(void)
 {
-    printf("UsageFault_Handler\n");
+    FIBSYS_PANIC();
     while (1)
     {
         blinkErrorLed(TIMES_TO_BLINK_ON_USAGE_FAULT);

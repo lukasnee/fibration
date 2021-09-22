@@ -78,15 +78,15 @@ bool Adc2::init()
     hadc2.Init.Overrun = ADC_OVR_DATA_OVERWRITTEN;
     if (HAL_OK != HAL_ADC_Init(&hadc2))
     {
-        FibSys::panic();
+        FIBSYS_PANIC();
     }
     else if (false == this->configChannels())
     {
-        FibSys::panic();
+        FIBSYS_PANIC();
     }
     else if (false == this->autoCalibrate())
     {
-        FibSys::panic();
+        FIBSYS_PANIC();
     }
     else
     {
@@ -112,7 +112,7 @@ bool Adc2::configChannels()
         sConfig.Channel = channels[i].channel;
         if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
         {
-            FibSys::panic();
+            FIBSYS_PANIC();
             result = false;
             break;
         }
@@ -128,21 +128,21 @@ bool Adc2::autoCalibrate()
     const bool restartRequired = isRunning;
     if (restartRequired && false == this->stop())
     {
-        FibSys::panic();
+        FIBSYS_PANIC();
     }
     else
     {
         /* NOTE: must be called before HAL_ADC_Start() or after HAL_ADC_Stop() */
         if (HAL_ADCEx_Calibration_Start(&hadc2, Config::singleDiff) != HAL_OK)
         {
-            FibSys::panic();
+            FIBSYS_PANIC();
         }
         else
         {
             result = true;
             if (restartRequired && false == this->start())
             {
-                FibSys::panic();
+                FIBSYS_PANIC();
             }
         }
     }
@@ -228,7 +228,7 @@ bool Adc2::Internal::init()
     hdma_adc2.Init.Priority = DMA_PRIORITY_LOW;
     if (HAL_DMA_Init(&hdma_adc2) != HAL_OK)
     {
-        FibSys::panic();
+        FIBSYS_PANIC();
     }
     else
     {
@@ -248,7 +248,7 @@ bool Adc2::Internal::deinit()
 
     if (HAL_OK != HAL_DMA_DeInit(hadc2.DMA_Handle))
     {
-        FibSys::panic();
+        FIBSYS_PANIC();
     }
     else
     {

@@ -66,7 +66,7 @@ bool Uart2::initUnsafe()
     hdma_usart2_tx.Init.Priority = DMA_PRIORITY_LOW;
     if (HAL_DMA_Init(&hdma_usart2_tx) != HAL_OK)
     {
-        FibSys::panic();
+        FIBSYS_PANIC();
     }
     else
     {
@@ -84,7 +84,7 @@ bool Uart2::initUnsafe()
     hdma_usart2_rx.Init.Priority = DMA_PRIORITY_LOW;
     if (HAL_DMA_Init(&hdma_usart2_rx) != HAL_OK)
     {
-        FibSys::panic();
+        FIBSYS_PANIC();
     }
     else
     {

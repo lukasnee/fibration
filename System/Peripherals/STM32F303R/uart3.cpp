@@ -67,7 +67,7 @@ bool Uart3::initUnsafe()
     hdma_usart3_tx.Init.Priority = DMA_PRIORITY_LOW;
     if (HAL_DMA_Init(&hdma_usart3_tx) != HAL_OK)
     {
-        FibSys::panic();
+        FIBSYS_PANIC();
     }
 
     __HAL_LINKDMA(&huart3, hdmatx, hdma_usart3_tx);
@@ -83,7 +83,7 @@ bool Uart3::initUnsafe()
     hdma_usart3_rx.Init.Priority = DMA_PRIORITY_LOW;
     if (HAL_DMA_Init(&hdma_usart3_rx) != HAL_OK)
     {
-        FibSys::panic();
+        FIBSYS_PANIC();
     }
 
     __HAL_LINKDMA(&huart3, hdmarx, hdma_usart3_rx);
