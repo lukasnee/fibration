@@ -16,7 +16,7 @@
 class Uart2 : public UartCommon, public IODataIF
 {
 public:
-    Uart2(std::uint32_t baudrate = 115200);
+    Uart2(std::uint32_t baudrate = UartCommon::Default::baudrate);
     ~Uart2();
 
 protected:
@@ -26,6 +26,4 @@ protected:
 private:
     void operator=(Uart2 const &) = delete;
     Uart2(Uart2 const &) = delete;
-
-    std::uint32_t baudrate;
 };
