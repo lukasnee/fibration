@@ -19,6 +19,13 @@ public:
         task
     };
 
+    static bool isInIsr(Context context = Context::undefined)
+    {
+        return (context == Context::isr) ? true : (context == Context::task)         ? false
+                                              : (xPortIsInsideInterrupt() == pdTRUE) ? true
+                                                                                     : false;
+    }
+
 protected:
     OsResource() : txBinarySemaphore(true), rxBinarySemaphore(true){};
 
@@ -39,13 +46,6 @@ protected:
     virtual ~OsResource() = default;
 
 private:
-    bool isInIsr(Context context = Context::undefined)
-    {
-        const bool isInIsr = (context == Context::isr) ? true : (context == Context::task)         ? false
-                                                            : (xPortIsInsideInterrupt() == pdTRUE) ? true
-                                                                                                   : false;
-    }
-
     cpp_freertos::BinarySemaphore txBinarySemaphore;
     cpp_freertos::BinarySemaphore rxBinarySemaphore;
 };

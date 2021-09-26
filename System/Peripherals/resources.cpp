@@ -22,13 +22,12 @@ extern "C" uint32_t uint32GetRunTimeCounterValue()
     return static_cast<std::uint32_t>(Periph::getTim6().getCounterValue());
 }
 
-// For Shell
+// For Shell and Logger
 Uart2 & Periph::getUart2()
 {
     static Uart2 uart2(921600); return uart2;
 }
 
-// For Logger
 Uart3 & Periph::getUart3()
 {
     static Uart3 uart3(921600); return uart3;

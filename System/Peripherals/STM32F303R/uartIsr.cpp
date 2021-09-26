@@ -7,31 +7,31 @@ extern "C"
 extern UART_HandleTypeDef huart2;
 extern UART_HandleTypeDef huart3;
 
-void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
+extern "C" void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
 {
     if (huart == &huart2)
     {
-        Periph::getUart2().txCpltIsrCalback();
+        Periph::getUart2().txDmaCpltIsrCallback();
     }
     else if (huart == &huart3)
     {
-        Periph::getUart3().txCpltIsrCalback();
+        Periph::getUart3().txDmaCpltIsrCallback();
     }
 }
 
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+extern "C" void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
     if (huart == &huart2)
     {
-        Periph::getUart2().rxCpltIsrCalback();
+        Periph::getUart2().rxDmaCpltIsrCallback();
     }
     else if (huart == &huart3)
     {
-        Periph::getUart3().rxCpltIsrCalback();
+        Periph::getUart3().rxDmaCpltIsrCallback();
     }
 }
 
-// TODO: if needed
+// TODO: if ever needed
 // void HAL_UART_TxHalfCpltCallback(UART_HandleTypeDef *huart)
 // {
 // 	if(huart == &huart2) { Periph::getUart2().txHalfCpltIsrCalback(); }

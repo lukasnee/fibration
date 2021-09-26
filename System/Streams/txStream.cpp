@@ -1,3 +1,10 @@
+/*
+ * Data stream out mechanism
+ *
+ * Copyright (C) 2021 Lukas Neverauskis <lukas.neverauskis@gmail.com>
+ *
+ */
+
 #include "txStream.hpp"
 
 #include "FreeRTOS.h"
@@ -5,9 +12,9 @@
 
 #include <cstring>
 
-TxStream::TxStream(IODataIF &ioData) : ioData(ioData) {}
+OutStream::OutStream(IODataIF &ioData) : ioData(ioData) {}
 
-bool TxStream::init()
+bool OutStream::init()
 {
     bool result = false;
 
@@ -21,7 +28,7 @@ bool TxStream::init()
     return result;
 }
 
-bool TxStream::deinit()
+bool OutStream::deinit()
 {
     bool result = false;
 
@@ -30,7 +37,7 @@ bool TxStream::deinit()
     return result;
 }
 
-void TxStream::reset()
+void OutStream::reset()
 {
     this->headIdx = 0;
     this->tailIdx = 0;
@@ -39,12 +46,12 @@ void TxStream::reset()
     this->taskHandleToNotify = nullptr;
 }
 
-bool TxStream::isEmpty()
+bool OutStream::isEmpty()
 {
     return (!isRolledOver && this->tailIdx == this->headIdx);
 }
 
-std::size_t TxStream::unbrokenSizeLeft()
+std::size_t OutStream::unbrokenSizeLeft()
 {
     std::size_t unbrokenSizeLeft = 0;
     if (this->isRolledOver)
@@ -59,16 +66,7 @@ std::size_t TxStream::unbrokenSizeLeft()
     return unbrokenSizeLeft;
 }
 
-bool TxStream::in(const std::uint8_t *pData, std::uint32_t size, TickType_t timeout)
-{
-    return this->in(pData, size, timeout, false);
-}
-bool TxStream::inFromIsr(const std::uint8_t *pData, std::uint32_t size)
-{
-    return this->in(pData, size, 0, true);
-}
-
-bool TxStream::in(const std::uint8_t *pData, std::uint32_t size, TickType_t timeout, bool isFromIsr)
+bool OutStream::in(const std::uint8_t *pData, std::uint32_t size, OsResource::Context context)
 {
     bool result = false;
 
@@ -114,12 +112,12 @@ bool TxStream::in(const std::uint8_t *pData, std::uint32_t size, TickType_t time
             inSizeLeft -= copySize;
         }
 
-        this->out(isFromIsr);
+        this->out(context);
 
         if (inSizeLeft)
         {
             /* traffic jam ! */
-            if (isFromIsr)
+            if (context == OsResource::Context::isr)
             {
                 /* can not wait - ignore ! */
                 result = false;
@@ -128,8 +126,8 @@ bool TxStream::in(const std::uint8_t *pData, std::uint32_t size, TickType_t time
             {
                 /* wait for space in queue ! */
                 this->taskHandleToNotify = xTaskGetCurrentTaskHandle();
-                ulTaskNotifyTake(1, timeout);
-                result = this->in(pInDataHead, inSizeLeft);
+                ulTaskNotifyTake(1, portMAX_DELAY);
+                result = this->in(pInDataHead, inSizeLeft, context);
             }
         }
     }
@@ -137,7 +135,7 @@ bool TxStream::in(const std::uint8_t *pData, std::uint32_t size, TickType_t time
     return result;
 }
 
-bool TxStream::out(bool isFromIsr)
+bool OutStream::out(OsResource::Context context)
 {
     bool result = false;
 
@@ -154,34 +152,20 @@ bool TxStream::out(bool isFromIsr)
             /* queue empty - nothing to do */
             result = true;
         }
-        else if (isFromIsr)
+        else if (false == this->ioData.txDma(&this->buffer[this->tailIdx], this->activeTxSize, this, context))
         {
-            if (false == this->ioData.txFromIsr(&this->buffer[this->tailIdx], this->activeTxSize, this))
-            {
-                this->activeTxSize = 0;
-            }
-            else
-            {
-                result = true;
-            }
+            this->activeTxSize = 0;
         }
         else
         {
-            if (false == this->ioData.tx(&this->buffer[this->tailIdx], this->activeTxSize, this))
-            {
-                this->activeTxSize = 0;
-            }
-            else
-            {
-                result = true;
-            }
+            result = true;
         }
     }
 
     return result;
 }
 
-void TxStream::onTxCompleteFromIsr()
+void OutStream::onTxCompleteFromIsr()
 {
     this->tailIdx += this->activeTxSize;
     this->activeTxSize = 0;
@@ -195,7 +179,7 @@ void TxStream::onTxCompleteFromIsr()
     {
         BaseType_t xHigherPriorityTaskWoken = false;
         vTaskNotifyGiveFromISR(this->taskHandleToNotify, &xHigherPriorityTaskWoken);
-        portYIELD_FROM_ISR(xHigherPriorityTaskWoken); // there is no task to yield
+        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
     }
-    this->out(true);
+    this->out(OsResource::Context::isr);
 }

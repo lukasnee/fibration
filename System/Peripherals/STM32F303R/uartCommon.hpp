@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include "ioDataIF.hpp"
+
 extern "C"
 {
 #include "stm32f3xx_hal.h"
@@ -15,13 +17,18 @@ extern "C"
 #include <cstdint>
 #include <limits>
 
-class UartCommon
+class UartCommon : public IODataIF
 {
 public:
+    struct Default
+    {
+        static constexpr std::uint32_t baudrate = 115200;
+    };
+
     virtual bool initUnsafe() = 0;
     virtual bool deinitUnsafe() = 0;
 
-    bool txUnsafe(const std::uint8_t *pData, std::size_t size, std::size_t timeout)
+    virtual bool txUnsafe(const std::uint8_t *pData, std::size_t size, std::size_t timeout) override
     {
         bool retval = false;
 
@@ -35,7 +42,7 @@ public:
         return retval;
     }
 
-    bool txDmaUnsafe(const std::uint8_t *pData, std::size_t size)
+    virtual bool txDmaUnsafe(const std::uint8_t *pData, std::size_t size) override
     {
         bool retval = false;
 
@@ -49,7 +56,7 @@ public:
         return retval;
     }
 
-    bool rxUnsafe(std::uint8_t *pData, std::size_t size, std::size_t timeout)
+    virtual bool rxUnsafe(std::uint8_t *pData, std::size_t size, std::size_t timeout) override
     {
         bool retval = false;
         if (pData && size <= std::numeric_limits<std::uint16_t>::max())
@@ -63,7 +70,7 @@ public:
         return retval;
     }
 
-    bool rxDmaUnsafe(std::uint8_t *pData, std::size_t size)
+    virtual bool rxDmaUnsafe(std::uint8_t *pData, std::size_t size) override
     {
         bool retval = false;
         if (pData && size <= std::numeric_limits<std::uint16_t>::max())
@@ -78,13 +85,12 @@ public:
     }
 
 protected:
-    UartCommon(UART_HandleTypeDef &handle) : handle(handle) {}
-
-private:
+    UartCommon(UART_HandleTypeDef &handle, std::uint32_t baudrate = Default::baudrate) : baudrate(baudrate), handle(handle) {}
     virtual ~UartCommon() = default;
+
+    std::uint32_t baudrate = Default::baudrate;
+    UART_HandleTypeDef &handle;
+private:
     void operator=(UartCommon const &) = delete;
     UartCommon(UartCommon const &) = delete;
-
-    // std::uint32_t baudrate;
-    UART_HandleTypeDef &handle;
 };

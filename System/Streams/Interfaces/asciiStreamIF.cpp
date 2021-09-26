@@ -16,24 +16,24 @@ void AsciiStream::deinit()
     this->ioStream.deinit(); // NOTE: result ignored
 }
 
-void AsciiStream::putChar(const char &c, TickType_t timeout)
+void AsciiStream::putChar(const char &c)
 {
-    this->ioStream.push(reinterpret_cast<const std::uint8_t *>(&c), 1, timeout);
+    this->ioStream.push(reinterpret_cast<const std::uint8_t *>(&c), 1);
 }
 
-void AsciiStream::putString(const std::string_view string, TickType_t timeout)
+void AsciiStream::putString(const std::string_view string)
 {
-    this->putString(string.data(), string.length(), timeout);
+    this->putString(string.data(), string.length());
 }
 
-void AsciiStream::putString(const char *s, TickType_t timeout)
+void AsciiStream::putString(const char *s)
 {
-    this->putString(s, std::strlen(s), timeout);
+    this->putString(s, std::strlen(s));
 }
 
-void AsciiStream::putString(const char *s, uint16_t len, TickType_t timeout)
+void AsciiStream::putString(const char *s, uint16_t len)
 {
-    this->ioStream.push(reinterpret_cast<const std::uint8_t *>(s), len, timeout);
+    this->ioStream.push(reinterpret_cast<const std::uint8_t *>(s), len);
 }
 
 int AsciiStream::printf(const char *fmt, const va_list& argList)
@@ -58,9 +58,9 @@ int AsciiStream::printf(const char *fmt, ...)
     return charsPrinted;
 }
 
-char AsciiStream::getChar(TickType_t timeout)
+char AsciiStream::getChar(TickType_t timeout, OsResource::Context context)
 {
-    char c;
-    this->ioStream.pull(reinterpret_cast<std::uint8_t &>(c), timeout);
+    char c = '\0';
+    this->ioStream.pull(reinterpret_cast<std::uint8_t &>(c), timeout, context);
     return c;
 }

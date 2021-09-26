@@ -34,7 +34,7 @@ extern "C" void USART3_IRQHandler(void)
     HAL_UART_IRQHandler(&huart3);
 }
 
-Uart3::Uart3(std::uint32_t baudrate) : UartCommon(huart3), baudrate(baudrate) {}
+Uart3::Uart3(std::uint32_t baudrate) : UartCommon(huart3, baudrate) {}
 Uart3::~Uart3() {}
 
 bool Uart3::initUnsafe()
@@ -120,6 +120,8 @@ bool Uart3::initUnsafe()
 
 bool Uart3::deinitUnsafe()
 {
+    bool result = false;
+
     if (HAL_UART_DeInit(&huart3) != HAL_OK)
     {
     }
