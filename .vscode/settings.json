@@ -70,7 +70,8 @@
     "freertos.h": "c",
     "task.h": "c",
     "debug.h": "c",
-    "logger.h": "c"
+    "logger.h": "c",
+    "system.h": "c"
 },
   "cmake.configureOnOpen": true,
   "C_Cpp.errorSquiggles": "Enabled",
