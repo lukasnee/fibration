@@ -1,5 +1,16 @@
+/*
+ * STM32 UART2 instance driver
+ *
+ * Copyright (C) 2021 Lukas Neverauskis <lukas.neverauskis@gmail.com>
+ */
+
+// TODO: better API for baudrate parametrization
+// TODO: make DMA priorities referenced (centralize)
+
 #include "uart2.hpp"
 #include "system.hpp"
+
+#include <limits>
 
 extern "C"
 {
@@ -25,27 +36,26 @@ extern "C" void USART2_IRQHandler(void)
     HAL_UART_IRQHandler(&huart2);
 }
 
-Uart2::Uart2(std::uint32_t baudrate) : baudrate(baudrate) {} // TODO: better API for baudrate parametrization
-
-Uart2::~Uart2()
-{
-}
+Uart2::Uart2(std::uint32_t baudrate) : UartCommon(huart2), baudrate(baudrate) {}
+Uart2::~Uart2() {}
 
 bool Uart2::initUnsafe()
 {
-    // setup UART IRQ
+    bool result = false;
+
+    /* setup UART IRQ */
     __HAL_RCC_USART2_CLK_ENABLE();
     HAL_NVIC_SetPriority(USART2_IRQn, 6, 0);
     HAL_NVIC_EnableIRQ(USART2_IRQn);
 
-    // setup according DMA channels IRQ
+    /* setup according DMA channels IRQ */
     __HAL_RCC_DMA1_CLK_ENABLE();
     HAL_NVIC_SetPriority(DMA1_Channel6_IRQn, 6, 0);
     HAL_NVIC_EnableIRQ(DMA1_Channel6_IRQn);
     HAL_NVIC_SetPriority(DMA1_Channel7_IRQn, 6, 0);
     HAL_NVIC_EnableIRQ(DMA1_Channel7_IRQn);
 
-    // setup gpios for alternative function (uart tx/rx)
+    /* setup GPIOs for alternative function (UART tx/rx) */
     __HAL_RCC_GPIOA_CLK_ENABLE();
     GPIO_InitTypeDef GPIO_InitStruct = {0};
     GPIO_InitStruct.Pin = GPIO_PIN_2 | GPIO_PIN_3;
@@ -55,7 +65,7 @@ bool Uart2::initUnsafe()
     GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    // setup DMA channel for uart tx
+    /* setup DMA channel for UART TX */
     hdma_usart2_tx.Instance = DMA1_Channel7;
     hdma_usart2_tx.Init.Direction = DMA_MEMORY_TO_PERIPH;
     hdma_usart2_tx.Init.PeriphInc = DMA_PINC_DISABLE;
@@ -73,7 +83,7 @@ bool Uart2::initUnsafe()
         __HAL_LINKDMA(&huart2, hdmatx, hdma_usart2_tx);
     }
 
-    // setup DMA channel for uart rx
+    /* setup DMA channel for UART RX */
     hdma_usart2_rx.Instance = DMA1_Channel6;
     hdma_usart2_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
     hdma_usart2_rx.Init.PeriphInc = DMA_PINC_DISABLE;
@@ -91,7 +101,7 @@ bool Uart2::initUnsafe()
         __HAL_LINKDMA(&huart2, hdmarx, hdma_usart2_rx);
     }
 
-    // setup uart itself
+    /* setup UART itself */
     huart2.Instance = USART2;
     huart2.Init.BaudRate = this->baudrate;
     huart2.Init.WordLength = UART_WORDLENGTH_8B;
@@ -102,72 +112,39 @@ bool Uart2::initUnsafe()
     huart2.Init.OverSampling = UART_OVERSAMPLING_16;
     huart2.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
     huart2.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+    if (HAL_UART_Init(&huart2) == HAL_OK)
+    {
+        result = true;
+    }
 
-    return (HAL_UART_Init(&huart2) == HAL_OK);
+    return result;
 }
 
 bool Uart2::deinitUnsafe()
 {
+    bool result = false;
 
-    if (HAL_UART_DeInit(&huart2) == HAL_OK)
+    if (HAL_UART_DeInit(&huart2) != HAL_OK)
     {
-        return false;
     }
-
-    __HAL_RCC_USART2_CLK_DISABLE();
-
-    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_2 | GPIO_PIN_3);
-
-    if (HAL_DMA_DeInit(huart2.hdmarx) != HAL_OK)
+    else
     {
-        return false;
-    }
-
-    if (HAL_DMA_DeInit(huart2.hdmatx) != HAL_OK)
-    {
-        return false;
-    }
-
-    HAL_NVIC_DisableIRQ(DMA1_Channel6_IRQn);
-    HAL_NVIC_DisableIRQ(DMA1_Channel7_IRQn);
-
-    HAL_NVIC_DisableIRQ(USART2_IRQn);
-
-    return true;
-}
-
-bool Uart2::txUnsafe(const std::uint8_t *pData, std::size_t size)
-{
-    bool retval = false;
-
-    if (size <= static_cast<std::uint16_t>(~0))
-    {
-        HAL_UART_StateTypeDef status = HAL_UART_GetState(&huart2);
-        if ((status == (HAL_UART_STATE_READY | HAL_UART_STATE_BUSY_RX)) || status == HAL_UART_STATE_READY)
+        __HAL_RCC_USART2_CLK_DISABLE();
+        HAL_GPIO_DeInit(GPIOA, GPIO_PIN_2 | GPIO_PIN_3);
+        if (HAL_DMA_DeInit(huart2.hdmarx) != HAL_OK)
         {
-            if (HAL_UART_Transmit_DMA(&huart2, const_cast<std::uint8_t *>(pData), static_cast<std::uint16_t>(size)) == HAL_OK)
-            {
-                retval = true;
-            }
         }
-    }
-    return retval;
-}
-
-bool Uart2::rxUnsafe(std::uint8_t *pData, std::size_t size)
-{
-    bool retval = false;
-    if (size <= static_cast<std::uint16_t>(~0))
-    {
-        HAL_UART_StateTypeDef status = HAL_UART_GetState(&huart2);
-        if ((status == (HAL_UART_STATE_READY | HAL_UART_STATE_BUSY_TX)) || status == HAL_UART_STATE_READY)
+        else if (HAL_DMA_DeInit(huart2.hdmatx) != HAL_OK)
         {
-            if (HAL_UART_Receive_DMA(&huart2, pData, static_cast<std::uint16_t>(size)) == HAL_OK)
-            {
-                retval = true;
-            }
+        }
+        else
+        {
+            HAL_NVIC_DisableIRQ(DMA1_Channel6_IRQn);
+            HAL_NVIC_DisableIRQ(DMA1_Channel7_IRQn);
+            HAL_NVIC_DisableIRQ(USART2_IRQn);
+            result = true;
         }
     }
 
-    return retval;
+    return result;
 }
