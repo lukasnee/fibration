@@ -82,7 +82,7 @@ public:
         return retval;
     }
 
-    void txDmaCpltIsrCalback()
+    void txDmaCpltIsrCallback()
     {
         BaseType_t xHigherPriorityTaskWoken = this->unlock(OsResource::Context::isr);
 
@@ -127,7 +127,7 @@ public:
         return retval;
     }
 
-    void rxDmaCpltIsrCalback()
+    void rxDmaCpltIsrCallback()
     {
         BaseType_t xHigherPriorityTaskWoken = this->unlock(OsResource::Context::isr);
 

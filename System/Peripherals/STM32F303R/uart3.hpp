@@ -1,4 +1,3 @@
-
 /*
  * STM32 UART3 instance driver 
  *
@@ -9,19 +8,18 @@
 #pragma once
 
 #include "uartCommon.hpp"
-#include "ioDataIF.hpp"
 
 #include <cstdint>
 
-class Uart3 : public UartCommon, public IODataIF
+class Uart3 : public UartCommon
 {
 public:
     Uart3(std::uint32_t baudrate = UartCommon::Default::baudrate);
     ~Uart3();
 
 protected:
-    bool initUnsafe() override;
-    bool deinitUnsafe() override;
+    virtual bool initUnsafe() override;
+    virtual bool deinitUnsafe() override;
 
 private:
     void operator=(Uart3 const &) = delete;

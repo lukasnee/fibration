@@ -23,7 +23,7 @@ bool IOStream::init()
                                                           &this->xRxStreamBufferStruct);
         if (this->xRxStreamBuffer)
         {
-            if (this->ioData.rx(&this->rxData, sizeof(RxData), this))
+            if (this->ioData.rxDma(&this->rxData, sizeof(RxData), this, OsResource::Context::task))
             {
                 result = this->isStarted = true;
             }
@@ -49,38 +49,28 @@ void IOStream::deinit()
     }
 }
 
-bool IOStream::pull(RxData &rxData, TickType_t timeout)
+bool IOStream::pull(RxData &rxData, TickType_t timeout, OsResource::Context context = OsResource::Context::undefined)
 {
     bool result = false;
 
     if (this->isStarted)
     {
-        std::size_t xReceivedBytes = xStreamBufferReceive(this->xRxStreamBuffer, &rxData, sizeof(rxData), timeout);
-        if (xReceivedBytes > 0)
-        {
-            result = true;
-        }
-    }
 
-    return result;
-}
-
-bool IOStream::pullFromIsr(RxData &rxData)
-{
-    bool result = false;
-
-    if (this->isStarted)
-    {
         BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-        std::size_t xReceivedBytes = xStreamBufferReceiveFromISR(this->xRxStreamBuffer,
-                                                                 &rxData,
-                                                                 sizeof(rxData),
-                                                                 &xHigherPriorityTaskWoken);
+        std::size_t xReceivedBytes = OsResource::isInIsr(context) ? xStreamBufferReceiveFromISR(
+                                                                        this->xRxStreamBuffer,
+                                                                        &rxData,
+                                                                        sizeof(rxData),
+                                                                        &xHigherPriorityTaskWoken)
+                                                                  : xStreamBufferReceive(
+                                                                        this->xRxStreamBuffer,
+                                                                        &rxData,
+                                                                        sizeof(rxData),
+                                                                        timeout);
         if (xReceivedBytes > 0)
         {
             result = true;
         }
-        // portYIELD_FROM_ISR(xHigherPriorityTaskWoken); // there is no task to yield
     }
 
     return result;
@@ -97,32 +87,17 @@ void IOStream::onRxCompleteFromIsr()
 
     if (xBytesSent == sizeof(this->rxData))
     {
-        this->ioData.rxFromIsr(&this->rxData, sizeof(this->rxData), this);
+        this->ioData.rxDma(&this->rxData, sizeof(this->rxData), this, OsResource::Context::isr);
     }
 }
 
-bool IOStream::push(const std::uint8_t *pData, std::uint32_t size, TickType_t timeout)
+bool IOStream::push(const std::uint8_t *pData, std::uint32_t size, OsResource::Context context)
 {
     bool result = false;
 
     if (this->isStarted)
     {
-        if (this->txQueue.in(pData, size, timeout))
-        {
-            result = true;
-        }
-    }
-
-    return result;
-}
-
-bool IOStream::pushFromIsr(const std::uint8_t *pData, std::uint32_t size)
-{
-    bool result = false;
-
-    if (this->isStarted)
-    {
-        if (this->txQueue.inFromIsr(pData, size))
+        if (this->txQueue.in(pData, size, context))
         {
             result = true;
         }

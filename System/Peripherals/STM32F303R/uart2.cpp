@@ -36,7 +36,7 @@ extern "C" void USART2_IRQHandler(void)
     HAL_UART_IRQHandler(&huart2);
 }
 
-Uart2::Uart2(std::uint32_t baudrate) : UartCommon(huart2), baudrate(baudrate) {}
+Uart2::Uart2(std::uint32_t baudrate) : UartCommon(huart2, baudrate) {}
 Uart2::~Uart2() {}
 
 bool Uart2::initUnsafe()
