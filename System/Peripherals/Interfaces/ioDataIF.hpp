@@ -38,7 +38,7 @@ public:
         }
         else
         {
-            if (this->init())
+            if (this->initUnsafe())
             {
                 result = this->isInitialized = true;
             }
