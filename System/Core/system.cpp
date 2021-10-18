@@ -141,9 +141,9 @@ void FibSys::panic(const char *strFile, std::uint32_t line)
         }
     };
 
-    printf(ANSI_COLOR_RESET "S Y S T E M   P A N I C");
+    printf(ANSI_COLOR_RESET "S Y S T E M   P A N I C\n");
     printf("uptime: %lu ms\n", FibSys::getUptimeInMs());
-    printf("in %s:%lu\n", strFile, line);
+    printf("%s:%lu\n", strFile, line);
     printf("PSP dump:\n");
     hexDumpWords(__get_PSP(), 32, 4);
 
