@@ -119,12 +119,12 @@ void FibSys::getUptime(std::uint32_t &days, std::uint32_t &hours, std::uint32_t 
     days = daysTotal;
 }
 
-extern "C" void fibsys_panic(const char * strFile, std::uint32_t line)
+extern "C" void fibsys_panic(const char *strFile, std::uint32_t line)
 {
     FibSys::panic(strFile, line);
 }
 
-void FibSys::panic(const char * strFile, std::uint32_t line)
+void FibSys::panic(const char *strFile, std::uint32_t line)
 {
     auto hexDumpWords = [](std::uint32_t address, std::size_t size, std::size_t width)
     {
@@ -141,10 +141,7 @@ void FibSys::panic(const char * strFile, std::uint32_t line)
         }
     };
 
-    printf(
-        ANSI_COLOR_RESET
-        "-------------------------------\n"
-        "system panic !!! ");
+    printf(ANSI_COLOR_RESET "S Y S T E M   P A N I C");
     printf("uptime: %lu ms\n", FibSys::getUptimeInMs());
     printf("in %s:%lu\n", strFile, line);
     printf("PSP dump:\n");
