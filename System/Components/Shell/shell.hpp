@@ -108,7 +108,7 @@ public:
 
     void print(const char &c, std::size_t timesToRepeat = 1);
     void printUnformatted(const char *pData, const std::size_t len, std::size_t timesToRepeat = 1);
-    void printEOL();
+    void printEol();
 
     int print(const char *str, std::size_t timesToRepeat = 1);
     int printf(const char *fmt, ...);
