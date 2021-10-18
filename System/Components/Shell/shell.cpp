@@ -20,9 +20,9 @@ void Shell::Run()
 {
     if (this->asciiStream.init())
     {
-        this->printEOL();
+        this->printEol();
         this->printf("Type '%s %s' to view available commands\n", this->helpCommand.name, this->helpCommand.usage);
-        this->printEOL();
+        this->printEol();
         this->promptNew();
 
         while (true)
@@ -65,7 +65,7 @@ void Shell::printUnformatted(const char *pData, const std::size_t len, std::size
     }
 }
 
-void Shell::printEOL()
+void Shell::printEol()
 {
     if (Config::printEndLineCR)
     {
@@ -594,7 +594,7 @@ bool Shell::lineFeed()
 {
     bool result = false;
 
-    this->printEOL();
+    this->printEol();
 
     const Shell::Command *pCommand = nullptr;
 
