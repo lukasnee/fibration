@@ -2,14 +2,24 @@
 #include "commands.hpp"
 #include "system.hpp"
 
+#include <type_traits>
 namespace Core::Commands
 {
     Shell::Command panic(
-        "panic", nullptr, "cause system panic",
-        [](Shell &shell, std::size_t argc, const char *argv[]) -> Shell::Command::Result
+        "panic", nullptr, "cause high-level system panic",
+        [](SHELLCMDPARAMS)
         {
             FIBSYS_PANIC();
             // will never be reached
             return Shell::Command::Result::ok;
+        },
+        []()
+        {
+            Shell::Command rba(panic, "rba", nullptr, "read bad address",
+                               [](SHELLCMDPARAMS)
+                               {
+                                   return *reinterpret_cast<Shell::Command::Result *>(0xbadcafe);
+                                   /* should never be reached */
+                               });
         });
 } // namespace Core::Commands
