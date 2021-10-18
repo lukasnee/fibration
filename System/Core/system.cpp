@@ -146,10 +146,6 @@ void FibSys::panic(const char *strFile, std::uint32_t line)
     printf("%s:%lu\n", strFile, line);
     printf("PSP dump:\n");
     hexDumpWords(__get_PSP(), 32, 4);
-
-    vTaskSuspendAll();
-    taskDISABLE_INTERRUPTS();
-    HAL_Delay(3000);
     FibSys::hardwareReboot();
 }
 
@@ -196,7 +192,7 @@ void FibSys::Run()
     {
         FIBSYS_PANIC();
     }
-    Logger::log(Logger::Verbosity::high, Logger::Type::system, "Fibration %s v%u.%u.%u\n", Fib::Version::moduleName, Fib::Version::major, Fib::Version::minor, Fib::Version::patch);
+    textStreamUart2.printf("\n\nFibration %s v%u.%u.%u\n", Fib::Version::moduleName, Fib::Version::major, Fib::Version::minor, Fib::Version::patch);
 
     constexpr const char * strFibShellLabel = ANSI_COLOR_BLUE "FIB> " ANSI_COLOR_YELLOW;
     static Shell shell(strFibShellLabel, textStreamUart2, 0x200, FibSys::Priority::appHigh);

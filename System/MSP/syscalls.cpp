@@ -17,7 +17,7 @@
 #include <cstdarg>
 #include <cstdio>
 
-struct SysCalls : public IODataIF::IsrRxCallbacks, public IODataIF::IsrTxCallbacks
+struct SysCalls
 {
     static SysCalls &getInstance()
     {
@@ -29,32 +29,14 @@ struct SysCalls : public IODataIF::IsrRxCallbacks, public IODataIF::IsrTxCallbac
     {
         if (fd == STDIN_FILENO)
         {
-            bool rxResult = false;
-            this->rxBusy = true;
-            if (pdTRUE == xPortIsInsideInterrupt())
+            if (Periph::getUart2().rx(reinterpret_cast<std::uint8_t *>(ptr), len, len))
             {
-                rxResult = Periph::getUart2().rxFromIsr(reinterpret_cast<std::uint8_t *>(ptr), len, this);
-            }
-            else
-            {
-                rxResult = Periph::getUart2().rx(reinterpret_cast<std::uint8_t *>(ptr), len, this);
-            }
-            if (rxResult)
-            {
-                while (this->rxBusy)
-                {
-                    HAL_Delay(1);
-                }
-            }
-            else
-            {
-                this->rxBusy = false;
-            }
-
-            if (rxResult)
                 return 1;
+            }
             else
+            {
                 return EIO;
+            }
         }
         errno = EBADF;
         return -1;
@@ -68,43 +50,17 @@ struct SysCalls : public IODataIF::IsrRxCallbacks, public IODataIF::IsrTxCallbac
             return -1;
         }
 
-        bool txResult = false;
-        this->txBusy = true;
-        if (pdTRUE == xPortIsInsideInterrupt())
+        if (Periph::getUart2().tx(reinterpret_cast<const std::uint8_t *>(ptr), len, len))
         {
-            txResult = Periph::getUart2().txFromIsr(reinterpret_cast<const std::uint8_t *>(ptr), len, this);
+            return len;
         }
-        else
-        {
-            txResult = Periph::getUart2().tx(reinterpret_cast<const std::uint8_t *>(ptr), len, this);
-        }
-        if (txResult)
-        {
-            while (this->txBusy)
-            {
-                HAL_Delay(1);
-            }
-        }
-        else
-        {
-            this->txBusy = false;
-        }
-        // return # of bytes written - as best we can tell
-        return (txResult ? len : 0);
+        return -1;
     }
 
 private:
-    virtual void onRxCompleteFromIsr() override
-    {
-        this->rxBusy = false;
-    }
-    virtual void onTxCompleteFromIsr() override
-    {
-        this->txBusy = false;
-    }
+    SysCalls() { setvbuf(stdout, this->buf.data(), _IOLBF, this->buf.size()); }
 
-    bool txBusy = false;
-    bool rxBusy = false;
+    std::array<char, 64> buf;
 };
 
 //#undef errno
