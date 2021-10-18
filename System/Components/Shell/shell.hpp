@@ -33,8 +33,6 @@ class Shell : public cpp_freertos::Thread
 public:
     struct Config
     {
-        // prompt in blue, command entry in yellow
-        static constexpr std::string_view prompt = ANSI_COLOR_BLUE "FIB> " ANSI_COLOR_YELLOW ""sv;
         static constexpr std::size_t printfBufferSize = 256;
         static constexpr bool printEndLineCR = false;
         static constexpr bool printEndLineLF = true;
@@ -45,14 +43,6 @@ public:
         bool coloredOutput = true;
     } config;
 
-    static void start(AsciiStream &asciiStream, std::uint16_t stackDepth, BaseType_t priority);
-
-    void print(const char &c, std::size_t timesToRepeat = 1);
-    void printUnformatted(const char *pData, const std::size_t len, std::size_t timesToRepeat = 1);
-    void printEOL();
-
-    int print(const char *str, std::size_t timesToRepeat = 1);
-    int printf(const char *fmt, ...);
     class Command
     {
     public:
@@ -89,6 +79,7 @@ public:
         const char *description = nullptr;
         const CommandF *commandF = nullptr;
 
+        // TODO maybe move to other file (namespace CommandHelpers, etc.)
         struct Helper
         {
             struct Literal
@@ -113,7 +104,17 @@ public:
         friend Shell;
     };
 
-    static const Shell::Command *findCommand(std::size_t argcIn, const char *argvIn[], std::size_t &argCmdOffsetOut);
+    Shell(const char *strPromptLabel, AsciiStream &asciiStream, std::uint16_t stackDepth, BaseType_t priority, Command *pCommandRoot = Shell::pCommandGlobalRoot);
+
+    void print(const char &c, std::size_t timesToRepeat = 1);
+    void printUnformatted(const char *pData, const std::size_t len, std::size_t timesToRepeat = 1);
+    void printEOL();
+
+    int print(const char *str, std::size_t timesToRepeat = 1);
+    int printf(const char *fmt, ...);
+
+    const Shell::Command *findCommand(std::size_t argcIn, const char *argvIn[], std::size_t &argCmdOffsetOut);
+
     static Command::Result help(Shell &shell, const Shell::Command *pCommand, bool recurse = false, const std::size_t maxDepth = 1, std::size_t depth = 0, std::size_t indent = 0);
     static Command helpCommand;
 
@@ -121,8 +122,6 @@ public:
     Command::Result execute(const Command &command, const char *strArgs = nullptr, const char *outputColorEscapeSequence = "\e[33m");
 
 private:
-    Shell(AsciiStream &asciiStream, std::uint16_t stackDepth, BaseType_t priority);
-
     virtual void Run() override;
 
     bool escape(const char &c);
@@ -147,7 +146,10 @@ private:
 
     Input input;
     bool isPrompted = true;
-    static Command *pCommandRoot;
 
+    const char *strPromptLabel;
     AsciiStream &asciiStream;
+    Command *pCommandRoot = nullptr;
+
+    static Command *pCommandGlobalRoot;
 };
