@@ -15,11 +15,11 @@ namespace Core::Commands
         },
         []()
         {
-            Shell::Command rba(panic, "rba", nullptr, "read bad address",
-                               [](SHELLCMDPARAMS)
-                               {
-                                   return *reinterpret_cast<Shell::Command::Result *>(0xbadcafe);
-                                   /* should never be reached */
-                               });
+            static Shell::Command rba(panic, "rba", nullptr, "read bad address (hardfault)",
+                                      [](SHELLCMDPARAMS)
+                                      {
+                                          return *reinterpret_cast<Shell::Command::Result *>(0xbadcafe);
+                                          /* should never be reached */
+                                      });
         });
 } // namespace Core::Commands
