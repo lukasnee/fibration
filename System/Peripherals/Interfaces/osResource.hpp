@@ -26,26 +26,24 @@ public:
                                                                                      : false;
     }
 
-protected:
-    OsResource() : txBinarySemaphore(true), rxBinarySemaphore(true){};
+    OsResource() : binarySemaphore(true){};
 
     BaseType_t lock(TickType_t timeout = portMAX_DELAY, Context context = Context::undefined)
     {
         BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-        this->isInIsr(context) ? this->txBinarySemaphore.TakeFromISR(&xHigherPriorityTaskWoken) : this->txBinarySemaphore.Take(timeout);
+        this->isInIsr(context) ? this->binarySemaphore.TakeFromISR(&xHigherPriorityTaskWoken) : this->binarySemaphore.Take(timeout);
         return xHigherPriorityTaskWoken;
     }
 
     BaseType_t unlock(Context context = Context::undefined)
     {
         BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-        this->isInIsr(context) ? this->txBinarySemaphore.GiveFromISR(&xHigherPriorityTaskWoken) : this->txBinarySemaphore.Give();
+        this->isInIsr(context) ? this->binarySemaphore.GiveFromISR(&xHigherPriorityTaskWoken) : this->binarySemaphore.Give();
         return xHigherPriorityTaskWoken;
     }
 
     virtual ~OsResource() = default;
 
 private:
-    cpp_freertos::BinarySemaphore txBinarySemaphore;
-    cpp_freertos::BinarySemaphore rxBinarySemaphore;
+    cpp_freertos::BinarySemaphore binarySemaphore;
 };

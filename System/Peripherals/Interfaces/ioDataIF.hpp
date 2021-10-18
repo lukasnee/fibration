@@ -1,5 +1,5 @@
 /*
- * Thread-safe input/output peripheral data general API
+ * Thread-safe full-duplex input/output data API for hardware peripheral such as UART.
  *
  * Copyright (C) 2021 Lukas Neverauskis <lukas.neverauskis@gmail.com>
  *
@@ -11,10 +11,10 @@
 
 #include <cstdint>
 
-class IODataIF : public OsResource
+class IODataIF
 {
 public:
-    IODataIF() : OsResource(){};
+    IODataIF(){};
     ~IODataIF(){};
 
     struct IsrTxCallbacks
@@ -30,21 +30,18 @@ public:
     {
         bool result = false;
 
-        this->lock(portMAX_DELAY, context);
+        this->osResources.lock(portMAX_DELAY, context);
 
         if (this->isInitialized)
         {
             result = true;
         }
-        else
+        else if (this->initUnsafe())
         {
-            if (this->initUnsafe())
-            {
-                result = this->isInitialized = true;
-            }
+            result = this->isInitialized = true;
         }
 
-        this->unlock(context);
+        this->osResources.unlock(context);
 
         return result;
     }
@@ -53,11 +50,11 @@ public:
     {
         bool retval = false;
 
-        this->lock(portMAX_DELAY, context);
+        this->osResources.tx.lock(portMAX_DELAY, context);
 
         retval = this->txUnsafe(pData, size, timeout);
 
-        this->unlock(context);
+        this->osResources.tx.unlock(context);
 
         return retval;
     }
@@ -66,13 +63,13 @@ public:
     {
         bool retval = false;
 
-        this->lock(portMAX_DELAY, context);
+        this->osResources.tx.lock(portMAX_DELAY, context);
 
         this->pIsrTxCallbacks = pIsrTxCallbacks;
         if (false == this->txDmaUnsafe(pData, size))
         {
             this->pIsrTxCallbacks = nullptr;
-            this->unlock(context);
+            this->osResources.tx.unlock(context);
         }
         else
         {
@@ -84,7 +81,7 @@ public:
 
     void txDmaCpltIsrCallback()
     {
-        BaseType_t xHigherPriorityTaskWoken = this->unlock(OsResource::Context::isr);
+        BaseType_t xHigherPriorityTaskWoken = this->osResources.tx.unlock(OsResource::Context::isr);
 
         if (this->pIsrTxCallbacks)
         {
@@ -98,11 +95,11 @@ public:
     {
         bool retval = false;
 
-        this->lock(portMAX_DELAY, context);
+        this->osResources.rx.lock(portMAX_DELAY, context);
 
         retval = this->rxUnsafe(pData, size, timeout);
 
-        this->unlock(context);
+        this->osResources.rx.unlock(context);
 
         return retval;
     }
@@ -111,13 +108,13 @@ public:
     {
         bool retval = false;
 
-        this->lock(portMAX_DELAY, context);
+        this->osResources.rx.lock(portMAX_DELAY, context);
 
         this->pIsrRxCallbacks = pIsrRxCallbacks;
         if (false == this->rxDmaUnsafe(pData, size))
         {
             this->pIsrRxCallbacks = nullptr;
-            this->unlock(context);
+            this->osResources.rx.unlock(context);
         }
         else
         {
@@ -129,7 +126,7 @@ public:
 
     void rxDmaCpltIsrCallback()
     {
-        BaseType_t xHigherPriorityTaskWoken = this->unlock(OsResource::Context::isr);
+        BaseType_t xHigherPriorityTaskWoken = this->osResources.rx.unlock(OsResource::Context::isr);
 
         if (this->pIsrRxCallbacks)
         {
@@ -143,7 +140,7 @@ public:
     {
         bool result = false;
 
-        this->lock(portMAX_DELAY, context);
+        this->osResources.lock(portMAX_DELAY, context);
 
         if (this->isInitialized)
         {
@@ -159,7 +156,7 @@ public:
             result = true;
         }
 
-        this->unlock(context);
+        this->osResources.unlock(context);
 
         return result;
     }
@@ -175,5 +172,28 @@ protected:
 private:
     IsrRxCallbacks *pIsrRxCallbacks = nullptr;
     IsrTxCallbacks *pIsrTxCallbacks = nullptr;
+
+    struct OsResources
+    {
+        BaseType_t lock(TickType_t timeout = portMAX_DELAY, OsResource::Context context = OsResource::Context::undefined)
+        {
+            BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+            xHigherPriorityTaskWoken |= this->tx.lock(timeout, context);
+            xHigherPriorityTaskWoken |= this->rx.lock(timeout, context);
+            return xHigherPriorityTaskWoken;
+        }
+
+        BaseType_t unlock(OsResource::Context context = OsResource::Context::undefined)
+        {
+            BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+            xHigherPriorityTaskWoken |= this->tx.unlock(context);
+            xHigherPriorityTaskWoken |= this->rx.unlock(context);
+            return xHigherPriorityTaskWoken;
+        }
+
+        OsResource tx, rx;
+
+    } osResources;
+
     bool isInitialized = false;
 };
