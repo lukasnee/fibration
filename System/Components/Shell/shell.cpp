@@ -5,15 +5,10 @@
 // TODO: make arrow up repeat buffer
 #include <cstring>
 
-Shell::Command *Shell::pCommandRoot = nullptr;
+Shell::Command *Shell::pCommandGlobalRoot = nullptr;
 
-void Shell::start(AsciiStream &asciiStream, std::uint16_t stackDepth, BaseType_t priority)
-{
-    static Shell shell(asciiStream, stackDepth, priority);
-}
-
-Shell::Shell(AsciiStream &asciiStream, std::uint16_t stackDepth, BaseType_t priority)
-    : Thread("shell", stackDepth, priority), asciiStream(asciiStream)
+Shell::Shell(const char *strPromptLabel, AsciiStream &asciiStream, std::uint16_t stackDepth, BaseType_t priority, Shell::Command *pCommandRoot)
+    : Thread("shell", stackDepth, priority), strPromptLabel(strPromptLabel), asciiStream(asciiStream), pCommandRoot(pCommandRoot)
 {
     if (Start() == false)
     {
@@ -133,7 +128,7 @@ void Shell::Command::linkTo(Command *&pParent)
 Shell::Command::Command(const char *name, const char *usage, const char *description, CommandF commandF, CtorCallbackF ctorCallbackF)
     : name(name), usage(usage), description(description), commandF(commandF)
 {
-    this->linkTo(Shell::pCommandRoot);
+    this->linkTo(Shell::pCommandGlobalRoot);
     if (ctorCallbackF)
     {
         ctorCallbackF();
@@ -153,9 +148,8 @@ Shell::Command::Command(Command &parent, const char *name, const char *usage, co
 Shell::Command::Command(const char *name, CommandF commandF)
     : name(name), usage(nullptr), description(nullptr), commandF(commandF)
 {
-    this->linkTo(Shell::pCommandRoot);
+    this->linkTo(Shell::pCommandGlobalRoot);
 }
-
 
 bool Shell::Command::matchToken(const char *strTokens, const char *strToken)
 {
@@ -219,7 +213,7 @@ const Shell::Command *Shell::Command::findSubcommand(const char *name) const
 
 const Shell::Command *Shell::findCommand(std::size_t argcIn, const char *argvIn[], std::size_t &argCmdOffsetOut)
 {
-    const Command *pCommand = Shell::pCommandRoot;
+    const Command *pCommand = this->pCommandRoot;
 
     argCmdOffsetOut = 0;
 
@@ -371,14 +365,14 @@ Shell::Command Shell::helpCommand = Shell::Command(
         {
             if (argc == 1)
             {
-                for (const Shell::Command *pCmdIt = Shell::pCommandRoot; pCmdIt != nullptr; pCmdIt = pCmdIt->pNext)
+                for (const Shell::Command *pCmdIt = Shell::pCommandGlobalRoot; pCmdIt != nullptr; pCmdIt = pCmdIt->pNext)
                 {
                     result = Shell::help(shell, pCmdIt, 0, false);
                 }
             }
             else if (argc == 2 && !std::strcmp(argv[1], "all"))
             {
-                for (const Shell::Command *pCmdIt = Shell::pCommandRoot; pCmdIt != nullptr; pCmdIt = pCmdIt->pNext)
+                for (const Shell::Command *pCmdIt = Shell::pCommandGlobalRoot; pCmdIt != nullptr; pCmdIt = pCmdIt->pNext)
                 {
                     result = Shell::help(shell, pCmdIt, true, 7);
                 }
@@ -387,7 +381,7 @@ Shell::Command Shell::helpCommand = Shell::Command(
             {
                 constexpr std::size_t helpCommandOffset = 1;
                 std::size_t argOffset;
-                const Command *pCommandFound = Shell::findCommand(argc - helpCommandOffset, argv + helpCommandOffset, argOffset);
+                const Command *pCommandFound = shell.findCommand(argc - helpCommandOffset, argv + helpCommandOffset, argOffset);
                 if (pCommandFound)
                 {
                     result = Shell::help(shell, pCommandFound, 1, true);
@@ -405,7 +399,7 @@ void Shell::promptNew(void)
 
 void Shell::printPrompt(void)
 {
-    this->print(Config::prompt.data());
+    this->print(this->strPromptLabel);
 }
 
 bool Shell::visualCursorStep()
