@@ -38,7 +38,20 @@ const char &Input::getCharAtCursor()
     return this->buffer.at(this->cursorIdx);
 }
 
-bool Input::cursorStep()
+bool Input::setCursor(size_t index)
+{
+    bool result = false;
+
+    if (index < this->buffer.size())
+    {
+        this->cursorIdx = index;
+        result = true;
+    }
+
+    return result;
+}
+
+bool Input::cursorStepRight()
 {
     bool result = false;
 
@@ -51,7 +64,7 @@ bool Input::cursorStep()
     return result;
 }
 
-bool Input::cursorStepBack()
+bool Input::cursorStepLeft()
 {
     bool result = false;
 
@@ -96,7 +109,7 @@ bool Input::backspaceCharAtCursor()
     if (false == this->isCursorOnBase())
     {
         std::memmove(&this->buffer[this->cursorIdx - 1], &this->buffer.at(this->cursorIdx), this->charsUsed - this->cursorIdx);
-        if (this->cursorStepBack())
+        if (this->cursorStepLeft())
         {
             this->buffer[--this->charsUsed] = '\0';
             result = true;
@@ -120,7 +133,7 @@ bool Input::insertChar(const char &c)
         }
 
         this->buffer[this->cursorIdx] = c;
-        this->cursorStep();
+        this->cursorStepRight();
         this->buffer[this->charsUsed++] = '\0';
         result = true;
     }
