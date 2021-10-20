@@ -256,11 +256,15 @@ bool Shell::handleEscape(const char &c)
         {
             result = this->handleAnsiEscape(c);
         }
+    }
+    else
+    {
+        this->escapeState = EscapeState::failed;
+    }
 
-        if (this->escapeState == EscapeState::finished)
-        {
-            this->escapeState = EscapeState::none;
-        }
+    if (this->escapeState == EscapeState::failed || this->escapeState == EscapeState::finished)
+    {
+        this->escapeState = EscapeState::none;
     }
 
     return result;
@@ -279,6 +283,10 @@ bool Shell::handleAnsiEscape(const char &c)
     else if (enumEval(this->escapeState) >= enumEval(EscapeState::delimited))
     {
         result = this->handleAnsiDelimitedEscape(c);
+    }
+    else
+    {
+        this->escapeState = EscapeState::failed;
     }
 
     return result;
@@ -322,6 +330,10 @@ bool Shell::handleAnsiDelimitedEscape(const char &c)
         result = true;
         this->escapeState = EscapeState::finished;
     }
+    else
+    {
+        this->escapeState = EscapeState::failed;
+    }
 
     return result;
 }
@@ -340,6 +352,10 @@ bool Shell::handleAnsiDelimitedDelEscape(const char &c)
         this->deleteChar();
         this->escapeState = EscapeState::finished;
         result = true;
+    }
+    else
+    {
+        this->escapeState = EscapeState::failed;
     }
 
     return result;
