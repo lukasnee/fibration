@@ -144,8 +144,9 @@ private:
     void promptNew();
     void printPrompt();
 
-    enum class EscapeState : std::size_t
+    enum class EscapeState : std::int8_t
     {
+        failed = -1,
         none = 0,
         escaped,
         delimited,
