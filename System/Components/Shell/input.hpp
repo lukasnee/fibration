@@ -23,8 +23,9 @@ public:
     bool isCursorOnBase();
     bool isCursorOnEnd();
 
-    bool cursorStep();
-    bool cursorStepBack();
+    bool setCursor(size_t index);
+    bool cursorStepRight();
+    bool cursorStepLeft();
 
     bool deleteCharAtCursor();
     bool backspaceCharAtCursor();

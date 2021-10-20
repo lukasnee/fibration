@@ -14,6 +14,7 @@
 #include <cstdarg>
 #include <string_view>
 #include <limits>
+#include <type_traits>
 
 using namespace std::string_view_literals;
 
@@ -28,18 +29,19 @@ using namespace std::string_view_literals;
 #define ANSI_COLOR_DEFAULT "\e[39m"
 #define ANSI_COLOR_RESET "\e[0m"
 
+template <typename T>
+std::underlying_type_t<T> enumEval(T enumVal)
+{
+    return static_cast<std::underlying_type_t<T>>(enumVal);
+}
+
 class Shell : public cpp_freertos::Thread
 {
 public:
     struct Config
     {
         static constexpr std::size_t printfBufferSize = 256;
-        static constexpr bool printEndLineCR = false;
-        static constexpr bool printEndLineLF = true;
         static constexpr bool regularResponseIsEnabled = true;
-
-        static_assert(printEndLineLF || printEndLineLF, "no end-line configured!");
-
         bool coloredOutput = true;
     } config;
 
@@ -107,42 +109,51 @@ public:
     Shell(const char *strPromptLabel, AsciiStream &asciiStream, std::uint16_t stackDepth, BaseType_t priority, Command *pCommandRoot = Shell::pCommandGlobalRoot);
 
     void print(const char &c, std::size_t timesToRepeat = 1);
-    void printUnformatted(const char *pData, const std::size_t len, std::size_t timesToRepeat = 1);
-    void printEol();
-
     int print(const char *str, std::size_t timesToRepeat = 1);
+    void printUnformatted(const char *pData, const std::size_t len, std::size_t timesToRepeat = 1);
     int printf(const char *fmt, ...);
 
     const Shell::Command *findCommand(std::size_t argcIn, const char *argvIn[], std::size_t &argCmdOffsetOut);
 
-    static Command::Result help(Shell &shell, const Shell::Command *pCommand, bool recurse = false, const std::size_t maxDepth = 1, std::size_t depth = 0, std::size_t indent = 0);
-    static Command helpCommand;
-
     Command::Result execute(const Command &command, std::size_t argc, const char *argv[], const char *outputColorEscapeSequence = "\e[32m"); // default in green
     Command::Result execute(const Command &command, const char *strArgs = nullptr, const char *outputColorEscapeSequence = "\e[33m");
+
+    static Command::Result help(Shell &shell, const Shell::Command *pCommand, bool recurse = false, const std::size_t maxDepth = 1, std::size_t depth = 0, std::size_t indent = 0);
+    static Command helpCommand;
 
 private:
     virtual void Run() override;
 
-    bool escape(const char &c);
-    bool backspaceChar();
-    bool insertChar(const char &c);
+    bool receiveChar(const char &c);
     bool lineFeed();
 
-    bool receiveChar(const char &c);
+    bool handleEscape(const char &c);
+    bool handleAnsiEscape(const char &c);
+    bool handleAnsiDelimitedEscape(const char &c);
+    bool handleAnsiDelimitedDelEscape(const char &c);
+    bool deleteChar();
+    bool onHomeKey();
+    bool onArrowUpKey();
+    bool onArrowDownKey();
+    bool onArrowRightKey();
+    bool onArrowLeftKey();
+
+    bool backspaceChar();
+    bool insertChar(const char &c);
+
     void promptNew();
     void printPrompt();
 
-    bool visualCursorStep();
-    bool visualCursorStepBack();
+    enum class EscapeState : std::size_t
+    {
+        none = 0,
+        escaped,
+        delimited,
+        intermediate,
+        finished,
+    } escapeState;
 
-    bool cursorStep();
-    bool cursorStepBack();
-
-    bool deleteChar();
-
-    bool processAnsiCursorControl(const char &c);
-    bool processAnsiEscapeSequences(const char &c);
+    std::uint32_t escapeTick;
 
     Input input;
     bool isPrompted = true;
