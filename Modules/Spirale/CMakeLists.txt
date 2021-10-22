@@ -3,10 +3,8 @@ project(Spirale)
 
 enable_language(CXX C ASM)
 
-enable_language(C ASM)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
-# set(CMAKE_C_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD 17)
 
 set(ROOT ${CMAKE_SOURCE_DIR})
@@ -193,6 +191,8 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 
 target_include_directories(${PROJECT_NAME} PRIVATE 
 
+    ${ROOT}/Modules/Spirale
+
     # Fibration Framework
     ${ROOT}/System/
     ${ROOT}/System/DSP
@@ -286,8 +286,7 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 # Create hex file and print executable size
-add_custom_command(TARGET ${PROJECT_NAME}
-    POST_BUILD
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND arm-none-eabi-objcopy -O ihex ${PROJECT_NAME} ${PROJECT_NAME}.hex
     COMMAND arm-none-eabi-objcopy -O binary ${PROJECT_NAME} ${PROJECT_NAME}.bin
     COMMAND arm-none-eabi-nm ${PROJECT_NAME} -C -n -S -s > ${PROJECT_NAME}.address-sort.nm

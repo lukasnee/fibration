@@ -39,6 +39,8 @@ if [ ! -d "$TARGET_BUILD_DIR" ]; then
     mkdir $TARGET_BUILD_DIR --parents
 fi
 
+sh $SCRIPT_DIR/gitHash.sh gitHash.def
+
 cd $TARGET_BUILD_DIR
 cmake -G "Unix Makefiles" \
     -DCMAKE_TOOLCHAIN_FILE=$CMAKE_CONFIG_FULL_PATH \
@@ -46,3 +48,7 @@ cmake -G "Unix Makefiles" \
     ../../
 
 cmake --build . -- -j $(nproc)
+
+cd -
+
+rm -f gitHash.def
