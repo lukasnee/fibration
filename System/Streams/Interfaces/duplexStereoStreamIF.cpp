@@ -2,12 +2,13 @@
 
 #include "system.hpp"
 
-DuplexStereoStreamIF::DuplexStereoStreamIF(const std::string pcName,
-                                                         uint16_t usStackDepth,
-                                                         UBaseType_t uxPriority,
-                                                         CircularBuffer &circularBufferTx,
-                                                         CircularBuffer &circularBufferRx,
-                                                         ProcessTxRxBufferF processTxRxBufferF)
+DuplexStereoStreamIF::DuplexStereoStreamIF(
+    const std::string pcName,
+    uint16_t usStackDepth,
+    UBaseType_t uxPriority,
+    CircularBuffer &circularBufferTx,
+    CircularBuffer &circularBufferRx,
+    ProcessTxRxBufferF processTxRxBufferF)
     : Thread(pcName, usStackDepth, uxPriority),
       circularBufferTx(circularBufferTx),
       circularBufferRx(circularBufferRx),
@@ -80,23 +81,25 @@ std::size_t DuplexStereoStreamIF::getCircularBufferSize()
     return sizeof(circularBufferTx);
 }
 
-bool DuplexStereoStreamIF::getStereoAudioBuffersTxRx(const DuplexStereoStreamIF::Buffer *&pRxBuffer,
-                                                            DuplexStereoStreamIF::Buffer *&pTxBuffer)
+bool DuplexStereoStreamIF::getStereoAudioBuffersTxRx(const DuplexStereoStreamIF::Buffer *&pRxBufferOut,
+                                                     DuplexStereoStreamIF::Buffer *&pTxBufferOut)
 {
     bool result = false;
+
+    pRxBufferOut = pTxBufferOut = nullptr;
 
     if (this->state == State::firstStreamingSecondReady)
     {
         this->state = State::firstStreamingSecondLoading;
-        pRxBuffer = &this->circularBufferRx.at(1);
-        pTxBuffer = &this->circularBufferTx.at(1);
+        pRxBufferOut = &this->circularBufferRx.at(1);
+        pTxBufferOut = &this->circularBufferTx.at(1);
         result = true;
     }
     else if (this->state == State::firstReadySecondStreaming)
     {
         this->state = State::firstLoadingSecondStreaming;
-        pRxBuffer = &this->circularBufferRx.at(0);
-        pTxBuffer = &this->circularBufferTx.at(0);
+        pRxBufferOut = &this->circularBufferRx.at(0);
+        pTxBufferOut = &this->circularBufferTx.at(0);
         result = true;
     }
     else if (this->state == State::standby)
@@ -107,8 +110,8 @@ bool DuplexStereoStreamIF::getStereoAudioBuffersTxRx(const DuplexStereoStreamIF:
     if (this->state == State::ready)
     {
         this->state = State::firstStandbySecondLoading;
-        pRxBuffer = &this->circularBufferRx.at(1);
-        pTxBuffer = &this->circularBufferTx.at(1);
+        pRxBufferOut = &this->circularBufferRx.at(1);
+        pTxBufferOut = &this->circularBufferTx.at(1);
         result = true;
     }
 
@@ -189,7 +192,7 @@ void DuplexStereoStreamIF::Run() // task code
                 pRxBuffer &&
                 pTxBuffer)
             {
-                this->processTxRxBufferF(pRxBuffer, pTxBuffer);
+                this->processTxRxBufferF(*pRxBuffer, *pTxBuffer);
             }
 
             this->stereoAudioBufferLoaded();
