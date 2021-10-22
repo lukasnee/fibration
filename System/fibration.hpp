@@ -32,3 +32,7 @@ extern "C"
 #include <cmath>
 
 #include "periodicTimerApp.hpp"
+#include "oscillator.hpp"
+#include "map.hpp"
+
+#include "../System/Streams/i2sDuplexStream.hpp"
