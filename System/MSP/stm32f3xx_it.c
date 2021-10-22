@@ -25,34 +25,12 @@ void NMI_Handler(void)
         }                                                  \
     } while (0)
 
-typedef struct __attribute__((packed)) ExceptionStackFrame
-{
-    uint32_t r0;
-    uint32_t r1;
-    uint32_t r2;
-    uint32_t r3;
-    uint32_t r12;
-    uint32_t lr;
-    uint32_t return_address;
-    uint32_t xpsr;
-} ExceptionStackFrame;
-
 // Disable optimizations for this function so "frame" argument
 // does not get optimized away
 __attribute__((optimize("O0"))) void hardFaultStackFrameDump(ExceptionStackFrame *exceptionStackFrame, char stackPointerInitial)
 {
     // HALT_IF_DEBUGGING();
-    printf("HardFault !\n");
-    printf("%cSP context state frame:\n", stackPointerInitial);
-    printf("  r0:       %08lX\n", exceptionStackFrame->r0);
-    printf("  r1:       %08lX\n", exceptionStackFrame->r1);
-    printf("  r2:       %08lX\n", exceptionStackFrame->r2);
-    printf("  r3:       %08lX\n", exceptionStackFrame->r3);
-    printf("  r12:      %08lX\n", exceptionStackFrame->r12);
-    printf("  lr:       %08lX\n", exceptionStackFrame->lr);
-    printf("  ret_addr: %08lX\n", exceptionStackFrame->return_address);
-    printf("  xpsr:     %08lX\n", exceptionStackFrame->xpsr);
-    FIBSYS_PANIC();
+    FIBSYS_HARDFAULT(exceptionStackFrame, stackPointerInitial);
 }
 
 #define HARDFAULT_HANDLING_ASM(_x) \
