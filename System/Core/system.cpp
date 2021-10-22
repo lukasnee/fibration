@@ -119,32 +119,95 @@ void FibSys::getUptime(std::uint32_t &days, std::uint32_t &hours, std::uint32_t 
     days = daysTotal;
 }
 
-extern "C" void fibsys_panic(const char *strFile, std::uint32_t line)
+static void hexDumpWords(std::uint32_t address, std::size_t size, std::size_t width)
 {
-    FibSys::panic(strFile, line);
+    for (std::size_t i = 0; i < size; i += width)
+    {
+        auto pAddress = reinterpret_cast<std::uint32_t *>(address) + i;
+        printf("%08lX: ", pAddress);
+        for (std::size_t j = 0; j < width; j++)
+            if (i + j < size)
+                printf("%08lX ", pAddress[j]);
+            else
+                printf("   ");
+        printf("\n");
+    }
 }
 
-void FibSys::panic(const char *strFile, std::uint32_t line)
+extern "C" void fibsys_hardfault(ExceptionStackFrame *pExceptionStackFrame, char stackPointerInitial)
 {
-    auto hexDumpWords = [](std::uint32_t address, std::size_t size, std::size_t width)
+    printf(ANSI_COLOR_RESET "S Y S T E M   H A R D F A U L T (uptime: %lu ms)\n", FibSys::getUptimeInMs());
+    printf("%cSP frame - r0: %08lX, "
+           "r1: %08lX, "
+           "r2: %08lX, "
+           "r3: %08lX,\n"
+           "r12: %08lX, "
+           "lr: %08lX, "
+           "ret_addr %08lX, "
+           "xpsr: %08lX\n",
+           stackPointerInitial,
+           pExceptionStackFrame->r0,
+           pExceptionStackFrame->r1,
+           pExceptionStackFrame->r2,
+           pExceptionStackFrame->r3,
+           pExceptionStackFrame->r12,
+           pExceptionStackFrame->lr,
+           pExceptionStackFrame->return_address,
+           pExceptionStackFrame->xpsr);
+    const struct
     {
-        for (std::size_t i = 0; i < size; i += width)
+        std::uint32_t mask;
+        const char *strName;
+    } CM4_CFSR_MAP[] =
         {
-            printf("%08lX: ", address);
-            auto pAddress = reinterpret_cast<std::uint32_t *>(address);
-            for (std::size_t j = 0; j < width; j++)
-                if (i + j < size)
-                    printf("%08lX ", pAddress[i + j]);
-                else
-                    printf("   ");
-            printf("\n");
-        }
-    };
+            {SCB_CFSR_USGFAULTSR_Msk, "USGFAULTSR"},
+            {SCB_CFSR_BUSFAULTSR_Msk, "BUSFAULTSR"},
+            {SCB_CFSR_MEMFAULTSR_Msk, "MEMFAULTSR"},
+            {SCB_CFSR_MMARVALID_Msk, "MMARVALID"},
+            {SCB_CFSR_MLSPERR_Msk, "MLSPERR"},
+            {SCB_CFSR_MSTKERR_Msk, "MSTKERR"},
+            {SCB_CFSR_MUNSTKERR_Msk, "MUNSTKERR"},
+            {SCB_CFSR_DACCVIOL_Msk, "DACCVIOL"},
+            {SCB_CFSR_IACCVIOL_Msk, "IACCVIOL"},
+            {SCB_CFSR_BFARVALID_Msk, "BFARVALID"},
+            {SCB_CFSR_LSPERR_Msk, "LSPERR"},
+            {SCB_CFSR_STKERR_Msk, "STKERR"},
+            {SCB_CFSR_UNSTKERR_Msk, "UNSTKERR"},
+            {SCB_CFSR_IMPRECISERR_Msk, "IMPRECISERR"},
+            {SCB_CFSR_PRECISERR_Msk, "PRECISERR"},
+            {SCB_CFSR_IBUSERR_Msk, "IBUSERR"},
+            {SCB_CFSR_DIVBYZERO_Msk, "DIVBYZERO"},
+            {SCB_CFSR_UNALIGNED_Msk, "UNALIGNED"},
+            {SCB_CFSR_NOCP_Msk, "NOCP"},
+            {SCB_CFSR_INVPC_Msk, "INVPC"},
+            {SCB_CFSR_INVSTATE_Msk, "INVSTATE"},
+            {SCB_CFSR_UNDEFINSTR_Msk, "UNDEFINSTR"}};
 
-    printf(ANSI_COLOR_RESET "S Y S T E M   P A N I C\n");
-    printf("uptime: %lu ms\n", FibSys::getUptimeInMs());
+    printf("CFSR: %08lX (", SCB->CFSR);
+    uint8_t first = 1;
+    for (size_t i = 0; i < sizeof(CM4_CFSR_MAP) / sizeof(CM4_CFSR_MAP[0]); i++)
+    {
+        if (SCB->CFSR & CM4_CFSR_MAP[i].mask)
+        {
+            if (!first)
+            {
+                printf("|");
+            }
+            printf(CM4_CFSR_MAP[i].strName);
+            first = 0;
+        }
+    }
+    printf("), HFSR: %08lX,\nDFSR: %08lX, MMFAR: %08lX, BFAR: %08lX, AFSR: %08lX\n", SCB->HFSR, SCB->DFSR, SCB->MMFAR, SCB->BFAR, SCB->AFSR);
+    printf("process stack dump:\n");
+    hexDumpWords(__get_PSP(), 32, 4);
+    FibSys::hardwareReboot();
+}
+
+extern "C" void fibsys_panic(const char *strFile, std::uint32_t line)
+{
+    printf(ANSI_COLOR_RESET "S Y S T E M   P A N I C (uptime: %lu ms)\n", FibSys::getUptimeInMs());
     printf("%s:%lu\n", strFile, line);
-    printf("PSP dump:\n");
+    printf("process stack dump:\n");
     hexDumpWords(__get_PSP(), 32, 4);
     FibSys::hardwareReboot();
 }
@@ -194,7 +257,7 @@ void FibSys::Run()
     }
     textStreamUart2.printf("\n\nFibration %s v%u.%u.%u\n", Fib::Version::moduleName, Fib::Version::major, Fib::Version::minor, Fib::Version::patch);
 
-    constexpr const char * strFibShellLabel = ANSI_COLOR_BLUE "FIB> " ANSI_COLOR_YELLOW;
+    constexpr const char *strFibShellLabel = ANSI_COLOR_BLUE "FIB> " ANSI_COLOR_YELLOW;
     static Shell shell(strFibShellLabel, textStreamUart2, 0x200, FibSys::Priority::appHigh);
 
     Periph::getAdc2().init();
