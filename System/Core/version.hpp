@@ -13,3 +13,16 @@
     }
 
 #include "version.def"
+
+#define GITHASH(gitHashValue)                              \
+    namespace Fib                                          \
+    {                                                      \
+        namespace Version                                  \
+        {                                                  \
+            constexpr const char *gitHash = #gitHashValue; \
+            constexpr const char *compileDate = __DATE__;  \
+            constexpr const char *compileTime = __TIME__;  \
+        }                                                  \
+    }
+
+#include "gitHash.def"

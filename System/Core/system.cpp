@@ -124,7 +124,7 @@ static void hexDumpWords(std::uint32_t address, std::size_t size, std::size_t wi
     for (std::size_t i = 0; i < size; i += width)
     {
         auto pAddress = reinterpret_cast<std::uint32_t *>(address) + i;
-        printf("%08lX: ", pAddress);
+        printf("%08lX: ", reinterpret_cast<std::uint32_t>(pAddress));
         for (std::size_t j = 0; j < width; j++)
             if (i + j < size)
                 printf("%08lX ", pAddress[j]);
@@ -246,6 +246,14 @@ FibSys::FibSys(std::uint16_t stackDepth, BaseType_t priority) : Thread("FibSys",
 //     }
 // }
 
+Shell::Command versionCmd("version,ver", nullptr, "show firmware version", [](SHELLCMDPARAMS)
+                          {
+                              shell.printf("\nFibration %s v%u.%u.%u\n(%s, %s %s)",
+                                           Fib::Version::moduleName, Fib::Version::major, Fib::Version::minor, Fib::Version::patch,
+                                           Fib::Version::gitHash, Fib::Version::compileDate, Fib::Version::compileTime);
+                              return Shell::Command::Result::okQuiet;
+                          });
+
 //FibSys thread
 void FibSys::Run()
 {
@@ -255,10 +263,10 @@ void FibSys::Run()
     {
         FIBSYS_PANIC();
     }
-    textStreamUart2.printf("\n\nFibration %s v%u.%u.%u\n", Fib::Version::moduleName, Fib::Version::major, Fib::Version::minor, Fib::Version::patch);
 
     constexpr const char *strFibShellLabel = ANSI_COLOR_BLUE "FIB> " ANSI_COLOR_YELLOW;
     static Shell shell(strFibShellLabel, textStreamUart2, 0x200, FibSys::Priority::appHigh);
+    shell.execute(versionCmd);
 
     Periph::getAdc2().init();
     Periph::getAdc2().start();
