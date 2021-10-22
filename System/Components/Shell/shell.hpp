@@ -94,6 +94,7 @@ public:
                 static constexpr const char *off = "off";
             };
 
+            static Result onOffCommand(std::function<bool(bool)> onOffF, const char *strOnOffControlName, SHELLCMDPARAMS);
             static Result onOffCommand(bool &onOffControl, const char *strOnOffControlName, SHELLCMDPARAMS);
         };
 

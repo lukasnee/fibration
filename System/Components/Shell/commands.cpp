@@ -111,7 +111,7 @@ Shell::Command Shell::helpCommand = Shell::Command(
         return result;
     });
 
-Shell::Command::Result Shell::Command::Helper::onOffCommand(bool &onOffControl, const char *strOnOffControlName, SHELLCMDPARAMS)
+Shell::Command::Result Shell::Command::Helper::onOffCommand(std::function<bool(bool)> onOffF, const char *strOnOffControlName, SHELLCMDPARAMS)
 {
     Shell::Command::Result result = Shell::Command::Result::fail;
 
@@ -121,15 +121,19 @@ Shell::Command::Result Shell::Command::Helper::onOffCommand(bool &onOffControl, 
     }
     else if (!std::strcmp(argv[1], Literal::on))
     {
-        onOffControl = true;
-        shell.printf("%s %s %s\n", strOnOffControlName, Literal::verb, Literal::on);
-        result = Shell::Command::Result::ok;
+        if (onOffF(true))
+        {
+            shell.printf("%s %s %s\n", strOnOffControlName, Literal::verb, Literal::on);
+            result = Shell::Command::Result::ok;
+        }
     }
     else if (!std::strcmp(argv[1], Literal::off))
     {
-        onOffControl = false;
-        shell.printf("%s %s %s\n", strOnOffControlName, Literal::verb, Literal::off);
-        result = Shell::Command::Result::ok;
+        if (onOffF(false))
+        {
+            shell.printf("%s %s %s\n", strOnOffControlName, Literal::verb, Literal::off);
+            result = Shell::Command::Result::ok;
+        }
     }
     else
     {
@@ -139,6 +143,15 @@ Shell::Command::Result Shell::Command::Helper::onOffCommand(bool &onOffControl, 
     return result;
 };
 
+Shell::Command::Result Shell::Command::Helper::onOffCommand(bool &onOffControl, const char *strOnOffControlName, SHELLCMDPARAMS)
+{
+    return onOffCommand([&](bool state)
+                        {
+                            onOffControl = state;
+                            return true;
+                        },
+                        strOnOffControlName, SHELLCMDARGS);
+};
 
 void Shell::Command::linkTo(Command *&pParent)
 {
