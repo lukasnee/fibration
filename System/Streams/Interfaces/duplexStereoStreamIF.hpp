@@ -21,7 +21,7 @@ public:
     using CircularBuffer = std::array<Buffer, 2>;
 
     // TODO: pass SampleRateInHz
-    using ProcessTxRxBufferF = void(const DuplexStereoStreamIF::Buffer *rxBuffer, DuplexStereoStreamIF::Buffer *txBuffer);
+    using ProcessTxRxBufferF = void(const DuplexStereoStreamIF::Buffer &rxBuffer, DuplexStereoStreamIF::Buffer &txBuffer);
 
     bool start();
     bool stop();
