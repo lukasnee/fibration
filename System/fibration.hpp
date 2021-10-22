@@ -30,3 +30,5 @@ extern "C"
 #include "ticks.hpp"
 
 #include <cmath>
+
+#include "periodicTimerApp.hpp"
