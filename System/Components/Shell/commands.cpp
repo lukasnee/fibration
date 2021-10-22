@@ -170,7 +170,8 @@ void Shell::Command::linkTo(Command *&pParent)
     }
 }
 
-Shell::Command::Command(const char *name, const char *usage, const char *description, CommandF commandF, CtorCallbackF ctorCallbackF)
+Shell::Command::Command(const char *name, const char *usage, const char *description,
+                        std::function<Result(SHELLCMDPARAMS)> commandF, std::function<void()> ctorCallbackF)
     : name(name), usage(usage), description(description), commandF(commandF)
 {
     this->linkTo(Shell::pCommandGlobalRoot);
@@ -180,7 +181,8 @@ Shell::Command::Command(const char *name, const char *usage, const char *descrip
     }
 }
 
-Shell::Command::Command(Command &parent, const char *name, const char *usage, const char *description, CommandF commandF, CtorCallbackF ctorCallbackF)
+Shell::Command::Command(Command &parent, const char *name, const char *usage, const char *description,
+                        std::function<Result(SHELLCMDPARAMS)> commandF, std::function<void()> ctorCallbackF)
     : name(name), usage(usage), description(description), commandF(commandF)
 {
     this->linkTo(parent.pSubcommands);
@@ -190,7 +192,7 @@ Shell::Command::Command(Command &parent, const char *name, const char *usage, co
     }
 }
 
-Shell::Command::Command(const char *name, CommandF commandF)
+Shell::Command::Command(const char *name, std::function<Result(SHELLCMDPARAMS)> commandF)
     : name(name), usage(nullptr), description(nullptr), commandF(commandF)
 {
     this->linkTo(Shell::pCommandGlobalRoot);
@@ -257,4 +259,3 @@ const Shell::Command *Shell::Command::findSubcommand(const char *name) const
 }
 
 Shell::Command *Shell::pCommandGlobalRoot = nullptr;
-

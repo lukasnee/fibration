@@ -5,6 +5,13 @@
 #include <string_view>
 #include <cstdarg>
 
+#if defined(FIBSYS) && defined(DEBUG)
+#define CONFIG_DEFAULT_LOGGING true
+#else
+#define CONFIG_DEFAULT_LOGGING false
+#endif //#if defined(FIBSYS) && defined(DEBUG)
+
+
 #define FIB_SHELL_ENABLED 1
 
 #if FIB_SHELL_ENABLED
@@ -44,9 +51,15 @@ public:
         /* lower verbosity level log entries will be optimized out @compile-time */
         static constexpr Verbosity verbosityFloor = Verbosity::low;
 
-        bool logging = false;
-        bool color = true;
-        bool prefix = true;
+        struct Default {
+            static constexpr bool logging = CONFIG_DEFAULT_LOGGING;
+            static constexpr bool color = true;
+            static constexpr bool prefix = true;
+        };
+
+        bool logging = Default::logging;
+        bool color = Default::color;
+        bool prefix = Default::prefix;
     };
 
     /**

@@ -15,6 +15,7 @@
 #include <string_view>
 #include <limits>
 #include <type_traits>
+#include <functional>
 
 using namespace std::string_view_literals;
 
@@ -66,11 +67,14 @@ public:
 #define SHELLCMDPARAMS Shell &shell, std::size_t argc, const char *argv[]
 #define SHELLCMDARGS shell, argc, argv
 
-        using CtorCallbackF = void(void); // method for constructing subcommands
-        using CommandF = Result(SHELLCMDPARAMS);
-        Command(const char *name, const char *usage = nullptr, const char *description = nullptr, CommandF commandF = nullptr, CtorCallbackF ctorCallbackF = nullptr);
-        Command(Command &parent, const char *name, const char *usage = nullptr, const char *description = nullptr, CommandF commandF = nullptr, CtorCallbackF ctorCallbackF = nullptr);
-        Command(const char *name, CommandF commandF = nullptr);
+        Command(const char *name, const char *usage, const char *description,
+                std::function<Result(SHELLCMDPARAMS)> commandF, std::function<void()> ctorCallbackF = nullptr);
+
+        Command(Command &parent, const char *name, const char *usage, const char *description,
+                std::function<Result(SHELLCMDPARAMS)> commandF, std::function<void()> ctorCallbackF = nullptr);
+
+        Command(const char *name, std::function<Result(SHELLCMDPARAMS)> commandF);
+
         const Command *findNeighbourCommand(const char *name) const;
         const Command *findSubcommand(const char *name) const;
 
@@ -79,7 +83,7 @@ public:
         const char *name = nullptr;
         const char *usage = nullptr;
         const char *description = nullptr;
-        const CommandF *commandF = nullptr;
+        const std::function<Result(SHELLCMDPARAMS)> commandF = nullptr;
 
         // TODO maybe move to other file (namespace CommandHelpers, etc.)
         struct Helper

@@ -149,6 +149,7 @@ set(FIBSYS_STREAMS_SRC
 
 set(FIBSYS_COMPONENTS_SRC
     ${ROOT}/System/Components/Shell/shell.cpp
+    ${ROOT}/System/Components/Shell/commands.cpp
     ${ROOT}/System/Components/Shell/input.cpp
     ${ROOT}/System/Components/Shell/argVector.cpp
     ${ROOT}/System/Components/Shell/argBuffer.cpp
@@ -187,6 +188,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
     # -D__FPU_PRESENT=1
     -DSTM32F303xE
     #-DSTM32F303xC
+    -DFIBSYS
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE 
@@ -194,6 +196,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${ROOT}/Modules/Spirale
 
     # Fibration Framework
+    ${ROOT}
     ${ROOT}/System/
     ${ROOT}/System/DSP
     ${ROOT}/System/Config/

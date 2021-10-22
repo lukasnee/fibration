@@ -137,18 +137,15 @@ namespace ShellCommands
 {
     static Shell::Command log(
         "log", Shell::Command::Helper::Literal::onOffUsage, nullptr, [](SHELLCMDPARAMS)
-        {
-            const char *strControlName = "logging";
-            return Shell::Command::Helper::onOffCommand(Logger::getInstance().modifyConfig().logging, strControlName, SHELLCMDARGS);
-        },
+        { return Shell::Command::Helper::onOffCommand(Logger::getInstance().modifyConfig().logging, "logging", SHELLCMDARGS); },
         []()
         {
             static Shell::Command color(
                 log, "color", Shell::Command::Helper::Literal::onOffUsage, nullptr, [](SHELLCMDPARAMS)
-                { return Shell::Command::Helper::onOffCommand(Logger::getInstance().modifyConfig().color, "color", SHELLCMDARGS); });
+                { return Shell::Command::Helper::onOffCommand(Logger::getInstance().modifyConfig().color, "log coloring", SHELLCMDARGS); });
             static Shell::Command prefix(
                 log, "prefix", Shell::Command::Helper::Literal::onOffUsage, nullptr, [](SHELLCMDPARAMS)
-                { return Shell::Command::Helper::onOffCommand(Logger::getInstance().modifyConfig().prefix, "prefix", SHELLCMDARGS); });
+                { return Shell::Command::Helper::onOffCommand(Logger::getInstance().modifyConfig().prefix, "log prefix", SHELLCMDARGS); });
         });
 } // namespace ShellCommands
 #endif // #if FIB_SHELL_ENABLED
