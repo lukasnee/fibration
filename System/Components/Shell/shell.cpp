@@ -3,6 +3,7 @@
 #include "system.hpp"
 #include "resources.hpp"
 // TODO: make arrow up repeat buffer
+// TODO: some kind of esacpe signal mechanism to inform running command to exit.
 #include <cstring>
 
 Shell::Shell(const char *strPromptLabel, AsciiStream &asciiStream, std::uint16_t stackDepth, BaseType_t priority, Shell::Command *pCommandRoot)
