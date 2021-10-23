@@ -109,6 +109,7 @@ set(FIBSYS_CORE_SRC
 
 set(FIBSYS_DSP_SRC
     ${ROOT}/System/DSP/map.cpp
+    ${ROOT}/System/DSP/oscillator.cpp
 )
 
 set(FIBSYS_UTILITIES_SRC
