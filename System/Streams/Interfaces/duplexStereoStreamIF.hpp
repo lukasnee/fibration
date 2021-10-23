@@ -4,33 +4,40 @@
     Duplex Stereo Stream Interface
 */
 
+#include "map.hpp"
 #include "thread.hpp"
 #include <array>
 
 class DuplexStereoStreamIF : cpp_freertos::Thread
 {
 public:
-    struct StereoSample
-    {
-        std::uint32_t left;  // 24-bit value in 32-bit frame
-        std::uint32_t right; // 24-bit value in 32-bit frame
-    };
-
     static constexpr std::size_t stereoBufferSize = 0x20; // TODO experiment on this one
-    using Buffer = std::array<StereoSample, stereoBufferSize>;
-    using CircularBuffer = std::array<Buffer, 2>;
+
+    struct StereoSampleU32
+    {
+        std::uint32_t left, right; // 24-bit value in 32-bit frame
+    };
+    using StereoBufferU32 = std::array<StereoSampleU32, stereoBufferSize>;
+    using CircularStereoBufferU32 = std::array<StereoBufferU32, 2>;
+
+    static_assert(stereoBufferSize % Fib::DSP::SampleBlock<Fib::DSP::F32>().size() == 0,
+                  "stereoBufferSize must be a multiple of Fib::DSP::SampleBlock<F32>::size() !");
+    using SampleBlocksF32 =
+        Fib::DSP::SampleBlocks<Fib::DSP::F32, (stereoBufferSize / Fib::DSP::SampleBlock<Fib::DSP::F32>().size())>;
 
     // TODO: pass SampleRateInHz
-    using ProcessTxRxBufferF = void(const DuplexStereoStreamIF::Buffer &rxBuffer, DuplexStereoStreamIF::Buffer &txBuffer);
+    using ProcessRxTxBuffersF32F = void(const SampleBlocksF32 &rxLeftSampleBlocksF32,
+                                        const SampleBlocksF32 &rxRightSampleBlocksF32,
+                                        SampleBlocksF32 &txLeftSampleBlocksF32,
+                                        SampleBlocksF32 &txRightSampleBlocksF32);
 
     bool start();
     bool stop();
 
 protected:
-    DuplexStereoStreamIF(const std::string pcName,
-                                uint16_t usStackDepth,
-                                UBaseType_t uxPriority, CircularBuffer &circularBufferTx, CircularBuffer &circularBufferRx,
-                                ProcessTxRxBufferF processTxRxBufferF);
+    DuplexStereoStreamIF(const std::string pcName, uint16_t usStackDepth, UBaseType_t uxPriority,
+                         CircularStereoBufferU32 &circularBufferTx, CircularStereoBufferU32 &circularBufferRx,
+                         ProcessRxTxBuffersF32F processRxTxBuffersF32F);
 
     virtual bool init() = 0;
     virtual bool deinit() = 0;
@@ -52,13 +59,13 @@ private:
     virtual void Run() override; // thread entry
 
     const std::uint16_t *getCircularBufferRx();
-    bool getStereoAudioBuffersTxRx(const Buffer *&pBufferRx, Buffer *&pBufferTx);
+    bool getStereoAudioBuffersTxRxU32(
+        const StereoBufferU32 *&pRxStereoBufferU32Out, StereoBufferU32 *&pTxStereoBufferU32Out);
     bool stereoAudioBufferLoaded();
 
-    CircularBuffer &circularBufferTx;
-    CircularBuffer &circularBufferRx;
+    CircularStereoBufferU32 &circularStereoBufferTxU32, &circularStereoBufferRxU32;
 
-    ProcessTxRxBufferF *processTxRxBufferF = nullptr;
+    ProcessRxTxBuffersF32F *processRxTxBuffersF32F = nullptr;
 
     // TODO group into a struct `CircularDmaTxRxStream` like in ADC2 driver
 

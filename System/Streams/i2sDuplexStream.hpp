@@ -16,9 +16,9 @@ public:
                     const std::string pcName,
                     uint16_t usStackDepth,
                     UBaseType_t uxPriority,
-                    DuplexStereoStreamIF::CircularBuffer &circularBufferTx,
-                    DuplexStereoStreamIF::CircularBuffer &circularBufferRx,
-                    ProcessTxRxBufferF processTxRxBufferF);
+                    DuplexStereoStreamIF::CircularStereoBufferU32 &circularStereoBufferTxU32,
+                    DuplexStereoStreamIF::CircularStereoBufferU32 &circularStereoBufferRxU32,
+                    ProcessRxTxBuffersF32F processRxTxBuffersF32F);
     ~I2sDuplexStream();
 
 protected:

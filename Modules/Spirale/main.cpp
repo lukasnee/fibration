@@ -29,18 +29,20 @@ static Shell::Command psnCommand(
     "psn", Shell::Command::Helper::Literal::onOffUsage, nullptr, [](SHELLCMDPARAMS)
     { return Shell::Command::Helper::onOffCommand([&](bool state) -> bool
                                                   { return periodicRandomValue.setState(state); },
-                                                              "psn", SHELLCMDARGS); });
+                                                  "psn", SHELLCMDARGS); });
 
-static I2sDuplexStream::CircularBuffer i2s2DuplexStreamCircularBufferTx, i2s2DuplexStreamCircularBufferRx;
+static I2sDuplexStream::CircularStereoBufferU32
+    i2s2CircularStereoBufferTxU32,
+    i2s2CircularStereoBufferRxU32;
 
 static I2sDuplexStream i2s2DuplexStream(
     Periph::getI2s2(), "i2s2stream", 1024 / sizeof(StackType_t), FibSys::Priority::audioStream,
-    i2s2DuplexStreamCircularBufferTx, i2s2DuplexStreamCircularBufferRx,
-    [](const DuplexStereoStreamIF::Buffer &rxBuffer, DuplexStereoStreamIF::Buffer &txBuffer)
+    i2s2CircularStereoBufferTxU32, i2s2CircularStereoBufferRxU32,
+    [](const I2sDuplexStream::SampleBlocksF32 &rxLeftSampleBlocksF32, const I2sDuplexStream::SampleBlocksF32 &rxRightSampleBlocksF32,
+       I2sDuplexStream::SampleBlocksF32 &txLeftSampleBlocksF32, I2sDuplexStream::SampleBlocksF32 &txRightSampleBlocksF32)
     {
-
-        static auto osc1 = Fib::DSP::OscillatorF32();
-        static auto osc2 = Fib::DSP::OscillatorF32();
+        static auto sineF32A = Fib::DSP::Osc::SineF32();
+        static auto sineF32B = Fib::DSP::Osc::SineF32();
 
         std::array<float, 4> potValues;
         Periph::getAdc2().getValue(5, potValues[0]);
@@ -51,42 +53,24 @@ static I2sDuplexStream i2s2DuplexStream(
         arm_mult_f32(potValues.data(), potValues.data(), potValues.data(), potValues.size());
         arm_mult_f32(potValues.data(), potValues.data(), potValues.data(), potValues.size());
 
-        osc1.setFrequencyInHz(Fib::DSP::map(potValues[0], 0.f, 1.f, 0.f, 20'000.f));
-        osc1.setAmplitudeNormal(potValues[1]);
-        osc2.setFrequencyInHz(Fib::DSP::map(potValues[2], 0.f, 1.f, 0.f, 20'000.f));
-        osc2.setAmplitudeNormal(potValues[3]);
+        sineF32A.setFrequencyInHz(Fib::DSP::map(potValues[0], 0.f, 1.f, 0.f, 20'000.f));
+        sineF32A.setAmplitudeNormal(potValues[1]);
+        sineF32A.generateMult(txLeftSampleBlocksF32.data(), txLeftSampleBlocksF32.size());
 
-        Fib::DSP::SampleBlocks<float, 8> ch1SampleBlocksF32;
-        osc1.step(ch1SampleBlocksF32);
+        sineF32B.setFrequencyInHz(Fib::DSP::map(potValues[2], 0.f, 1.f, 0.f, 20'000.f));
+        sineF32B.setAmplitudeNormal(potValues[3]);
+        sineF32B.generateMult(txRightSampleBlocksF32.data(), txRightSampleBlocksF32.size());
 
-        Fib::DSP::SampleBlocks<float, 8> ch2SampleBlocksF32;
-        osc2.step(ch2SampleBlocksF32);
-
-        for (std::size_t i = 0; i < ch2SampleBlocksF32.size(); i++)
-        {
-            for (std::size_t j = 0; j < ch2SampleBlocksF32.front().size(); j++)
-            {
-                auto ch1SampleQ31 = Fib::DSP::floatToQ31(ch1SampleBlocksF32[i][j]) >> 8;
-                auto ch2SampleQ31 = Fib::DSP::floatToQ31(ch2SampleBlocksF32[i][j]) >> 8;
-                txBuffer[i * ch1SampleBlocksF32.front().size() + j].left = Fib::DSP::swap(ch1SampleQ31);
-                txBuffer[i * ch2SampleBlocksF32.front().size() + j].right = Fib::DSP::swap(ch2SampleQ31);
-            }
-        }
-
-        // dry pass ADC LEFT -> DAC RIGHT
-        // for (std::size_t i = 0; i < txBuffer.size(); i++)
-        // {
-        //     txBuffer[i].right = rxBuffer[i].left;
-        // }
+        // txRightSampleBlocksF32 = rxLeftSampleBlocksF32;
 
         {
             static Fib::PeriodicTimerApp spiraleStats(
                 "ss", 10.f, [&]()
                 { Logger::log(Logger::Verbosity::low, Logger::Type::trace, "%f,%f,%f,%f\n",
-                              osc1.getFrequencyInHz(),
-                              osc1.getAmplitudeNormal(),
-                              osc2.getFrequencyInHz(),
-                              osc2.getAmplitudeNormal()); });
+                              sineF32A.getFrequencyInHz(),
+                              sineF32A.getAmplitudeNormal(),
+                              sineF32B.getFrequencyInHz(),
+                              sineF32B.getAmplitudeNormal()); });
             static Shell::Command statsCommand(
                 "ss", Shell::Command::Helper::Literal::onOffUsage, nullptr, [](SHELLCMDPARAMS)
                 { return Shell::Command::Helper::onOffCommand([&](bool state) -> bool
