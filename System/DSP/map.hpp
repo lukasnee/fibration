@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <limits>
+#include <array>
 #include "stm32f303xe.h"
 extern "C"
 {
@@ -12,6 +13,8 @@ namespace Fib
 {
     namespace DSP
     {
+        using F32 = float;
+
         /**
          * @brief get the max value for the given bit depth
          * 
@@ -90,21 +93,7 @@ namespace Fib
          * @param sample 
          * @return q31_t 
          */
-        q31_t u32ToQ31(const std::uint32_t &sample)
-        {
-            q31_t result;
-
-            if (sample < bitDepthToCenterValue<32>())
-            {
-                result = static_cast<q31_t>(sample) - bitDepthToCenterValue<32>();
-            }
-            else
-            {
-                result = static_cast<q31_t>(sample - bitDepthToCenterValue<32>());
-            }
-
-            return result;
-        }
+        q31_t u32ToQ31(const std::uint32_t &sample);
 
         /**
          * @brief 
@@ -131,21 +120,7 @@ namespace Fib
          * @param q31 
          * @return std::uint32_t 
          */
-        std::uint32_t q31ToU32(const q31_t &q31)
-        {
-            std::uint32_t result;
-
-            if (q31 < 0)
-            {
-                result = static_cast<std::uint32_t>(q31 + bitDepthToCenterValue<32>());
-            }
-            else
-            {
-                result = static_cast<std::uint32_t>(q31) + bitDepthToCenterValue<32>();
-            }
-
-            return result;
-        }
+        std::uint32_t q31ToU32(const q31_t &q31);
 
         /**
          * @brief 
@@ -170,11 +145,7 @@ namespace Fib
          * @param val 
          * @return std::uint32_t 
          */
-        std::uint32_t swap(std::uint32_t val)
-        {
-            val = ((val << 8) & 0xFF00FF00) | ((val >> 8) & 0xFF00FF);
-            return (val << 16) | (val >> 16);
-        }
+        std::uint32_t swap(std::uint32_t val);
 
         template <typename T>
         class Range
