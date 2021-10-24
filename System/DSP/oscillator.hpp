@@ -11,14 +11,6 @@ namespace Fib::DSP::Osc
             Config(F32 sampleRateInHz, F32 frequencyInHz);
 
             F32 sampleRateInHz = 44'100.f;
-
-            struct Ranges
-            {
-                static constexpr auto amplitudeNormal = Range<F32>(0.f, 1.f);
-                static constexpr auto frequencyInHz = Range<F32>(0.f, 20'000.f);
-                static constexpr auto phaseInRad = Range<F32>(0.f, (2.f * PI));
-            };
-
             struct Derived
             {
             public:
@@ -42,17 +34,7 @@ namespace Fib::DSP::Osc
 
         void generateMult(SampleBlock<F32> *pSampleBlocksOut, std::size_t sampleBlocksSize);
 
-        F32 getAmplitudeNormal();
-        bool setAmplitudeNormal(F32 amplitudeNormal);
-
-        F32 getFrequencyInHz();
-        bool setFrequencyInHz(F32 frequencyInHz);
-
-        F32 getPhaseInRad();
-        bool setPhaseInRad(F32 phaseInRad);
-
-    private:
-        F32 amplitudeNormal = 0.f, frequencyInHz = 0.f, phaseInRad = 0.f;
+        RangedValue<F32> amplitudeNormal, frequencyInHz, phaseInRad;
     };
 
     class SineF32 : public OscF32
