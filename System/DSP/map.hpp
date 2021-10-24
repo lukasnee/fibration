@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <limits>
 #include <array>
+#include <functional>
 #include "stm32f303xe.h"
 extern "C"
 {
@@ -148,20 +149,37 @@ namespace Fib
         std::uint32_t swap(std::uint32_t val);
 
         template <typename T>
-        class Range
+        class RangedValue
         {
         public:
-            constexpr Range(T const &lower, T const &upper) : upper(upper), lower(lower) {}
+            constexpr RangedValue(T const &initialValue, T const &lowerLimit, T const &upperLimit,
+                                  std::function<bool(T const &value)> onChangeF = nullptr)
+                : value(initialValue), lowerLimit(lowerLimit), upperLimit(upperLimit), onChangeF(onChangeF) {}
             bool isInRange(T value) const
             {
-                return (this->lower < value && value < this->upper);
+                return (this->lowerLimit < value && value < this->upperLimit);
             };
-            constexpr T getUpper() const { return this->upper; }
-            constexpr T getLower() const { return this->lower; }
+
+            T get() { return this->value; }
+
+            bool set(T value)
+            {
+                bool result = false;
+                if (this->isInRange(value))
+                {
+                    this->value = value;
+                    result = onChangeF ? this->onChangeF(this->value) : true;
+                }
+                return result;
+            }
+
+            constexpr T getLowerLimit() const { return this->lowerLimit; }
+            constexpr T getUpperLimit() const { return this->upperLimit; }
 
         private:
-            const T upper;
-            const T lower;
+            T value;
+            const T lowerLimit, upperLimit;
+            std::function<bool(T const &value)> onChangeF;
         };
 
         template <typename Type>

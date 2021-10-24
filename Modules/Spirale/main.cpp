@@ -53,12 +53,12 @@ static I2sDuplexStream i2s2DuplexStream(
         arm_mult_f32(potValues.data(), potValues.data(), potValues.data(), potValues.size());
         arm_mult_f32(potValues.data(), potValues.data(), potValues.data(), potValues.size());
 
-        sineF32A.setFrequencyInHz(Fib::DSP::map(potValues[0], 0.f, 1.f, 0.f, 20'000.f));
-        sineF32A.setAmplitudeNormal(potValues[1]);
+        sineF32A.frequencyInHz.set(Fib::DSP::map(potValues[0], 0.f, 1.f, 0.f, 20'000.f));
+        sineF32A.amplitudeNormal.set(potValues[1]);
         sineF32A.generateMult(txLeftSampleBlocksF32.data(), txLeftSampleBlocksF32.size());
 
-        sineF32B.setFrequencyInHz(Fib::DSP::map(potValues[2], 0.f, 1.f, 0.f, 20'000.f));
-        sineF32B.setAmplitudeNormal(potValues[3]);
+        sineF32B.frequencyInHz.set(Fib::DSP::map(potValues[2], 0.f, 1.f, 0.f, 20'000.f));
+        sineF32B.amplitudeNormal.set(potValues[3]);
         sineF32B.generateMult(txRightSampleBlocksF32.data(), txRightSampleBlocksF32.size());
 
         // txRightSampleBlocksF32 = rxLeftSampleBlocksF32;
@@ -67,10 +67,10 @@ static I2sDuplexStream i2s2DuplexStream(
             static Fib::PeriodicTimerApp spiraleStats(
                 "ss", 10.f, [&]()
                 { Logger::log(Logger::Verbosity::low, Logger::Type::trace, "%f,%f,%f,%f\n",
-                              sineF32A.getFrequencyInHz(),
-                              sineF32A.getAmplitudeNormal(),
-                              sineF32B.getFrequencyInHz(),
-                              sineF32B.getAmplitudeNormal()); });
+                              sineF32A.frequencyInHz.get(),
+                              sineF32A.amplitudeNormal.get(),
+                              sineF32B.frequencyInHz.get(),
+                              sineF32B.amplitudeNormal.get()); });
             static Shell::Command statsCommand(
                 "ss", Shell::Command::Helper::Literal::onOffUsage, nullptr, [](SHELLCMDPARAMS)
                 { return Shell::Command::Helper::onOffCommand([&](bool state) -> bool
