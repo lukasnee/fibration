@@ -21,8 +21,9 @@ namespace Fib::DSP::Osc
 
             struct Derived
             {
-            public: 
+            public:
                 Derived(F32 sampleRateInHz = 44'100.f, F32 frequencyInHz = 0.f);
+                void derive(F32 frequencyInHz);
                 const F32 &getSamplePeriodInSec() const { return this->samplePeriodInSec; }
                 const F32 &getPhaseDeltaInRad() const { return this->phaseDeltaInRad; }
                 /* I want to return CONST reference but the flimsy CMSIS DSP API doesn't let me :') */

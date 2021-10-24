@@ -12,6 +12,11 @@ namespace Fib::DSP::Osc
     OscF32::Config::Derived::Derived(F32 sampleRateInHz, F32 frequencyInHz)
     {
         this->samplePeriodInSec = 2 * PI / sampleRateInHz;
+        this->derive(frequencyInHz);
+    }
+
+    void OscF32::Config::Derived::derive(F32 frequencyInHz)
+    {
         this->phaseDeltaInRad = frequencyInHz * this->samplePeriodInSec;
         this->sampleBlockDeltaTimeScale = {{1.f, 2.f, 3.f, 4.f}};
         arm_scale_f32(this->sampleBlockDeltaTimeScale.data(), phaseDeltaInRad,
@@ -50,6 +55,7 @@ namespace Fib::DSP::Osc
         if (Config::Ranges::frequencyInHz.isInRange(frequencyInHz))
         {
             this->frequencyInHz = frequencyInHz;
+            this->config.derived.derive(frequencyInHz);
             result = true;
         }
         return result;
