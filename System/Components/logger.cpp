@@ -107,7 +107,7 @@ int Logger::printPrefix(const Logger::Type &type)
 #define UPTIME_FMT "%luT%02lu:%02lu:%02lu.%03lu"
 
     constexpr std::string_view types[static_cast<std::size_t>(Type::_enumTypeSize)] = {
-        nullptr,
+        {ANSI_COLOR_RESET""},
         {ANSI_COLOR_GREEN "TRA"},
         {ANSI_COLOR_MAGENTA "FAT"},
         {ANSI_COLOR_BLUE "SYS"},
