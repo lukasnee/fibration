@@ -91,9 +91,6 @@
             "linux": {
                 "command": "./Utils/flash.sh Higgs Debug -r -b"
             },
-            "windows":{
-                "command": "Write-Host not implemented yet! -ForegroundColor Red"
-            },
         },
         {
             "label": "Build and Flash Higgs [Release]",
@@ -104,9 +101,6 @@
             },
             "linux": {
                 "command": "./Utils/flash.sh Higgs Release -r -b"
-            },
-            "windows":{
-                "command": "Write-Host not implemented yet! -ForegroundColor Red"
             },
             "presentation": {
                 "focus": true
