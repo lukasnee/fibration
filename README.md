@@ -99,8 +99,15 @@ Started and mostly continued on Raspberry Pi4 (Raspbian OS) remotely using VSCod
 
 ## Windows
 Windows WSL (Ubuntu enviroment on Windows) can be used to build the project. Unfortunately flashing/debugging target 
-device is not possible because WSL does not support USB.
+device is not possible because WSL does not support USB. Although there's a workaround:
 
+1. Remove `st-*` tools if already installed on WSL: `sudo apt remove stlink-tools`
+2. Download [st-link toolset binaries for windows](https://github.com/stlink-org/stlink/releases) manually
+(`stlink-X.X.X-x86_64-w64-*.zip`).
+3. Unzip `st-*.exe` binaries into a directory, for example `C:/User/<user>/bin`.
+4. Add directory path into `Path` global variable.
+5. Rename `st-*.exe` by removing extension `.exe` suffix (`st-info`, st-flash`, etc.). 
+6. Now you should be able to use `st-*` executables from within Windows WSL. `Utils\flash.sh` and other bash scripts should work now.
 
 ## Linux
 
