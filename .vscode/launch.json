@@ -5,16 +5,16 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Spirale",
+      "name": "Higgs",
       "cwd": "${workspaceRoot}",
       "request": "launch",
       "type": "cortex-debug",
       "servertype": "stutil",
       "cpu": "cortex-m4",
-      "preLaunchTask": "Build and Flash Spirale [Debug]",
+      "preLaunchTask": "Build and Flash Higgs [Debug]",
       "preRestartCommands": [ "jump __NVIC_SystemReset"],
       "postRestartCommands": [],
-      "executable": "${workspaceRoot}/Build/Debug/Modules/Spirale/Spirale",
+      "executable": "${workspaceRoot}/Build/Debug/Modules/Higgs/Higgs",
       "svdFile": "${workspaceRoot}/System/MSP/STM32F303.svd",
       "interface": "swd",
       "runToMain": true

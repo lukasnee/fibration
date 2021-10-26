@@ -85,22 +85,28 @@
             }
         },
         {
-            "label": "Build and Flash Spirale [Debug]",
+            "label": "Build and Flash Higgs [Debug]",
             "type": "shell",
             "group": "test",
             "linux": {
-                "command": "./Utils/flash.sh Spirale Debug -r -b"
-            }
+                "command": "./Utils/flash.sh Higgs Debug -r -b"
+            },
+            "windows":{
+                "command": "Write-Host not implemented yet! -ForegroundColor Red"
+            },
         },
         {
-            "label": "Build and Flash Spirale [Release]",
+            "label": "Build and Flash Higgs [Release]",
             "type": "shell",
             "group": {
                 "kind": "test",
                 "isDefault": true
             },
             "linux": {
-                "command": "./Utils/flash.sh Spirale Release -r -b"
+                "command": "./Utils/flash.sh Higgs Release -r -b"
+            },
+            "windows":{
+                "command": "Write-Host not implemented yet! -ForegroundColor Red"
             },
             "presentation": {
                 "focus": true
