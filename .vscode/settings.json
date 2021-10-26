@@ -86,5 +86,6 @@
 "html.format.wrapLineLength": 40,
 "prettier.printWidth": 120,
 "prettier.proseWrap": "always",
-"prettier.tabWidth": 4
+"prettier.tabWidth": 4,
+"diffEditor.wordWrap": "off"
 }
