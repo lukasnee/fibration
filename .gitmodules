@@ -10,3 +10,12 @@
 [submodule "System/Components/Shell/cxxopts"]
 	path = System/Components/Shell/cxxopts
 	url = https://github.com/jarro2783/cxxopts.git
+[submodule "Libraries/PonyFrame"]
+	path = Libraries/PonyFrame
+	url = https://github.com/MightyPork/PonyFrame.git
+[submodule "Libraries/TinyFrame"]
+	path = Libraries/TinyFrame
+	url = https://github.com/MightyPork/TinyFrame.git
+[submodule "Libraries/min"]
+	path = Libraries/min
+	url = https://github.com/min-protocol/min.git
