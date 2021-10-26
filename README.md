@@ -93,10 +93,24 @@ Open source modular synthesizer embedded software framework [WIP]
 Unreleased, still very much work in progress.
 
 # Development Enviroment
-Linux. Developed on Raspberry Pi4 (Raspbian OS) remotely using VSCode "Remote Development" extension from Windows PC. Pretty weird but flexible setup IMO.
 
-# Dependencies
-`sudo apt install gcc-arm-none-eabi cmake cmake`
+Started and mostly continued on Raspberry Pi4 (Raspbian OS) remotely using VSCode "Remote - WSL" extension
+(ms-vscode-remote.remote-wsl) from Windows PC. Yes, that is a pretty weird setup.
+
+## Windows
+Windows WSL (Ubuntu enviroment on Windows) can be used to build the project. Unfortunately flashing/debugging target 
+device is not possible because WSL does not support USB.
+
+
+## Linux
+
+Development works best on linux enviroment.
+
+## Dependencies
+`gcc-arm-none-eabi cmake cmake stlink-tools`
+
+
+> TBD: building natively on Windows (minGW/Cygwin)
 
 # License
 - software GNU GPL-3.0
