@@ -1,5 +1,5 @@
 
-project(Spirale)
+project(Higgs)
 
 enable_language(CXX C ASM)
 
@@ -194,7 +194,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 
 target_include_directories(${PROJECT_NAME} PRIVATE 
 
-    ${ROOT}/Modules/Spirale
+    ${ROOT}/Modules/Higgs
 
     # Fibration Framework
     ${ROOT}

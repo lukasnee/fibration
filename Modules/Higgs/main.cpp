@@ -75,7 +75,7 @@ static I2sDuplexStream i2s2DuplexStream(
                 "ss", Shell::Command::Helper::Literal::onOffUsage, nullptr, [](SHELLCMDPARAMS)
                 { return Shell::Command::Helper::onOffCommand([&](bool state) -> bool
                                                               { return spiraleStats.setState(state); },
-                                                              "spirale stats", SHELLCMDARGS); });
+                                                              "higgs stats", SHELLCMDARGS); });
         }
     });
 

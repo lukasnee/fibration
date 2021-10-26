@@ -4,7 +4,7 @@ EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
-Title "Spirale"
+Title "Higgs"
 Date "2021-05-30"
 Rev "1.0"
 Comp "Fibration"
@@ -382,4 +382,29 @@ Text GLabel 9550 5800 0    50   Output ~ 0
 I2S2_MCK
 Text Notes 9650 5950 0    50   ~ 0
 TODO: \n
+NoConn ~ 6800 2450
+NoConn ~ 6800 2550
+NoConn ~ 6800 2850
+NoConn ~ 6800 2950
+NoConn ~ 6800 3250
+NoConn ~ 6800 3350
+NoConn ~ 6800 3450
+NoConn ~ 6800 3950
+NoConn ~ 6800 4150
+NoConn ~ 6800 4250
+NoConn ~ 6800 4550
+NoConn ~ 6800 4650
+NoConn ~ 6800 4750
+NoConn ~ 6800 4850
+NoConn ~ 6800 4950
+NoConn ~ 6800 5050
+NoConn ~ 5400 5350
+NoConn ~ 5400 5450
+NoConn ~ 5400 5550
+NoConn ~ 5400 5650
+NoConn ~ 5400 4850
+NoConn ~ 5400 4950
+NoConn ~ 5400 5050
+NoConn ~ 5400 5150
+NoConn ~ 5400 3950
 $EndSCHEMATC
