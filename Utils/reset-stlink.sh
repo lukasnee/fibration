@@ -6,5 +6,5 @@ device=$(lsusb | grep -P -o "(?<= Device )\d{3}(?=: ID [[:xdigit:]]{4}:[[:xdigit
 
 devicePath="/dev/bus/usb/$bus/$device"
 
-[[ $bus == "" || $device == "" ]] && printf "not found\n" || usbreset $devicePath
+[[ $bus == "" || $device == "" ]] && printf "not found\n" || Utils/usbreset/usbreset $devicePath
 
