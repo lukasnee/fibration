@@ -95,6 +95,9 @@ Unreleased, still very much work in progress.
 # Development Enviroment
 Linux. Developed on Raspberry Pi4 (Raspbian OS) remotely using VSCode "Remote Development" extension from Windows PC. Pretty weird but flexible setup IMO.
 
+# Dependencies
+`sudo apt install gcc-arm-none-eabi cmake cmake`
+
 # License
 - software GNU GPL-3.0
 - hardware CERN OHL-2.0
