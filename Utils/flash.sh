@@ -37,13 +37,14 @@ BUILD_FLAG=$4
 
 [[ $TARGET == "Debug" || $TARGET == "Release" ]] || ( printf "${Red}bad target\n"; exit -4 )
 
+[[ $BUILD_FLAG == "-b" ]] && $SCRIPT_DIR/build.sh $TARGET
+[ $? -ne 0 ] && exit -5
+
 PROJECT_DIR="$BUILD_DIR/$TARGET/Modules/$PROJECT"
-[[ ! -d $PROJECT_DIR ]] && ( printf "${Red}project ${Purple}$PROJECT ${Red}does not exist or not built\n"; exit -5 )
+[[ ! -d $PROJECT_DIR ]] && ( printf "${Red}project ${Purple}$PROJECT ${Red}does not exist or not built\n"; exit -6 )
 
 BINARY_PATH="$PROJECT_DIR/$PROJECT.bin"
-[[ ! -f $BINARY_PATH ]] && ( printf "${Red}project ${Purple}$PROJECT ${Red}binary does not exist or not built\n"; exit -6 )
-
-[[ $BUILD_FLAG == "-b" ]] && $SCRIPT_DIR/build.sh $TARGET
+[[ ! -f $BINARY_PATH ]] && ( printf "${Red}project ${Purple}$PROJECT ${Red}binary does not exist or not built\n"; exit -7 )
 
 printf "${Yellow}\nst-info:\n"
 printf "  ${Yellow}version  ${Cyan}" ; st-info --version
@@ -54,7 +55,6 @@ printf "  ${Yellow}pagesize ${Cyan}" ; st-info --pagesize
 printf "  ${Yellow}chipid   ${Cyan}" ; st-info --chipid
 printf "  ${Yellow}serial   ${Cyan}" ; st-info --serial
 printf "  ${Yellow}serial   ${Cyan}" ; st-info --hla-serial
-
 
 printf "${Yellow}\nflashing image ${Purple}$BINARY_PATH\n${Cyan}"
 st-flash write $BINARY_PATH $STM32_IMAGE_BASE
