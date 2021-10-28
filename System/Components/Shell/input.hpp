@@ -3,6 +3,7 @@
 #include "argBuffer.hpp"
 
 #include <cstdint>
+#include <cstddef>
 #include <array>
 
 class Input : public ArgBuffer
@@ -23,7 +24,7 @@ public:
     bool isCursorOnBase();
     bool isCursorOnEnd();
 
-    bool setCursor(size_t index);
+    bool setCursor(std::size_t index);
     bool cursorStepRight();
     bool cursorStepLeft();
 
