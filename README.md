@@ -116,8 +116,13 @@ Development works best on linux enviroment.
 ## Dependencies
 `gcc-arm-none-eabi cmake cmake stlink-tools`
 
-
 > TBD: building natively on Windows (minGW/Cygwin)
+
+## VSCode Extensions (to install)
+
+- ms-vscode.cpptools
+- twxs.cmake
+- marus25.cortex-debug
 
 # License
 - software GNU GPL-3.0
