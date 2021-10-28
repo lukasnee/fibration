@@ -275,7 +275,7 @@ target_link_options(${PROJECT_NAME} PRIVATE
     -u _printf_float # enables floating point in printf
     
     -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
-    -specs=nosys.specs
+    # --specs=nosys.specs # already defined in .cmake toolchain file
     -specs=nano.specs
     -static
     -Wl,--gc-sections
