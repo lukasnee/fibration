@@ -188,3 +188,21 @@ sudo apt remove stlink-tools
 ```shell
 st-info --probe
 ```
+
+## Handy VSCode keybindings
+
+Insert the following in your VSCode's `keybindings.json`. You can search it up using `ctrl+p` and typing `>Open Keyboard Shortcuts (JSON)`.
+> For example: `C:/Users/lukas/AppData/Roaming/Code/User/keybindings.json`
+
+```json
+[
+    // Fibration workspace
+    {"key": "shift+space i", "command": "workbench.action.tasks.runTask", "args": "Get ST-LINK and target info"},
+    {"key": "shift+space p", "command": "workbench.action.tasks.runTask", "args": "Probe for ST-LINK device"},
+    {"key": "shift+space b", "command": "workbench.action.tasks.runTask", "args": "Build All [Release]"},
+    {"key": "shift+space r", "command": "workbench.action.tasks.runTask", "args": "Rebuild All [Release]"},
+    {"key": "shift+space f", "command": "workbench.action.tasks.runTask", "args": "Build and Flash Higgs [Release]"},
+    {"key": "shift+space d", "command": "workbench.action.tasks.runTask", "args": "Build and Flash Higgs [Debug]"},
+    {"key": "shift+space t", "command": "workbench.action.tasks.runTask", "args": "Serial /dev/serial0 [RPI4 UART]"},
+]
+```

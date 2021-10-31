@@ -23,6 +23,22 @@
             }
         },
         {
+            "label": "Get ST-LINK and target info",
+            "type": "shell",
+            "group": "test",
+            "linux": {
+                "command": "./Utils/info.sh"
+            },
+        },
+        {
+            "label": "Probe for ST-LINK device",
+            "type": "shell",
+            "group": "test",
+            "linux": {
+                "command": "./Utils/info.sh -p"
+            },
+        },
+        {
             "label": "Serial /dev/serial0 [RPI4 UART]",
             "type": "shell",
             "linux": {
