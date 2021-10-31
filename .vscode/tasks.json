@@ -28,7 +28,7 @@
             "group": "test",
             "linux": {
                 "command": "./Utils/info.sh"
-            },
+            }
         },
         {
             "label": "Probe for ST-LINK device",
@@ -36,7 +36,7 @@
             "group": "test",
             "linux": {
                 "command": "./Utils/info.sh -p"
-            },
+            }
         },
         {
             "label": "Serial /dev/serial0 [RPI4 UART]",
@@ -106,7 +106,7 @@
             "group": "test",
             "linux": {
                 "command": "./Utils/flash.sh Higgs Debug -r -b"
-            },
+            }
         },
         {
             "label": "Build and Flash Higgs [Release]",
