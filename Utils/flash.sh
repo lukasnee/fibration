@@ -23,8 +23,8 @@ BUILD_DIR="Build"
 
 if [ $# -eq 0 ]; then 
     printf "${colorYellow}usage: $0 <PROJECT> <Debug|Release> [-r] [-b]\n"
-    printf "\t-r\t ${colorGreen}to reset after flashing\n"
-    printf "\t-r\t ${colorGreen}to prebuild the project target\n"
+    printf "\t${colorYellow}-r\t ${colorGreen}to reset after flashing\n"
+    printf "\t${colorYellow}-b\t ${colorGreen}to prebuild the project target\n"
     exit -1;
 fi
 
@@ -34,39 +34,25 @@ RESET_FLAG=$3
 BUILD_FLAG=$4
 
 [[ ! -f $(command -v st-flash) ]] && 
-    printf "${colorRed}no 'st-flash' to to flash with\n" && exit -2
-[[ ! -f $(command -v st-info) ]] && 
-    printf "${colorRed}no 'st-info' to to get device info with\n" && exit -3
+    printf "${colorRed}no 'st-flash' executable\n" && exit -2
 
 [[ $TARGET == "Debug" || $TARGET == "Release" ]] || 
-    ( printf "${colorRed}bad target\n"; exit -4 )
+    ( printf "${colorRed}bad target\n"; exit -3 )
 
 [[ $BUILD_FLAG == "-b" ]] && $SCRIPT_DIR/build.sh $TARGET
-[ $? -ne 0 ] && exit -5
+[ $? -ne 0 ] && exit -4
 
 PROJECT_DIR="$BUILD_DIR/$TARGET/Modules/$PROJECT"
 [[ ! -d $PROJECT_DIR ]] && 
-    ( printf "${colorRed}project ${colorPurple}$PROJECT ${colorRed}does not exist or not built\n"; exit -6 )
+    ( printf "${colorRed}project ${colorPurple}$PROJECT ${colorRed}does not exist or not built\n"; exit -5 )
 
 BINARY_PATH="$PROJECT_DIR/$PROJECT.bin"
 [[ ! -f $BINARY_PATH ]] && 
-    ( printf "${colorRed}project ${colorPurple}$PROJECT ${colorRed}binary does not exist or not built\n"; exit -7 )
+    ( printf "${colorRed}project ${colorPurple}$PROJECT ${colorRed}binary does not exist or not built\n"; exit -6 )
 
-printf "${colorYellow}\nst-info:\n"
+ $SCRIPT_DIR/info.sh
+ [ $? -ne 0 ] && exit -7
 
-trap "printf \"${colorRed}maybe ST-LINK is unplugged ?\n${colorReset}\"" EXIT
-
-FMT="  ${colorYellow}%-16s${colorCyan}"
-printf $FMT "version"   ; st-info --version
-printf $FMT "flash"     ; st-info --flash
-printf $FMT "sram"      ; st-info --sram
-printf $FMT "descr"     ; st-info --descr
-printf $FMT "pagesize"  ; st-info --pagesize
-printf $FMT "chipid"    ; st-info --chipid
-printf $FMT "serial"    ; st-info --serial
-printf $FMT "hla-serial"; st-info --hla-serial
-
-printf "\n"
 printf "${colorYellow}flashing image ${colorPurple}$BINARY_PATH\n"
 
 printf "${colorCyan}"
