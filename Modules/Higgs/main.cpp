@@ -1,8 +1,8 @@
 #include "fibration.hpp"
 
+#include <array>
 #include <cstdint>
 #include <limits>
-#include <array>
 
 class PeriodicRandomValue : public Fib::PeriodicTimerApp
 {
@@ -14,7 +14,10 @@ public:
             FIBSYS_PANIC();
         }
     }
-    float get() { return this->value; }
+    float get()
+    {
+        return this->value;
+    }
 
 private:
     virtual void Run() override
@@ -25,22 +28,20 @@ private:
     float value = 0.f;
 } periodicRandomValue(1.f);
 
-static Shell::Command psnCommand(
-    "psn", Shell::Command::Helper::Literal::onOffUsage, nullptr, [](SHELLCMDPARAMS)
-    { return Shell::Command::Helper::onOffCommand([&](bool state) -> bool
-                                                  { return periodicRandomValue.setState(state); },
-                                                  "psn", SHELLCMDARGS); });
+static Shell::Command psnCommand("psn", Shell::Command::Helper::Literal::onOffUsage, nullptr, [](SHELLCMDPARAMS) {
+    return Shell::Command::Helper::onOffCommand([&](bool state) -> bool { return periodicRandomValue.setState(state); },
+                                                "psn", SHELLCMDARGS);
+});
 
-static I2sDuplexStream::CircularStereoBufferU32
-    i2s2CircularStereoBufferTxU32,
-    i2s2CircularStereoBufferRxU32;
+static I2sDuplexStream::CircularStereoBufferU32 i2s2CircularStereoBufferTxU32, i2s2CircularStereoBufferRxU32;
 
 static I2sDuplexStream i2s2DuplexStream(
     Periph::getI2s2(), "i2s2stream", 1024 / sizeof(StackType_t), FibSys::Priority::audioStream,
     i2s2CircularStereoBufferTxU32, i2s2CircularStereoBufferRxU32,
-    [](const I2sDuplexStream::SampleBlocksF32 &rxLeftSampleBlocksF32, const I2sDuplexStream::SampleBlocksF32 &rxRightSampleBlocksF32,
-       I2sDuplexStream::SampleBlocksF32 &txLeftSampleBlocksF32, I2sDuplexStream::SampleBlocksF32 &txRightSampleBlocksF32)
-    {
+    [](const I2sDuplexStream::SampleBlocksF32 &rxLeftSampleBlocksF32,
+       const I2sDuplexStream::SampleBlocksF32 &rxRightSampleBlocksF32,
+       I2sDuplexStream::SampleBlocksF32 &txLeftSampleBlocksF32,
+       I2sDuplexStream::SampleBlocksF32 &txRightSampleBlocksF32) {
         static auto sineF32A = Fib::DSP::Osc::SineF32();
         static auto sineF32B = Fib::DSP::Osc::SineF32();
 
@@ -64,25 +65,24 @@ static I2sDuplexStream i2s2DuplexStream(
         // txRightSampleBlocksF32 = rxLeftSampleBlocksF32;
 
         {
-            static Fib::PeriodicTimerApp spiraleStats(
-                "ss", 10.f, [&]()
-                { Logger::log(Logger::Verbosity::low, Logger::Type::trace, "%f,%f,%f,%f\n",
-                              sineF32A.frequencyInHz.get(),
-                              sineF32A.amplitudeNormal.get(),
-                              sineF32B.frequencyInHz.get(),
-                              sineF32B.amplitudeNormal.get()); });
+            static Fib::PeriodicTimerApp spiraleStats("ss", 10.f, [&]() {
+                Logger::log(Logger::Verbosity::low, Logger::Type::trace, "%f,%f,%f,%f\n", sineF32A.frequencyInHz.get(),
+                            sineF32A.amplitudeNormal.get(), sineF32B.frequencyInHz.get(),
+                            sineF32B.amplitudeNormal.get());
+            });
             static Shell::Command statsCommand(
-                "ss", Shell::Command::Helper::Literal::onOffUsage, nullptr, [](SHELLCMDPARAMS)
-                { return Shell::Command::Helper::onOffCommand([&](bool state) -> bool
-                                                              { return spiraleStats.setState(state); },
-                                                              "higgs stats", SHELLCMDARGS); });
+                "ss", Shell::Command::Helper::Literal::onOffUsage, nullptr, [](SHELLCMDPARAMS) {
+                    return Shell::Command::Helper::onOffCommand(
+                        [&](bool state) -> bool { return spiraleStats.setState(state); }, "higgs stats", SHELLCMDARGS);
+                });
         }
     });
 
 class BlinkTestApp : public cpp_freertos::Thread
 {
 public:
-    BlinkTestApp(const char *pcName, uint16_t usStackDepth, UBaseType_t uxPriority) : Thread(pcName, usStackDepth, uxPriority)
+    BlinkTestApp(const char *pcName, uint16_t usStackDepth, UBaseType_t uxPriority)
+        : Thread(pcName, usStackDepth, uxPriority)
     {
         if (!Start())
         {
