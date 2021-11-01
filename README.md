@@ -106,12 +106,12 @@ I managed to setup building/flashing/debugging experience on VSCode on Windows u
 
 For Linux:
 ```shell
-sudo apt install make cmake stlink-tools
+sudo apt install make cmake stlink-tools clang-format
 ```
 
 For WSL:
 ```shell
-sudo apt install make cmake
+sudo apt install make cmake clang-format
 ```
 and follow `stlink-tools on WSL` workaround in a clause below.
 
@@ -122,6 +122,7 @@ and follow `stlink-tools on WSL` workaround in a clause below.
 - ms-vscode.cpptools
 - twxs.cmake
 - marus25.cortex-debug
+- xaver.clang-format
 
 ## GNU Arm Embedded Toolchain
 It is tempting to simply install GNU Arm Embedded Toolchain with oneliner like this:
