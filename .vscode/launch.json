@@ -1,23 +1,23 @@
 {
-  // Use IntelliSense to learn about possible attributes.
-  // Hover to view descriptions of existing attributes.
-  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "name": "Higgs",
-      "cwd": "${workspaceRoot}",
-      "request": "launch",
-      "type": "cortex-debug",
-      "servertype": "stutil",
-      "cpu": "cortex-m4",
-      "preLaunchTask": "Build and Flash Higgs [Debug]",
-    //   "preRestartCommands": [ "jump __NVIC_SystemReset"],
-      "postRestartSessionCommands": [ "Reset target over ST-LINK" ],
-      "executable": "${workspaceRoot}/Build/Debug/Modules/Higgs/Higgs",
-      "svdFile": "${workspaceRoot}/System/MSP/STM32F303.svd",
-      "interface": "swd",
-      "runToMain": true
-    }
-  ]
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Higgs",
+            "cwd": "${workspaceRoot}",
+            "request": "launch",
+            "type": "cortex-debug",
+            "servertype": "stutil",
+            "cpu": "cortex-m4",
+            "preLaunchTask": "Build and Flash Higgs [Debug]",
+            // "preRestartCommands": [ "jump __NVIC_SystemReset"],
+            "postRestartSessionCommands": ["Reset target over ST-LINK"],
+            "executable": "${workspaceRoot}/Build/Debug/Modules/Higgs/Higgs",
+            "svdFile": "${workspaceRoot}/System/MSP/STM32F303.svd",
+            "interface": "swd",
+            "runToMain": true
+        }
+    ]
 }
