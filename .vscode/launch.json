@@ -6,18 +6,26 @@
     "configurations": [
         {
             "name": "Higgs",
+            "device": "STM32F303RE",
             "cwd": "${workspaceRoot}",
+            "executable": "${workspaceRoot}/Build/Debug/Modules/Higgs/Higgs",
             "request": "launch",
             "type": "cortex-debug",
-            "servertype": "stutil",
+            "servertype": "openocd",
+            "configFiles": [
+                // NOTE: interface,target order important
+                "interface/stlink.cfg",
+                "target/stm32f3x.cfg"
+            ],
             "cpu": "cortex-m4",
             "preLaunchTask": "Build and Flash Higgs [Debug]",
-            // "preRestartCommands": [ "jump __NVIC_SystemReset"],
             "postRestartSessionCommands": ["Reset target over ST-LINK"],
-            "executable": "${workspaceRoot}/Build/Debug/Modules/Higgs/Higgs",
             "svdFile": "${workspaceRoot}/System/MSP/STM32F303.svd",
             "interface": "swd",
-            "runToMain": true
+            "breakAfterReset": false,
+            "runToMain": true,
+            "runToEntryPoint": "main",
+            // "rtos": "FreeRTOS", // does not work - embedded:startup.tcl:26: Error: Can't find /tmp/tmp-23749VAIUfVnJ1hZk
         }
     ]
 }
