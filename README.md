@@ -106,30 +106,43 @@ It started and mostly continued on Raspberry Pi4 (Raspbian OS (debian)) remotely
 I managed to setup building/flashing/debugging experience on VSCode on Windows using Ubuntu WSL (Ubuntu enviroment on
 Windows, just google how to install WSL). The setup is almost identical for both Linux and WSL cases.
 
-1. Install apt package prerequisites:
-
-**For Linux:**
+1. Install common apt package prerequisites:
 
 ```shell
-sudo apt install make cmake clang-format stlink-tools openocd
+sudo apt install git make cmake clang-format
 ```
 
-**For WSL:**
+2. Here's where setup differs for native Linux and WSL.
+   - For WSL follow `USB utilities on WSL` clause below and move on to the step 3.
+   - For native Linux simply install USB tools using the following `sudo apt install stlink-tools openocd`
+
+3. Install GNU Arm Embedded Toolchain (`arm-none-eabi-*`) - see clause below.
+
+4. Install [Visual Studio Code](https://code.visualstudio.com/).
+
+5. In WSL or native linux terminal navigate to where you want to install fibration project and do:
 
 ```shell
-sudo apt install make cmake clang-format
+git clone https://github.com/lukasnee/fibration.git
+cd fibration
+git submodule update --recurse --init
+git checkout -b my-branch
+code .
 ```
 
-and follow `USB utilities on WSL` workaround in a clause below.
+> A VSCode windows should start loading. In WSL case, make sure VSCode starts in WSL mode (in the bottom left corner you should see a colored box with text: `[WSL: Ubuntu]`
 
-2. Install GNU Arm Embedded Toolchain (`arm-none-eabi-*`) - see clause below.
+5. Install following VSCode extensions:
 
-3. Install `VSCode Extensions`:
+-   `ms-vscode-remote.remote-wsl`
+-   `ms-vscode.cpptools`
+-   `twxs.cmake`
+-   `marus25.cortex-debug`
+-   `xaver.clang-format`
 
--   ms-vscode.cpptools
--   twxs.cmake
--   marus25.cortex-debug
--   xaver.clang-format
+> make sure they are installed on WSL service thing
+
+6. That is it - start developing !
 
 ## GNU Arm Embedded Toolchain
 
@@ -177,7 +190,7 @@ sudo ln -s -f /usr/lib/x86_64-linux-gnu/libncurses.so.6 /usr/lib/x86_64-linux-gn
 sudo ln -s -f /usr/lib/x86_64-linux-gnu/libtinfo.so.6 /usr/lib/x86_64-linux-gnu/libtinfo
 ```
 
-5. Check if tools are working:
+5. That is it ! Check if tools are working using:
 
 ```shell
 arm-none-eabi-gcc --version
