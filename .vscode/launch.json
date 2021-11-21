@@ -5,6 +5,11 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "presentation": {
+                "hidden": false,
+                "group": "Fibration",
+                "order": 1
+            },
             "name": "Higgs",
             "device": "STM32F303RE",
             "cwd": "${workspaceRoot}",
@@ -13,19 +18,26 @@
             "type": "cortex-debug",
             "servertype": "openocd",
             "configFiles": [
-                // NOTE: interface,target order important
+                // NOTE: interface, target order important
                 "interface/stlink.cfg",
                 "target/stm32f3x.cfg"
             ],
-            "cpu": "cortex-m4",
-            "preLaunchTask": "Build and Flash Higgs [Debug]",
-            "postRestartSessionCommands": ["Reset target over ST-LINK"],
-            "svdFile": "${workspaceRoot}/System/MSP/STM32F303.svd",
             "interface": "swd",
-            "breakAfterReset": false,
-            "runToMain": true,
-            "runToEntryPoint": "main",
-            // "rtos": "FreeRTOS", // does not work - embedded:startup.tcl:26: Error: Can't find /tmp/tmp-23749VAIUfVnJ1hZk
+            "cpu": "cortex-m4",
+            "preLaunchTask": "preLaunchTaskHiggs",
+            "postDebugTask": "reset ST-LINK",
+            "svdFile": "${workspaceRoot}/System/MSP/STM32F303.svd",
+            "runToEntryPoint": "BlinkTestApp::Run",
+            "preLaunchCommands": ["set remotetimeout 10", "show remotetimeout"],
+            "openOCDLaunchCommands": [
+                "program Build/Debug/Modules/Higgs/Higgs preverify verify reset",
+                "$_TARGETNAME configure -rtos FreeRTOS -work-area-phys 0x20000000 -work-area-size 0x10000 -work-area-backup 0",
+            ],
+            // "rtos": "FreeRTOS",
+            "showDevDebugOutput": false,
+            "showDevDebugTimestamps": false,
+            "numberOfProcessors": 1,
+            "targetProcessor": 0,
         }
     ]
 }

@@ -1,11 +1,6 @@
 #!/bin/bash
 
-# configs
-STM32_IMAGE_BASE=0x08000000
-
 set -e 
-
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 
 # ANSI colors
 colorReset='\033[0m'
@@ -30,8 +25,8 @@ fi
 
 PROJECT=$1
 TARGET=$2
-RESET_FLAG=$3
-BUILD_FLAG=$4
+FLAG_RESET=$3
+FLAG_BUILD=$4
 
 [[ ! -f $(command -v st-flash) ]] && 
     printf "${colorRed}no 'st-flash' executable\n" && exit -2
@@ -39,33 +34,23 @@ BUILD_FLAG=$4
 [[ $TARGET == "Debug" || $TARGET == "Release" ]] || 
     ( printf "${colorRed}bad target\n"; exit -3 )
 
-[[ $BUILD_FLAG == "-b" ]] && $SCRIPT_DIR/build.sh $TARGET
-[ $? -ne 0 ] && exit -4
+[[ $FLAG_BUILD == "-b" ]] && (Utils/build.sh $PROJECT $TARGET || exit -4 )
 
 PROJECT_DIR="$BUILD_DIR/$TARGET/Modules/$PROJECT"
 [[ ! -d $PROJECT_DIR ]] && 
     ( printf "${colorRed}project ${colorPurple}$PROJECT ${colorRed}does not exist or not built\n"; exit -5 )
 
-BINARY_PATH="$PROJECT_DIR/$PROJECT.bin"
-[[ ! -f $BINARY_PATH ]] && 
-    ( printf "${colorRed}project ${colorPurple}$PROJECT ${colorRed}binary does not exist or not built\n"; exit -6 )
+ELF_PATH="$PROJECT_DIR/$PROJECT"
+[[ ! -f $ELF_PATH ]] && 
+    ( printf "${colorRed}project ${colorPurple}$PROJECT ${colorRed}ELF file does not exist or not built\n"; exit -6 )
 
- $SCRIPT_DIR/info.sh
- [ $? -ne 0 ] && exit -7
-
-printf "${colorYellow}flashing image ${colorPurple}$BINARY_PATH\n"
-
-printf "${colorCyan}"
-st-flash write $BINARY_PATH $STM32_IMAGE_BASE
-
-[ $? -eq 0 ] && 
-    printf "${colorGreen}flashed successfully !\n" || printf "${colorRed}flashing failed\n" 
-
-if [[ $RESET_FLAG == "-r" ]]; then
-    printf "\n"
-    printf "${colorYellow}resetting the flashed ${colorPurple}"; st-info --descr
-    printf "${colorCyan}"
-    st-flash reset
-    [ $? -eq 0 ] && 
-        printf "${colorGreen}reset successfully !\n" || printf "${colorRed}reset failed\n" 
+if [[ $FLAG_RESET == "-r" ]]; then
+    RESET_DIRECTIVE="reset "
 fi
+
+Utils/killProcessesByPattern.sh openocd
+
+printf "${colorYellow}flashing image from ELF: ${colorPurple}$ELF_PATH\n"
+
+openocd -f "interface/stlink.cfg" -f "target/stm32f3x.cfg" -c "program $ELF_PATH preverify verify ${RESET_DIRECTIVE}exit" \
+    && printf "${colorGreen}flashed successfully !\n" || printf "${colorRed}flashing failed\n" 
