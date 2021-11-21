@@ -16,23 +16,25 @@ colorWhite='\033[0;37m'
 # configs
 BUILD_DIR="Build"
 
-if [ $# -eq 0 ]; then 
-    printf "${colorYellow}usage: $0 <PROJECT> <Debug|Release> [-r] [-b]\n"
-    printf "\t${colorYellow}-r\t ${colorGreen}to reset after flashing\n"
+print_usage() {
+    printf "${colorYellow}usage: $0 <PROJECT> <Debug|Release> [-b]\n"
     printf "\t${colorYellow}-b\t ${colorGreen}to prebuild the project target\n"
-    exit -1;
+}
+
+if [ $# -eq 0 ]; then
+    print_usage
 fi
 
 PROJECT=$1
 TARGET=$2
-FLAG_RESET=$3
-FLAG_BUILD=$4
+FLAG_BUILD=$3
 
-[[ ! -f $(command -v st-flash) ]] && 
-    printf "${colorRed}no 'st-flash' executable\n" && exit -2
+EXEC_TO_CHECK="openocd"
+[[ ! -f $(command -v $EXEC_TO_CHECK) ]] && 
+    printf "${colorRed}no '$EXEC_TO_CHECK' executable\n" && exit -2
 
 [[ $TARGET == "Debug" || $TARGET == "Release" ]] || 
-    ( printf "${colorRed}bad target\n"; exit -3 )
+    ( printf "${colorRed}bad target ${colorPurple}$TARGET\n"; exit -3 )
 
 [[ $FLAG_BUILD == "-b" ]] && (Utils/build.sh $PROJECT $TARGET || exit -4 )
 
@@ -44,13 +46,7 @@ ELF_PATH="$PROJECT_DIR/$PROJECT"
 [[ ! -f $ELF_PATH ]] && 
     ( printf "${colorRed}project ${colorPurple}$PROJECT ${colorRed}ELF file does not exist or not built\n"; exit -6 )
 
-if [[ $FLAG_RESET == "-r" ]]; then
-    RESET_DIRECTIVE="reset "
-fi
-
-Utils/killProcessesByPattern.sh openocd
-
 printf "${colorYellow}flashing image from ELF: ${colorPurple}$ELF_PATH\n"
 
-openocd -f "interface/stlink.cfg" -f "target/stm32f3x.cfg" -c "program $ELF_PATH preverify verify ${RESET_DIRECTIVE}exit" \
+openocd -c "set TARGET $TARGET" -f "Modules/$PROJECT/openocd.cfg" -c "exit" \
     && printf "${colorGreen}flashed successfully !\n" || printf "${colorRed}flashing failed\n" 

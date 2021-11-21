@@ -18,22 +18,18 @@
             "type": "cortex-debug",
             "servertype": "openocd",
             "configFiles": [
-                // NOTE: interface, target order important
-                "interface/stlink.cfg",
-                "target/stm32f3x.cfg"
+                "Modules/Higgs/openocd.cfg",
             ],
             "interface": "swd",
             "cpu": "cortex-m4",
             "preLaunchTask": "preLaunchTaskHiggs",
-            "postDebugTask": "reset ST-LINK",
             "svdFile": "${workspaceRoot}/System/MSP/STM32F303.svd",
             "runToEntryPoint": "BlinkTestApp::Run",
-            "preLaunchCommands": ["set remotetimeout 10", "show remotetimeout"],
-            "openOCDLaunchCommands": [
-                "program Build/Debug/Modules/Higgs/Higgs preverify verify reset",
-                "$_TARGETNAME configure -rtos FreeRTOS -work-area-phys 0x20000000 -work-area-size 0x10000 -work-area-backup 0",
+            "debuggerArgs": [
+                "-l",
+                "30" // necessary ! without it every other session launch would fail
             ],
-            // "rtos": "FreeRTOS",
+            "demangle": true,
             "showDevDebugOutput": false,
             "showDevDebugTimestamps": false,
             "numberOfProcessors": 1,
