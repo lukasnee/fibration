@@ -43,8 +43,18 @@
             "presentation": {
                 "focus": true,
                 "panel": "dedicated"
+            }
+        },
+        {
+            "label": "open fibcom /dev/ttyS8 [WSL ST-LINK UART]",
+            "type": "shell",
+            "linux": {
+                "command": "./Utils/openFibcom.sh /dev/ttyS8"
             },
-            "problemMatcher": []
+            "presentation": {
+                "focus": true,
+                "panel": "dedicated"
+            }
         },
         {
             "label": "build Higgs [Release]",
