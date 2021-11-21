@@ -1,18 +1,19 @@
 {
+    "version": "2.0.0",
     "tasks": [
         {
-            "label": "Reset ST-LINK USB device",
+            "label": "reset ST-LINK",
             "type": "shell",
             "linux": {
                 "command": "./Utils/reset-stlink.sh"
             },
             "presentation": {
-                "focus": false,
-                "panel": "shared"
+                "clear": true,
+                "reveal": "never"
             }
         },
         {
-            "label": "Reset target over ST-LINK",
+            "label": "reset target",
             "type": "shell",
             "linux": {
                 "command": "./Utils/reset-target.sh"
@@ -23,26 +24,10 @@
             }
         },
         {
-            "label": "Get ST-LINK and target info",
-            "type": "shell",
-            "group": "test",
-            "linux": {
-                "command": "./Utils/info.sh"
-            }
-        },
-        {
-            "label": "Probe for ST-LINK device",
-            "type": "shell",
-            "group": "test",
-            "linux": {
-                "command": "./Utils/info.sh -p"
-            }
-        },
-        {
-            "label": "Serial /dev/serial0 [RPI4 UART]",
+            "label": "open fibcom /dev/serial0 [RPI4 UART]",
             "type": "shell",
             "linux": {
-                "command": "./Utils/serial.sh /dev/serial0"
+                "command": "./Utils/openFibcom.sh /dev/serial0"
             },
             "presentation": {
                 "focus": true,
@@ -50,10 +35,10 @@
             }
         },
         {
-            "label": "Serial /dev/ttyACM0 [ST-LINK UART]",
+            "label": "open fibcom /dev/ttyACM0 [ST-LINK UART]",
             "type": "shell",
             "linux": {
-                "command": "./Utils/serial.sh /dev/ttyACM0"
+                "command": "./Utils/openFibcom.sh /dev/ttyACM0"
             },
             "presentation": {
                 "focus": true,
@@ -62,111 +47,28 @@
             "problemMatcher": []
         },
         {
-            "label": "Build All [Debug]",
-            "type": "shell",
-            "group": "build",
-            "linux": {
-                "command": "./Utils/build.sh Debug",
-                "problemMatcher": "$gcc"
-            }
-        },
-        {
-            "label": "Rebuild All [Debug]",
-            "type": "shell",
-            "group": "build",
-            "linux": {
-                "command": "./Utils/build.sh Debug -r",
-                "problemMatcher": "$gcc"
-            }
-        },
-        {
-            "label": "Build All [Release]",
-            "type": "shell",
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "linux": {
-                "command": "./Utils/build.sh Release",
-                "problemMatcher": "$gcc"
-            }
-        },
-        {
-            "label": "Rebuild All [Release]",
-            "type": "shell",
-            "group": "build",
-            "linux": {
-                "command": "./Utils/build.sh Release -r",
-                "problemMatcher": "$gcc"
-            }
-        },
-        {
-            "label": "Build and Flash Higgs [Debug]",
-            "type": "shell",
-            "group": "test",
-            "linux": {
-                "command": "./Utils/flash.sh Higgs Debug -r -b"
-            }
-        },
-        {
-            "label": "Build and Flash Higgs [Release]",
+            "label": "build and flash Higgs [Release]",
             "type": "shell",
             "group": {
                 "kind": "test",
                 "isDefault": true
             },
             "linux": {
-                "command": "./Utils/flash.sh Higgs Release -r -b"
+                "command": "./Utils/flash.sh Higgs Release -r -b",
+                "problemMatcher": "$gcc",
             },
             "presentation": {
                 "focus": true
             }
         },
         {
-            "label": "Open Git Bash in terminal view 1",
+            "label": "preLaunchTaskHiggs",
             "type": "shell",
-            "group": {
-                "kind": "test",
-                "isDefault": true
-            },
+            "group": "test",
             "linux": {
-                "command": "bash"
-            },
-            "presentation": {
-                "focus": true,
-                "panel": "shared"
+                "command": "./Utils/build.sh Higgs Debug; ./Utils/killProcessesByPattern.sh openocd",
+                "problemMatcher": "$gcc",
             }
         },
-        {
-            "label": "Open Git Bash in terminal view 2",
-            "type": "shell",
-            "group": {
-                "kind": "test",
-                "isDefault": true
-            },
-            "linux": {
-                "command": "bash"
-            },
-            "presentation": {
-                "focus": true,
-                "panel": "shared"
-            }
-        },
-        {
-            "label": "Open Git Bash in terminal view 3",
-            "type": "shell",
-            "group": {
-                "kind": "test",
-                "isDefault": true
-            },
-            "linux": {
-                "command": "bash"
-            },
-            "presentation": {
-                "focus": true,
-                "panel": "shared"
-            }
-        }
-    ],
-    "version": "2.0.0"
+    ]
 }

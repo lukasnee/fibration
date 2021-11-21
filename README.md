@@ -118,7 +118,7 @@ sudo apt install git make cmake clang-format
 
 3. Install GNU Arm Embedded Toolchain (`arm-none-eabi-*`) - see clause below.
 
-4. Install [Visual Studio Code](https://code.visualstudio.com/).
+4. Install [Visual Studio Code](https://code.visualstudio.com/) and `ms-vscode-remote.remote-wsl` extension if using WSL.
 
 5. In WSL or native linux terminal navigate to where you want to install fibration project and do:
 
@@ -134,7 +134,6 @@ code .
 
 5. Install following VSCode extensions:
 
--   `ms-vscode-remote.remote-wsl`
 -   `ms-vscode.cpptools`
 -   `twxs.cmake`
 -   `marus25.cortex-debug`
@@ -187,7 +186,7 @@ sudo ln -s /usr/share/gcc-arm-none-eabi-<VERSION>/bin/arm-none-eabi-nm /usr/bin/
 ```shell
 sudo apt install libncurses-dev
 sudo ln -s -f /usr/lib/x86_64-linux-gnu/libncurses.so.6 /usr/lib/x86_64-linux-gnu/libncurses.so.5
-sudo ln -s -f /usr/lib/x86_64-linux-gnu/libtinfo.so.6 /usr/lib/x86_64-linux-gnu/libtinfo
+sudo ln -s -f /usr/lib/x86_64-linux-gnu/libtinfo.so.6 /usr/lib/x86_64-linux-gnu/libtinfo.so.5
 ```
 
 5. That is it ! Check if tools are working using:
@@ -201,14 +200,9 @@ arm-none-eabi-objcopy --version
 arm-none-eabi-nm --version
 ```
 
-## USB utilities on WSL
+## OpenOCD on WSL
 
-Applications of interest:
-
--   `stlink-tools` includes an application for flashing STM32 boards - `st-flash`, `st-info`.
--   `OpenOCB` includes a flexible GDB server for debugging - `openocd`.
-
-As far as I know Ubuntu WSL does not support USB so `stlink-tools` and `OpenOCD` apt package based on `libusb` won't
+As far as I know Ubuntu WSL does not support USB so `OpenOCD` apt package based on `libusb` won't
 work.
 
 Luckily:
@@ -220,29 +214,25 @@ Luckily:
 Thus you can download and install `win32` binaries of interest and create symbolic links in `/usr/bin/` directory for
 them to be accessed system-wide. Here's what to do in detail:
 
-1. Make sure you don't have `stlink-tools` and `openocd` apt packages installed on your WSL system:
+1. Make sure you don't have `openocd` apt packages installed on your WSL system:
 
 ```shell
-sudo apt remove stlink-tools openocd
+sudo apt remove openocd
 ```
 
-2. Download [ST-LINK tools](https://github.com/stlink-org/stlink/releases) (`stlink-<VERSION>-x86_64-w64-*.zip`) and
-   [OpenOCD](https://github.com/xpack-dev-tools/openocd-xpack/releases) (`xpack-openocd-<VERSION>-win32-x64.zip`)
+2. [OpenOCD](https://github.com/xpack-dev-tools/openocd-xpack/releases) (`xpack-openocd-<VERSION>-win32-x64.zip`)
    distributions for windows.
 3. Install (unzip) into any directory, for example `C:/User/<USER>/bin/`.
 4. Symbolically link executables. Example:
 
 ```shell
-sudo ln -s /mnt/c/Users/lukas/bin/stlink-1.7.0-x86_64-w64-mingw32/bin/st-flash.exe /usr/bin/st-flash
-sudo ln -s /mnt/c/Users/lukas/bin/stlink-1.7.0-x86_64-w64-mingw32/bin/st-info.exe /usr/bin/st-info
 sudo ln -s /mnt/c/Users/lukas/bin/xpack-openocd-0.11.0-2/bin/openocd.exe /usr/bin/openocd
 ```
 
-Now you should be able to use `st-*` and `openocd` executables from WSL bash. `Utils\flash.sh`. Test by connecting
+Now you should be able to use `openocd` executable from WSL bash. `Utils\flash.sh`. Test by connecting
 ST-LINK over USB and:
 
 ```shell
-st-info --probe
 openocd -f "interface/stlink.cfg" -f "target/stm32f3x.cfg"
 ```
 

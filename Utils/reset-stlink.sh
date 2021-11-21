@@ -15,12 +15,7 @@ colorWhite='\033[0;37m'
 
 deviceNameRegex='.*ST-LINK.*'
 
-# handle leftover 'st-util' (gdb server) processes
-ST_UTIL_PIDS=$(ps aux | grep -P 'st-util' | awk '{print $2}' | head -n -1 | tr '\n' ' ')
-if [[ ! -z $ST_UTIL_PIDS ]]; then
-    printf "${colorYellow}forcefully killing all 'st-util' processes, PIDS: ${colorRed}$ST_UTIL_PIDS${colorReset}\n" 
-    kill -s 15 $ST_UTIL_PIDS
-fi
+Utils/killProcessesByPattern.sh openocd
 
 bus=$(lsusb | grep -P -o "(?<=Bus )\d{3}(?= Device \d{3}: ID [[:xdigit:]]{4}:[[:xdigit:]]{4} $deviceNameRegex)")
 device=$(lsusb | grep -P -o "(?<= Device )\d{3}(?=: ID [[:xdigit:]]{4}:[[:xdigit:]]{4} $deviceNameRegex)")

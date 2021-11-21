@@ -95,5 +95,11 @@
     },
     "[cpp]": {
         "editor.defaultFormatter": "xaver.clang-format"
+    },
+    "[jsonc]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "[shellscript]": {
+        "editor.defaultFormatter": "shakram02.bash-beautify"
     }
 }
