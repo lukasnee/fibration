@@ -248,7 +248,7 @@ FibSys::FibSys(std::uint16_t stackDepth, BaseType_t priority) : Thread("FibSys",
 
 Shell::Command versionCmd("version,ver", nullptr, "show firmware version", [](SHELLCMDPARAMS)
                           {
-                              shell.printf("\nFibration %s v%u.%u.%u (%s, %s %s)",
+                              shell.printf("\nStarting up Fibration %s v%u.%u.%u (%s, %s %s)",
                                            Fib::Version::moduleName, Fib::Version::major, Fib::Version::minor, Fib::Version::patch,
                                            Fib::Version::gitHash, Fib::Version::compileDate, Fib::Version::compileTime);
                               return Shell::Command::Result::okQuiet;
