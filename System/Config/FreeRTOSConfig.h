@@ -67,7 +67,7 @@ extern uint32_t uint32GetRunTimeCounterValue();
 #define configUSE_TIMERS                        1
 #define configTIMER_TASK_PRIORITY               2
 #define configTIMER_QUEUE_LENGTH                10
-#define configTIMER_TASK_STACK_DEPTH            256
+#define configTIMER_TASK_STACK_DEPTH            1024
 
 /* Optional functions - most linkers will remove unused functions anyway. */
 #define INCLUDE_vTaskPrioritySet                1
