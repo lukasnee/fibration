@@ -36,14 +36,16 @@ static Shell::Command psnCommand("psn", Shell::Command::Helper::Literal::onOffUs
 static I2sDuplexStream::CircularStereoBufferU32 i2s2CircularStereoBufferTxU32, i2s2CircularStereoBufferRxU32;
 
 static I2sDuplexStream i2s2DuplexStream(
-    Periph::getI2s2(), "i2s2stream", 1024 / sizeof(StackType_t), FibSys::Priority::audioStream,
+    Periph::getI2s2(), "i2s2stream", 2 * 1024 / sizeof(StackType_t), FibSys::Priority::audioStream,
     i2s2CircularStereoBufferTxU32, i2s2CircularStereoBufferRxU32,
     [](const I2sDuplexStream::SampleBlocksF32 &rxLeftSampleBlocksF32,
        const I2sDuplexStream::SampleBlocksF32 &rxRightSampleBlocksF32,
        I2sDuplexStream::SampleBlocksF32 &txLeftSampleBlocksF32,
        I2sDuplexStream::SampleBlocksF32 &txRightSampleBlocksF32) {
-        static auto sineF32A = Fib::DSP::Osc::SineF32();
-        static auto sineF32B = Fib::DSP::Osc::SineF32();
+        static auto wave1F32 = Fib::DSP::Osc::SquareWaveF32();
+        static auto wave2F32 = Fib::DSP::Osc::SawWaveF32();
+        static auto wave3F32 = Fib::DSP::Osc::TriangeWaveF32();
+        static auto wave4F32 = Fib::DSP::Osc::SineWaveF32();
 
         std::array<float, 4> potValues;
         Periph::getAdc2().getValue(5, potValues[0]);
@@ -54,21 +56,35 @@ static I2sDuplexStream i2s2DuplexStream(
         arm_mult_f32(potValues.data(), potValues.data(), potValues.data(), potValues.size());
         arm_mult_f32(potValues.data(), potValues.data(), potValues.data(), potValues.size());
 
-        sineF32A.frequencyInHz.set(Fib::DSP::map(potValues[0], 0.f, 1.f, 0.f, 20'000.f));
-        sineF32A.amplitudeNormal.set(potValues[1]);
-        sineF32A.generateMult(txLeftSampleBlocksF32.data(), txLeftSampleBlocksF32.size());
+        wave1F32.frequencyInHz.set(Fib::DSP::map(potValues[0], 0.f, 1.f, 0.f, 20'000.f));
+        wave2F32.frequencyInHz.set(Fib::DSP::map(potValues[1], 0.f, 1.f, 0.f, 20'000.f));
+        wave3F32.frequencyInHz.set(Fib::DSP::map(potValues[2], 0.f, 1.f, 0.f, 20'000.f));
+        wave4F32.frequencyInHz.set(Fib::DSP::map(potValues[3], 0.f, 1.f, 0.f, 20'000.f));
 
-        sineF32B.frequencyInHz.set(Fib::DSP::map(potValues[2], 0.f, 1.f, 0.f, 20'000.f));
-        sineF32B.amplitudeNormal.set(potValues[3]);
-        sineF32B.generateMult(txRightSampleBlocksF32.data(), txRightSampleBlocksF32.size());
+        for (std::size_t i = 0; i < txLeftSampleBlocksF32.size(); i++)
+        {
+            auto w1 = wave1F32.generateMult();
+            auto w2 = wave2F32.generateMult();
+            auto w3 = wave3F32.generateMult();
+            auto w4 = wave4F32.generateMult();
+
+            Fib::DSP::SampleBlock<Fib::DSP::F32> mix;
+            for (std::size_t i = 0; i < mix.size(); i++)
+            {
+                mix[i] = (w1[i] + w2[i] + w3[i] + w4[i]) / 4.f;
+            }
+
+            txLeftSampleBlocksF32[i] = mix;
+            txRightSampleBlocksF32[i] = mix;
+        }
 
         // txRightSampleBlocksF32 = rxLeftSampleBlocksF32;
 
         {
             static Fib::PeriodicTimerApp spiraleStats("ss", 10.f, [&]() {
-                Logger::log(Logger::Verbosity::low, Logger::Type::trace, "%f,%f,%f,%f\n", sineF32A.frequencyInHz.get(),
-                            sineF32A.amplitudeNormal.get(), sineF32B.frequencyInHz.get(),
-                            sineF32B.amplitudeNormal.get());
+                Logger::log(Logger::Verbosity::low, Logger::Type::trace, "%8.2f %8.2f %8.2f %8.2f\n",
+                            wave1F32.frequencyInHz.get(), wave2F32.frequencyInHz.get(), wave3F32.frequencyInHz.get(),
+                            wave4F32.frequencyInHz.get());
             });
             static Shell::Command statsCommand(
                 "ss", Shell::Command::Helper::Literal::onOffUsage, nullptr, [](SHELLCMDPARAMS) {
