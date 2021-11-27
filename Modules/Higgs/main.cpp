@@ -48,10 +48,10 @@ static I2sDuplexStream i2s2DuplexStream(
         static auto wave4F32 = Fib::DSP::Osc::SineWaveF32();
 
         std::array<float, 4> potValues;
-        Periph::getAdc2().getValue(5, potValues[0]);
-        Periph::getAdc2().getValue(2, potValues[1]);
-        Periph::getAdc2().getValue(3, potValues[2]);
-        Periph::getAdc2().getValue(4, potValues[3]);
+        Periph::getAdc2().getValue(3, potValues[0]);
+        Periph::getAdc2().getValue(4, potValues[1]);
+        Periph::getAdc2().getValue(5, potValues[2]);
+        Periph::getAdc2().getValue(2, potValues[3]);
 
         arm_mult_f32(potValues.data(), potValues.data(), potValues.data(), potValues.size());
         arm_mult_f32(potValues.data(), potValues.data(), potValues.data(), potValues.size());
