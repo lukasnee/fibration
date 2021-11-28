@@ -144,7 +144,7 @@ public:
     }
     bool isInRange(T value) const
     {
-        return (this->lowerLimit < value && value < this->upperLimit);
+        return (this->lowerLimit <= value && value <= this->upperLimit);
     };
 
     T get()

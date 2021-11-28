@@ -19,3 +19,6 @@
 [submodule "Libraries/min"]
 	path = Libraries/min
 	url = https://github.com/min-protocol/min.git
+[submodule "tests/Catch2"]
+	path = tests/Catch2
+	url = https://github.com/catchorg/Catch2.git
