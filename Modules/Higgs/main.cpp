@@ -4,35 +4,6 @@
 #include <cstdint>
 #include <limits>
 
-class PeriodicRandomValue : public Fib::PeriodicTimerApp
-{
-public:
-    PeriodicRandomValue(float frequencyInHz) : Fib::PeriodicTimerApp("PRV", frequencyInHz)
-    {
-        if (!Start())
-        {
-            FIBSYS_PANIC();
-        }
-    }
-    float get()
-    {
-        return this->value;
-    }
-
-private:
-    virtual void Run() override
-    {
-        this->value = static_cast<float>(((2.0f * std::rand()) / RAND_MAX) - 1.0f);
-        Logger::log(Logger::Verbosity::high, Logger::Type::trace, "periodicRandomValue: %f\n", this->value);
-    }
-    float value = 0.f;
-} periodicRandomValue(1.f);
-
-static Shell::Command psnCommand("psn", Shell::Command::Helper::Literal::onOffUsage, nullptr, [](SHELLCMDPARAMS) {
-    return Shell::Command::Helper::onOffCommand([&](bool state) -> bool { return periodicRandomValue.setState(state); },
-                                                "psn", SHELLCMDARGS);
-});
-
 static I2sDuplexStream::CircularStereoBufferU32 i2s2CircularStereoBufferTxU32, i2s2CircularStereoBufferRxU32;
 
 static I2sDuplexStream i2s2DuplexStream(
