@@ -4,7 +4,8 @@
     Duplex Stereo Stream Interface
 */
 
-#include "map.hpp"
+#include "DSP/sample.hpp"
+
 #include "thread.hpp"
 #include <array>
 
