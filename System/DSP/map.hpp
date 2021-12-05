@@ -1,71 +1,21 @@
 #pragma once
 
-#include "stm32f303xe.h"
-#include <array>
-#include <cstdint>
-#include <functional>
-#include <limits>
-extern "C"
-{
-#include "arm_math.h"
-}
+#include "dsp.hpp"
+#include "math.hpp"
 
-namespace Fib
+namespace Fib::Dsp
 {
-namespace DSP
-{
-using F32 = float;
-
-/**
- * @brief get the max value for the given bit depth
- *
- * @param bitDepth word width in bits from 1 to 32 !
- * @return constexpr std::uint32_t max value
- *
- * @note 1-32 bitDepth max !
- */
-template <std::uint32_t bitDepth> constexpr std::uint32_t bitDepthToMaxValue()
+/** @brief get the max value for the given bit depth
+ *  @note 1-32 bitDepth max ! */
+template <std::uint32_t bitDepth> constexpr std::uint32_t getMaxValueOfBitDepth()
 {
     return (std::numeric_limits<std::uint32_t>::max() >> (32 - bitDepth));
 }
 
-/**
- * @brief get the center value for the given bit depth
- *
- * @param bitDepth
- * @return constexpr std::uint32_t
- */
+/** @brief get the center value for the given bit depth */
 template <std::uint64_t bitDepth> constexpr std::uint64_t bitDepthToCenterValue()
 {
-    return (bitDepthToMaxValue<bitDepth>() / 2);
-}
-
-/**
- * @brief  map (scale) value from [inMin inMax] relative range to [outMin outMax] relative range
- *
- * @param in input value to scale
- * @param inMin input min value, the lower limit
- * @param inMax input max value, the upper limit
- * @param outMin output min value, the lower limit
- * @param outMax output max value, the upper limit
- * @return T mapped (scaled) output value
- */
-template <typename T> T map(const T &in, const T &inMin, const T &inMax, const T &outMin, const T &outMax)
-{
-    return (in - inMin) * (outMax - outMin) / (inMax - inMin) + outMin;
-}
-
-/**
- * @brief map (scale) value from [0 inMax] absolute range to [0 outMax] absolute range
- *
- * @param in input value to scale
- * @param inMax input max value, the upper limit
- * @param outMax output max value, the upper limit
- * @return T mapped (scaled) output value
- */
-template <typename T> T map(const T &in, const T &inMax, const T &outMax)
-{
-    return map(in, static_cast<T>(0), inMax, static_cast<T>(0), outMax);
+    return (getMaxValueOfBitDepth<bitDepth>() / 2);
 }
 
 constexpr q31_t floatToQ31(float in)
@@ -76,62 +26,37 @@ constexpr q31_t floatToQ31(float in)
                              : static_cast<q31_t>(in * (static_cast<float>(std::numeric_limits<q31_t>::max()))));
 }
 
-/**
- * @brief
- *
- * @param sample
- * @return q31_t
- */
+/** @brief convert u32 to fixed-point value q31 */
 q31_t u32ToQ31(const std::uint32_t &sample);
 
-/**
- * @brief
- *
- * @tparam sampleBitDepth
- * @param sample
- * @return q31_t
- */
+/** @brief convert fixed-point value q31 to u32 */
 template <std::uint32_t sampleBitDepth> q31_t sampleToQ31(const std::uint32_t &sample)
 {
     {
         q31_t result;
 
-        result = u32ToQ31(map<std::uint32_t>(sample, bitDepthToMaxValue<sampleBitDepth>(), bitDepthToMaxValue<32>()));
+        result = u32ToQ31(Math::mapAbsolute<std::uint32_t>(sample, getMaxValueOfBitDepth<sampleBitDepth>(),
+                                                           getMaxValueOfBitDepth<32>()));
 
         return result;
     }
 }
 
-/**
- * @brief
- *
- * @param q31
- * @return std::uint32_t
- */
+/** @brief convert fixed point q31 to u32 */
 std::uint32_t q31ToU32(const q31_t &q31);
 
-/**
- * @brief
- *
- * @tparam sampleBitDepth
- * @param q31
- * @return std::uint32_t
- */
+/** @brief convert fixed point q31 to some bit-depth raw sample value */
 template <std::uint32_t sampleBitDepth> std::uint32_t q31ToSample(const q31_t &q31)
 {
     std::uint32_t result;
 
-    result = map<std::uint32_t>(q31ToU32(q31), bitDepthToMaxValue<32>(), bitDepthToMaxValue<sampleBitDepth>());
+    result = Math::mapAbsolute<std::uint32_t>(q31ToU32(q31), getMaxValueOfBitDepth<32>(),
+                                              getMaxValueOfBitDepth<sampleBitDepth>());
 
     return result;
 }
 
-/**
- * @brief swap uint32 endianness
- *
- * @param val
- * @return std::uint32_t
- */
+/**  @brief swap uint32 endianness */
 std::uint32_t swap(std::uint32_t val);
 
 template <typename T> class RangedValue
@@ -178,10 +103,8 @@ private:
     std::function<bool(T const &value)> onChangeF;
 };
 
-template <typename Type> using SampleBlock = std::array<Type, 4>;
-template <typename Type, std::size_t numOfBlocks> using SampleBlocks = std::array<SampleBlock<Type>, numOfBlocks>;
-
-//TODO: SampleTime as class with arithmetic operands overrides (parallel value-to-value operations). Heres some scrap code:
+// TODO: SampleTime as class with arithmetic operands overrides (parallel value-to-value operations). Heres some scrap
+// code:
 // template <typename Type> SampleBlock<Type> operator+(const SampleBlock<Type> &addend)
 // {
 //     SampleBlock<Type> sum;
@@ -202,5 +125,4 @@ template <typename Type, std::size_t numOfBlocks> using SampleBlocks = std::arra
 //     return point(x + first.x, y + first.y);
 // }
 
-} // namespace DSP
-} // namespace Fib
+} // namespace Fib::Dsp

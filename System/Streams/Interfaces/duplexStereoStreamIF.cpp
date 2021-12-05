@@ -207,8 +207,8 @@ void DuplexStereoStreamIF::Run() // task code
                 {
                     for (std::size_t j = 0; j < rxLeftSampleBlocksF32.front().size(); j++)
                     {
-                        rxLeftSampleBlocksF32[i][j] = Fib::DSP::floatToQ31((Fib::DSP::swap((*pRxStereoBufferU32)[i * rxLeftSampleBlocksF32.front().size() + j].left) << 8));
-                        rxRightSampleBlocksF32[i][j] = Fib::DSP::floatToQ31((Fib::DSP::swap((*pRxStereoBufferU32)[i * rxRightSampleBlocksF32.front().size() + j].right) << 8));
+                        rxLeftSampleBlocksF32[i][j] = Fib::Dsp::floatToQ31((Fib::Dsp::swap((*pRxStereoBufferU32)[i * rxLeftSampleBlocksF32.front().size() + j].left) << 8));
+                        rxRightSampleBlocksF32[i][j] = Fib::Dsp::floatToQ31((Fib::Dsp::swap((*pRxStereoBufferU32)[i * rxRightSampleBlocksF32.front().size() + j].right) << 8));
                     }
                 }
 
@@ -219,8 +219,8 @@ void DuplexStereoStreamIF::Run() // task code
                 {
                     for (std::size_t j = 0; j < txLeftSampleBlocksF32.front().size(); j++)
                     {
-                        (*pTxStereoBufferU32)[i * rxLeftSampleBlocksF32.front().size() + j].left = Fib::DSP::swap(Fib::DSP::floatToQ31(txLeftSampleBlocksF32[i][j]) >> 8);
-                        (*pTxStereoBufferU32)[i * rxLeftSampleBlocksF32.front().size() + j].right = Fib::DSP::swap(Fib::DSP::floatToQ31(txRightSampleBlocksF32[i][j]) >> 8);
+                        (*pTxStereoBufferU32)[i * rxLeftSampleBlocksF32.front().size() + j].left = Fib::Dsp::swap(Fib::Dsp::floatToQ31(txLeftSampleBlocksF32[i][j]) >> 8);
+                        (*pTxStereoBufferU32)[i * rxLeftSampleBlocksF32.front().size() + j].right = Fib::Dsp::swap(Fib::Dsp::floatToQ31(txRightSampleBlocksF32[i][j]) >> 8);
                     }
                 }
             }

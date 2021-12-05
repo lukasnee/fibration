@@ -2,7 +2,7 @@
 
 #include "arm_math.h"
 
-namespace Fib::DSP::Osc
+namespace Fib::Dsp
 {
 OscF32::Config::Config(F32 sampleRateInHz, F32 frequencyInHz)
     : sampleRateInHz(sampleRateInHz), derived(sampleRateInHz, frequencyInHz)
@@ -34,122 +34,26 @@ OscF32::OscF32(F32 sampleRateInHz, F32 frequencyInHz, F32 initialPhaseInRad)
 
 void OscF32::generateMult(SampleBlock<F32> *pSampleBlocksOut, std::size_t sampleBlocksSize)
 {
+
     for (std::size_t i = 0; i < sampleBlocksSize; i++)
     {
-        this->generate(pSampleBlocksOut[i]);
+        // TODO: not so sure about this optimization
+        if (this->amplitudeNormal.get() != 0.f)
+        {
+            this->generate(pSampleBlocksOut[i]);
+        }
+        else
+        {
+            pSampleBlocksOut[i] = {0.f};
+        }
     }
 }
 
-const SampleBlock<F32> &OscF32::generateMult()
+SampleBlock<F32> &OscF32::generateMult()
 {
     static SampleBlock<F32> sampleBlock;
     this->generate(sampleBlock);
     return sampleBlock;
 }
 
-SineWaveF32::SineWaveF32(F32 sampleRateInHz, F32 frequencyInHz, F32 initialPhaseInRad)
-    : OscF32(sampleRateInHz, frequencyInHz, initialPhaseInRad){};
-
-void SineWaveF32::generate(SampleBlock<F32> &sampleBlocksOut)
-{
-    /* get sample phases */
-    Fib::DSP::SampleBlock<F32> phaseInRadSampleBlockF32;
-    arm_offset_f32(this->config.derived.getSampleBlockDeltaTimeScale().data(), this->phaseInRad.get(),
-                   phaseInRadSampleBlockF32.data(), phaseInRadSampleBlockF32.size());
-
-    /* loop phase around 2*PI and get sine values */
-    Fib::DSP::SampleBlock<F32> sampleBlockF32;
-    for (std::size_t j = 0; j < phaseInRadSampleBlockF32.size(); j++)
-    {
-        while (phaseInRadSampleBlockF32[j] > this->phaseInRad.getUpperLimit())
-        {
-            phaseInRadSampleBlockF32[j] = phaseInRadSampleBlockF32[j] - this->phaseInRad.getUpperLimit();
-        }
-        sampleBlockF32[j] = arm_sin_f32(phaseInRadSampleBlockF32[j]);
-    }
-
-    /* scale to amplitude normal */
-    arm_scale_f32(sampleBlockF32.data(), this->amplitudeNormal.get(), sampleBlocksOut.data(), sampleBlocksOut.size());
-    this->phaseInRad.set(phaseInRadSampleBlockF32.back());
-}
-
-SquareWaveF32::SquareWaveF32(F32 sampleRateInHz, F32 frequencyInHz, F32 initialPhaseInRad)
-    : OscF32(sampleRateInHz, frequencyInHz, initialPhaseInRad){};
-
-void SquareWaveF32::generate(SampleBlock<F32> &sampleBlocksOut)
-{
-    /* get sample phases */
-    Fib::DSP::SampleBlock<F32> phaseInRadSampleBlockF32;
-    arm_offset_f32(this->config.derived.getSampleBlockDeltaTimeScale().data(), this->phaseInRad.get(),
-                   phaseInRadSampleBlockF32.data(), phaseInRadSampleBlockF32.size());
-
-    /* loop phase around 2*PI and get sine values */
-    Fib::DSP::SampleBlock<F32> sampleBlockF32;
-    for (std::size_t j = 0; j < phaseInRadSampleBlockF32.size(); j++)
-    {
-        while (phaseInRadSampleBlockF32[j] > this->phaseInRad.getUpperLimit())
-        {
-            phaseInRadSampleBlockF32[j] = phaseInRadSampleBlockF32[j] - this->phaseInRad.getUpperLimit();
-        }
-        sampleBlockF32[j] = phaseInRadSampleBlockF32[j] < PI ? 1.f : -1.f;
-    }
-
-    /* scale to amplitude normal */
-    arm_scale_f32(sampleBlockF32.data(), this->amplitudeNormal.get(), sampleBlocksOut.data(), sampleBlocksOut.size());
-    this->phaseInRad.set(phaseInRadSampleBlockF32.back());
-}
-
-SawWaveF32::SawWaveF32(F32 sampleRateInHz, F32 frequencyInHz, F32 initialPhaseInRad)
-    : OscF32(sampleRateInHz, frequencyInHz, initialPhaseInRad){};
-
-void SawWaveF32::generate(SampleBlock<F32> &sampleBlocksOut)
-{
-    /* get sample phases */
-    Fib::DSP::SampleBlock<F32> phaseInRadSampleBlockF32;
-    arm_offset_f32(this->config.derived.getSampleBlockDeltaTimeScale().data(), this->phaseInRad.get(),
-                   phaseInRadSampleBlockF32.data(), phaseInRadSampleBlockF32.size());
-
-    /* loop phase around 2*PI and get sine values */
-    Fib::DSP::SampleBlock<F32> sampleBlockF32;
-    for (std::size_t j = 0; j < phaseInRadSampleBlockF32.size(); j++)
-    {
-        while (phaseInRadSampleBlockF32[j] > this->phaseInRad.getUpperLimit())
-        {
-            phaseInRadSampleBlockF32[j] = phaseInRadSampleBlockF32[j] - this->phaseInRad.getUpperLimit();
-        }
-        sampleBlockF32[j] = (phaseInRadSampleBlockF32[j] / 2.f * PI) * 2.f - 1.f;
-    }
-
-    /* scale to amplitude normal */
-    arm_scale_f32(sampleBlockF32.data(), this->amplitudeNormal.get(), sampleBlocksOut.data(), sampleBlocksOut.size());
-    this->phaseInRad.set(phaseInRadSampleBlockF32.back());
-}
-
-TriangeWaveF32::TriangeWaveF32(F32 sampleRateInHz, F32 frequencyInHz, F32 initialPhaseInRad)
-    : OscF32(sampleRateInHz, frequencyInHz, initialPhaseInRad){};
-
-void TriangeWaveF32::generate(SampleBlock<F32> &sampleBlocksOut)
-{
-    /* get sample phases */
-    Fib::DSP::SampleBlock<F32> phaseInRadSampleBlockF32;
-    arm_offset_f32(this->config.derived.getSampleBlockDeltaTimeScale().data(), this->phaseInRad.get(),
-                   phaseInRadSampleBlockF32.data(), phaseInRadSampleBlockF32.size());
-
-    /* loop phase around 2*PI and get sine values */
-    Fib::DSP::SampleBlock<F32> sampleBlockF32;
-    for (std::size_t j = 0; j < phaseInRadSampleBlockF32.size(); j++)
-    {
-        while (phaseInRadSampleBlockF32[j] > this->phaseInRad.getUpperLimit())
-        {
-            phaseInRadSampleBlockF32[j] = phaseInRadSampleBlockF32[j] - this->phaseInRad.getUpperLimit();
-        }
-        sampleBlockF32[j] = phaseInRadSampleBlockF32[j] < PI
-                                ? ((phaseInRadSampleBlockF32[j] / PI) * 2.f - 1.f)
-                                : -1.f * ((phaseInRadSampleBlockF32[j] - PI / PI) * 2.f - 1.f);
-    }
-
-    /* scale to amplitude normal */
-    arm_scale_f32(sampleBlockF32.data(), this->amplitudeNormal.get(), sampleBlocksOut.data(), sampleBlocksOut.size());
-    this->phaseInRad.set(phaseInRadSampleBlockF32.back());
-}
-} // namespace Fib::DSP::Osc
+} // namespace Fib::Dsp::Osc
