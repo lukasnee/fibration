@@ -87,6 +87,45 @@
             }
         },
         {
+            "label": "build unit tests",
+            "type": "shell",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "linux": {
+                "command": "./Utils/test.sh",
+                "problemMatcher": "$gcc",
+            },
+            "presentation": {
+                "focus": true
+            }
+        },
+        {
+            "label": "run unit tests",
+            "type": "shell",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "linux": {
+                "command": "./Build/tests/tests"
+            },
+            "presentation": {
+                "focus": true
+            }
+        },
+        {
+            "label": "build and run unit tests",
+            "type": "shell",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "dependsOn":["build unit tests","run unit tests"],
+            "dependsOrder": "sequence"
+        },
+        {
             "label": "kill openocd processes",
             "type": "shell",
             "linux": {
