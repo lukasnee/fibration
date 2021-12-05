@@ -20,10 +20,10 @@ public:
     using StereoBufferU32 = std::array<StereoSampleU32, stereoBufferSize>;
     using CircularStereoBufferU32 = std::array<StereoBufferU32, 2>;
 
-    static_assert(stereoBufferSize % Fib::DSP::SampleBlock<Fib::DSP::F32>().size() == 0,
-                  "stereoBufferSize must be a multiple of Fib::DSP::SampleBlock<F32>::size() !");
+    static_assert(stereoBufferSize % Fib::Dsp::SampleBlock<Fib::Dsp::F32>().size() == 0,
+                  "stereoBufferSize must be a multiple of Fib::Dsp::SampleBlock<F32>::size() !");
     using SampleBlocksF32 =
-        Fib::DSP::SampleBlocks<Fib::DSP::F32, (stereoBufferSize / Fib::DSP::SampleBlock<Fib::DSP::F32>().size())>;
+        Fib::Dsp::SampleBlocks<Fib::Dsp::F32, (stereoBufferSize / Fib::Dsp::SampleBlock<Fib::Dsp::F32>().size())>;
 
     // TODO: pass SampleRateInHz
     using ProcessRxTxBuffersF32F = void(const SampleBlocksF32 &rxLeftSampleBlocksF32,

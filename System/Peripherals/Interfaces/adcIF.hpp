@@ -26,7 +26,7 @@ public:
 
     std::uint32_t getMaxValue() { return ((1 << this->getBitDepth()) - 1); }
 
-    bool getValue(std::size_t channelNo, q31_t &valueOut)
+    bool getNormal(std::size_t channelNo, q31_t &valueOut)
     {
         bool retval = false;
         std::uint32_t valueRaw;
@@ -38,7 +38,7 @@ public:
         return retval;
     }
 
-    bool getValue(std::size_t channelNo, float &valueOut)
+    bool getNormal(std::size_t channelNo, float &valueOut)
     {
         bool retval = false;
         std::uint32_t valueRaw;
