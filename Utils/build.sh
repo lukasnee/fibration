@@ -1,60 +1,70 @@
 #!/bin/bash
 
-set -e
+source Utils/config.sh
 
-# ANSI colors
-colorReset='\033[0m'
-colorBlack='\033[0;30m'
-colorRed='\033[0;31m'
-colorGreen='\033[0;32m'
-colorYellow='\033[0;33m'
-colorBlue='\033[0;34m'
-colorcolorPurple='\033[0;35m'
-colorCyan='\033[0;36m'
-colorWhite='\033[0;37m'
+print_usage() {
+    printf "usage: 
+  -p <project>          module name
+  -t <release|debug>    build type
+  -r                    rebuild
+  -h                    show this help
+"
+}
 
-# configs
-BUILD_DIR="Build"
-CMAKE_CONFIG_PATH="arm-none-eabi-gcc.cmake"
-CMAKE_CONFIG_FULL_PATH=$(realpath $CMAKE_CONFIG_PATH)
+PROJECT=""
+BUILD_TYPE="release"
+REBUILD_FLAG=0
+[[ $# -eq 0 ]] && (print_usage; exit 1)
+while getopts 'p:t:rh' flag; do
+  case "${flag}" in
+    p) 
+        PROJECT="${OPTARG}"
+        [[ -d "Modules/$PROJECT" ]] || ( printf "${colorRed}no such project in Modules directory\n"; exit -1 ) 
+        ;;
+    t) 
+        BUILD_TYPE="${OPTARG}"
+        [[ $BUILD_TYPE == "release" || $BUILD_TYPE == "debug" ]] || ( printf "${colorRed}invalid build type\n"; exit -1 )
+        ;;
+    r) 
+        REBUILD_FLAG=1
+        ;;
+    *|h) 
+        print_usage; exit 1 
+        ;;
+  esac
+done
 
-[ $# -eq 0 ] && ( printf "${colorYellow}usage: $0 <PROJECT> <Debug|Release> [-r]\n"; exit -1; )
+[[ -z $PROJECT ]] && ( printf "${colorRed}project unspecified\n"; exit -1 )
 
-PROJECT=$1
-TARGET=$2
-REBUILD_FLAG=$3
+PROJECT_DIR="$BUILD_DIR/$BUILD_TYPE/Modules/$PROJECT"
 
-PROJECT_DIR="$BUILD_DIR/$TARGET/Modules/$PROJECT"
+
+# remove ELF to avoid debugging old executable
 ELF_PATH="$PROJECT_DIR/$PROJECT"
 [[ -f $ELF_PATH ]] && rm $ELF_PATH
 
-[[ ! -z $REBUILD_FLAG && $REBUILD_FLAG == "-r" ]] && ACTION="rebuild" || ACTION="build"
+# clean build if rebuild flag
+ACTION="build"
+[[ $REBUILD_FLAG -eq 1 ]] && (Utils/clean.sh -p $PROJECT -t $BUILD_TYPE; ACTION="rebuild")
 
-[[ $TARGET == "Debug" || $TARGET == "Release" ]] \
-    && printf "${colorYellow}${ACTION}ing ${colorPurple}$TARGET${colorYellow}\n" \
-    || ( printf "${colorRed}bad target\n"; exit -2 )
+printf "${colorYellow}${ACTION}ing ${colorPurple}$BUILD_TYPE${colorYellow}\n" 
 
-[[ $REBUILD_FLAG == "-r" ]] && Utils/clean.sh $TARGET
+# structure build types
+BUILD_TYPE_DIR="$BUILD_DIR/$BUILD_TYPE"
+[[ ! -d "$BUILD_TYPE_BUILD_DIR" ]] && mkdir $BUILD_TYPE_DIR --parents
+
+GITHASH_DEF_PATH="gitHash.def"
+Utils/generateGitHashDef.sh $GITHASH_DEF_PATH
+pushd $BUILD_TYPE_DIR > /dev/null
 
 printf $colorCyan
-
-TARGET_BUILD_DIR="$BUILD_DIR/$TARGET"
-if [ ! -d "$TARGET_BUILD_DIR" ]; then
-    mkdir $TARGET_BUILD_DIR --parents
-fi
-
-Utils/gitHash.sh gitHash.def
-
-pushd $TARGET_BUILD_DIR
 cmake -G "Unix Makefiles" \
-    -DCMAKE_TOOLCHAIN_FILE=$CMAKE_CONFIG_FULL_PATH \
-    -DCMAKE_BUILD_TYPE=$TARGET \
+    -DCMAKE_TOOLCHAIN_FILE="$CMAKE_BUILD_CONFIG_PATH" \
+    -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
     ../../
 
 cmake --build . -- -j $(nproc) \
     && printf "${colorGreen}built successfully !\n" || printf "${colorRed}build failed\n"
 
-
 popd > /dev/null
-
-rm -f gitHash.def
+rm -f $GITHASH_DEF_PATH
