@@ -2,7 +2,6 @@
 .vscode/.cortex-debug.registers.state.json
 .vscode/settings.json
 
-Build/Debug
-Build/Release
+Build
 fib-log.txt
 gitHash.def

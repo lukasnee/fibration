@@ -64,7 +64,7 @@
                 "isDefault": true
             },
             "linux": {
-                "command": "./Utils/build.sh Higgs Release",
+                "command": "./Utils/build.sh -p Higgs -t release",
                 "problemMatcher": "$gcc",
             },
             "presentation": {
@@ -79,7 +79,7 @@
                 "isDefault": true
             },
             "linux": {
-                "command": "./Utils/flash.sh Higgs Release -b",
+                "command": "./Utils/flash.sh -p Higgs -t release -b",
                 "problemMatcher": "$gcc",
             },
             "presentation": {
@@ -98,7 +98,7 @@
             "type": "shell",
             "group": "test",
             "linux": {
-                "command": "./Utils/build.sh Higgs Debug",
+                "command": "./Utils/build.sh -p Higgs -t debug",
                 "problemMatcher": "$gcc",
             }
         },

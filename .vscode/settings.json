@@ -79,7 +79,9 @@
         "cstdbool": "cpp",
         "stm32f3xx_hal.h": "c",
         "bit": "cpp",
-        "shared_mutex": "cpp"
+        "shared_mutex": "cpp",
+        "future": "cpp",
+        "variant": "cpp"
     },
     "cmake.configureOnOpen": true,
     "C_Cpp.errorSquiggles": "Enabled",
@@ -103,5 +105,8 @@
     },
     "[shellscript]": {
         "editor.defaultFormatter": "shakram02.bash-beautify"
+    },
+    "[cmake]": {
+        "editor.defaultFormatter": "cheshirekow.cmake-format"
     }
 }
