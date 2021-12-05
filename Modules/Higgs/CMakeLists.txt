@@ -108,7 +108,7 @@ set(FIBSYS_CORE_SRC
 )
 
 set(FIBSYS_DSP_SRC
-    ${ROOT}/System/DSP/map.cpp
+    ${ROOT}/System/DSP/sample.cpp
     ${ROOT}/System/DSP/math.cpp
     ${ROOT}/System/DSP/oscillator.cpp
     ${ROOT}/System/DSP/waveforms.cpp
@@ -201,7 +201,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     # Fibration Framework
     ${ROOT}
     ${ROOT}/System/
-    ${ROOT}/System/DSP
     ${ROOT}/System/Config/
     ${ROOT}/System/Core/
     ${ROOT}/System/Utilities/
