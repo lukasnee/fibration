@@ -27,10 +27,10 @@ static I2sDuplexStream i2s2DuplexStream(
         Periph::getAdc2().getNormal(2, potNormal[3]);
         potNormal = Fib::Dsp::Math::secondPower(potNormal);
 
-        pWaves[0]->frequencyInHz.set(Fib::Dsp::Math::denormalize(potNormal[0], 0.f, 20'000.f));
-        pWaves[1]->frequencyInHz.set(Fib::Dsp::Math::denormalize(potNormal[1], 0.f, 20'000.f));
-        pWaves[2]->frequencyInHz.set(Fib::Dsp::Math::denormalize(potNormal[2], 0.f, 20'000.f));
-        pWaves[3]->frequencyInHz.set(Fib::Dsp::Math::denormalize(potNormal[3], 0.f, 20'000.f));
+        pWaves[0]->frequencyInHz.set(Fib::Dsp::Map::denormalize(potNormal[0], 0.f, 20'000.f));
+        pWaves[1]->frequencyInHz.set(Fib::Dsp::Map::denormalize(potNormal[1], 0.f, 20'000.f));
+        pWaves[2]->frequencyInHz.set(Fib::Dsp::Map::denormalize(potNormal[2], 0.f, 20'000.f));
+        pWaves[3]->frequencyInHz.set(Fib::Dsp::Map::denormalize(potNormal[3], 0.f, 20'000.f));
 
         const Fib::Dsp::F32 rolloff = 1.f;
         // pWaves[0]->amplitudeNormal.set(pWaves[0]->frequencyInHz.get() < rolloff ? pWaves[0]->frequencyInHz.get() /
@@ -58,7 +58,7 @@ static I2sDuplexStream i2s2DuplexStream(
                                     -0.0315679f, -0.0254834f, -0.0196608f, -0.0143188f, -0.0096473f, -0.0057981f,
                                     -0.0028780f, -0.0009441f, -0.0000007f};
 
-            static arm_iir_lattice_instance_f32 iirInstace;
+            // static arm_iir_lattice_instance_f32 iirInstace;
             static arm_fir_instance_f32 firInstace;
             const uint16_t numTaps = sizeof(coeff) / sizeof(Fib::Dsp::F32);
             const uint32_t blockSize = w1.size();

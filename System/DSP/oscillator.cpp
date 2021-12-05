@@ -56,4 +56,4 @@ SampleBlock<F32> &OscF32::generateMult()
     return sampleBlock;
 }
 
-} // namespace Fib::Dsp::Osc
+} // namespace Fib::Dsp

@@ -1,6 +1,6 @@
-#include "map.hpp"
+#include "sample.hpp"
 
-namespace Fib::Dsp
+namespace Fib::Dsp::Sample
 {
 
 q31_t u32ToQ31(const std::uint32_t &sample)
@@ -41,4 +41,4 @@ std::uint32_t swap(std::uint32_t val)
     return (val << 16) | (val >> 16);
 }
 
-} // namespace Fib::Dsp
+} // namespace Fib::Dsp::Sample

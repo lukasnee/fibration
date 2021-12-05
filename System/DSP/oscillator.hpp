@@ -1,6 +1,7 @@
 #pragma once
 
-#include "map.hpp"
+#include "rangedValue.hpp"
+
 namespace Fib::Dsp
 {
 class OscF32

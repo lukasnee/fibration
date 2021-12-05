@@ -2,17 +2,12 @@
 
 #include "system.hpp"
 
-DuplexStereoStreamIF::DuplexStereoStreamIF(
-    const std::string pcName,
-    uint16_t usStackDepth,
-    UBaseType_t uxPriority,
-    CircularStereoBufferU32 &circularStereoBufferTxU32,
-    CircularStereoBufferU32 &circularStereoBufferRxU32,
-    ProcessRxTxBuffersF32F processRxTxBuffersF32F)
-    : Thread(pcName, usStackDepth, uxPriority),
-      circularStereoBufferTxU32(circularStereoBufferTxU32),
-      circularStereoBufferRxU32(circularStereoBufferRxU32),
-      processRxTxBuffersF32F(processRxTxBuffersF32F)
+DuplexStereoStreamIF::DuplexStereoStreamIF(const std::string pcName, uint16_t usStackDepth, UBaseType_t uxPriority,
+                                           CircularStereoBufferU32 &circularStereoBufferTxU32,
+                                           CircularStereoBufferU32 &circularStereoBufferRxU32,
+                                           ProcessRxTxBuffersF32F processRxTxBuffersF32F)
+    : Thread(pcName, usStackDepth, uxPriority), circularStereoBufferTxU32(circularStereoBufferTxU32),
+      circularStereoBufferRxU32(circularStereoBufferRxU32), processRxTxBuffersF32F(processRxTxBuffersF32F)
 {
     this->setOwner(this);
 
@@ -43,15 +38,13 @@ bool DuplexStereoStreamIF::stop()
 {
     bool retval = false;
 
-    if (this->state == State::firstStreamingSecondReady ||
-        this->state == State::firstStreamingSecondLoading ||
+    if (this->state == State::firstStreamingSecondReady || this->state == State::firstStreamingSecondLoading ||
         this->state == State::firstStreamingSecondLoaded)
     {
         retval = this->stopTxRxCircularDma();
         this->state = State::standby;
     }
-    else if (this->state == State::firstReadySecondStreaming ||
-             this->state == State::firstLoadingSecondStreaming ||
+    else if (this->state == State::firstReadySecondStreaming || this->state == State::firstLoadingSecondStreaming ||
              this->state == State::firstLoadedSecondStreaming)
     {
         retval = this->stopTxRxCircularDma();
@@ -81,8 +74,9 @@ std::size_t DuplexStereoStreamIF::getCircularBufferSize()
     return sizeof(circularStereoBufferTxU32);
 }
 
-bool DuplexStereoStreamIF::getStereoAudioBuffersTxRxU32(const DuplexStereoStreamIF::StereoBufferU32 *&pRxStereoBufferU32Out,
-                                                        DuplexStereoStreamIF::StereoBufferU32 *&pTxStereoBufferU32Out)
+bool DuplexStereoStreamIF::getStereoAudioBuffersTxRxU32(
+    const DuplexStereoStreamIF::StereoBufferU32 *&pRxStereoBufferU32Out,
+    DuplexStereoStreamIF::StereoBufferU32 *&pTxStereoBufferU32Out)
 {
     bool result = false;
 
@@ -189,38 +183,46 @@ void DuplexStereoStreamIF::Run() // task code
             DuplexStereoStreamIF::StereoBufferU32 *pTxStereoBufferU32 = nullptr;
 
             if (this->processRxTxBuffersF32F &&
-                this->getStereoAudioBuffersTxRxU32(pRxStereoBufferU32, pTxStereoBufferU32) &&
-                pRxStereoBufferU32 && pTxStereoBufferU32)
+                this->getStereoAudioBuffersTxRxU32(pRxStereoBufferU32, pTxStereoBufferU32) && pRxStereoBufferU32 &&
+                pTxStereoBufferU32)
             {
-                DuplexStereoStreamIF::SampleBlocksF32
-                    rxLeftSampleBlocksF32,
-                    rxRightSampleBlocksF32,
-                    txLeftSampleBlocksF32,
-                    txRightSampleBlocksF32;
+                DuplexStereoStreamIF::SampleBlocksF32 rxLeftSampleBlocksF32, rxRightSampleBlocksF32,
+                    txLeftSampleBlocksF32, txRightSampleBlocksF32;
 
-                // TODO: try optimizing, making processRxTxBuffersF32F variants in case converting to/from F32 is unnecessary.
+                // TODO: try optimizing, making processRxTxBuffersF32F variants in case converting to/from F32 is
+                // unnecessary.
                 // TODO: maybe move out conversion functions to user space (like done with processRxTxBuffersF32F)
-                /** @note ADC actually support 24-bit samples in 32-bit frame therefore shifting sample by 8 bits is necessary */
+                /** @note ADC actually support 24-bit samples in 32-bit frame therefore shifting sample by 8 bits is
+                 * necessary */
 
                 /* Rx buffer: U32->F32 */
                 for (std::size_t i = 0; i < rxLeftSampleBlocksF32.size(); i++)
                 {
                     for (std::size_t j = 0; j < rxLeftSampleBlocksF32.front().size(); j++)
                     {
-                        rxLeftSampleBlocksF32[i][j] = Fib::Dsp::floatToQ31((Fib::Dsp::swap((*pRxStereoBufferU32)[i * rxLeftSampleBlocksF32.front().size() + j].left) << 8));
-                        rxRightSampleBlocksF32[i][j] = Fib::Dsp::floatToQ31((Fib::Dsp::swap((*pRxStereoBufferU32)[i * rxRightSampleBlocksF32.front().size() + j].right) << 8));
+                        rxLeftSampleBlocksF32[i][j] = Fib::Dsp::Sample::floatToQ31(
+                            (Fib::Dsp::Sample::swap(
+                                 (*pRxStereoBufferU32)[i * rxLeftSampleBlocksF32.front().size() + j].left)
+                             << 8));
+                        rxRightSampleBlocksF32[i][j] = Fib::Dsp::Sample::floatToQ31(
+                            (Fib::Dsp::Sample::swap(
+                                 (*pRxStereoBufferU32)[i * rxRightSampleBlocksF32.front().size() + j].right)
+                             << 8));
                     }
                 }
 
-                this->processRxTxBuffersF32F(rxLeftSampleBlocksF32, rxRightSampleBlocksF32, txLeftSampleBlocksF32, txRightSampleBlocksF32);
+                this->processRxTxBuffersF32F(rxLeftSampleBlocksF32, rxRightSampleBlocksF32, txLeftSampleBlocksF32,
+                                             txRightSampleBlocksF32);
 
                 /* Tx buffer: F32->U32 */
                 for (std::size_t i = 0; i < txLeftSampleBlocksF32.size(); i++)
                 {
                     for (std::size_t j = 0; j < txLeftSampleBlocksF32.front().size(); j++)
                     {
-                        (*pTxStereoBufferU32)[i * rxLeftSampleBlocksF32.front().size() + j].left = Fib::Dsp::swap(Fib::Dsp::floatToQ31(txLeftSampleBlocksF32[i][j]) >> 8);
-                        (*pTxStereoBufferU32)[i * rxLeftSampleBlocksF32.front().size() + j].right = Fib::Dsp::swap(Fib::Dsp::floatToQ31(txRightSampleBlocksF32[i][j]) >> 8);
+                        (*pTxStereoBufferU32)[i * rxLeftSampleBlocksF32.front().size() + j].left =
+                            Fib::Dsp::Sample::swap(Fib::Dsp::Sample::floatToQ31(txLeftSampleBlocksF32[i][j]) >> 8);
+                        (*pTxStereoBufferU32)[i * rxLeftSampleBlocksF32.front().size() + j].right =
+                            Fib::Dsp::Sample::swap(Fib::Dsp::Sample::floatToQ31(txRightSampleBlocksF32[i][j]) >> 8);
                     }
                 }
             }
