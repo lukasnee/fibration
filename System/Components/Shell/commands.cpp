@@ -76,7 +76,7 @@ Shell::Command::Result Shell::help(Shell &shell, const Shell::Command *pCommand,
 }
 
 Shell::Command Shell::helpCommand = Shell::Command(
-    "help", "[all|[COMMAND...]]", "show command usage",
+    "help,?", "[all|[COMMAND...]]", "show command usage",
     [](Shell &shell, std::size_t argc, const char *argv[]) -> Shell::Command::Result
     {
         Shell::Command::Result result = Shell::Command::Result::unknown;
