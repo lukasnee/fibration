@@ -1,11 +1,12 @@
 #pragma once
 
-extern "C" {
+extern "C"
+{
 #include "system.h"
 }
 
-#include "thread.hpp"
 #include "status.hpp"
+#include "thread.hpp"
 
 #include <cstdint>
 
@@ -20,7 +21,8 @@ public:
     // 1KHz system tick time reference
     static std::uint32_t getSysTick();
     static std::uint32_t getUptimeInMs();
-    static void getUptime(std::uint32_t &days, std::uint32_t &hours, std::uint32_t &minutes, std::uint32_t &seconds, std::uint32_t &milliseconds);
+    static void getUptime(std::uint32_t &days, std::uint32_t &hours, std::uint32_t &minutes, std::uint32_t &seconds,
+                          std::uint32_t &milliseconds);
 
     enum Priority : BaseType_t
     {
@@ -32,7 +34,7 @@ public:
         veryHigh = 5,
         highest = 6,
 
-// configuration
+        // configuration
         appLow = lowest,
         appMedium = veryLow,
         appHigh = low,
@@ -46,7 +48,7 @@ public:
 
     static_assert(Priority::_enumSize <= configMAX_PRIORITIES, "invalid priority configration!");
 
-    //void collectStats();
+    // void collectStats();
     Stats stats;
 
     FibSys(const FibSys &) = delete;

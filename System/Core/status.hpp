@@ -1,4 +1,5 @@
 
+#include <cstdint>
 #include <utility>
 
 class Stats {
