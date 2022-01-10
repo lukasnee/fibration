@@ -8,12 +8,7 @@ static I2sDuplexStream::CircularStereoBufferU32 i2s2CircularStereoBufferTxU32, i
 
 static I2sDuplexStream i2s2DuplexStream(
     Periph::getI2s2(), "i2s2stream", 2 * 1024 / sizeof(StackType_t), FibSys::Priority::audioStream,
-    i2s2CircularStereoBufferTxU32, i2s2CircularStereoBufferRxU32,
-    [](const I2sDuplexStream::SampleBlocksF32 &rxLeftSampleBlocksF32,
-       const I2sDuplexStream::SampleBlocksF32 &rxRightSampleBlocksF32,
-       I2sDuplexStream::SampleBlocksF32 &txLeftSampleBlocksF32,
-       I2sDuplexStream::SampleBlocksF32 &txRightSampleBlocksF32) {
-        //
+    i2s2CircularStereoBufferTxU32, i2s2CircularStereoBufferRxU32, [](DuplexStereoStreamProcessFunctionParams) {
         static auto squareWave = Fib::Dsp::Waveforms::SquareF32();
         static auto sawWave = Fib::Dsp::Waveforms::SawF32();
         static auto triangeWave = Fib::Dsp::Waveforms::TriangeF32();
@@ -95,11 +90,12 @@ static I2sDuplexStream i2s2DuplexStream(
                     pWaves[3]->frequencyInHz.get(), pWaves[0]->amplitudeNormal.get(), pWaves[1]->amplitudeNormal.get(),
                     pWaves[2]->amplitudeNormal.get(), pWaves[3]->amplitudeNormal.get());
             });
-            static Shell::Command statsCommand(
-                "ss", Shell::Command::Helper::Literal::onOffUsage, nullptr, [](SHELLCMDPARAMS) {
-                    return Shell::Command::Helper::onOffCommand(
-                        [&](bool state) -> bool { return spiraleStats.setState(state); }, "higgs stats", SHELLCMDARGS);
-                });
+            static Shell::Command statsCommand("ss", Shell::Command::Helper::Literal::onOffUsage, nullptr,
+                                               [] ShellCommandFunctionLambdaSignature {
+                                                   return Shell::Command::Helper::onOffCommand(
+                                                       [&](bool state) -> bool { return spiraleStats.setState(state); },
+                                                       "higgs stats", ShellCommandFunctionArgs);
+                                               });
         }
     });
 

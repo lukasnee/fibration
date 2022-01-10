@@ -95,16 +95,6 @@ set(FIBSYS_CORE_SRC
     ${ROOT}/System/Core/main.cpp
     ${ROOT}/System/Core/memory.cpp
     ${ROOT}/System/Core/system.cpp
-
-    ${ROOT}/System/Core/Commands/clear.cpp
-    ${ROOT}/System/Core/Commands/config.cpp
-    ${ROOT}/System/Core/Commands/echo.cpp
-    ${ROOT}/System/Core/Commands/hexdump.cpp
-    ${ROOT}/System/Core/Commands/panic.cpp
-    ${ROOT}/System/Core/Commands/reset.cpp
-    ${ROOT}/System/Core/Commands/status.cpp
-    ${ROOT}/System/Core/Commands/repeat.cpp
-    ${ROOT}/System/Core/Commands/donut.cpp
 )
 
 set(FIBSYS_DSP_SRC
@@ -159,6 +149,18 @@ set(FIBSYS_COMPONENTS_SRC
     ${ROOT}/System/Components/logger.cpp
 )
 
+set(FIBSYS_SHELL_COMMANDS_SRC
+    ${ROOT}/System/Shell/Commands/clearShellCommand.cpp
+    ${ROOT}/System/Shell/Commands/configShellCommand.cpp
+    ${ROOT}/System/Shell/Commands/echoShellCommand.cpp
+    ${ROOT}/System/Shell/Commands/hexdumpShellCommand.cpp
+    ${ROOT}/System/Shell/Commands/panicShellCommand.cpp
+    ${ROOT}/System/Shell/Commands/resetShellCommand.cpp
+    ${ROOT}/System/Shell/Commands/statusShellCommand.cpp
+    ${ROOT}/System/Shell/Commands/repeatShellCommand.cpp
+    ${ROOT}/System/Shell/Commands/donutShellCommand.cpp
+)
+
 #TODO: maybe move system libraries to System/ dir. 
 # Libs used should be split into two lib categories: fibsys dependant and particular apllication dependant libs.
 set(FIBSYS_SRC
@@ -168,6 +170,7 @@ set(FIBSYS_SRC
     ${FIBSYS_PERIPHERALS_SRC}
     ${FIBSYS_STREAMS_SRC}
     ${FIBSYS_COMPONENTS_SRC}
+    ${FIBSYS_SHELL_COMMANDS_SRC}
 
     ${FREERTOS_SRC}
     ${STM32F303RE_MSP_SRC}
@@ -240,6 +243,7 @@ target_compile_options(${PROJECT_NAME} PRIVATE
     -specs=nano.specs
     -fstack-usage
     -Wall
+    -Wextra
     -fdata-sections
     -ffunction-sections
 

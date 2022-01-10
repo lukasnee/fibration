@@ -120,7 +120,7 @@ static constexpr GPIO_PinState getPinState(Gpio::PinState pinState)
 
 static void hwInit(Pin pin, Gpio::Mode mode, Gpio::Pull pull)
 {
-    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    GPIO_InitTypeDef GPIO_InitStruct = {};
     GPIO_InitStruct.Pin = pinDescrs[Fib::Std::Cast::toUnderlying(pin)].pin;
     GPIO_InitStruct.Mode = getMode(mode);
     GPIO_InitStruct.Pull = getPull(pull);

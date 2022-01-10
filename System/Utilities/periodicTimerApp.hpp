@@ -53,10 +53,11 @@ private:
 };
 
 // PeriodicRandomValue periodicRandomValue(1.f);
-// static Shell::Command psnCommand("psn", Shell::Command::Helper::Literal::onOffUsage, nullptr, [](SHELLCMDPARAMS) {
+// static Shell::Command psnCommand("psn", Shell::Command::Helper::Literal::onOffUsage, nullptr,
+// [](ShellCommandFunctionParams) {
 //     return Shell::Command::Helper::onOffCommand([&](bool state) -> bool { return periodicRandomValue.setState(state);
 //     },
-//                                                 "psn", SHELLCMDARGS);
+//                                                 "psn", ShellCommandFunctionArgs);
 // });
 
 } // namespace Fib

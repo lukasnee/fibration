@@ -1,13 +1,17 @@
 #include "shell.hpp"
 #include "logger.hpp"
-#include "system.hpp"
 #include "resources.hpp"
+#include "system.hpp"
 // TODO: make arrow up repeat buffer
 // TODO: some kind of esacpe signal mechanism to inform running command to exit.
+#include <fibstd/cast.hpp>
+
 #include <cstring>
 
-Shell::Shell(const char *strPromptLabel, AsciiStream &asciiStream, std::uint16_t stackDepth, BaseType_t priority, Shell::Command *pCommandRoot)
-    : Thread("shell", stackDepth, priority), strPromptLabel(strPromptLabel), asciiStream(asciiStream), pCommandRoot(pCommandRoot)
+Shell::Shell(const char *strPromptLabel, AsciiStream &asciiStream, std::uint16_t stackDepth, BaseType_t priority,
+             Shell::Command *pCommandRoot)
+    : Thread("shell", stackDepth, priority), strPromptLabel(strPromptLabel), asciiStream(asciiStream),
+      pCommandRoot(pCommandRoot)
 {
     if (Start() == false)
     {
@@ -30,7 +34,7 @@ void Shell::Run()
             // TODO: move this to a dedicated uart receiver task and join by char queue
             if (this->receiveChar(this->asciiStream.getChar()))
             { // escape sequence finished (not time sensitive)
-                // Logger::trace("shell", "c:%u t:%u %s", this->rxCursorIdx, this->rxCharsTotal, this->input.data());
+              // Logger::trace("shell", "c:%u t:%u %s", this->rxCursorIdx, this->rxCharsTotal, this->input.data());
             }
         }
     }
@@ -123,18 +127,19 @@ const Shell::Command *Shell::findCommand(std::size_t argcIn, const char *argvIn[
     return pCommand;
 }
 
-Shell::Command::Result Shell::execute(const Shell::Command &command, std::size_t argc, const char *argv[], const char *outputColorEscapeSequence)
+Shell::Command::Result Shell::execute(const Shell::Command &command, std::size_t argc, const char *argv[],
+                                      const char *outputColorEscapeSequence)
 {
     Shell::Command::Result result = Shell::Command::Result::unknown;
 
-    if (command.commandF == nullptr)
+    if (command.function == nullptr)
     {
         this->print("\e[31mcommand has no method\n"); // red
     }
     else
     {
         this->print(outputColorEscapeSequence); // response in green
-        result = command.commandF(*this, argc, argv);
+        result = command.function(*this, argc, argv);
 
         if (Config::regularResponseIsEnabled)
         {
@@ -157,7 +162,8 @@ Shell::Command::Result Shell::execute(const Shell::Command &command, std::size_t
     return result;
 }
 
-Shell::Command::Result Shell::execute(const Command &command, const char *argString, const char *outputColorEscapeSequence)
+Shell::Command::Result Shell::execute(const Command &command, const char *argString,
+                                      const char *outputColorEscapeSequence)
 {
     ArgBuffer argBuffer(argString);
     return this->execute(command, argBuffer.getArgc(), argBuffer.getArgv(), outputColorEscapeSequence);
@@ -240,7 +246,7 @@ bool Shell::handleEscape(const char &c)
         this->escapeState = EscapeState::escaped;
         result = true;
     }
-    else if (enumEval(this->escapeState) >= enumEval(EscapeState::escaped))
+    else if (Fib::Std::Cast::toUnderlying(this->escapeState) >= Fib::Std::Cast::toUnderlying(EscapeState::escaped))
     {
         if (FibSys::getUptimeInMs() - this->escapeTick > 2)
         {
@@ -281,7 +287,7 @@ bool Shell::handleAnsiEscape(const char &c)
         this->escapeState = EscapeState::delimited;
         result = true;
     }
-    else if (enumEval(this->escapeState) >= enumEval(EscapeState::delimited))
+    else if (Fib::Std::Cast::toUnderlying(this->escapeState) >= Fib::Std::Cast::toUnderlying(EscapeState::delimited))
     {
         result = this->handleAnsiDelimitedEscape(c);
     }
@@ -343,12 +349,15 @@ bool Shell::handleAnsiDelimitedDelEscape(const char &c)
 {
     bool result = false;
 
-    if (enumEval(this->escapeState) >= enumEval(EscapeState::delimited) && c == '3')
+    if (Fib::Std::Cast::toUnderlying(this->escapeState) >= Fib::Std::Cast::toUnderlying(EscapeState::delimited) &&
+        c == '3')
     {
         this->escapeState = EscapeState::intermediate;
         result = true;
     }
-    else if (enumEval(this->escapeState) >= enumEval(EscapeState::intermediate) && c == '~')
+    else if (Fib::Std::Cast::toUnderlying(this->escapeState) >=
+                 Fib::Std::Cast::toUnderlying(EscapeState::intermediate) &&
+             c == '~')
     {
         this->deleteChar();
         this->escapeState = EscapeState::finished;

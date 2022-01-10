@@ -9,13 +9,13 @@
 
 //#include <cstddef>
 #include <array>
+#include <cstdarg>
 #include <cstdint>
 #include <cstring>
-#include <cstdarg>
-#include <string_view>
-#include <limits>
-#include <type_traits>
 #include <functional>
+#include <limits>
+#include <string_view>
+#include <type_traits>
 
 using namespace std::string_view_literals;
 
@@ -29,12 +29,6 @@ using namespace std::string_view_literals;
 #define ANSI_COLOR_WHITE "\e[37m"
 #define ANSI_COLOR_DEFAULT "\e[39m"
 #define ANSI_COLOR_RESET "\e[0m"
-
-template <typename T>
-std::underlying_type_t<T> enumEval(T enumVal)
-{
-    return static_cast<std::underlying_type_t<T>>(enumVal);
-}
 
 class Shell : public cpp_freertos::Thread
 {
@@ -64,16 +58,20 @@ public:
             okQuiet,
         };
 
-#define SHELLCMDPARAMS Shell &shell, std::size_t argc, const char *argv[]
-#define SHELLCMDARGS shell, argc, argv
+#define ShellCommandFunctionParams                                                                                     \
+    [[maybe_unused]] Shell &shell, [[maybe_unused]] std::size_t argc, [[maybe_unused]] const char *argv[]
+#define ShellCommandFunctionArgs shell, argc, argv
+        using Function = std::function<Result(ShellCommandFunctionParams)>;
+        using CtorCallback = std::function<void()>;
+#define ShellCommandFunctionLambdaSignature (ShellCommandFunctionParams)->Shell::Command::Result
 
-        Command(const char *name, const char *usage, const char *description,
-                std::function<Result(SHELLCMDPARAMS)> commandF, std::function<void()> ctorCallbackF = nullptr);
+        Command(const char *name, const char *usage, const char *description, Function function,
+                CtorCallback ctorCallback = nullptr);
 
-        Command(Command &parent, const char *name, const char *usage, const char *description,
-                std::function<Result(SHELLCMDPARAMS)> commandF, std::function<void()> ctorCallbackF = nullptr);
+        Command(Command &parent, const char *name, const char *usage, const char *description, Function function,
+                CtorCallback ctorCallback = nullptr);
 
-        Command(const char *name, std::function<Result(SHELLCMDPARAMS)> commandF);
+        Command(const char *name, Function function);
 
         const Command *findNeighbourCommand(const char *name) const;
         const Command *findSubcommand(const char *name) const;
@@ -83,7 +81,7 @@ public:
         const char *name = nullptr;
         const char *usage = nullptr;
         const char *description = nullptr;
-        const std::function<Result(SHELLCMDPARAMS)> commandF = nullptr;
+        const Function function = nullptr;
 
         // TODO maybe move to other file (namespace CommandHelpers, etc.)
         struct Helper
@@ -98,8 +96,9 @@ public:
                 static constexpr const char *off = "off";
             };
 
-            static Result onOffCommand(std::function<bool(bool)> onOffF, const char *strOnOffControlName, SHELLCMDPARAMS);
-            static Result onOffCommand(bool &onOffControl, const char *strOnOffControlName, SHELLCMDPARAMS);
+            static Result onOffCommand(std::function<bool(bool)> onOffF, const char *strOnOffControlName,
+                                       ShellCommandFunctionParams);
+            static Result onOffCommand(bool &onOffControl, const char *strOnOffControlName, ShellCommandFunctionParams);
         };
 
     protected:
@@ -111,7 +110,8 @@ public:
         friend Shell;
     };
 
-    Shell(const char *strPromptLabel, AsciiStream &asciiStream, std::uint16_t stackDepth, BaseType_t priority, Command *pCommandRoot = Shell::pCommandGlobalRoot);
+    Shell(const char *strPromptLabel, AsciiStream &asciiStream, std::uint16_t stackDepth, BaseType_t priority,
+          Command *pCommandRoot = Shell::pCommandGlobalRoot);
 
     void print(const char &c, std::size_t timesToRepeat = 1);
     int print(const char *str, std::size_t timesToRepeat = 1);
@@ -120,10 +120,13 @@ public:
 
     const Shell::Command *findCommand(std::size_t argcIn, const char *argvIn[], std::size_t &argCmdOffsetOut);
 
-    Command::Result execute(const Command &command, std::size_t argc, const char *argv[], const char *outputColorEscapeSequence = "\e[32m"); // default in green
-    Command::Result execute(const Command &command, const char *strArgs = nullptr, const char *outputColorEscapeSequence = "\e[33m");
+    Command::Result execute(const Command &command, std::size_t argc, const char *argv[],
+                            const char *outputColorEscapeSequence = "\e[32m"); // default in green
+    Command::Result execute(const Command &command, const char *strArgs = nullptr,
+                            const char *outputColorEscapeSequence = "\e[33m");
 
-    static Command::Result help(Shell &shell, const Shell::Command *pCommand, bool recurse = false, const std::size_t maxDepth = 1, std::size_t depth = 0, std::size_t indent = 0);
+    static Command::Result help(Shell &shell, const Shell::Command *pCommand, bool recurse = false,
+                                const std::size_t maxDepth = 1, std::size_t depth = 0, std::size_t indent = 0);
     static Command helpCommand;
 
 private:

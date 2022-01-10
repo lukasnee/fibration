@@ -26,18 +26,15 @@ public:
     void txRxCpltIsrCalback();
     void txRxHalfCpltIsrCalback();
 
-    bool startTxRxCircularDma(const std::uint16_t *pTxData16,
-                              std::uint16_t *pRxData16,
-                              std::uint16_t size,
+    bool startTxRxCircularDma(const std::uint16_t *pTxData16, std::uint16_t *pRxData16, std::uint16_t size,
                               TxRxIsrCallbacks *pTxRxIsrCallbacks = nullptr);
     bool stopTxRxCircularDma();
 
 protected:
     I2sIF();
-    ~I2sIF();
+    virtual ~I2sIF() = default;
 
-    virtual bool txRxCircularDmaUnsafe(const std::uint16_t *pTxData16,
-                                       std::uint16_t *pRxData16,
+    virtual bool txRxCircularDmaUnsafe(const std::uint16_t *pTxData16, std::uint16_t *pRxData16,
                                        std::uint16_t size) = 0;
     virtual bool txRxCircularDmaStopUnsafe() = 0;
 

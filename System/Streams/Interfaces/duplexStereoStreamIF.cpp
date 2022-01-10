@@ -5,9 +5,9 @@
 DuplexStereoStreamIF::DuplexStereoStreamIF(const std::string pcName, uint16_t usStackDepth, UBaseType_t uxPriority,
                                            CircularStereoBufferU32 &circularStereoBufferTxU32,
                                            CircularStereoBufferU32 &circularStereoBufferRxU32,
-                                           ProcessRxTxBuffersF32F processRxTxBuffersF32F)
+                                           ProcessFunction processFunction)
     : Thread(pcName, usStackDepth, uxPriority), circularStereoBufferTxU32(circularStereoBufferTxU32),
-      circularStereoBufferRxU32(circularStereoBufferRxU32), processRxTxBuffersF32F(processRxTxBuffersF32F)
+      circularStereoBufferRxU32(circularStereoBufferRxU32), processFunction(processFunction)
 {
     this->setOwner(this);
 
@@ -182,16 +182,16 @@ void DuplexStereoStreamIF::Run() // task code
             const DuplexStereoStreamIF::StereoBufferU32 *pRxStereoBufferU32 = nullptr;
             DuplexStereoStreamIF::StereoBufferU32 *pTxStereoBufferU32 = nullptr;
 
-            if (this->processRxTxBuffersF32F &&
-                this->getStereoAudioBuffersTxRxU32(pRxStereoBufferU32, pTxStereoBufferU32) && pRxStereoBufferU32 &&
-                pTxStereoBufferU32)
+            if (this->processFunction && this->getStereoAudioBuffersTxRxU32(pRxStereoBufferU32, pTxStereoBufferU32) &&
+                pRxStereoBufferU32 && pTxStereoBufferU32)
             {
                 DuplexStereoStreamIF::SampleBlocksF32 rxLeftSampleBlocksF32, rxRightSampleBlocksF32,
                     txLeftSampleBlocksF32, txRightSampleBlocksF32;
 
-                // TODO: try optimizing, making processRxTxBuffersF32F variants in case converting to/from F32 is
-                // unnecessary.
-                // TODO: maybe move out conversion functions to user space (like done with processRxTxBuffersF32F)
+                // TODO: try optimizing, making processFunction variants in case converting to/from
+                // F32 is unnecessary.
+                // TODO: maybe move out conversion functions to user space (like done with
+                // processFunction)
                 /** @note ADC actually support 24-bit samples in 32-bit frame therefore shifting sample by 8 bits is
                  * necessary */
 
@@ -211,8 +211,8 @@ void DuplexStereoStreamIF::Run() // task code
                     }
                 }
 
-                this->processRxTxBuffersF32F(rxLeftSampleBlocksF32, rxRightSampleBlocksF32, txLeftSampleBlocksF32,
-                                             txRightSampleBlocksF32);
+                this->processFunction(rxLeftSampleBlocksF32, rxRightSampleBlocksF32, txLeftSampleBlocksF32,
+                                      txRightSampleBlocksF32);
 
                 /* Tx buffer: F32->U32 */
                 for (std::size_t i = 0; i < txLeftSampleBlocksF32.size(); i++)
