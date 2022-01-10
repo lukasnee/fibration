@@ -6,6 +6,8 @@
 
 #include "stm32f3xx_hal.h"
 
+#include <array>
+
 static void preInitPortA()
 {
     __HAL_RCC_GPIOA_CLK_ENABLE();
@@ -25,77 +27,79 @@ static void preInitPortD()
 
 struct PinDescr
 {
+    PinDescr(uint16_t pin, GPIO_TypeDef *port, std::function<void()> preInitFunction)
+        : pin(pin), port(port), preInitFunction(preInitFunction){};
     uint16_t pin;
     GPIO_TypeDef *port;
-    std::function<void(void)> preInitPortF;
+    std::function<void()> preInitFunction;
 };
 
-static const PinDescr pinDescrs[magic_enum::enum_count<Pin>()] = {
-    {GPIO_PIN_0, GPIOA, preInitPortA},  //
-    {GPIO_PIN_1, GPIOA, preInitPortA},  //
-    {GPIO_PIN_2, GPIOA, preInitPortA},  //
-    {GPIO_PIN_3, GPIOA, preInitPortA},  //
-    {GPIO_PIN_4, GPIOA, preInitPortA},  //
-    {GPIO_PIN_5, GPIOA, preInitPortA},  //
-    {GPIO_PIN_6, GPIOA, preInitPortA},  //
-    {GPIO_PIN_7, GPIOA, preInitPortA},  //
-    {GPIO_PIN_8, GPIOA, preInitPortA},  //
-    {GPIO_PIN_9, GPIOA, preInitPortA},  //
-    {GPIO_PIN_10, GPIOA, preInitPortA}, //
-    {GPIO_PIN_11, GPIOA, preInitPortA}, //
-    {GPIO_PIN_12, GPIOA, preInitPortA}, //
-    {GPIO_PIN_13, GPIOA, preInitPortA}, //
-    {GPIO_PIN_14, GPIOA, preInitPortA}, //
-    {GPIO_PIN_15, GPIOA, preInitPortA}, //
-    {GPIO_PIN_0, GPIOB, preInitPortB},  //
-    {GPIO_PIN_1, GPIOB, preInitPortB},  //
-    {GPIO_PIN_2, GPIOB, preInitPortB},  //
-    {GPIO_PIN_3, GPIOB, preInitPortB},  //
-    {GPIO_PIN_4, GPIOB, preInitPortB},  //
-    {GPIO_PIN_5, GPIOB, preInitPortB},  //
-    {GPIO_PIN_6, GPIOB, preInitPortB},  //
-    {GPIO_PIN_7, GPIOB, preInitPortB},  //
-    {GPIO_PIN_8, GPIOB, preInitPortB},  //
-    {GPIO_PIN_9, GPIOB, preInitPortB},  //
-    {GPIO_PIN_10, GPIOB, preInitPortB}, //
-    {GPIO_PIN_11, GPIOB, preInitPortB}, //
-    {GPIO_PIN_12, GPIOB, preInitPortB}, //
-    {GPIO_PIN_13, GPIOB, preInitPortB}, //
-    {GPIO_PIN_14, GPIOB, preInitPortB}, //
-    {GPIO_PIN_15, GPIOB, preInitPortB}, //
-    {GPIO_PIN_0, GPIOC, preInitPortC},  //
-    {GPIO_PIN_1, GPIOC, preInitPortC},  //
-    {GPIO_PIN_2, GPIOC, preInitPortC},  //
-    {GPIO_PIN_3, GPIOC, preInitPortC},  //
-    {GPIO_PIN_4, GPIOC, preInitPortC},  //
-    {GPIO_PIN_5, GPIOC, preInitPortC},  //
-    {GPIO_PIN_6, GPIOC, preInitPortC},  //
-    {GPIO_PIN_7, GPIOC, preInitPortC},  //
-    {GPIO_PIN_8, GPIOC, preInitPortC},  //
-    {GPIO_PIN_9, GPIOC, preInitPortC},  //
-    {GPIO_PIN_10, GPIOC, preInitPortC}, //
-    {GPIO_PIN_11, GPIOC, preInitPortC}, //
-    {GPIO_PIN_12, GPIOC, preInitPortC}, //
-    {GPIO_PIN_13, GPIOC, preInitPortC}, //
-    {GPIO_PIN_14, GPIOC, preInitPortC}, //
-    {GPIO_PIN_15, GPIOC, preInitPortC}, //
-    {GPIO_PIN_0, GPIOD, preInitPortD},  //
-    {GPIO_PIN_1, GPIOD, preInitPortD},  //
-    {GPIO_PIN_2, GPIOD, preInitPortD},  //
-    {GPIO_PIN_3, GPIOD, preInitPortD},  //
-    {GPIO_PIN_4, GPIOD, preInitPortD},  //
-    {GPIO_PIN_5, GPIOD, preInitPortD},  //
-    {GPIO_PIN_6, GPIOD, preInitPortD},  //
-    {GPIO_PIN_7, GPIOD, preInitPortD},  //
-    {GPIO_PIN_8, GPIOD, preInitPortD},  //
-    {GPIO_PIN_9, GPIOD, preInitPortD},  //
-    {GPIO_PIN_10, GPIOD, preInitPortD}, //
-    {GPIO_PIN_11, GPIOD, preInitPortD}, //
-    {GPIO_PIN_12, GPIOD, preInitPortD}, //
-    {GPIO_PIN_13, GPIOD, preInitPortD}, //
-    {GPIO_PIN_14, GPIOD, preInitPortD}, //
-    {GPIO_PIN_15, GPIOD, preInitPortD}, //
-};
+static const std::array<PinDescr, magic_enum::enum_count<Pin>()> pinDescrs = {{
+    PinDescr(GPIO_PIN_0, GPIOA, preInitPortA),  //
+    PinDescr(GPIO_PIN_1, GPIOA, preInitPortA),  //
+    PinDescr(GPIO_PIN_2, GPIOA, preInitPortA),  //
+    PinDescr(GPIO_PIN_3, GPIOA, preInitPortA),  //
+    PinDescr(GPIO_PIN_4, GPIOA, preInitPortA),  //
+    PinDescr(GPIO_PIN_5, GPIOA, preInitPortA),  //
+    PinDescr(GPIO_PIN_6, GPIOA, preInitPortA),  //
+    PinDescr(GPIO_PIN_7, GPIOA, preInitPortA),  //
+    PinDescr(GPIO_PIN_8, GPIOA, preInitPortA),  //
+    PinDescr(GPIO_PIN_9, GPIOA, preInitPortA),  //
+    PinDescr(GPIO_PIN_10, GPIOA, preInitPortA), //
+    PinDescr(GPIO_PIN_11, GPIOA, preInitPortA), //
+    PinDescr(GPIO_PIN_12, GPIOA, preInitPortA), //
+    PinDescr(GPIO_PIN_13, GPIOA, preInitPortA), //
+    PinDescr(GPIO_PIN_14, GPIOA, preInitPortA), //
+    PinDescr(GPIO_PIN_15, GPIOA, preInitPortA), //
+    PinDescr(GPIO_PIN_0, GPIOB, preInitPortB),  //
+    PinDescr(GPIO_PIN_1, GPIOB, preInitPortB),  //
+    PinDescr(GPIO_PIN_2, GPIOB, preInitPortB),  //
+    PinDescr(GPIO_PIN_3, GPIOB, preInitPortB),  //
+    PinDescr(GPIO_PIN_4, GPIOB, preInitPortB),  //
+    PinDescr(GPIO_PIN_5, GPIOB, preInitPortB),  //
+    PinDescr(GPIO_PIN_6, GPIOB, preInitPortB),  //
+    PinDescr(GPIO_PIN_7, GPIOB, preInitPortB),  //
+    PinDescr(GPIO_PIN_8, GPIOB, preInitPortB),  //
+    PinDescr(GPIO_PIN_9, GPIOB, preInitPortB),  //
+    PinDescr(GPIO_PIN_10, GPIOB, preInitPortB), //
+    PinDescr(GPIO_PIN_11, GPIOB, preInitPortB), //
+    PinDescr(GPIO_PIN_12, GPIOB, preInitPortB), //
+    PinDescr(GPIO_PIN_13, GPIOB, preInitPortB), //
+    PinDescr(GPIO_PIN_14, GPIOB, preInitPortB), //
+    PinDescr(GPIO_PIN_15, GPIOB, preInitPortB), //
+    PinDescr(GPIO_PIN_0, GPIOC, preInitPortC),  //
+    PinDescr(GPIO_PIN_1, GPIOC, preInitPortC),  //
+    PinDescr(GPIO_PIN_2, GPIOC, preInitPortC),  //
+    PinDescr(GPIO_PIN_3, GPIOC, preInitPortC),  //
+    PinDescr(GPIO_PIN_4, GPIOC, preInitPortC),  //
+    PinDescr(GPIO_PIN_5, GPIOC, preInitPortC),  //
+    PinDescr(GPIO_PIN_6, GPIOC, preInitPortC),  //
+    PinDescr(GPIO_PIN_7, GPIOC, preInitPortC),  //
+    PinDescr(GPIO_PIN_8, GPIOC, preInitPortC),  //
+    PinDescr(GPIO_PIN_9, GPIOC, preInitPortC),  //
+    PinDescr(GPIO_PIN_10, GPIOC, preInitPortC), //
+    PinDescr(GPIO_PIN_11, GPIOC, preInitPortC), //
+    PinDescr(GPIO_PIN_12, GPIOC, preInitPortC), //
+    PinDescr(GPIO_PIN_13, GPIOC, preInitPortC), //
+    PinDescr(GPIO_PIN_14, GPIOC, preInitPortC), //
+    PinDescr(GPIO_PIN_15, GPIOC, preInitPortC), //
+    PinDescr(GPIO_PIN_0, GPIOD, preInitPortD),  //
+    PinDescr(GPIO_PIN_1, GPIOD, preInitPortD),  //
+    PinDescr(GPIO_PIN_2, GPIOD, preInitPortD),  //
+    PinDescr(GPIO_PIN_3, GPIOD, preInitPortD),  //
+    PinDescr(GPIO_PIN_4, GPIOD, preInitPortD),  //
+    PinDescr(GPIO_PIN_5, GPIOD, preInitPortD),  //
+    PinDescr(GPIO_PIN_6, GPIOD, preInitPortD),  //
+    PinDescr(GPIO_PIN_7, GPIOD, preInitPortD),  //
+    PinDescr(GPIO_PIN_8, GPIOD, preInitPortD),  //
+    PinDescr(GPIO_PIN_9, GPIOD, preInitPortD),  //
+    PinDescr(GPIO_PIN_10, GPIOD, preInitPortD), //
+    PinDescr(GPIO_PIN_11, GPIOD, preInitPortD), //
+    PinDescr(GPIO_PIN_12, GPIOD, preInitPortD), //
+    PinDescr(GPIO_PIN_13, GPIOD, preInitPortD), //
+    PinDescr(GPIO_PIN_14, GPIOD, preInitPortD), //
+    PinDescr(GPIO_PIN_15, GPIOD, preInitPortD), //
+}};
 
 static constexpr uint32_t getMode(Gpio::Mode mode)
 {
@@ -120,6 +124,11 @@ static constexpr GPIO_PinState getPinState(Gpio::PinState pinState)
 
 static void hwInit(Pin pin, Gpio::Mode mode, Gpio::Pull pull)
 {
+    if (pinDescrs[Fib::Std::Cast::toUnderlying(pin)].preInitFunction)
+    {
+        pinDescrs[Fib::Std::Cast::toUnderlying(pin)].preInitFunction();
+    }
+
     GPIO_InitTypeDef GPIO_InitStruct = {};
     GPIO_InitStruct.Pin = pinDescrs[Fib::Std::Cast::toUnderlying(pin)].pin;
     GPIO_InitStruct.Mode = getMode(mode);
