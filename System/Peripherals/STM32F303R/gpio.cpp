@@ -1,168 +1,172 @@
-/*
-    Fibration - modular synth framework
-    Copyright (C) 2020 Lukas Neverauskis
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
-
 #include "gpio.hpp"
 #include "system.hpp"
 
+#include "fibstd/cast.hpp"
+#include "magic_enum.hpp"
+
 #include "stm32f3xx_hal.h"
 
-static constexpr GPIO_TypeDef * sGetPort(Gpio::Port port)
+static void preInitPortA()
 {
-    const GPIO_TypeDef * cMap[static_cast<std::size_t>(Gpio::Port::_PORT_ENUM_MAX) + 1] = {
-        GPIOA, GPIOB, GPIOC, GPIOD, GPIOE, GPIOF
-    };
-    return const_cast<GPIO_TypeDef *>(cMap[static_cast<std::size_t>(port)]);
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+}
+static void preInitPortB()
+{
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+}
+static void preInitPortC()
+{
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+}
+static void preInitPortD()
+{
+    __HAL_RCC_GPIOD_CLK_ENABLE();
 }
 
-static constexpr uint16_t sGetPin(Gpio::Pin pin)
+struct PinDescr
 {
-    const uint16_t cMap[static_cast<std::size_t>(Gpio::Pin::_PIN_ENUM_MAX) + 1] = {
-        GPIO_PIN_0, GPIO_PIN_1, GPIO_PIN_2, GPIO_PIN_3,
-        GPIO_PIN_4, GPIO_PIN_5, GPIO_PIN_6, GPIO_PIN_7,
-        GPIO_PIN_8, GPIO_PIN_9, GPIO_PIN_10, GPIO_PIN_11,
-        GPIO_PIN_12, GPIO_PIN_13, GPIO_PIN_14, GPIO_PIN_15
-    };
-    return cMap[static_cast<std::size_t>(pin)];
-}
+    uint16_t pin;
+    GPIO_TypeDef *port;
+    std::function<void(void)> preInitPortF;
+};
 
-static constexpr uint32_t sGetMode(Gpio::Mode mode)
+static const PinDescr pinDescrs[magic_enum::enum_count<Pin>()] = {
+    {GPIO_PIN_0, GPIOA, preInitPortA},  //
+    {GPIO_PIN_1, GPIOA, preInitPortA},  //
+    {GPIO_PIN_2, GPIOA, preInitPortA},  //
+    {GPIO_PIN_3, GPIOA, preInitPortA},  //
+    {GPIO_PIN_4, GPIOA, preInitPortA},  //
+    {GPIO_PIN_5, GPIOA, preInitPortA},  //
+    {GPIO_PIN_6, GPIOA, preInitPortA},  //
+    {GPIO_PIN_7, GPIOA, preInitPortA},  //
+    {GPIO_PIN_8, GPIOA, preInitPortA},  //
+    {GPIO_PIN_9, GPIOA, preInitPortA},  //
+    {GPIO_PIN_10, GPIOA, preInitPortA}, //
+    {GPIO_PIN_11, GPIOA, preInitPortA}, //
+    {GPIO_PIN_12, GPIOA, preInitPortA}, //
+    {GPIO_PIN_13, GPIOA, preInitPortA}, //
+    {GPIO_PIN_14, GPIOA, preInitPortA}, //
+    {GPIO_PIN_15, GPIOA, preInitPortA}, //
+    {GPIO_PIN_0, GPIOB, preInitPortB},  //
+    {GPIO_PIN_1, GPIOB, preInitPortB},  //
+    {GPIO_PIN_2, GPIOB, preInitPortB},  //
+    {GPIO_PIN_3, GPIOB, preInitPortB},  //
+    {GPIO_PIN_4, GPIOB, preInitPortB},  //
+    {GPIO_PIN_5, GPIOB, preInitPortB},  //
+    {GPIO_PIN_6, GPIOB, preInitPortB},  //
+    {GPIO_PIN_7, GPIOB, preInitPortB},  //
+    {GPIO_PIN_8, GPIOB, preInitPortB},  //
+    {GPIO_PIN_9, GPIOB, preInitPortB},  //
+    {GPIO_PIN_10, GPIOB, preInitPortB}, //
+    {GPIO_PIN_11, GPIOB, preInitPortB}, //
+    {GPIO_PIN_12, GPIOB, preInitPortB}, //
+    {GPIO_PIN_13, GPIOB, preInitPortB}, //
+    {GPIO_PIN_14, GPIOB, preInitPortB}, //
+    {GPIO_PIN_15, GPIOB, preInitPortB}, //
+    {GPIO_PIN_0, GPIOC, preInitPortC},  //
+    {GPIO_PIN_1, GPIOC, preInitPortC},  //
+    {GPIO_PIN_2, GPIOC, preInitPortC},  //
+    {GPIO_PIN_3, GPIOC, preInitPortC},  //
+    {GPIO_PIN_4, GPIOC, preInitPortC},  //
+    {GPIO_PIN_5, GPIOC, preInitPortC},  //
+    {GPIO_PIN_6, GPIOC, preInitPortC},  //
+    {GPIO_PIN_7, GPIOC, preInitPortC},  //
+    {GPIO_PIN_8, GPIOC, preInitPortC},  //
+    {GPIO_PIN_9, GPIOC, preInitPortC},  //
+    {GPIO_PIN_10, GPIOC, preInitPortC}, //
+    {GPIO_PIN_11, GPIOC, preInitPortC}, //
+    {GPIO_PIN_12, GPIOC, preInitPortC}, //
+    {GPIO_PIN_13, GPIOC, preInitPortC}, //
+    {GPIO_PIN_14, GPIOC, preInitPortC}, //
+    {GPIO_PIN_15, GPIOC, preInitPortC}, //
+    {GPIO_PIN_0, GPIOD, preInitPortD},  //
+    {GPIO_PIN_1, GPIOD, preInitPortD},  //
+    {GPIO_PIN_2, GPIOD, preInitPortD},  //
+    {GPIO_PIN_3, GPIOD, preInitPortD},  //
+    {GPIO_PIN_4, GPIOD, preInitPortD},  //
+    {GPIO_PIN_5, GPIOD, preInitPortD},  //
+    {GPIO_PIN_6, GPIOD, preInitPortD},  //
+    {GPIO_PIN_7, GPIOD, preInitPortD},  //
+    {GPIO_PIN_8, GPIOD, preInitPortD},  //
+    {GPIO_PIN_9, GPIOD, preInitPortD},  //
+    {GPIO_PIN_10, GPIOD, preInitPortD}, //
+    {GPIO_PIN_11, GPIOD, preInitPortD}, //
+    {GPIO_PIN_12, GPIOD, preInitPortD}, //
+    {GPIO_PIN_13, GPIOD, preInitPortD}, //
+    {GPIO_PIN_14, GPIOD, preInitPortD}, //
+    {GPIO_PIN_15, GPIOD, preInitPortD}, //
+};
+
+static constexpr uint32_t getMode(Gpio::Mode mode)
 {
-    const uint32_t cMap[static_cast<std::size_t>(Gpio::Mode::_MODE_ENUM_MAX) + 1] = {
-        GPIO_MODE_INPUT,
-        GPIO_MODE_OUTPUT_PP,
-        GPIO_MODE_OUTPUT_OD
-    };
+    const uint32_t cMap[static_cast<std::size_t>(magic_enum::enum_count<Gpio::Mode>()) + 1] = {
+        GPIO_MODE_INPUT, GPIO_MODE_OUTPUT_PP, GPIO_MODE_OUTPUT_OD};
     return cMap[static_cast<std::size_t>(mode)];
 }
 
-static constexpr uint32_t sGetPull(Gpio::Pull pull)
+static constexpr uint32_t getPull(Gpio::Pull pull)
 {
-    const uint32_t cMap[static_cast<std::size_t>(Gpio::Pull::_PULL_ENUM_MAX) + 1] = {
-        GPIO_NOPULL,
-        GPIO_PULLUP,
-        GPIO_PULLDOWN
-    };
+    const uint32_t cMap[static_cast<std::size_t>(magic_enum::enum_count<Gpio::Pull>()) + 1] = {GPIO_NOPULL, GPIO_PULLUP,
+                                                                                               GPIO_PULLDOWN};
     return cMap[static_cast<std::size_t>(pull)];
 }
 
-static constexpr uint32_t sGetSpeed(Gpio::Speed speed)
+static constexpr GPIO_PinState getPinState(Gpio::PinState pinState)
 {
-    const uint32_t cMap[static_cast<std::size_t>(Gpio::Speed::_SPEED_ENUM_MAX) + 1] = {
-        GPIO_SPEED_FREQ_LOW,
-        GPIO_SPEED_FREQ_MEDIUM,
-        GPIO_SPEED_FREQ_HIGH
-    };
-    return cMap[static_cast<std::size_t>(speed)];
-}
-
-static constexpr GPIO_PinState sGetPinState(Gpio::PinState pinState)
-{
-    const GPIO_PinState cMap[static_cast<std::size_t>(Gpio::PinState::_PINSTATE_ENUM_MAX) + 1] = {
-        GPIO_PIN_RESET,
-        GPIO_PIN_SET
-    };
+    const GPIO_PinState cMap[static_cast<std::size_t>(magic_enum::enum_count<Gpio::PinState>()) + 1] = {GPIO_PIN_RESET,
+                                                                                                        GPIO_PIN_SET};
     return cMap[static_cast<std::size_t>(pinState)];
 }
 
-static void sEnableGpioClock(Gpio::Port port)
+static void hwInit(Pin pin, Gpio::Mode mode, Gpio::Pull pull)
 {
-    switch(port)
-    {
-        case Gpio::Port::A: __HAL_RCC_GPIOA_CLK_ENABLE(); break;
-        case Gpio::Port::B: __HAL_RCC_GPIOB_CLK_ENABLE(); break;
-        case Gpio::Port::C: __HAL_RCC_GPIOC_CLK_ENABLE(); break;
-        case Gpio::Port::D: __HAL_RCC_GPIOD_CLK_ENABLE(); break;
-        case Gpio::Port::F: __HAL_RCC_GPIOF_CLK_ENABLE(); break;
-        default: break;
-    }
+    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    GPIO_InitStruct.Pin = pinDescrs[Fib::Std::Cast::toUnderlying(pin)].pin;
+    GPIO_InitStruct.Mode = getMode(mode);
+    GPIO_InitStruct.Pull = getPull(pull);
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(pinDescrs[Fib::Std::Cast::toUnderlying(pin)].port, &GPIO_InitStruct);
 }
 
-static void sGpioInit(
-    Gpio::Port port,
-    Gpio::Pin pin,
-    Gpio::Mode mode,
-    Gpio::Pull pull,
-    Gpio::Speed speed)
+Gpio &Gpio::getInstance()
 {
-    sEnableGpioClock(port);
-
-    GPIO_InitTypeDef GPIO_InitStruct = { 0 };
-    GPIO_InitStruct.Pin = sGetPin(pin);
-    GPIO_InitStruct.Mode = sGetMode(mode);
-    GPIO_InitStruct.Pull = sGetPull(pull);
-    GPIO_InitStruct.Speed = sGetSpeed(speed);
-    HAL_GPIO_Init(sGetPort(port), &GPIO_InitStruct);
+    static Gpio instance;
+    return instance;
 }
 
-
-
-Gpio::Gpio(Port port, Pin pin) : 
-    port(port),
-    pin(pin),
-    isInitialized(false)
+void Gpio::init(Pin pin, Mode mode, PinState pinStateInitial, Pull pull)
 {
+    this->write(pin, pinStateInitial);
+    hwInit(pin, mode, pull);
 }
 
-void Gpio::init(Mode mode, Pull pull, Speed speed)
+inline bool Gpio::read(Pin pin)
 {
-    sGpioInit(this->port, this->pin, mode, pull, speed);
-    isInitialized = true;
+    return static_cast<bool>(HAL_GPIO_ReadPin(pinDescrs[Fib::Std::Cast::toUnderlying(pin)].port,
+                                              pinDescrs[Fib::Std::Cast::toUnderlying(pin)].pin));
 }
 
-void Gpio::init(Mode mode, PinState initial, Pull pull, Speed speed)
+inline void Gpio::write(Pin pin, PinState pinState)
 {
-    write(initial);
-    init(mode, pull, speed);
+    HAL_GPIO_WritePin(pinDescrs[Fib::Std::Cast::toUnderlying(pin)].port,
+                      pinDescrs[Fib::Std::Cast::toUnderlying(pin)].pin, getPinState(pinState));
 }
 
-
-bool Gpio::read()
+inline void Gpio::toggle(Pin pin)
 {
-    return (bool)HAL_GPIO_ReadPin(sGetPort(this->port), sGetPin(this->pin));
+    HAL_GPIO_TogglePin(pinDescrs[Fib::Std::Cast::toUnderlying(pin)].port,
+                       pinDescrs[Fib::Std::Cast::toUnderlying(pin)].pin);
 }
 
-
-void Gpio::write(PinState value)
+void Gpio::lock(Pin pin)
 {
-    HAL_GPIO_WritePin(sGetPort(this->port), sGetPin(this->pin), sGetPinState(value));
+    HAL_GPIO_LockPin(pinDescrs[Fib::Std::Cast::toUnderlying(pin)].port,
+                     pinDescrs[Fib::Std::Cast::toUnderlying(pin)].pin);
 }
 
-
-void Gpio::toggle()
+void Gpio::deinit(Pin pin)
 {
-    HAL_GPIO_TogglePin(sGetPort(this->port), sGetPin(this->pin));
-}
-
-
-void Gpio::lock()
-{
-    HAL_GPIO_LockPin(sGetPort(this->port), sGetPin(this->pin));
-}
-
-
-void Gpio::deinit()
-{
-    HAL_GPIO_DeInit(sGetPort(this->port), sGetPin(this->pin));
+    HAL_GPIO_DeInit(pinDescrs[Fib::Std::Cast::toUnderlying(pin)].port,
+                    pinDescrs[Fib::Std::Cast::toUnderlying(pin)].pin);
     // note gpio related clock still remain enabled
-}
-
-
-Gpio::~Gpio()
-{
-    deinit();
 }

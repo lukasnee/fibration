@@ -19,66 +19,98 @@
 
 #define GPIO_CAREFUL true
 
+#include "gpioIF.hpp"
+
 #include <cstdint>
+#include <functional>
 
-class Gpio
+enum class Pin
 {
+    A0,
+    A1,
+    A2,
+    A3,
+    A4,
+    A5,
+    A6,
+    A7,
+    A8,
+    A9,
+    A10,
+    A11,
+    A12,
+    A13,
+    A14,
+    A15,
+
+    B0,
+    B1,
+    B2,
+    B3,
+    B4,
+    B5,
+    B6,
+    B7,
+    B8,
+    B9,
+    B10,
+    B11,
+    B12,
+    B13,
+    B14,
+    B15,
+
+    C0,
+    C1,
+    C2,
+    C3,
+    C4,
+    C5,
+    C6,
+    C7,
+    C8,
+    C9,
+    C10,
+    C11,
+    C12,
+    C13,
+    C14, /* OSC32_IN */
+    C15, /* OSC32_OUT */
+
+    D0, /* N/A */
+    D1, /* N/A */
+    D2,
+    D3,  /* N/A */
+    D4,  /* N/A */
+    D5,  /* N/A */
+    D6,  /* N/A */
+    D7,  /* N/A */
+    D8,  /* N/A */
+    D9,  /* N/A */
+    D10, /* N/A */
+    D11, /* N/A */
+    D12, /* N/A */
+    D13, /* N/A */
+    D14, /* N/A */
+    D15, /* N/A */
+};
+
+class Gpio : public GpioIF<Pin>
+{
+
 public:
-    enum class Port : std::size_t
-    {
-        A, B, C, D, E, F,
-    _PORT_ENUM_MAX = F
-    };
+    static Gpio &getInstance();
 
-    enum class Pin : std::size_t
-    {
-        pin0, pin1, pin2, pin3, 
-        pin4, pin5, pin6, pin7, 
-        pin8, pin9, pin10, pin11, 
-        pin12, pin13, pin14, pin15,
+    void init(Pin pin, Mode mode, PinState pinStateInitial, Pull pull) override;
+    [[nodiscard]] virtual inline bool read(Pin pin) override;
+    inline void write(Pin pin, PinState pinState) override;
+    inline void toggle(Pin pin);
+    void deinit(Pin pin) override;
 
-    _PIN_ENUM_MAX = pin15
-    };
+    /** @brief lock pin hardware configuration registers until mcu reboot */
+    void lock(Pin pin);
 
-    enum class Mode : std::size_t
-    {
-        input,
-        outputPushPull,
-        outputOpenDrain,
-        // support more
-    _MODE_ENUM_MAX = outputOpenDrain
-    };
-
-    enum class Pull : std::size_t
-    {
-        none, up, down, 
-    _PULL_ENUM_MAX = down
-    };
-
-    enum class Speed : std::size_t
-    {
-        low, medium, high, 
-    _SPEED_ENUM_MAX = high
-    };
-
-    enum class PinState : std::size_t
-    {
-        low, high, 
-    _PINSTATE_ENUM_MAX = high 
-    };
-
-    Gpio(Port port, Pin pin);
-    void init(Mode mode, Pull pull = Pull::none, Speed speed = Speed::low);
-    void init(Mode mode, PinState initial, Pull pull = Pull::none, Speed speed = Speed::low);
-    [[nodiscard]] bool read();
-    void write(PinState value);
-    void toggle();
-    void lock(); // lock pin hardware configuration registers until mcu reboot 
-    void deinit();
-    ~Gpio();
-
-private:
-    Port port;
-    Pin pin;
-    bool isInitialized;
+protected:
+    Gpio() = default;
+    virtual ~Gpio() = default;
 };
