@@ -203,6 +203,9 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${ROOT}/System/
     ${ROOT}/System/Config/
     ${ROOT}/System/Core/
+    ${ROOT}/System/Core/Libraries
+    ${ROOT}/System/Core/Libraries/fibstd/include
+    ${ROOT}/System/Core/Libraries/magic_enum/include
     ${ROOT}/System/Utilities/
     ${ROOT}/System/Streams/Interfaces/
     ${ROOT}/System/Streams/

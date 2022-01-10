@@ -22,3 +22,6 @@
 [submodule "System/Core/Libraries/magic_enum"]
 	path = System/Core/Libraries/magic_enum
 	url = https://github.com/Neargye/magic_enum.git
+[submodule "System/Core/Libraries/fibstd"]
+	path = System/Core/Libraries/fibstd
+	url = https://github.com/lukasnee/fibstd.git
