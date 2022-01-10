@@ -16,15 +16,20 @@ I2s2 &I2s2::getInstance()
     return instance;
 }
 
-I2s2::I2s2() {}
+std::uint32_t I2s2::getSampleRateInHz() const
+{
+    return 44100;
+}
 
-I2s2::~I2s2() {}
+std::uint32_t I2s2::getSampleBitDepthInBits() const
+{
+    return 24;
+}
 
-std::uint32_t I2s2::getSampleRateInHz() const { return 44100; }
-
-std::uint32_t I2s2::getSampleBitDepthInBits() const { return 24; }
-
-std::uint32_t I2s2::getSampleFrameSizeInBytes() const { return sizeof(std::uint32_t); }
+std::uint32_t I2s2::getSampleFrameSizeInBytes() const
+{
+    return sizeof(std::uint32_t);
+}
 
 bool I2s2::init()
 {
@@ -55,13 +60,11 @@ bool I2s2::deinit()
 
 bool I2s2::txRxCircularDmaUnsafe(const std::uint16_t *pTxData16, std::uint16_t *pRxData16, std::uint16_t size8)
 {
-    /* ATTENTION: the following function `Size` parameter stands for amount of samples. 
+    /* ATTENTION: the following function `Size` parameter stands for amount of samples.
     When I2S is configured in:
-    - 16-bit mode, sample is considered 16-bit wide 
+    - 16-bit mode, sample is considered 16-bit wide
     - 24-bit or 32-bit mode, sample is considered 32-bit wide */
-    return (HAL_I2SEx_TransmitReceive_DMA(&hi2s2,
-                                          const_cast<std::uint16_t *>(pTxData16),
-                                          pRxData16,
+    return (HAL_I2SEx_TransmitReceive_DMA(&hi2s2, const_cast<std::uint16_t *>(pTxData16), pRxData16,
                                           (size8 / sizeof(std::uint32_t))) == HAL_OK);
 }
 
@@ -87,7 +90,7 @@ static void Error_Handler()
 
 extern "C" void HAL_I2S_MspInit(I2S_HandleTypeDef *hi2s)
 {
-    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    GPIO_InitTypeDef GPIO_InitStruct = {};
     if (hi2s->Instance == SPI2)
     {
         /* Peripheral clock enable */

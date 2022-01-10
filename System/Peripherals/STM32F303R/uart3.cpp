@@ -34,8 +34,9 @@ extern "C" void USART3_IRQHandler(void)
     HAL_UART_IRQHandler(&huart3);
 }
 
-Uart3::Uart3(std::uint32_t baudrate) : UartCommon(huart3, baudrate) {}
-Uart3::~Uart3() {}
+Uart3::Uart3(std::uint32_t baudrate) : UartCommon(huart3, baudrate)
+{
+}
 
 bool Uart3::initUnsafe()
 {
@@ -55,7 +56,7 @@ bool Uart3::initUnsafe()
 
     /* setup GPIOs for alternative function (UART tx/rx) */
     __HAL_RCC_GPIOB_CLK_ENABLE();
-    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    GPIO_InitTypeDef GPIO_InitStruct = {};
     GPIO_InitStruct.Pin = GPIO_PIN_10 | GPIO_PIN_11;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;

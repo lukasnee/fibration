@@ -72,6 +72,21 @@
             }
         },
         {
+            "label": "rebuild Higgs [Release]",
+            "type": "shell",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "linux": {
+                "command": "./Utils/build.sh -p Higgs -t release -r",
+                "problemMatcher": "$gcc",
+            },
+            "presentation": {
+                "focus": true
+            }
+        },
+        {
             "label": "build and flash Higgs [Release]",
             "type": "shell",
             "group": {

@@ -34,12 +34,12 @@ protected:
     virtual bool getValueUnsafe(std::size_t channelNo, std::uint32_t &valueOut) override;
 
 private:
-    Adc2();
+    Adc2() = default;
 
     bool configChannels();
     bool autoCalibrate();
 
-    ~Adc2();
+    virtual ~Adc2() = default;
 
     void operator=(Adc2 const &) = delete;
     Adc2(Adc2 const &) = delete;

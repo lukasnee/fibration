@@ -1,5 +1,5 @@
 /*
- * STM32 UART2 instance driver 
+ * STM32 UART2 instance driver
  *
  * Copyright (C) 2021 Lukas Neverauskis <lukas.neverauskis@gmail.com>
  *
@@ -15,7 +15,7 @@ class Uart2 : public UartCommon
 {
 public:
     Uart2(std::uint32_t baudrate = UartCommon::Default::baudrate);
-    ~Uart2();
+    ~Uart2() = default;
 
 protected:
     virtual bool initUnsafe() override;

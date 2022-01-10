@@ -24,7 +24,7 @@ extern "C" void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim_base)
 
 static void sTim6Init(std::uint16_t prescaler, std::uint16_t period)
 {
-    TIM_MasterConfigTypeDef sMasterConfig = {0};
+    TIM_MasterConfigTypeDef sMasterConfig = {};
     htim6.Instance = TIM6;
     htim6.Init.Prescaler = prescaler;
     htim6.Init.CounterMode = TIM_COUNTERMODE_UP;

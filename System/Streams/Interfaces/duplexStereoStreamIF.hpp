@@ -1,6 +1,6 @@
 #pragma once
 
-/* 
+/*
     Duplex Stereo Stream Interface
 */
 
@@ -26,11 +26,13 @@ public:
     using SampleBlocksF32 =
         Fib::Dsp::SampleBlocks<Fib::Dsp::F32, (stereoBufferSize / Fib::Dsp::SampleBlock<Fib::Dsp::F32>().size())>;
 
-    // TODO: pass SampleRateInHz
-    using ProcessRxTxBuffersF32F = void(const SampleBlocksF32 &rxLeftSampleBlocksF32,
-                                        const SampleBlocksF32 &rxRightSampleBlocksF32,
-                                        SampleBlocksF32 &txLeftSampleBlocksF32,
-                                        SampleBlocksF32 &txRightSampleBlocksF32);
+// TODO: pass SampleRateInHz
+#define DuplexStereoStreamProcessFunctionParams                                                                        \
+    [[maybe_unused]] const DuplexStereoStreamIF::SampleBlocksF32 &rxLeftSampleBlocksF32,                               \
+        [[maybe_unused]] const DuplexStereoStreamIF::SampleBlocksF32 &rxRightSampleBlocksF32,                          \
+        [[maybe_unused]] DuplexStereoStreamIF::SampleBlocksF32 &txLeftSampleBlocksF32,                                 \
+        [[maybe_unused]] DuplexStereoStreamIF::SampleBlocksF32 &txRightSampleBlocksF32
+    using ProcessFunction = void(DuplexStereoStreamProcessFunctionParams);
 
     bool start();
     bool stop();
@@ -38,7 +40,7 @@ public:
 protected:
     DuplexStereoStreamIF(const std::string pcName, uint16_t usStackDepth, UBaseType_t uxPriority,
                          CircularStereoBufferU32 &circularBufferTx, CircularStereoBufferU32 &circularBufferRx,
-                         ProcessRxTxBuffersF32F processRxTxBuffersF32F);
+                         ProcessFunction processFunction);
 
     virtual bool init() = 0;
     virtual bool deinit() = 0;
@@ -54,19 +56,25 @@ protected:
     void secondBufferHalfCompletedStreamIsrCallback();
 
 private:
-    void setOwner(cpp_freertos::Thread *pOwner) { this->pOwner = pOwner; }
-    cpp_freertos::Thread *getOwner() { return this->pOwner; }
+    void setOwner(cpp_freertos::Thread *pOwner)
+    {
+        this->pOwner = pOwner;
+    }
+    cpp_freertos::Thread *getOwner()
+    {
+        return this->pOwner;
+    }
 
     virtual void Run() override; // thread entry
 
     const std::uint16_t *getCircularBufferRx();
-    bool getStereoAudioBuffersTxRxU32(
-        const StereoBufferU32 *&pRxStereoBufferU32Out, StereoBufferU32 *&pTxStereoBufferU32Out);
+    bool getStereoAudioBuffersTxRxU32(const StereoBufferU32 *&pRxStereoBufferU32Out,
+                                      StereoBufferU32 *&pTxStereoBufferU32Out);
     bool stereoAudioBufferLoaded();
 
     CircularStereoBufferU32 &circularStereoBufferTxU32, &circularStereoBufferRxU32;
 
-    ProcessRxTxBuffersF32F *processRxTxBuffersF32F = nullptr;
+    ProcessFunction *processFunction = nullptr;
 
     // TODO group into a struct `CircularDmaTxRxStream` like in ADC2 driver
 

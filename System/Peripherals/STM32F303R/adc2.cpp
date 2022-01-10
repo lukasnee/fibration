@@ -2,8 +2,8 @@
 #include "system.hpp"
 extern "C"
 {
-#include "stm32f3xx_hal.h"
 #include "arm_math.h"
+#include "stm32f3xx_hal.h"
 }
 
 struct Config
@@ -26,17 +26,17 @@ struct Channel
     std::uint32_t channel;
 };
 /* NOTE: GPIO and ADC channel pairs are hardware defined */
-constexpr std::array<Channel, Config::channelsTotal> channels =
-    {{{.port = GPIOA, .pin = GPIO_PIN_6, .channel = ADC_CHANNEL_3},
-      {.port = GPIOA, .pin = GPIO_PIN_7, .channel = ADC_CHANNEL_4},
-      {.port = GPIOC, .pin = GPIO_PIN_4, .channel = ADC_CHANNEL_5},
-      {.port = GPIOC, .pin = GPIO_PIN_0, .channel = ADC_CHANNEL_6},
-      {.port = GPIOC, .pin = GPIO_PIN_1, .channel = ADC_CHANNEL_7},
-      {.port = GPIOC, .pin = GPIO_PIN_2, .channel = ADC_CHANNEL_8},
-      {.port = GPIOC, .pin = GPIO_PIN_3, .channel = ADC_CHANNEL_9},
-      {.port = GPIOC, .pin = GPIO_PIN_5, .channel = ADC_CHANNEL_11},
-      {.port = GPIOB, .pin = GPIO_PIN_2, .channel = ADC_CHANNEL_12},
-      {.port = GPIOB, .pin = GPIO_PIN_11, .channel = ADC_CHANNEL_14}}};
+constexpr std::array<Channel, Config::channelsTotal> channels = {
+    {{.port = GPIOA, .pin = GPIO_PIN_6, .channel = ADC_CHANNEL_3},
+     {.port = GPIOA, .pin = GPIO_PIN_7, .channel = ADC_CHANNEL_4},
+     {.port = GPIOC, .pin = GPIO_PIN_4, .channel = ADC_CHANNEL_5},
+     {.port = GPIOC, .pin = GPIO_PIN_0, .channel = ADC_CHANNEL_6},
+     {.port = GPIOC, .pin = GPIO_PIN_1, .channel = ADC_CHANNEL_7},
+     {.port = GPIOC, .pin = GPIO_PIN_2, .channel = ADC_CHANNEL_8},
+     {.port = GPIOC, .pin = GPIO_PIN_3, .channel = ADC_CHANNEL_9},
+     {.port = GPIOC, .pin = GPIO_PIN_5, .channel = ADC_CHANNEL_11},
+     {.port = GPIOB, .pin = GPIO_PIN_2, .channel = ADC_CHANNEL_12},
+     {.port = GPIOB, .pin = GPIO_PIN_11, .channel = ADC_CHANNEL_14}}};
 
 Adc2 &Adc2::getInstance()
 {
@@ -44,15 +44,20 @@ Adc2 &Adc2::getInstance()
     return instance;
 }
 
-Adc2::Adc2()
+std::uint32_t Adc2::getChannelsTotal()
 {
+    return Config::channelsTotal;
 }
 
-std::uint32_t Adc2::getChannelsTotal() { return Config::channelsTotal; }
+std::uint32_t Adc2::getBitDepth()
+{
+    return Config::bitDepth;
+}
 
-std::uint32_t Adc2::getBitDepth() { return Config::bitDepth; }
-
-std::uint32_t Adc2::getFrameBitWidth() { return Config::frameBitWidth; }
+std::uint32_t Adc2::getFrameBitWidth()
+{
+    return Config::frameBitWidth;
+}
 
 bool Adc2::init()
 {
@@ -100,7 +105,7 @@ bool Adc2::configChannels()
 {
     bool result = true;
 
-    ADC_ChannelConfTypeDef sConfig = {0};
+    ADC_ChannelConfTypeDef sConfig = {};
 
     sConfig.SingleDiff = Config::singleDiff;
     sConfig.SamplingTime = ADC_SAMPLETIME_601CYCLES_5;
@@ -182,10 +187,6 @@ bool Adc2::deinit()
     return (HAL_OK == HAL_ADC_DeInit(&hadc2));
 }
 
-Adc2::~Adc2()
-{
-}
-
 bool Adc2::getValueUnsafe(std::size_t channelNo, std::uint32_t &valueOut)
 {
     bool result = false;
@@ -208,7 +209,7 @@ bool Adc2::Internal::init()
     __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
 
-    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    GPIO_InitTypeDef GPIO_InitStruct = {};
 
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
@@ -271,9 +272,13 @@ void Adc2::Internal::Irq::handle()
     HAL_DMA_IRQHandler(&hdma_adc2);
 }
 
-void Adc2::Internal::Irq::convCpltCallback() {}
+void Adc2::Internal::Irq::convCpltCallback()
+{
+}
 
-void Adc2::Internal::Irq::convHalfCpltCallback() {}
+void Adc2::Internal::Irq::convHalfCpltCallback()
+{
+}
 
 // TODO: maybe implement flip-flow read/write sequence
 // template <typename SampleFrame, std::size_t samplesTotal>

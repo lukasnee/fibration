@@ -1,10 +1,10 @@
 #include "logger.hpp"
-#include "system.hpp"
 #include "resources.hpp"
+#include "system.hpp"
 
-#include <string_view>
-#include <cstdio>
 #include <cstdarg>
+#include <cstdio>
+#include <string_view>
 
 void Logger::log(const std::string_view fmt, ...)
 {
@@ -28,7 +28,8 @@ void Logger::log(const Logger::Verbosity &verbosity, const Type &type, const std
     }
 }
 
-void Logger::log(const Logger::Verbosity &verbosity, const Type &type, const std::string_view fmt, const va_list &argList)
+void Logger::log(const Logger::Verbosity &verbosity, const Type &type, const std::string_view fmt,
+                 const va_list &argList)
 {
     if (Logger::getInstance().Logger::isActive())
     {
@@ -62,13 +63,17 @@ bool Logger::setAsciiStream(AsciiStream &asciiStream)
     return result;
 }
 
-const Logger::Config &Logger::checkConfig() { return this->config; }
+const Logger::Config &Logger::checkConfig()
+{
+    return this->config;
+}
 
-Logger::Config &Logger::modifyConfig() { return this->config; }
+Logger::Config &Logger::modifyConfig()
+{
+    return this->config;
+}
 
-int Logger::logf(const Logger::Verbosity &verbosity,
-                 const Logger::Type &type,
-                 const std::string_view fmt,
+int Logger::logf(const Logger::Verbosity &verbosity, const Logger::Type &type, const std::string_view fmt,
                  const va_list &argList)
 {
     int charsPrinted = 0;
@@ -107,13 +112,8 @@ int Logger::printPrefix(const Logger::Type &type)
 #define UPTIME_FMT "%luT%02lu:%02lu:%02lu.%03lu"
 
     constexpr std::string_view types[static_cast<std::size_t>(Type::_enumTypeSize)] = {
-        {ANSI_COLOR_RESET""},
-        {ANSI_COLOR_GREEN "TRA"},
-        {ANSI_COLOR_MAGENTA "FAT"},
-        {ANSI_COLOR_BLUE "SYS"},
-        {ANSI_COLOR_RED "ERR"},
-        {ANSI_COLOR_YELLOW "WAR"},
-        {ANSI_COLOR_CYAN "INF"},
+        {ANSI_COLOR_RESET ""},  {ANSI_COLOR_GREEN "TRA"},  {ANSI_COLOR_MAGENTA "FAT"}, {ANSI_COLOR_BLUE "SYS"},
+        {ANSI_COLOR_RED "ERR"}, {ANSI_COLOR_YELLOW "WAR"}, {ANSI_COLOR_CYAN "INF"},
     };
 
     std::uint32_t days, hours, minutes, seconds, milliseconds;
@@ -135,17 +135,24 @@ extern "C" void logger_log(const char *fmt, ...)
 #if FIB_SHELL_ENABLED
 namespace ShellCommands
 {
-    static Shell::Command log(
-        "log", Shell::Command::Helper::Literal::onOffUsage, nullptr, [](SHELLCMDPARAMS)
-        { return Shell::Command::Helper::onOffCommand(Logger::getInstance().modifyConfig().logging, "logging", SHELLCMDARGS); },
-        []()
-        {
-            static Shell::Command color(
-                log, "color", Shell::Command::Helper::Literal::onOffUsage, nullptr, [](SHELLCMDPARAMS)
-                { return Shell::Command::Helper::onOffCommand(Logger::getInstance().modifyConfig().color, "log coloring", SHELLCMDARGS); });
-            static Shell::Command prefix(
-                log, "prefix", Shell::Command::Helper::Literal::onOffUsage, nullptr, [](SHELLCMDPARAMS)
-                { return Shell::Command::Helper::onOffCommand(Logger::getInstance().modifyConfig().prefix, "log prefix", SHELLCMDARGS); });
-        });
+static Shell::Command log(
+    "log", Shell::Command::Helper::Literal::onOffUsage, nullptr,
+    [] ShellCommandFunctionLambdaSignature {
+        return Shell::Command::Helper::onOffCommand(Logger::getInstance().modifyConfig().logging, "logging",
+                                                    ShellCommandFunctionArgs);
+    },
+    []() {
+        static Shell::Command color(
+            log, "color", Shell::Command::Helper::Literal::onOffUsage, nullptr, [] ShellCommandFunctionLambdaSignature {
+                return Shell::Command::Helper::onOffCommand(Logger::getInstance().modifyConfig().color, "log coloring",
+                                                            ShellCommandFunctionArgs);
+            });
+        static Shell::Command prefix(log, "prefix", Shell::Command::Helper::Literal::onOffUsage, nullptr,
+                                     [] ShellCommandFunctionLambdaSignature {
+                                         return Shell::Command::Helper::onOffCommand(
+                                             Logger::getInstance().modifyConfig().prefix, "log prefix",
+                                             ShellCommandFunctionArgs);
+                                     });
+    });
 } // namespace ShellCommands
 #endif // #if FIB_SHELL_ENABLED

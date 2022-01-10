@@ -1,11 +1,12 @@
-#include "shell.hpp"
 #include "logger.hpp"
-#include "system.hpp"
 #include "resources.hpp"
+#include "shell.hpp"
+#include "system.hpp"
 // TODO: make arrow up repeat buffer
 #include <cstring>
 
-Shell::Command::Result Shell::help(Shell &shell, const Shell::Command *pCommand, bool recurse, const std::size_t maxDepth, std::size_t depth, std::size_t indent)
+Shell::Command::Result Shell::help(Shell &shell, const Shell::Command *pCommand, bool recurse,
+                                   const std::size_t maxDepth, std::size_t depth, std::size_t indent)
 {
     Shell::Command::Result result = Shell::Command::Result::ok;
 
@@ -63,7 +64,8 @@ Shell::Command::Result Shell::help(Shell &shell, const Shell::Command *pCommand,
 
             if (result == Command::Result::ok && recurse && depth < maxDepth && pCmdIt->pSubcommands)
             {
-                result = help(shell, pCmdIt->pSubcommands, recurse, maxDepth, depth + 1, indent + strlen(pCmdIt->name) + sizeof(' '));
+                result = help(shell, pCmdIt->pSubcommands, recurse, maxDepth, depth + 1,
+                              indent + strlen(pCmdIt->name) + sizeof(' '));
             }
 
             if (depth == 0)
@@ -75,24 +77,24 @@ Shell::Command::Result Shell::help(Shell &shell, const Shell::Command *pCommand,
     return result;
 }
 
-Shell::Command Shell::helpCommand = Shell::Command(
-    "help,?", "[all|[COMMAND...]]", "show command usage",
-    [](Shell &shell, std::size_t argc, const char *argv[]) -> Shell::Command::Result
-    {
+Shell::Command Shell::helpCommand =
+    Shell::Command("help,?", "[all|[COMMAND...]]", "show command usage", [] ShellCommandFunctionLambdaSignature {
         Shell::Command::Result result = Shell::Command::Result::unknown;
 
         if (argc)
         {
             if (argc == 1)
             {
-                for (const Shell::Command *pCmdIt = Shell::pCommandGlobalRoot; pCmdIt != nullptr; pCmdIt = pCmdIt->pNext)
+                for (const Shell::Command *pCmdIt = Shell::pCommandGlobalRoot; pCmdIt != nullptr;
+                     pCmdIt = pCmdIt->pNext)
                 {
                     result = Shell::help(shell, pCmdIt, 0, false);
                 }
             }
             else if (argc == 2 && !std::strcmp(argv[1], "all"))
             {
-                for (const Shell::Command *pCmdIt = Shell::pCommandGlobalRoot; pCmdIt != nullptr; pCmdIt = pCmdIt->pNext)
+                for (const Shell::Command *pCmdIt = Shell::pCommandGlobalRoot; pCmdIt != nullptr;
+                     pCmdIt = pCmdIt->pNext)
                 {
                     result = Shell::help(shell, pCmdIt, true, 7);
                 }
@@ -101,7 +103,8 @@ Shell::Command Shell::helpCommand = Shell::Command(
             {
                 constexpr std::size_t helpCommandOffset = 1;
                 std::size_t argOffset;
-                const Command *pCommandFound = shell.findCommand(argc - helpCommandOffset, argv + helpCommandOffset, argOffset);
+                const Command *pCommandFound =
+                    shell.findCommand(argc - helpCommandOffset, argv + helpCommandOffset, argOffset);
                 if (pCommandFound)
                 {
                     result = Shell::help(shell, pCommandFound, 1, true);
@@ -111,7 +114,8 @@ Shell::Command Shell::helpCommand = Shell::Command(
         return result;
     });
 
-Shell::Command::Result Shell::Command::Helper::onOffCommand(std::function<bool(bool)> onOffF, const char *strOnOffControlName, SHELLCMDPARAMS)
+Shell::Command::Result Shell::Command::Helper::onOffCommand(std::function<bool(bool)> onOffF,
+                                                            const char *strOnOffControlName, ShellCommandFunctionParams)
 {
     Shell::Command::Result result = Shell::Command::Result::fail;
 
@@ -143,14 +147,15 @@ Shell::Command::Result Shell::Command::Helper::onOffCommand(std::function<bool(b
     return result;
 };
 
-Shell::Command::Result Shell::Command::Helper::onOffCommand(bool &onOffControl, const char *strOnOffControlName, SHELLCMDPARAMS)
+Shell::Command::Result Shell::Command::Helper::onOffCommand(bool &onOffControl, const char *strOnOffControlName,
+                                                            ShellCommandFunctionParams)
 {
-    return onOffCommand([&](bool state)
-                        {
-                            onOffControl = state;
-                            return true;
-                        },
-                        strOnOffControlName, SHELLCMDARGS);
+    return onOffCommand(
+        [&](bool state) {
+            onOffControl = state;
+            return true;
+        },
+        strOnOffControlName, ShellCommandFunctionArgs);
 };
 
 void Shell::Command::linkTo(Command *&pParent)
@@ -170,30 +175,30 @@ void Shell::Command::linkTo(Command *&pParent)
     }
 }
 
-Shell::Command::Command(const char *name, const char *usage, const char *description,
-                        std::function<Result(SHELLCMDPARAMS)> commandF, std::function<void()> ctorCallbackF)
-    : name(name), usage(usage), description(description), commandF(commandF)
+Shell::Command::Command(const char *name, const char *usage, const char *description, Shell::Command::Function function,
+                        std::function<void()> ctorCallback)
+    : name(name), usage(usage), description(description), function(function)
 {
     this->linkTo(Shell::pCommandGlobalRoot);
-    if (ctorCallbackF)
+    if (ctorCallback)
     {
-        ctorCallbackF();
+        ctorCallback();
     }
 }
 
 Shell::Command::Command(Command &parent, const char *name, const char *usage, const char *description,
-                        std::function<Result(SHELLCMDPARAMS)> commandF, std::function<void()> ctorCallbackF)
-    : name(name), usage(usage), description(description), commandF(commandF)
+                        Shell::Command::Function function, std::function<void()> ctorCallback)
+    : name(name), usage(usage), description(description), function(function)
 {
     this->linkTo(parent.pSubcommands);
-    if (ctorCallbackF)
+    if (ctorCallback)
     {
-        ctorCallbackF();
+        ctorCallback();
     }
 }
 
-Shell::Command::Command(const char *name, std::function<Result(SHELLCMDPARAMS)> commandF)
-    : name(name), usage(nullptr), description(nullptr), commandF(commandF)
+Shell::Command::Command(const char *name, Shell::Command::Function function)
+    : name(name), usage(nullptr), description(nullptr), function(function)
 {
     this->linkTo(Shell::pCommandGlobalRoot);
 }

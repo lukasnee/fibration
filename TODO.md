@@ -1,0 +1,1 @@
+* TODO: rename all folders names from PascalCase to camelCase. 

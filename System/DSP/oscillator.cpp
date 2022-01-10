@@ -30,7 +30,7 @@ OscF32::OscF32(F32 sampleRateInHz, F32 frequencyInHz, F32 initialPhaseInRad)
                         this->config.derived.derive(frequencyInHz);
                         return true;
                     }),
-      phaseInRad(0.f, 0.f, (2.f * PI)){};
+      phaseInRad(initialPhaseInRad, 0.f, (2.f * PI)){};
 
 void OscF32::generateMult(SampleBlock<F32> *pSampleBlocksOut, std::size_t sampleBlocksSize)
 {

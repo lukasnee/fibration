@@ -1,6 +1,6 @@
 
 /*
-    defines the required interface for ADC implementation 
+    defines the required interface for ADC implementation
 */
 #pragma once
 #include <semaphore.hpp>
@@ -24,7 +24,10 @@ public:
     virtual std::uint32_t getBitDepth() = 0;
     virtual std::uint32_t getFrameBitWidth() = 0;
 
-    std::uint32_t getMaxValue() { return ((1 << this->getBitDepth()) - 1); }
+    std::uint32_t getMaxValue()
+    {
+        return ((1 << this->getBitDepth()) - 1);
+    }
 
     bool getNormal(std::size_t channelNo, q31_t &valueOut)
     {
@@ -32,7 +35,8 @@ public:
         std::uint32_t valueRaw;
         if (this->getValueRaw(channelNo, valueRaw))
         {
-            valueOut = reinterpret_cast<q31_t>(static_cast<std::int32_t>(valueRaw - (this->getMaxValue() / 2)) * static_cast<std::int32_t>(0xFFFF'FFFF / this->getMaxValue()));
+            valueOut = reinterpret_cast<q31_t>(static_cast<std::int32_t>(valueRaw - (this->getMaxValue() / 2)) *
+                                               static_cast<std::int32_t>(0xFFFF'FFFF / this->getMaxValue()));
             retval = true;
         }
         return retval;
@@ -55,7 +59,7 @@ public:
 
 protected:
     AdcIF() : resourceSemaphore(true){};
-    virtual ~AdcIF(){};
+    virtual ~AdcIF() = default;
 
     bool getValueRaw(std::size_t channelNo, std::uint32_t &valueRawOut)
     {

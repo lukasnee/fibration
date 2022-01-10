@@ -26,6 +26,6 @@ public:
     I2s2(I2s2 const &) = delete;
 
 private:
-    I2s2();
-    ~I2s2();
+    I2s2() = default;
+    virtual ~I2s2() = default;
 };

@@ -12,13 +12,9 @@
 class I2sDuplexStream : public DuplexStereoStreamIF, private I2sIF::TxRxIsrCallbacks
 {
 public:
-    I2sDuplexStream(I2sIF &i2s,
-                    const std::string pcName,
-                    uint16_t usStackDepth,
-                    UBaseType_t uxPriority,
-                    DuplexStereoStreamIF::CircularStereoBufferU32 &circularStereoBufferTxU32,
-                    DuplexStereoStreamIF::CircularStereoBufferU32 &circularStereoBufferRxU32,
-                    ProcessRxTxBuffersF32F processRxTxBuffersF32F);
+    I2sDuplexStream(I2sIF &i2s, const std::string pcName, uint16_t usStackDepth, UBaseType_t uxPriority,
+                    CircularStereoBufferU32 &circularStereoBufferTxU32,
+                    CircularStereoBufferU32 &circularStereoBufferRxU32, ProcessFunction processFunction);
     ~I2sDuplexStream();
 
 protected:

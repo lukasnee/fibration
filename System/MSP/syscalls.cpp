@@ -1,21 +1,21 @@
 #include "FreeRTOS.h"
-#include "task.h"
 #include "Peripherals/resources.hpp"
 #include "ioDataIF.hpp"
+#include "task.h"
 
 #include "stm32f3xx_hal.h"
 
-#include <errno.h>
-#include <sys/unistd.h> // STDOUT_FILENO, STDERR_FILENO
-#include <sys/stat.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <signal.h>
-#include <time.h>
-#include <sys/time.h>
-#include <sys/times.h>
 #include <cstdarg>
 #include <cstdio>
+#include <errno.h>
+#include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <sys/times.h>
+#include <sys/unistd.h> // STDOUT_FILENO, STDERR_FILENO
+#include <time.h>
 
 struct SysCalls
 {
@@ -58,7 +58,10 @@ struct SysCalls
     }
 
 private:
-    SysCalls() { setvbuf(stdout, this->buf.data(), _IOLBF, this->buf.size()); }
+    SysCalls()
+    {
+        setvbuf(stdout, this->buf.data(), _IOLBF, this->buf.size());
+    }
 
     std::array<char, 64> buf;
 };
@@ -83,6 +86,8 @@ extern "C" int _getpid(void)
 
 extern "C" int _kill(int pid, int sig)
 {
+    (void)pid;
+    (void)sig;
     errno = EINVAL;
     return -1;
 }
@@ -147,35 +152,43 @@ extern "C" int _lseek(int fd, int ptr, int dir)
 
 extern "C" int _open(char *path, int flags, ...)
 {
+    (void)path;
+    (void)flags;
     /* Pretend like we always fail */
     return -1;
 }
 
 extern "C" int _wait(int *status)
 {
+    (void)status;
     errno = ECHILD;
     return -1;
 }
 
 extern "C" int _unlink(char *name)
 {
+    (void)name;
     errno = ENOENT;
     return -1;
 }
 
 extern "C" int _times(struct tms *buf)
 {
+    (void)buf;
     return -1;
 }
 
 extern "C" int _stat(char *file, struct stat *st)
 {
+    (void)file;
     st->st_mode = S_IFCHR;
     return 0;
 }
 
 extern "C" int _link(const char *oldpath, const char *newpath)
 {
+    (void)oldpath;
+    (void)newpath;
     errno = EMLINK;
     return -1;
 }
@@ -188,6 +201,9 @@ extern "C" int _fork(void)
 
 extern "C" int _execve(char *name, char **argv, char **env)
 {
+    (void)name;
+    (void)argv;
+    (void)env;
     errno = ENOMEM;
     return -1;
 }
