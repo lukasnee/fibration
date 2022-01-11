@@ -140,12 +140,12 @@ set(FIBSYS_STREAMS_SRC
 )
 
 set(FIBSYS_COMPONENTS_SRC
-    ${ROOT}/System/Components/Shell/shell.cpp
-    ${ROOT}/System/Components/Shell/commands.cpp
-    ${ROOT}/System/Components/Shell/input.cpp
-    ${ROOT}/System/Components/Shell/argVector.cpp
-    ${ROOT}/System/Components/Shell/argBuffer.cpp
-    ${ROOT}/System/Components/logger.cpp
+    ${ROOT}/System/components/shell/shell.cpp
+    ${ROOT}/System/components/shell/commands.cpp
+    ${ROOT}/System/components/shell/input.cpp
+    ${ROOT}/System/components/shell/argVector.cpp
+    ${ROOT}/System/components/shell/argBuffer.cpp
+    ${ROOT}/System/components/logger.cpp
 )
 
 set(FIBSYS_SHELL_COMMANDS_SRC
@@ -213,8 +213,8 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${ROOT}/System/peripherals/interfaces/
     ${ROOT}/System/peripherals/stm32f303r/
     ${ROOT}/System/peripherals/
-    ${ROOT}/System/Components/
-    ${ROOT}/System/Components/Shell
+    ${ROOT}/System/components/
+    ${ROOT}/System/components/shell
 
     # Real-Time Operating System
     ${ROOT}/System/core/libraries/FreeRTOS-Kernel/include/
