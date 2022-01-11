@@ -10,12 +10,12 @@ set(CMAKE_CXX_STANDARD 17)
 set(ROOT ${CMAKE_SOURCE_DIR})
 
 set(STM32F3xx_CORE_SRC
-    ${ROOT}/System/MSP/stm32f3xx_hal_msp.c
-    ${ROOT}/System/MSP/stm32f3xx_hal_timebase_tim.c
-    ${ROOT}/System/MSP/stm32f3xx_it.c
-    ${ROOT}/System/MSP/syscalls.cpp
-    ${ROOT}/System/MSP/sysmem.c
-    ${ROOT}/System/MSP/system_stm32f3xx.c
+    ${ROOT}/System/msp/stm32f3xx_hal_msp.c
+    ${ROOT}/System/msp/stm32f3xx_hal_timebase_tim.c
+    ${ROOT}/System/msp/stm32f3xx_it.c
+    ${ROOT}/System/msp/syscalls.cpp
+    ${ROOT}/System/msp/sysmem.c
+    ${ROOT}/System/msp/system_stm32f3xx.c
 )
 
 set(STM32F3xx_HAL_SRC # (Hardware Abstraction Layer)
@@ -45,7 +45,7 @@ set(STM32F3_MSP_SRC # (MCU Support Package)
 
 
 set(STM32F303RC_CORE_SRC
-    ${ROOT}/System/MSP/startup_stm32f303cbtx.s
+    ${ROOT}/System/msp/startup_stm32f303cbtx.s
 )
 
 set(STM32F303CE_MSP_SRC 
@@ -55,7 +55,7 @@ set(STM32F303CE_MSP_SRC
 
 
 set(STM32F303R_CORE_SRC
-    ${ROOT}/System/MSP/startup_stm32f303retx.s
+    ${ROOT}/System/msp/startup_stm32f303retx.s
 )
 
 set(STM32F303RE_MSP_SRC 
@@ -98,45 +98,45 @@ set(FIBSYS_CORE_SRC
 )
 
 set(FIBSYS_DSP_SRC
-    ${ROOT}/System/DSP/sample.cpp
-    ${ROOT}/System/DSP/math.cpp
-    ${ROOT}/System/DSP/oscillator.cpp
-    ${ROOT}/System/DSP/waveforms.cpp
+    ${ROOT}/System/dsp/sample.cpp
+    ${ROOT}/System/dsp/math.cpp
+    ${ROOT}/System/dsp/oscillator.cpp
+    ${ROOT}/System/dsp/waveforms.cpp
 )
 
 set(FIBSYS_UTILITIES_SRC
-    ${ROOT}/System/Utilities/stringContainer.cpp
+    ${ROOT}/System/utilities/stringContainer.cpp
 )
 
 # TODO: Make all peripherals work over interfaces
 set(FIBSYS_PERIPHERALS_SRC
     # Peripheral Interfaces shaping interaction of whats above to whats below
-    ${ROOT}/System/Peripherals/Interfaces/ioDataIF.hpp
-    ${ROOT}/System/Peripherals/Interfaces/i2sIF.cpp
-    ${ROOT}/System/Peripherals/Interfaces/adcIF.hpp
+    ${ROOT}/System/peripherals/interfaces/ioDataIF.hpp
+    ${ROOT}/System/peripherals/interfaces/i2sIF.cpp
+    ${ROOT}/System/peripherals/interfaces/adcIF.hpp
 
     # Peripherals Implementations - wrappers for limited resources that are available on the platform
-    ${ROOT}/System/Peripherals/STM32F303R/tim6.cpp
-    ${ROOT}/System/Peripherals/STM32F303R/uartIsr.cpp
-    ${ROOT}/System/Peripherals/STM32F303R/uart2.cpp
-    ${ROOT}/System/Peripherals/STM32F303R/uart3.cpp
-    ${ROOT}/System/Peripherals/STM32F303R/i2sIsr.cpp
-    ${ROOT}/System/Peripherals/STM32F303R/i2s2.cpp
-    ${ROOT}/System/Peripherals/STM32F303R/adcIsr.cpp
-    ${ROOT}/System/Peripherals/STM32F303R/adc2.cpp
+    ${ROOT}/System/peripherals/stm32f303r/tim6.cpp
+    ${ROOT}/System/peripherals/stm32f303r/uartIsr.cpp
+    ${ROOT}/System/peripherals/stm32f303r/uart2.cpp
+    ${ROOT}/System/peripherals/stm32f303r/uart3.cpp
+    ${ROOT}/System/peripherals/stm32f303r/i2sIsr.cpp
+    ${ROOT}/System/peripherals/stm32f303r/i2s2.cpp
+    ${ROOT}/System/peripherals/stm32f303r/adcIsr.cpp
+    ${ROOT}/System/peripherals/stm32f303r/adc2.cpp
 
-    ${ROOT}/System/Peripherals/resources.cpp
+    ${ROOT}/System/peripherals/resources.cpp
 )
 
 set(FIBSYS_STREAMS_SRC
     # Streams Interfaces shaping interaction of whats above to whats below
-    ${ROOT}/System/Streams/Interfaces/duplexStereoStreamIF.cpp
-    ${ROOT}/System/Streams/Interfaces/asciiStreamIF.cpp
+    ${ROOT}/System/streams/interfaces/duplexStereoStreamIF.cpp
+    ${ROOT}/System/streams/interfaces/asciiStreamIF.cpp
     
     # Streams Implementations - making use of peripherals efficiently
-    ${ROOT}/System/Streams/i2sDuplexStream.cpp
-    ${ROOT}/System/Streams/ioStream.cpp
-    ${ROOT}/System/Streams/txStream.cpp
+    ${ROOT}/System/streams/i2sDuplexStream.cpp
+    ${ROOT}/System/streams/ioStream.cpp
+    ${ROOT}/System/streams/txStream.cpp
 )
 
 set(FIBSYS_COMPONENTS_SRC
@@ -149,15 +149,15 @@ set(FIBSYS_COMPONENTS_SRC
 )
 
 set(FIBSYS_SHELL_COMMANDS_SRC
-    ${ROOT}/System/Shell/Commands/clearShellCommand.cpp
-    ${ROOT}/System/Shell/Commands/configShellCommand.cpp
-    ${ROOT}/System/Shell/Commands/echoShellCommand.cpp
-    ${ROOT}/System/Shell/Commands/hexdumpShellCommand.cpp
-    ${ROOT}/System/Shell/Commands/panicShellCommand.cpp
-    ${ROOT}/System/Shell/Commands/resetShellCommand.cpp
-    ${ROOT}/System/Shell/Commands/statusShellCommand.cpp
-    ${ROOT}/System/Shell/Commands/repeatShellCommand.cpp
-    ${ROOT}/System/Shell/Commands/donutShellCommand.cpp
+    ${ROOT}/System/shell/commands/clearShellCommand.cpp
+    ${ROOT}/System/shell/commands/configShellCommand.cpp
+    ${ROOT}/System/shell/commands/echoShellCommand.cpp
+    ${ROOT}/System/shell/commands/hexdumpShellCommand.cpp
+    ${ROOT}/System/shell/commands/panicShellCommand.cpp
+    ${ROOT}/System/shell/commands/resetShellCommand.cpp
+    ${ROOT}/System/shell/commands/statusShellCommand.cpp
+    ${ROOT}/System/shell/commands/repeatShellCommand.cpp
+    ${ROOT}/System/shell/commands/donutShellCommand.cpp
 )
 
 #TODO: maybe move system libraries to System/ dir. 
@@ -202,17 +202,17 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     # Fibration Framework
     ${ROOT}
     ${ROOT}/System/
-    ${ROOT}/System/Config/
+    ${ROOT}/System/config/
     ${ROOT}/System/core/
     ${ROOT}/System/core/Libraries
     ${ROOT}/System/core/libraries/fibstd/include
     ${ROOT}/System/core/libraries/magic_enum/include
-    ${ROOT}/System/Utilities/
-    ${ROOT}/System/Streams/Interfaces/
-    ${ROOT}/System/Streams/
-    ${ROOT}/System/Peripherals/Interfaces/
-    ${ROOT}/System/Peripherals/STM32F303R/
-    ${ROOT}/System/Peripherals/
+    ${ROOT}/System/utilities/
+    ${ROOT}/System/streams/interfaces/
+    ${ROOT}/System/streams/
+    ${ROOT}/System/peripherals/interfaces/
+    ${ROOT}/System/peripherals/stm32f303r/
+    ${ROOT}/System/peripherals/
     ${ROOT}/System/Components/
     ${ROOT}/System/Components/Shell
 
@@ -222,7 +222,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${ROOT}/System/core/libraries/freertos-addons/c++/Source/include/
     
     # MCU Support Package
-    ${ROOT}/System/MSP
+    ${ROOT}/System/msp
 
     # STM32F3 support
     ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Inc
@@ -270,8 +270,8 @@ target_compile_options(${PROJECT_NAME} PRIVATE
 )
 
 target_link_options(${PROJECT_NAME} PRIVATE
-    #-T${ROOT}/System/MSP/STM32F303CCTX_FLASH.ld
-    -T${ROOT}/System/MSP/STM32F303RETX_FLASH.ld
+    #-T${ROOT}/System/msp/STM32F303CCTX_FLASH.ld
+    -T${ROOT}/System/msp/STM32F303RETX_FLASH.ld
     -mcpu=cortex-m4
     -mthumb
     -mfpu=fpv4-sp-d16

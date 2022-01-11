@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DSP/map.hpp"
+#include "dsp/map.hpp"
 
 #include <limits>
 

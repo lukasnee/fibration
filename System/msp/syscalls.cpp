@@ -1,5 +1,5 @@
 #include "FreeRTOS.h"
-#include "Peripherals/resources.hpp"
+#include "peripherals/resources.hpp"
 #include "ioDataIF.hpp"
 #include "task.h"
 
