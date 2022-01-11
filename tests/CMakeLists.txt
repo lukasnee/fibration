@@ -1,15 +1,14 @@
-project(FibrationUnitTests)
+cmake_minimum_required(VERSION 3.5)
 
-# If you create new headers/cpp files, add them to these list!
-set(HEADER_FILES
-	catch.hpp
+project(fibrationUnitTests)
+
+ADD_EXECUTABLE(${PROJECT_NAME}
+    source/main.cpp
+    # tests/.templateTests.cpp
+    tests/demo.cpp
 )
 
-set(SOURCE_FILES	
-	tests.cpp
+include_directories(
+    include
 )
 
-set(LIBRARY_NAME cpplib)
-
-add_executable(tests ${SOURCE_FILES})
-# target_link_libraries(tests ${LIBRARY_NAME})

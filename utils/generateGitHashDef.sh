@@ -9,6 +9,6 @@ print_usage() {
 [[ $# -eq 0 ]] && (print_usage; exit 1)
 
 gitHash=$(git describe --always --dirty --match 'NOT A TAG')
-printf "${colorYellow}git hash: ${colorPurple}$gitHash${colorReset}\n"
+printf "${ansiColorYellow}git hash: ${ansiColorPurple}$gitHash${ansiColorReset}\n"
 printf "GITHASH($gitHash)" > $1
 exit 0

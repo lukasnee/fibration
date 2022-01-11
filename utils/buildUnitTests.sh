@@ -26,7 +26,7 @@ done
 ACTION="build"
 [[ $REBUILD_FLAG -eq 1 ]] && (utils/clean.sh -t $BUILD_TYPE; ACTION="rebuild")
 
-printf "${colorYellow}${ACTION}ing ${colorPurple}$BUILD_TYPE${colorYellow}\n" 
+printf "${ansiColorYellow}${ACTION}ing ${ansiColorPurple}$BUILD_TYPE${ansiColorYellow}\n" 
 
 # structure build types
 BUILD_TYPE_DIR="$BUILD_DIR/$BUILD_TYPE"
@@ -34,13 +34,13 @@ BUILD_TYPE_DIR="$BUILD_DIR/$BUILD_TYPE"
 
 pushd $BUILD_TYPE_DIR > /dev/null
 
-printf $colorCyan
+printf $ansiColorCyan
 cmake -G "Unix Makefiles" \
     -DCMAKE_TOOLCHAIN_FILE=$CMAKE_TESTS_CONFIG_PATH \
     -DCMAKE_BUILD_TYPE=$BUILD_TYPE \
     ../../$TESTS_DIR
 
 cmake --build . -- -j $(nproc) \
-    && printf "${colorGreen}built successfully !\n" || printf "${colorRed}build failed\n"
+    && printf "${ansiColorGreen}built successfully !\n" || printf "${ansiColorRed}build failed\n"
 
 popd > /dev/null
