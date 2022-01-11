@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source Utils/config.sh
+source utils/config.sh
 
 PROCESS_NAME_PATTERN=$1
 

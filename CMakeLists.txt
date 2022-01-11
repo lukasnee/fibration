@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.13)
 
-project(Fibration)
+project(fibration)
 
-add_subdirectory(Modules)
+add_subdirectory(modules)

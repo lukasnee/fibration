@@ -1,5 +1,5 @@
 
-project(Higgs)
+project(higgs)
 
 enable_language(CXX C ASM)
 
@@ -198,8 +198,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 
 target_include_directories(${PROJECT_NAME} PRIVATE 
 
-    ${ROOT}/Modules/Higgs
-
+    ${CMAKE_CURRENT_SOURCE_DIR}
     # Fibration Framework
     ${ROOT}
     ${ROOT}/System/

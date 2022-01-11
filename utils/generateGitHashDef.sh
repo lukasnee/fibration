@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source Utils/config.sh
+source utils/config.sh
 
 print_usage() {
     printf "usage: $0 <outputPath>\n"
