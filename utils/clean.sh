@@ -21,11 +21,11 @@ while getopts 'ap:t:h' flag; do
         all=1 ;; 
     p) 
         PROJECT="${OPTARG}"
-        [[ -d "$MODULES/$PROJECT" ]] || ( printf "${colorRed}no such project in Modules directory\n"; exit -1 ) 
+        [[ -d "$MODULES/$PROJECT" ]] || ( printf "${ansiColorRed}no such project in Modules directory\n"; exit -1 ) 
         ;;
     t) 
         BUILD_TYPE="${OPTARG}"
-        [[ $BUILD_TYPE == "debug" || $BUILD_TYPE == "release" ]] || ( printf "${colorRed}invalid build type\n"; exit -1 )
+        [[ $BUILD_TYPE == "debug" || $BUILD_TYPE == "release" ]] || ( printf "${ansiColorRed}invalid build type\n"; exit -1 )
         ;;
     *|h) 
         print_usage; exit 1 
@@ -40,5 +40,5 @@ else
     DIR_TO_DELETE="$BUILD_DIR/$BUILD_TYPE/$MODULES/$PROJECT"
 fi
 
-printf "${colorYellow}cleaning ${colorPurple}$DIR_TO_DELETE\n"; 
+printf "${ansiColorYellow}cleaning ${ansiColorPurple}$DIR_TO_DELETE\n"; 
 [[ -d $DIR_TO_DELETE ]] && rm -r $DIR_TO_DELETE
