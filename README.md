@@ -106,6 +106,8 @@ It started and mostly continued on Raspberry Pi4 (Raspbian OS (debian)) remotely
 I managed to setup building/flashing/debugging experience on VSCode on Windows using Ubuntu WSL (Ubuntu enviroment on
 Windows, just google how to install WSL). The setup is almost identical for both Linux and WSL cases.
 
+0. Install WSL if using windows. I recommend installing WSL version 2.
+
 1. Install common apt package prerequisites:
 
 ```shell
@@ -132,7 +134,7 @@ code .
 
 > A VSCode windows should start loading. In WSL case, make sure VSCode starts in WSL mode (in the bottom left corner you should see a colored box with text: `[WSL: Ubuntu]`
 
-5. Install following VSCode extensions:
+6. Install following VSCode extensions:
 
 -   `ms-vscode.cpptools`
 -   `twxs.cmake`
@@ -141,7 +143,11 @@ code .
 
 > make sure they are installed on WSL service thing
 
-6. That is it - start developing !
+8. Build project `higgs` by running VSCode tasks `build higgs [release]` or run manually using `./utils/build.sh -p higgs -t release`.
+
+9. Flash project `higgs` by running VSCode tasks `build and flash higgs [release]` or run manually using `./utils/flash.sh -p higgs -t release -b`.
+
+10. That's it!
 
 ## GNU Arm Embedded Toolchain
 
@@ -231,8 +237,7 @@ sudo apt remove openocd
 sudo ln -s /mnt/c/Users/lukas/bin/xpack-openocd-0.11.0-2/bin/openocd.exe /usr/bin/openocd
 ```
 
-Now you should be able to use `openocd` executable from WSL bash. `Utils\flash.sh`. Test by connecting
-ST-LINK over USB and:
+Now you should be able to use `openocd` executable from WSL bash. Test by connecting ST-LINK over USB and:
 
 ```shell
 openocd -f "interface/stlink.cfg" -f "target/stm32f3x.cfg"
@@ -257,8 +262,8 @@ Insert the following in your VSCode's `keybindings.json`. You can search it up u
     // Fibration workspace
     { "key": "shift+space i", "command": "workbench.action.tasks.runTask", "args": "get st-link and target info" },
     { "key": "shift+space p", "command": "workbench.action.tasks.runTask", "args": "probe for st-link device" },
-    { "key": "shift+space f", "command": "workbench.action.tasks.runTask", "args": "build and flash Higgs [Release]" },
-    { "key": "shift+space b", "command": "workbench.action.tasks.runTask", "args": "build Higgs [Release]" },
+    { "key": "shift+space f", "command": "workbench.action.tasks.runTask", "args": "build and flash higgs [release]" },
+    { "key": "shift+space b", "command": "workbench.action.tasks.runTask", "args": "build higgs [release]" },
     { "key": "shift+space t", "command": "workbench.action.tasks.runTask", "args": "build and run unit tests" }
 ]
 ```
