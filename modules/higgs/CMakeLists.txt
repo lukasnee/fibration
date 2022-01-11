@@ -10,32 +10,32 @@ set(CMAKE_CXX_STANDARD 17)
 set(ROOT ${CMAKE_SOURCE_DIR})
 
 set(STM32F3xx_CORE_SRC
-    ${ROOT}/System/msp/stm32f3xx_hal_msp.c
-    ${ROOT}/System/msp/stm32f3xx_hal_timebase_tim.c
-    ${ROOT}/System/msp/stm32f3xx_it.c
-    ${ROOT}/System/msp/syscalls.cpp
-    ${ROOT}/System/msp/sysmem.c
-    ${ROOT}/System/msp/system_stm32f3xx.c
+    ${ROOT}/system/msp/stm32f3xx_hal_msp.c
+    ${ROOT}/system/msp/stm32f3xx_hal_timebase_tim.c
+    ${ROOT}/system/msp/stm32f3xx_it.c
+    ${ROOT}/system/msp/syscalls.cpp
+    ${ROOT}/system/msp/sysmem.c
+    ${ROOT}/system/msp/system_stm32f3xx.c
 )
 
 set(STM32F3xx_HAL_SRC # (Hardware Abstraction Layer)
-    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal.c
-    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_cortex.c
-    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_exti.c
-    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_gpio.c
-    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_pwr.c
-    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_pwr_ex.c
-    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc.c
-    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc_ex.c
-    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.c
-    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim_ex.c
-    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.c
-    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart_ex.c
-    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_dma.c
-    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_i2s.c
-    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_i2s_ex.c
-    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_adc.c
-    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_adc_ex.c
+    ${ROOT}/system/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal.c
+    ${ROOT}/system/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_cortex.c
+    ${ROOT}/system/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_exti.c
+    ${ROOT}/system/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_gpio.c
+    ${ROOT}/system/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_pwr.c
+    ${ROOT}/system/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_pwr_ex.c
+    ${ROOT}/system/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc.c
+    ${ROOT}/system/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc_ex.c
+    ${ROOT}/system/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.c
+    ${ROOT}/system/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim_ex.c
+    ${ROOT}/system/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.c
+    ${ROOT}/system/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart_ex.c
+    ${ROOT}/system/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_dma.c
+    ${ROOT}/system/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_i2s.c
+    ${ROOT}/system/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_i2s_ex.c
+    ${ROOT}/system/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_adc.c
+    ${ROOT}/system/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_adc_ex.c
 )
 
 set(STM32F3_MSP_SRC # (MCU Support Package)
@@ -45,7 +45,7 @@ set(STM32F3_MSP_SRC # (MCU Support Package)
 
 
 set(STM32F303RC_CORE_SRC
-    ${ROOT}/System/msp/startup_stm32f303cbtx.s
+    ${ROOT}/system/msp/startup_stm32f303cbtx.s
 )
 
 set(STM32F303CE_MSP_SRC 
@@ -55,7 +55,7 @@ set(STM32F303CE_MSP_SRC
 
 
 set(STM32F303R_CORE_SRC
-    ${ROOT}/System/msp/startup_stm32f303retx.s
+    ${ROOT}/system/msp/startup_stm32f303retx.s
 )
 
 set(STM32F303RE_MSP_SRC 
@@ -65,102 +65,102 @@ set(STM32F303RE_MSP_SRC
 
 
 set(FREERTOS_BARE_SRC
-    ${ROOT}/System/core/libraries/FreeRTOS-Kernel/croutine.c
-    ${ROOT}/System/core/libraries/FreeRTOS-Kernel/event_groups.c
-    ${ROOT}/System/core/libraries/FreeRTOS-Kernel/list.c
-    ${ROOT}/System/core/libraries/FreeRTOS-Kernel/queue.c
-    ${ROOT}/System/core/libraries/FreeRTOS-Kernel/stream_buffer.c
-    ${ROOT}/System/core/libraries/FreeRTOS-Kernel/tasks.c
-    ${ROOT}/System/core/libraries/FreeRTOS-Kernel/timers.c
-    ${ROOT}/System/core/libraries/FreeRTOS-Kernel/portable/GCC/ARM_CM4F/port.c
-    ${ROOT}/System/core/libraries/FreeRTOS-Kernel/portable/MemMang/heap_4.c
+    ${ROOT}/system/core/libraries/FreeRTOS-Kernel/croutine.c
+    ${ROOT}/system/core/libraries/FreeRTOS-Kernel/event_groups.c
+    ${ROOT}/system/core/libraries/FreeRTOS-Kernel/list.c
+    ${ROOT}/system/core/libraries/FreeRTOS-Kernel/queue.c
+    ${ROOT}/system/core/libraries/FreeRTOS-Kernel/stream_buffer.c
+    ${ROOT}/system/core/libraries/FreeRTOS-Kernel/tasks.c
+    ${ROOT}/system/core/libraries/FreeRTOS-Kernel/timers.c
+    ${ROOT}/system/core/libraries/FreeRTOS-Kernel/portable/GCC/ARM_CM4F/port.c
+    ${ROOT}/system/core/libraries/FreeRTOS-Kernel/portable/MemMang/heap_4.c
 )
 
 set(FREERTOS_SRC
     # freertos-addons submodule (FreeRTOS C++ wrapper and more)
-    ${ROOT}/System/core/libraries/freertos-addons/c++/Source/cmutex.cpp
-    ${ROOT}/System/core/libraries/freertos-addons/c++/Source/cqueue.cpp
-    ${ROOT}/System/core/libraries/freertos-addons/c++/Source/cread_write_lock.cpp
-    ${ROOT}/System/core/libraries/freertos-addons/c++/Source/csemaphore.cpp
-    ${ROOT}/System/core/libraries/freertos-addons/c++/Source/ctasklet.cpp
-    ${ROOT}/System/core/libraries/freertos-addons/c++/Source/cthread.cpp
-    ${ROOT}/System/core/libraries/freertos-addons/c++/Source/ctimer.cpp
-    ${ROOT}/System/core/libraries/freertos-addons/c++/Source/ctickhook.cpp
-    ${ROOT}/System/core/libraries/freertos-addons/c++/Source/cworkqueue.cpp
+    ${ROOT}/system/core/libraries/freertos-addons/c++/Source/cmutex.cpp
+    ${ROOT}/system/core/libraries/freertos-addons/c++/Source/cqueue.cpp
+    ${ROOT}/system/core/libraries/freertos-addons/c++/Source/cread_write_lock.cpp
+    ${ROOT}/system/core/libraries/freertos-addons/c++/Source/csemaphore.cpp
+    ${ROOT}/system/core/libraries/freertos-addons/c++/Source/ctasklet.cpp
+    ${ROOT}/system/core/libraries/freertos-addons/c++/Source/cthread.cpp
+    ${ROOT}/system/core/libraries/freertos-addons/c++/Source/ctimer.cpp
+    ${ROOT}/system/core/libraries/freertos-addons/c++/Source/ctickhook.cpp
+    ${ROOT}/system/core/libraries/freertos-addons/c++/Source/cworkqueue.cpp
     ${FREERTOS_BARE_SRC}
 )
 
 
 set(FIBSYS_CORE_SRC
-    ${ROOT}/System/core/main.cpp
-    ${ROOT}/System/core/memory.cpp
-    ${ROOT}/System/core/system.cpp
+    ${ROOT}/system/core/main.cpp
+    ${ROOT}/system/core/memory.cpp
+    ${ROOT}/system/core/system.cpp
 )
 
 set(FIBSYS_DSP_SRC
-    ${ROOT}/System/dsp/sample.cpp
-    ${ROOT}/System/dsp/math.cpp
-    ${ROOT}/System/dsp/oscillator.cpp
-    ${ROOT}/System/dsp/waveforms.cpp
+    ${ROOT}/system/dsp/sample.cpp
+    ${ROOT}/system/dsp/math.cpp
+    ${ROOT}/system/dsp/oscillator.cpp
+    ${ROOT}/system/dsp/waveforms.cpp
 )
 
 set(FIBSYS_UTILITIES_SRC
-    ${ROOT}/System/utilities/stringContainer.cpp
+    ${ROOT}/system/utilities/stringContainer.cpp
 )
 
 # TODO: Make all peripherals work over interfaces
 set(FIBSYS_PERIPHERALS_SRC
     # Peripheral Interfaces shaping interaction of whats above to whats below
-    ${ROOT}/System/peripherals/interfaces/ioDataIF.hpp
-    ${ROOT}/System/peripherals/interfaces/i2sIF.cpp
-    ${ROOT}/System/peripherals/interfaces/adcIF.hpp
+    ${ROOT}/system/peripherals/interfaces/ioDataIF.hpp
+    ${ROOT}/system/peripherals/interfaces/i2sIF.cpp
+    ${ROOT}/system/peripherals/interfaces/adcIF.hpp
 
     # Peripherals Implementations - wrappers for limited resources that are available on the platform
-    ${ROOT}/System/peripherals/stm32f303r/tim6.cpp
-    ${ROOT}/System/peripherals/stm32f303r/uartIsr.cpp
-    ${ROOT}/System/peripherals/stm32f303r/uart2.cpp
-    ${ROOT}/System/peripherals/stm32f303r/uart3.cpp
-    ${ROOT}/System/peripherals/stm32f303r/i2sIsr.cpp
-    ${ROOT}/System/peripherals/stm32f303r/i2s2.cpp
-    ${ROOT}/System/peripherals/stm32f303r/adcIsr.cpp
-    ${ROOT}/System/peripherals/stm32f303r/adc2.cpp
+    ${ROOT}/system/peripherals/stm32f303r/tim6.cpp
+    ${ROOT}/system/peripherals/stm32f303r/uartIsr.cpp
+    ${ROOT}/system/peripherals/stm32f303r/uart2.cpp
+    ${ROOT}/system/peripherals/stm32f303r/uart3.cpp
+    ${ROOT}/system/peripherals/stm32f303r/i2sIsr.cpp
+    ${ROOT}/system/peripherals/stm32f303r/i2s2.cpp
+    ${ROOT}/system/peripherals/stm32f303r/adcIsr.cpp
+    ${ROOT}/system/peripherals/stm32f303r/adc2.cpp
 
-    ${ROOT}/System/peripherals/resources.cpp
+    ${ROOT}/system/peripherals/resources.cpp
 )
 
 set(FIBSYS_STREAMS_SRC
     # Streams Interfaces shaping interaction of whats above to whats below
-    ${ROOT}/System/streams/interfaces/duplexStereoStreamIF.cpp
-    ${ROOT}/System/streams/interfaces/asciiStreamIF.cpp
+    ${ROOT}/system/streams/interfaces/duplexStereoStreamIF.cpp
+    ${ROOT}/system/streams/interfaces/asciiStreamIF.cpp
     
     # Streams Implementations - making use of peripherals efficiently
-    ${ROOT}/System/streams/i2sDuplexStream.cpp
-    ${ROOT}/System/streams/ioStream.cpp
-    ${ROOT}/System/streams/txStream.cpp
+    ${ROOT}/system/streams/i2sDuplexStream.cpp
+    ${ROOT}/system/streams/ioStream.cpp
+    ${ROOT}/system/streams/txStream.cpp
 )
 
 set(FIBSYS_COMPONENTS_SRC
-    ${ROOT}/System/components/shell/shell.cpp
-    ${ROOT}/System/components/shell/commands.cpp
-    ${ROOT}/System/components/shell/input.cpp
-    ${ROOT}/System/components/shell/argVector.cpp
-    ${ROOT}/System/components/shell/argBuffer.cpp
-    ${ROOT}/System/components/logger.cpp
+    ${ROOT}/system/components/shell/shell.cpp
+    ${ROOT}/system/components/shell/commands.cpp
+    ${ROOT}/system/components/shell/input.cpp
+    ${ROOT}/system/components/shell/argVector.cpp
+    ${ROOT}/system/components/shell/argBuffer.cpp
+    ${ROOT}/system/components/logger.cpp
 )
 
 set(FIBSYS_SHELL_COMMANDS_SRC
-    ${ROOT}/System/shell/commands/clearShellCommand.cpp
-    ${ROOT}/System/shell/commands/configShellCommand.cpp
-    ${ROOT}/System/shell/commands/echoShellCommand.cpp
-    ${ROOT}/System/shell/commands/hexdumpShellCommand.cpp
-    ${ROOT}/System/shell/commands/panicShellCommand.cpp
-    ${ROOT}/System/shell/commands/resetShellCommand.cpp
-    ${ROOT}/System/shell/commands/statusShellCommand.cpp
-    ${ROOT}/System/shell/commands/repeatShellCommand.cpp
-    ${ROOT}/System/shell/commands/donutShellCommand.cpp
+    ${ROOT}/system/shell/commands/clearShellCommand.cpp
+    ${ROOT}/system/shell/commands/configShellCommand.cpp
+    ${ROOT}/system/shell/commands/echoShellCommand.cpp
+    ${ROOT}/system/shell/commands/hexdumpShellCommand.cpp
+    ${ROOT}/system/shell/commands/panicShellCommand.cpp
+    ${ROOT}/system/shell/commands/resetShellCommand.cpp
+    ${ROOT}/system/shell/commands/statusShellCommand.cpp
+    ${ROOT}/system/shell/commands/repeatShellCommand.cpp
+    ${ROOT}/system/shell/commands/donutShellCommand.cpp
 )
 
-#TODO: maybe move system libraries to System/ dir. 
+#TODO: maybe move system libraries to system/ dir. 
 # Libs used should be split into two lib categories: fibsys dependant and particular apllication dependant libs.
 set(FIBSYS_SRC
     ${FIBSYS_CORE_SRC}
@@ -201,34 +201,34 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     # Fibration Framework
     ${ROOT}
-    ${ROOT}/System/
-    ${ROOT}/System/config/
-    ${ROOT}/System/core/
-    ${ROOT}/System/core/Libraries
-    ${ROOT}/System/core/libraries/fibstd/include
-    ${ROOT}/System/core/libraries/magic_enum/include
-    ${ROOT}/System/utilities/
-    ${ROOT}/System/streams/interfaces/
-    ${ROOT}/System/streams/
-    ${ROOT}/System/peripherals/interfaces/
-    ${ROOT}/System/peripherals/stm32f303r/
-    ${ROOT}/System/peripherals/
-    ${ROOT}/System/components/
-    ${ROOT}/System/components/shell
+    ${ROOT}/system/
+    ${ROOT}/system/config/
+    ${ROOT}/system/core/
+    ${ROOT}/system/core/Libraries
+    ${ROOT}/system/core/libraries/fibstd/include
+    ${ROOT}/system/core/libraries/magic_enum/include
+    ${ROOT}/system/utilities/
+    ${ROOT}/system/streams/interfaces/
+    ${ROOT}/system/streams/
+    ${ROOT}/system/peripherals/interfaces/
+    ${ROOT}/system/peripherals/stm32f303r/
+    ${ROOT}/system/peripherals/
+    ${ROOT}/system/components/
+    ${ROOT}/system/components/shell
 
     # Real-Time Operating System
-    ${ROOT}/System/core/libraries/FreeRTOS-Kernel/include/
-    ${ROOT}/System/core/libraries/FreeRTOS-Kernel/portable/GCC/ARM_CM4F/
-    ${ROOT}/System/core/libraries/freertos-addons/c++/Source/include/
+    ${ROOT}/system/core/libraries/FreeRTOS-Kernel/include/
+    ${ROOT}/system/core/libraries/FreeRTOS-Kernel/portable/GCC/ARM_CM4F/
+    ${ROOT}/system/core/libraries/freertos-addons/c++/Source/include/
     
     # MCU Support Package
-    ${ROOT}/System/msp
+    ${ROOT}/system/msp
 
     # STM32F3 support
-    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Inc
-    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/CMSIS/Include
-    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/CMSIS/DSP/Include/
-    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/CMSIS/Device/ST/STM32F3xx/Include
+    ${ROOT}/system/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Inc
+    ${ROOT}/system/core/libraries/STM32CubeF3/Drivers/CMSIS/Include
+    ${ROOT}/system/core/libraries/STM32CubeF3/Drivers/CMSIS/DSP/Include/
+    ${ROOT}/system/core/libraries/STM32CubeF3/Drivers/CMSIS/Device/ST/STM32F3xx/Include
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE
@@ -270,8 +270,8 @@ target_compile_options(${PROJECT_NAME} PRIVATE
 )
 
 target_link_options(${PROJECT_NAME} PRIVATE
-    #-T${ROOT}/System/msp/STM32F303CCTX_FLASH.ld
-    -T${ROOT}/System/msp/STM32F303RETX_FLASH.ld
+    #-T${ROOT}/system/msp/STM32F303CCTX_FLASH.ld
+    -T${ROOT}/system/msp/STM32F303RETX_FLASH.ld
     -mcpu=cortex-m4
     -mthumb
     -mfpu=fpv4-sp-d16
@@ -292,7 +292,7 @@ target_link_options(${PROJECT_NAME} PRIVATE
 )
 
 target_link_libraries(${PROJECT_NAME}
-    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/CMSIS/Lib/GCC/libarm_cortexM4lf_math.a
+    ${ROOT}/system/core/libraries/STM32CubeF3/Drivers/CMSIS/Lib/GCC/libarm_cortexM4lf_math.a
 )
 
 # Create hex file and print executable size
