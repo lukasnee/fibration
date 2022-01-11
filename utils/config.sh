@@ -15,11 +15,11 @@ colorPurple='\033[0;35m'
 colorCyan='\033[0;36m'
 colorWhite='\033[0;37m'
 
-MODULES="Modules"
+MODULES="modules"
 
-BUILD_DIR="Build" # cross compile
+BUILD_DIR=".build" # cross compile
 CMAKE_BUILD_CONFIG_PATH=$(realpath "$SCRIPT_DIR/cmakeToolchainFiles/arm-none-eabi-gcc.cmake")
-TESTS_DIR="Tests"
+TESTS_DIR="tests"
 CMAKE_TESTS_CONFIG_PATH=$(realpath "$SCRIPT_DIR/cmakeToolchainFiles/gcc.cmake")
 
 CONFIG_FIBCOM_BAUDRATE=921600

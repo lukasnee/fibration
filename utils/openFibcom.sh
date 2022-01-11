@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source Utils/config.sh
+source utils/config.sh
 
 if [ $# -eq 0 ]; then 
     printf "${colorYellow}usage: $0 <device>\n"

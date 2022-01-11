@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source Utils/config.sh
+source utils/config.sh
 
 print_usage() {
     printf "usage: 
@@ -24,7 +24,7 @@ done
 
 # clean build if rebuild flag
 ACTION="build"
-[[ $REBUILD_FLAG -eq 1 ]] && (Utils/clean.sh -t $BUILD_TYPE; ACTION="rebuild")
+[[ $REBUILD_FLAG -eq 1 ]] && (utils/clean.sh -t $BUILD_TYPE; ACTION="rebuild")
 
 printf "${colorYellow}${ACTION}ing ${colorPurple}$BUILD_TYPE${colorYellow}\n" 
 

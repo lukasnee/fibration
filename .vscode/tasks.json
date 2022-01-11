@@ -3,9 +3,10 @@
     "tasks": [
         {
             "label": "reset ST-LINK",
+            "group": "none",
             "type": "shell",
             "linux": {
-                "command": "./Utils/reset-stlink.sh"
+                "command": "./utils/reset-stlink.sh"
             },
             "presentation": {
                 "clear": true,
@@ -14,9 +15,10 @@
         },
         {
             "label": "reset target",
+            "group": "none",
             "type": "shell",
             "linux": {
-                "command": "./Utils/reset-target.sh"
+                "command": "./utils/reset-target.sh"
             },
             "presentation": {
                 "focus": false,
@@ -25,9 +27,10 @@
         },
         {
             "label": "open fibcom /dev/serial0 [RPI4 UART]",
+            "group": "none",
             "type": "shell",
             "linux": {
-                "command": "./Utils/openFibcom.sh /dev/serial0"
+                "command": "./utils/openFibcom.sh /dev/serial0"
             },
             "presentation": {
                 "focus": true,
@@ -36,9 +39,10 @@
         },
         {
             "label": "open fibcom /dev/ttyACM0 [ST-LINK UART]",
+            "group": "none",
             "type": "shell",
             "linux": {
-                "command": "./Utils/openFibcom.sh /dev/ttyACM0"
+                "command": "./utils/openFibcom.sh /dev/ttyACM0"
             },
             "presentation": {
                 "focus": true,
@@ -47,9 +51,10 @@
         },
         {
             "label": "open fibcom /dev/ttyS8 [WSL ST-LINK UART]",
+            "group": "none",
             "type": "shell",
             "linux": {
-                "command": "./Utils/openFibcom.sh /dev/ttyS8"
+                "command": "./utils/openFibcom.sh /dev/ttyS8"
             },
             "presentation": {
                 "focus": true,
@@ -57,14 +62,14 @@
             }
         },
         {
-            "label": "build Higgs [Release]",
-            "type": "shell",
+            "label": "build higgs [release]",
             "group": {
-                "kind": "test",
+                "kind": "build",
                 "isDefault": true
             },
+            "type": "shell",
             "linux": {
-                "command": "./Utils/build.sh -p Higgs -t release",
+                "command": "./utils/build.sh -p higgs -t release",
                 "problemMatcher": "$gcc",
             },
             "presentation": {
@@ -72,14 +77,11 @@
             }
         },
         {
-            "label": "rebuild Higgs [Release]",
+            "label": "rebuild higgs [release]",
+            "group": "build",
             "type": "shell",
-            "group": {
-                "kind": "test",
-                "isDefault": true
-            },
             "linux": {
-                "command": "./Utils/build.sh -p Higgs -t release -r",
+                "command": "./utils/build.sh -p higgs -t release -r",
                 "problemMatcher": "$gcc",
             },
             "presentation": {
@@ -87,14 +89,14 @@
             }
         },
         {
-            "label": "build and flash Higgs [Release]",
-            "type": "shell",
+            "label": "build and flash higgs [release]",
             "group": {
                 "kind": "test",
                 "isDefault": true
             },
+            "type": "shell",
             "linux": {
-                "command": "./Utils/flash.sh -p Higgs -t release -b",
+                "command": "./utils/flash.sh -p higgs -t release -b",
                 "problemMatcher": "$gcc",
             },
             "presentation": {
@@ -103,13 +105,10 @@
         },
         {
             "label": "build unit tests",
+            "group": "build",
             "type": "shell",
-            "group": {
-                "kind": "test",
-                "isDefault": true
-            },
             "linux": {
-                "command": "./Utils/test.sh",
+                "command": "./utils/buildUnitTests.sh",
                 "problemMatcher": "$gcc",
             },
             "presentation": {
@@ -118,13 +117,10 @@
         },
         {
             "label": "run unit tests",
+            "group": "test",
             "type": "shell",
-            "group": {
-                "kind": "test",
-                "isDefault": true
-            },
             "linux": {
-                "command": "./Build/tests/tests"
+                "command": "./utils/runUnitTests.sh"
             },
             "presentation": {
                 "focus": true
@@ -132,27 +128,25 @@
         },
         {
             "label": "build and run unit tests",
+            "group": "test",
             "type": "shell",
-            "group": {
-                "kind": "test",
-                "isDefault": true
-            },
             "dependsOn":["build unit tests","run unit tests"],
             "dependsOrder": "sequence"
         },
         {
             "label": "kill openocd processes",
+            "group": "none",
             "type": "shell",
             "linux": {
-                "command": "./Utils/killProcessesByPattern.sh openocd",
+                "command": "./utils/killProcessesByPattern.sh openocd",
             }
         },
         {
             "label": "preLaunchTaskHiggs",
+            "group": "none",
             "type": "shell",
-            "group": "test",
             "linux": {
-                "command": "./Utils/build.sh -p Higgs -t debug",
+                "command": "./utils/build.sh -p higgs -t debug",
                 "problemMatcher": "$gcc",
             }
         },

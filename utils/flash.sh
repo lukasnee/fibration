@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source Utils/config.sh
+source utils/config.sh
 
 print_usage() {
     printf "usage: 
@@ -43,7 +43,7 @@ EXEC_TO_CHECK="openocd"
 [[ ! -f $(command -v $EXEC_TO_CHECK) ]] && 
     printf "${colorRed}no '$EXEC_TO_CHECK' executable\n" && exit -1
 
-[[ $PREBUILD_FLAG -eq 1 ]] && (Utils/build.sh -p $PROJECT -t $BUILD_TYPE || exit -1 )
+[[ $PREBUILD_FLAG -eq 1 ]] && (utils/build.sh -p $PROJECT -t $BUILD_TYPE || exit -1 )
 
 ELF_PATH="$PROJECT_DIR/$PROJECT"
 [[ ! -f $ELF_PATH ]] && 

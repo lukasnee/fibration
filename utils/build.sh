@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source Utils/config.sh
+source utils/config.sh
 
 print_usage() {
     printf "usage: 
@@ -45,7 +45,7 @@ ELF_PATH="$PROJECT_DIR/$PROJECT"
 
 # clean build if rebuild flag
 ACTION="build"
-[[ $REBUILD_FLAG -eq 1 ]] && (Utils/clean.sh -p $PROJECT -t $BUILD_TYPE; ACTION="rebuild")
+[[ $REBUILD_FLAG -eq 1 ]] && (utils/clean.sh -p $PROJECT -t $BUILD_TYPE; ACTION="rebuild")
 
 printf "${colorYellow}${ACTION}ing ${colorPurple}$BUILD_TYPE${colorYellow}\n" 
 
@@ -54,7 +54,7 @@ BUILD_TYPE_DIR="$BUILD_DIR/$BUILD_TYPE"
 [[ ! -d "$BUILD_TYPE_BUILD_DIR" ]] && mkdir $BUILD_TYPE_DIR --parents
 
 GITHASH_DEF_PATH="gitHash.def"
-Utils/generateGitHashDef.sh $GITHASH_DEF_PATH
+utils/generateGitHashDef.sh $GITHASH_DEF_PATH
 pushd $BUILD_TYPE_DIR > /dev/null
 
 printf $colorCyan
