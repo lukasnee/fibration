@@ -19,7 +19,7 @@ while getopts 'p:t:bh' flag; do
   case "${flag}" in
     p) 
         PROJECT="${OPTARG}"
-        [[ -d "Modules/$PROJECT" ]] || ( printf "${colorRed}no such project in Modules directory\n"; exit -1 ) 
+        [[ -d "$MODULES/$PROJECT" ]] || ( printf "${colorRed}no such project in Modules directory\n"; exit -1 ) 
         ;;
     t) 
         BUILD_TYPE="${OPTARG}"
@@ -37,7 +37,7 @@ done
 [[ -z $PROJECT ]] && ( printf "${colorRed}project unspecified\n"; exit -1 )
 
 # build structure
-PROJECT_DIR="$BUILD_DIR/$BUILD_TYPE/Modules/$PROJECT"
+PROJECT_DIR="$BUILD_DIR/$BUILD_TYPE/$MODULES/$PROJECT"
 
 EXEC_TO_CHECK="openocd"
 [[ ! -f $(command -v $EXEC_TO_CHECK) ]] && 
@@ -51,5 +51,5 @@ ELF_PATH="$PROJECT_DIR/$PROJECT"
 
 printf "${colorYellow}flashing image from ELF: ${colorPurple}$ELF_PATH\n"
 
-openocd -c "set BUILD_TYPE $BUILD_TYPE" -f "Modules/$PROJECT/openocd.cfg" -c "exit" \
+openocd -c "set BUILD_TYPE $BUILD_TYPE" -f "$MODULES/$PROJECT/openocd.cfg" -c "exit" \
     && printf "${colorGreen}flashed successfully !\n" || printf "${colorRed}flashing failed\n" 

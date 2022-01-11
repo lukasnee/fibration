@@ -19,7 +19,7 @@ while getopts 'p:t:rh' flag; do
   case "${flag}" in
     p) 
         PROJECT="${OPTARG}"
-        [[ -d "Modules/$PROJECT" ]] || ( printf "${colorRed}no such project in Modules directory\n"; exit -1 ) 
+        [[ -d "$MODULES/$PROJECT" ]] || ( printf "${colorRed}no such project in Modules directory\n"; exit -1 ) 
         ;;
     t) 
         BUILD_TYPE="${OPTARG}"
@@ -36,7 +36,7 @@ done
 
 [[ -z $PROJECT ]] && ( printf "${colorRed}project unspecified\n"; exit -1 )
 
-PROJECT_DIR="$BUILD_DIR/$BUILD_TYPE/Modules/$PROJECT"
+PROJECT_DIR="$BUILD_DIR/$BUILD_TYPE/$MODULES/$PROJECT"
 
 
 # remove ELF to avoid debugging old executable

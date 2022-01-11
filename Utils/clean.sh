@@ -21,7 +21,7 @@ while getopts 'ap:t:h' flag; do
         all=1 ;; 
     p) 
         PROJECT="${OPTARG}"
-        [[ -d "Modules/$PROJECT" ]] || ( printf "${colorRed}no such project in Modules directory\n"; exit -1 ) 
+        [[ -d "$MODULES/$PROJECT" ]] || ( printf "${colorRed}no such project in Modules directory\n"; exit -1 ) 
         ;;
     t) 
         BUILD_TYPE="${OPTARG}"
@@ -37,7 +37,7 @@ done
 if [[ all -gt 0 ]]; then 
     DIR_TO_DELETE="$BUILD_DIR"
 else
-    DIR_TO_DELETE="$BUILD_DIR/$BUILD_TYPE/Modules/$PROJECT"
+    DIR_TO_DELETE="$BUILD_DIR/$BUILD_TYPE/$MODULES/$PROJECT"
 fi
 
 printf "${colorYellow}cleaning ${colorPurple}$DIR_TO_DELETE\n"; 
