@@ -145,6 +145,8 @@ code .
 
 8. Build project `higgs` by running VSCode tasks `build higgs [release]` or run manually using `./utils/build.sh -p higgs -t release`.
 
+> **NOTE**: Initial build can fail so try building a couple times more.
+
 9. Flash project `higgs` by running VSCode tasks `build and flash higgs [release]` or run manually using `./utils/flash.sh -p higgs -t release -b`.
 
 10. That's it!
