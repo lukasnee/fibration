@@ -177,6 +177,7 @@ sudo ln -s /usr/share/gcc-arm-none-eabi-<VERSION>/bin/arm-none-eabi-g++ /usr/bin
 sudo ln -s /usr/share/gcc-arm-none-eabi-<VERSION>/bin/arm-none-eabi-gdb /usr/bin/arm-none-eabi-gdb
 sudo ln -s /usr/share/gcc-arm-none-eabi-<VERSION>/bin/arm-none-eabi-size /usr/bin/arm-none-eabi-size
 sudo ln -s /usr/share/gcc-arm-none-eabi-<VERSION>/bin/arm-none-eabi-objcopy /usr/bin/arm-none-eabi-objcopy
+sudo ln -s /usr/share/gcc-arm-none-eabi-<VERSION>/bin/arm-none-eabi-objdump /usr/bin/arm-none-eabi-objdump
 sudo ln -s /usr/share/gcc-arm-none-eabi-<VERSION>/bin/arm-none-eabi-nm /usr/bin/arm-none-eabi-nm
 # ... link other arm-none-eabi-* if you intend to use
 ```
@@ -197,6 +198,7 @@ arm-none-eabi-g++ --version
 arm-none-eabi-gdb --version
 arm-none-eabi-size --version
 arm-none-eabi-objcopy --version
+arm-none-eabi-objdump --version
 arm-none-eabi-nm --version
 ```
 
@@ -253,12 +255,10 @@ Insert the following in your VSCode's `keybindings.json`. You can search it up u
 ```json
 [
     // Fibration workspace
-    { "key": "shift+space i", "command": "workbench.action.tasks.runTask", "args": "Get ST-LINK and target info" },
-    { "key": "shift+space p", "command": "workbench.action.tasks.runTask", "args": "Probe for ST-LINK device" },
-    { "key": "shift+space b", "command": "workbench.action.tasks.runTask", "args": "Build All [Release]" },
-    { "key": "shift+space r", "command": "workbench.action.tasks.runTask", "args": "Rebuild All [Release]" },
-    { "key": "shift+space f", "command": "workbench.action.tasks.runTask", "args": "Build and Flash Higgs [Release]" },
-    { "key": "shift+space d", "command": "workbench.action.tasks.runTask", "args": "Build and Flash Higgs [Debug]" },
-    { "key": "shift+space t", "command": "workbench.action.tasks.runTask", "args": "Serial /dev/serial0 [RPI4 UART]" }
+    { "key": "shift+space i", "command": "workbench.action.tasks.runTask", "args": "get st-link and target info" },
+    { "key": "shift+space p", "command": "workbench.action.tasks.runTask", "args": "probe for st-link device" },
+    { "key": "shift+space f", "command": "workbench.action.tasks.runTask", "args": "build and flash Higgs [Release]" },
+    { "key": "shift+space b", "command": "workbench.action.tasks.runTask", "args": "build Higgs [Release]" },
+    { "key": "shift+space t", "command": "workbench.action.tasks.runTask", "args": "build and run unit tests" }
 ]
 ```
