@@ -15,5 +15,4 @@ public:
     static Uart3 &getUart3();
     static I2s2 &getI2s2();
     static Adc2 &getAdc2();
-    static Gpio &getGpio();
 };

@@ -45,8 +45,3 @@ Adc2 &Periph::getAdc2()
 {
     return Adc2::getInstance();
 }
-
-Gpio &Periph::getGpio()
-{
-    return Gpio::getInstance();
-}
