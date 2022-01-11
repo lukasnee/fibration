@@ -92,9 +92,9 @@ set(FREERTOS_SRC
 
 
 set(FIBSYS_CORE_SRC
-    ${ROOT}/System/Core/main.cpp
-    ${ROOT}/System/Core/memory.cpp
-    ${ROOT}/System/Core/system.cpp
+    ${ROOT}/System/core/main.cpp
+    ${ROOT}/System/core/memory.cpp
+    ${ROOT}/System/core/system.cpp
 )
 
 set(FIBSYS_DSP_SRC
@@ -203,10 +203,10 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${ROOT}
     ${ROOT}/System/
     ${ROOT}/System/Config/
-    ${ROOT}/System/Core/
-    ${ROOT}/System/Core/Libraries
-    ${ROOT}/System/Core/Libraries/fibstd/include
-    ${ROOT}/System/Core/Libraries/magic_enum/include
+    ${ROOT}/System/core/
+    ${ROOT}/System/core/Libraries
+    ${ROOT}/System/core/libraries/fibstd/include
+    ${ROOT}/System/core/libraries/magic_enum/include
     ${ROOT}/System/Utilities/
     ${ROOT}/System/Streams/Interfaces/
     ${ROOT}/System/Streams/

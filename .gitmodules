@@ -11,8 +11,8 @@
 	path = System/Components/Shell/cxxopts
 	url = https://github.com/jarro2783/cxxopts.git
 [submodule "System/Core/Libraries/magic_enum"]
-	path = System/Core/Libraries/magic_enum
+	path = System/core/libraries/magic_enum
 	url = https://github.com/Neargye/magic_enum.git
 [submodule "System/Core/Libraries/fibstd"]
-	path = System/Core/Libraries/fibstd
+	path = System/core/libraries/fibstd
 	url = https://github.com/lukasnee/fibstd.git
