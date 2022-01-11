@@ -8,7 +8,7 @@
 	path = System/core/libraries/STM32CubeF3
 	url = https://github.com/lukasnee/STM32CubeF3.git
 [submodule "System/Components/Shell/cxxopts"]
-	path = System/Components/Shell/cxxopts
+	path = System/components/shell/cxxopts
 	url = https://github.com/jarro2783/cxxopts.git
 [submodule "System/Core/Libraries/magic_enum"]
 	path = System/core/libraries/magic_enum
