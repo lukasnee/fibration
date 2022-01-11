@@ -19,23 +19,23 @@ set(STM32F3xx_CORE_SRC
 )
 
 set(STM32F3xx_HAL_SRC # (Hardware Abstraction Layer)
-    ${ROOT}/System/MSP/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal.c
-    ${ROOT}/System/MSP/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_cortex.c
-    ${ROOT}/System/MSP/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_exti.c
-    ${ROOT}/System/MSP/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_gpio.c
-    ${ROOT}/System/MSP/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_pwr.c
-    ${ROOT}/System/MSP/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_pwr_ex.c
-    ${ROOT}/System/MSP/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc.c
-    ${ROOT}/System/MSP/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc_ex.c
-    ${ROOT}/System/MSP/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.c
-    ${ROOT}/System/MSP/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim_ex.c
-    ${ROOT}/System/MSP/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.c
-    ${ROOT}/System/MSP/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart_ex.c
-    ${ROOT}/System/MSP/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_dma.c
-    ${ROOT}/System/MSP/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_i2s.c
-    ${ROOT}/System/MSP/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_i2s_ex.c
-    ${ROOT}/System/MSP/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_adc.c
-    ${ROOT}/System/MSP/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_adc_ex.c
+    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal.c
+    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_cortex.c
+    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_exti.c
+    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_gpio.c
+    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_pwr.c
+    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_pwr_ex.c
+    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc.c
+    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_rcc_ex.c
+    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.c
+    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim_ex.c
+    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart.c
+    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_uart_ex.c
+    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_dma.c
+    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_i2s.c
+    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_i2s_ex.c
+    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_adc.c
+    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_adc_ex.c
 )
 
 set(STM32F3_MSP_SRC # (MCU Support Package)
@@ -65,28 +65,28 @@ set(STM32F303RE_MSP_SRC
 
 
 set(FREERTOS_BARE_SRC
-    ${ROOT}/System/MSP/FreeRTOS-Kernel/croutine.c
-    ${ROOT}/System/MSP/FreeRTOS-Kernel/event_groups.c
-    ${ROOT}/System/MSP/FreeRTOS-Kernel/list.c
-    ${ROOT}/System/MSP/FreeRTOS-Kernel/queue.c
-    ${ROOT}/System/MSP/FreeRTOS-Kernel/stream_buffer.c
-    ${ROOT}/System/MSP/FreeRTOS-Kernel/tasks.c
-    ${ROOT}/System/MSP/FreeRTOS-Kernel/timers.c
-    ${ROOT}/System/MSP/FreeRTOS-Kernel/portable/GCC/ARM_CM4F/port.c
-    ${ROOT}/System/MSP/FreeRTOS-Kernel/portable/MemMang/heap_4.c
+    ${ROOT}/System/core/libraries/FreeRTOS-Kernel/croutine.c
+    ${ROOT}/System/core/libraries/FreeRTOS-Kernel/event_groups.c
+    ${ROOT}/System/core/libraries/FreeRTOS-Kernel/list.c
+    ${ROOT}/System/core/libraries/FreeRTOS-Kernel/queue.c
+    ${ROOT}/System/core/libraries/FreeRTOS-Kernel/stream_buffer.c
+    ${ROOT}/System/core/libraries/FreeRTOS-Kernel/tasks.c
+    ${ROOT}/System/core/libraries/FreeRTOS-Kernel/timers.c
+    ${ROOT}/System/core/libraries/FreeRTOS-Kernel/portable/GCC/ARM_CM4F/port.c
+    ${ROOT}/System/core/libraries/FreeRTOS-Kernel/portable/MemMang/heap_4.c
 )
 
 set(FREERTOS_SRC
     # freertos-addons submodule (FreeRTOS C++ wrapper and more)
-    ${ROOT}/System/MSP/freertos-addons/c++/Source/cmutex.cpp
-    ${ROOT}/System/MSP/freertos-addons/c++/Source/cqueue.cpp
-    ${ROOT}/System/MSP/freertos-addons/c++/Source/cread_write_lock.cpp
-    ${ROOT}/System/MSP/freertos-addons/c++/Source/csemaphore.cpp
-    ${ROOT}/System/MSP/freertos-addons/c++/Source/ctasklet.cpp
-    ${ROOT}/System/MSP/freertos-addons/c++/Source/cthread.cpp
-    ${ROOT}/System/MSP/freertos-addons/c++/Source/ctimer.cpp
-    ${ROOT}/System/MSP/freertos-addons/c++/Source/ctickhook.cpp
-    ${ROOT}/System/MSP/freertos-addons/c++/Source/cworkqueue.cpp
+    ${ROOT}/System/core/libraries/freertos-addons/c++/Source/cmutex.cpp
+    ${ROOT}/System/core/libraries/freertos-addons/c++/Source/cqueue.cpp
+    ${ROOT}/System/core/libraries/freertos-addons/c++/Source/cread_write_lock.cpp
+    ${ROOT}/System/core/libraries/freertos-addons/c++/Source/csemaphore.cpp
+    ${ROOT}/System/core/libraries/freertos-addons/c++/Source/ctasklet.cpp
+    ${ROOT}/System/core/libraries/freertos-addons/c++/Source/cthread.cpp
+    ${ROOT}/System/core/libraries/freertos-addons/c++/Source/ctimer.cpp
+    ${ROOT}/System/core/libraries/freertos-addons/c++/Source/ctickhook.cpp
+    ${ROOT}/System/core/libraries/freertos-addons/c++/Source/cworkqueue.cpp
     ${FREERTOS_BARE_SRC}
 )
 
@@ -217,18 +217,18 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${ROOT}/System/Components/Shell
 
     # Real-Time Operating System
-    ${ROOT}/System/MSP/FreeRTOS-Kernel/include/
-    ${ROOT}/System/MSP/FreeRTOS-Kernel/portable/GCC/ARM_CM4F/
-    ${ROOT}/System/MSP/freertos-addons/c++/Source/include/
+    ${ROOT}/System/core/libraries/FreeRTOS-Kernel/include/
+    ${ROOT}/System/core/libraries/FreeRTOS-Kernel/portable/GCC/ARM_CM4F/
+    ${ROOT}/System/core/libraries/freertos-addons/c++/Source/include/
     
     # MCU Support Package
     ${ROOT}/System/MSP
 
     # STM32F3 support
-    ${ROOT}/System/MSP/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Inc
-    ${ROOT}/System/MSP/STM32CubeF3/Drivers/CMSIS/Include
-    ${ROOT}/System/MSP/STM32CubeF3/Drivers/CMSIS/DSP/Include/
-    ${ROOT}/System/MSP/STM32CubeF3/Drivers/CMSIS/Device/ST/STM32F3xx/Include
+    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver/Inc
+    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/CMSIS/Include
+    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/CMSIS/DSP/Include/
+    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/CMSIS/Device/ST/STM32F3xx/Include
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE
@@ -292,7 +292,7 @@ target_link_options(${PROJECT_NAME} PRIVATE
 )
 
 target_link_libraries(${PROJECT_NAME}
-    ${ROOT}/System/MSP/STM32CubeF3/Drivers/CMSIS/Lib/GCC/libarm_cortexM4lf_math.a
+    ${ROOT}/System/core/libraries/STM32CubeF3/Drivers/CMSIS/Lib/GCC/libarm_cortexM4lf_math.a
 )
 
 # Create hex file and print executable size

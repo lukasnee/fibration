@@ -1,11 +1,11 @@
 [submodule "System/MSP/FreeRTOS-Kernel"]
-	path = System/MSP/FreeRTOS-Kernel
+	path = System/core/libraries/FreeRTOS-Kernel
 	url = https://github.com/lukasnee/FreeRTOS-Kernel.git
 [submodule "System/MSP/freertos-addons"]
-	path = System/MSP/freertos-addons
+	path = System/core/libraries/freertos-addons
 	url = https://github.com/lukasnee/freertos-addons.git
 [submodule "System/MSP/STM32CubeF3"]
-	path = System/MSP/STM32CubeF3
+	path = System/core/libraries/STM32CubeF3
 	url = https://github.com/lukasnee/STM32CubeF3.git
 [submodule "System/Components/Shell/cxxopts"]
 	path = System/Components/Shell/cxxopts
