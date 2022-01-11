@@ -1,18 +1,18 @@
 [submodule "System/MSP/FreeRTOS-Kernel"]
-	path = System/core/libraries/FreeRTOS-Kernel
+	path = system/core/libraries/FreeRTOS-Kernel
 	url = https://github.com/lukasnee/FreeRTOS-Kernel.git
 [submodule "System/MSP/freertos-addons"]
-	path = System/core/libraries/freertos-addons
+	path = system/core/libraries/freertos-addons
 	url = https://github.com/lukasnee/freertos-addons.git
 [submodule "System/MSP/STM32CubeF3"]
-	path = System/core/libraries/STM32CubeF3
+	path = system/core/libraries/STM32CubeF3
 	url = https://github.com/lukasnee/STM32CubeF3.git
 [submodule "System/Components/Shell/cxxopts"]
-	path = System/components/shell/cxxopts
+	path = system/components/shell/cxxopts
 	url = https://github.com/jarro2783/cxxopts.git
 [submodule "System/Core/Libraries/magic_enum"]
-	path = System/core/libraries/magic_enum
+	path = system/core/libraries/magic_enum
 	url = https://github.com/Neargye/magic_enum.git
 [submodule "System/Core/Libraries/fibstd"]
-	path = System/core/libraries/fibstd
+	path = system/core/libraries/fibstd
 	url = https://github.com/lukasnee/fibstd.git
