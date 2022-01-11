@@ -115,15 +115,14 @@ private:
     virtual void Run() override
     {
         Logger::log(Logger::Verbosity::high, Logger::Type::trace, "BlinkTestApp started\n");
-        auto &gpio = Periph::getGpio();
-        gpio.init(Pin::A5, Gpio::Mode::output, Gpio::PinState::low, Gpio::Pull::none);
+        Gpio::init<Gpio::Pin::A5>(Gpio::Mode::output, Gpio::PinState::low, Gpio::Pull::none);
         DelayUntil(cpp_freertos::Ticks::MsToTicks(1000));
         i2s2DuplexStream.start();
         while (true)
         {
-            gpio.write(Pin::A5, Gpio::PinState::low);
+            Gpio::write<Gpio::Pin::A5>(Gpio::PinState::low);
             DelayUntil(cpp_freertos::Ticks::MsToTicks(50));
-            gpio.write(Pin::A5, Gpio::PinState::high);
+            Gpio::write<Gpio::Pin::A5>(Gpio::PinState::high);
             DelayUntil(cpp_freertos::Ticks::MsToTicks((50)));
         }
     }

@@ -116,7 +116,6 @@ set(FIBSYS_PERIPHERALS_SRC
     ${ROOT}/System/Peripherals/Interfaces/adcIF.hpp
 
     # Peripherals Implementations - wrappers for limited resources that are available on the platform
-    ${ROOT}/System/Peripherals/STM32F303R/gpio.cpp
     ${ROOT}/System/Peripherals/STM32F303R/tim6.cpp
     ${ROOT}/System/Peripherals/STM32F303R/uartIsr.cpp
     ${ROOT}/System/Peripherals/STM32F303R/uart2.cpp
