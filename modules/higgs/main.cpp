@@ -115,7 +115,7 @@ private:
     virtual void Run() override
     {
         Logger::log(Logger::Verbosity::high, Logger::Type::trace, "BlinkTestApp started\n");
-        Gpio::init<Gpio::Pin::A5>(Gpio::Mode::output, Gpio::PinState::low, Gpio::Pull::none);
+        Gpio::initAsOutput<Gpio::Pin::A5>(Gpio::PinState::low, Gpio::Pull::none);
         DelayUntil(cpp_freertos::Ticks::MsToTicks(1000));
         i2s2DuplexStream.start();
         while (true)
