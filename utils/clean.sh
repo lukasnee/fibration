@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 source utils/config.sh
 
 print_usage() {

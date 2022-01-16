@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 source utils/config.sh
 
 if [ $# -eq 0 ]; then 
