@@ -120,20 +120,9 @@ private:
         i2s2DuplexStream.start();
         while (true)
         {
-#define META true
-#if META
-
-            Gpio::write<Gpio::Pin::A5>(Gpio::PinState::low);
-#else
-            HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
-#endif
+            Gpio::writeLow<Gpio::Pin::A5>();
             DelayUntil(cpp_freertos::Ticks::MsToTicks(50));
-
-#if META
-            Gpio::write<Gpio::Pin::A5>(Gpio::PinState::high);
-#else
-            HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
-#endif
+            Gpio::writeHigh<Gpio::Pin::A5>();
             DelayUntil(cpp_freertos::Ticks::MsToTicks((50)));
         }
     }
