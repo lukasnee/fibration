@@ -81,9 +81,10 @@
         "bit": "cpp",
         "shared_mutex": "cpp",
         "future": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "ciso646": "cpp"
     },
-    "cmake.configureOnOpen": true,
+    "cmake.configureOnOpen": false,
     "C_Cpp.errorSquiggles": "Enabled",
     "python.pythonPath": "/usr/bin/python3",
     "editor.guides.bracketPairs": true,
@@ -108,5 +109,6 @@
     },
     "[cmake]": {
         "editor.defaultFormatter": "cheshirekow.cmake-format"
-    }
+    },
+    "cmake.configureOnEdit": false
 }

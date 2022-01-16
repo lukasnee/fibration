@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(fibrationUnitTests)
+project(unitTests)
 
 ADD_EXECUTABLE(${PROJECT_NAME}
     source/main.cpp
@@ -11,4 +11,3 @@ ADD_EXECUTABLE(${PROJECT_NAME}
 include_directories(
     include
 )
-

@@ -206,6 +206,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${ROOT}/system/core/
     ${ROOT}/system/core/Libraries
     ${ROOT}/system/core/libraries/fibstd/include
+    ${ROOT}/system/core/libraries/fibstd/libraries/eternal/include
     ${ROOT}/system/core/libraries/magic_enum/include
     ${ROOT}/system/utilities/
     ${ROOT}/system/streams/interfaces/
@@ -265,7 +266,7 @@ target_compile_options(${PROJECT_NAME} PRIVATE
 
     # -O3 compiler tries to reduce code size and execution time, O3 is highest standard optimization.
     # -Os Optimize for size. -Os enables all -O2 optimizations except those that often increase code size
-    $<$<CONFIG:Release>:-Os>
+    $<$<CONFIG:Release>:-O3>
 
 )
 
