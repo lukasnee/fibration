@@ -32,9 +32,9 @@
 class Gpio
 {
 public:
-    /** @brief available GPIOs for STM32F303Rx */
-    enum class Pin
-    {
+    /** @brief GPIO API for STM32F303Rx */
+
+    enum class Pin {
         // clang-format off
         A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
         B0, B1, B2, B3, B4, B5, B6, B7, B8, B9, B10, B11, B12, B13, B14, B15,
@@ -42,99 +42,26 @@ public:
                 D2,
         // clang-format on
     };
-
-    enum class PinState
-    {
-        low,
-        high
-    };
-
-    enum class Pull
-    {
-        none,
-        up,
-        down
-    };
-
-    template <Pin pin> static void initAsInput()
-    {
-        Gpio::hwInit<pin>(Mode::input, Pull::none);
-    };
-
-    template <Pin pin> inline static void initAsOutput(PinState initial, Pull pull)
-    {
-        Gpio::write<pin>(initial);
-        Gpio::hwInit<pin>(Mode::output, pull);
-    };
-
-    template <Pin pin>[[nodiscard]] static inline bool read()
-    {
-        return (pinDescrOf<pin>().hwPort->IDR & pinDescrOf<pin>().hwPin);
-    };
-
-    template <Pin pin> static inline void write(PinState pinState)
-    {
-        if (pinState == PinState::high)
-        {
-            pinDescrOf<pin>().hwPort->BSRR = (uint32_t)pinDescrOf<pin>().hwPin;
-        }
-        else
-        {
-            pinDescrOf<pin>().hwPort->BRR = (uint32_t)pinDescrOf<pin>().hwPin;
-        }
-    };
-
-    template <Pin pin> static inline void writeHigh()
-    {
-        Gpio::write<pin>(PinState::high);
-    };
-
-    template <Pin pin> static inline void writeLow()
-    {
-        Gpio::write<pin>(PinState::low);
-    };
-
-    template <Pin pin> static inline void toggle()
-    {
-        pinDescrOf<pin>().hwPort->BSRR = ((pinDescrOf<pin>().hwPort->ODR & pinDescrOf<pin>().hwPin) << 16) |
-                                         (~pinDescrOf<pin>().hwPort->ODR & pinDescrOf<pin>().hwPin);
-    }
-
-    template <Pin pin> static void deinit()
-    {
-        HAL_GPIO_DeInit(pinDescrOf<pin>().hwPort, pinDescrOf<pin>().hwPin);
-        // note gpio related clock still remain enabled
-    };
-
+    enum class PinState { low, high };
+    enum class Pull { none, up, down };
+    template <Pin pin> static void initAsInput() { Gpio::hwInit<pin>(Mode::input, Pull::none); }
+    template <Pin pin> inline static void initAsOutput(PinState initial, Pull pull) { hwInitAsOutput<pin>(initial, pull); }
+    template <Pin pin>[[nodiscard]] static inline bool read() { return hwRead<pin>(); }
+    template <Pin pin> static inline void write(PinState pinState) { hwWrite<pin>(pinState); }
+    template <Pin pin> static inline void writeHigh() { Gpio::hwWrite<pin>(PinState::high); }
+    template <Pin pin> static inline void writeLow() { Gpio::hwWrite<pin>(PinState::low); }
+    template <Pin pin> static inline void toggle() { Gpio::hwToggle<pin>(); }
+    template <Pin pin> static void deinit() { Gpio::hwDeinit<pin>(); };
     /** @brief lock pin hardware configuration registers until mcu reboot */
-    template <Pin pin> static void lock()
-    {
-        HAL_GPIO_LockPin(pinDescrOf<pin>().hwPort, pinDescrOf<pin>().hwPin);
-    }
+    template <Pin pin> static void lock() { Gpio::hwLock<pin>(); }
 
 private:
-    enum class Mode
-    {
-        input,
-        output
-    };
+    enum class Mode { input, output };
 
-    static void preInitPortA()
-    {
-        __HAL_RCC_GPIOA_CLK_ENABLE();
-    }
-    static void preInitPortB()
-    {
-        __HAL_RCC_GPIOB_CLK_ENABLE();
-    }
-    static void preInitPortC()
-    {
-        __HAL_RCC_GPIOC_CLK_ENABLE();
-    }
-    static void preInitPortD()
-    {
-        __HAL_RCC_GPIOD_CLK_ENABLE();
-    }
+    static void preInitPortA() { __HAL_RCC_GPIOA_CLK_ENABLE(); }
+    static void preInitPortB() { __HAL_RCC_GPIOB_CLK_ENABLE(); }
+    static void preInitPortC() { __HAL_RCC_GPIOC_CLK_ENABLE(); }
+    static void preInitPortD() { __HAL_RCC_GPIOD_CLK_ENABLE(); }
 
     struct PinDescr
     {
@@ -144,99 +71,94 @@ private:
     };
 
     static constexpr const auto pinDescrs = mapbox::eternal::map<Pin, PinDescr>({
-        {Pin::A0, {GPIOA, GPIO_PIN_0, preInitPortA}},   /* */
-        {Pin::A1, {GPIOA, GPIO_PIN_1, preInitPortA}},   /* */
-        {Pin::A2, {GPIOA, GPIO_PIN_2, preInitPortA}},   /* */
-        {Pin::A3, {GPIOA, GPIO_PIN_3, preInitPortA}},   /* */
-        {Pin::A4, {GPIOA, GPIO_PIN_4, preInitPortA}},   /* */
-        {Pin::A5, {GPIOA, GPIO_PIN_5, preInitPortA}},   /* */
-        {Pin::A6, {GPIOA, GPIO_PIN_6, preInitPortA}},   /* */
-        {Pin::A7, {GPIOA, GPIO_PIN_7, preInitPortA}},   /* */
-        {Pin::A8, {GPIOA, GPIO_PIN_8, preInitPortA}},   /* */
-        {Pin::A9, {GPIOA, GPIO_PIN_9, preInitPortA}},   /* */
-        {Pin::A10, {GPIOA, GPIO_PIN_10, preInitPortA}}, /* */
-        {Pin::A11, {GPIOA, GPIO_PIN_11, preInitPortA}}, /* */
-        {Pin::A12, {GPIOA, GPIO_PIN_12, preInitPortA}}, /* */
-        {Pin::A13, {GPIOA, GPIO_PIN_13, preInitPortA}}, /* */
-        {Pin::A14, {GPIOA, GPIO_PIN_14, preInitPortA}}, /* */
-        {Pin::A15, {GPIOA, GPIO_PIN_15, preInitPortA}}, /* */
-        {Pin::B0, {GPIOB, GPIO_PIN_0, preInitPortB}},   /* */
-        {Pin::B1, {GPIOB, GPIO_PIN_1, preInitPortB}},   /* */
-        {Pin::B2, {GPIOB, GPIO_PIN_2, preInitPortB}},   /* */
-        {Pin::B3, {GPIOB, GPIO_PIN_3, preInitPortB}},   /* */
-        {Pin::B4, {GPIOB, GPIO_PIN_4, preInitPortB}},   /* */
-        {Pin::B5, {GPIOB, GPIO_PIN_5, preInitPortB}},   /* */
-        {Pin::B6, {GPIOB, GPIO_PIN_6, preInitPortB}},   /* */
-        {Pin::B7, {GPIOB, GPIO_PIN_7, preInitPortB}},   /* */
-        {Pin::B8, {GPIOB, GPIO_PIN_8, preInitPortB}},   /* */
-        {Pin::B9, {GPIOB, GPIO_PIN_9, preInitPortB}},   /* */
-        {Pin::B10, {GPIOB, GPIO_PIN_10, preInitPortB}}, /* */
-        {Pin::B11, {GPIOB, GPIO_PIN_11, preInitPortB}}, /* */
-        {Pin::B12, {GPIOB, GPIO_PIN_12, preInitPortB}}, /* */
-        {Pin::B13, {GPIOB, GPIO_PIN_13, preInitPortB}}, /* */
-        {Pin::B14, {GPIOB, GPIO_PIN_14, preInitPortB}}, /* */
-        {Pin::B15, {GPIOB, GPIO_PIN_15, preInitPortB}}, /* */
-        {Pin::C0, {GPIOC, GPIO_PIN_0, preInitPortC}},   /* */
-        {Pin::C1, {GPIOC, GPIO_PIN_1, preInitPortC}},   /* */
-        {Pin::C2, {GPIOC, GPIO_PIN_2, preInitPortC}},   /* */
-        {Pin::C3, {GPIOC, GPIO_PIN_3, preInitPortC}},   /* */
-        {Pin::C4, {GPIOC, GPIO_PIN_4, preInitPortC}},   /* */
-        {Pin::C5, {GPIOC, GPIO_PIN_5, preInitPortC}},   /* */
-        {Pin::C6, {GPIOC, GPIO_PIN_6, preInitPortC}},   /* */
-        {Pin::C7, {GPIOC, GPIO_PIN_7, preInitPortC}},   /* */
-        {Pin::C8, {GPIOC, GPIO_PIN_8, preInitPortC}},   /* */
-        {Pin::C9, {GPIOC, GPIO_PIN_9, preInitPortC}},   /* */
-        {Pin::C10, {GPIOC, GPIO_PIN_10, preInitPortC}}, /* */
-        {Pin::C11, {GPIOC, GPIO_PIN_11, preInitPortC}}, /* */
-        {Pin::C12, {GPIOC, GPIO_PIN_12, preInitPortC}}, /* */
-        {Pin::C13, {GPIOC, GPIO_PIN_13, preInitPortC}}, /* */
+        {Pin::A0, {GPIOA, GPIO_PIN_0, preInitPortA}},   {Pin::A1, {GPIOA, GPIO_PIN_1, preInitPortA}},
+        {Pin::A2, {GPIOA, GPIO_PIN_2, preInitPortA}},   {Pin::A3, {GPIOA, GPIO_PIN_3, preInitPortA}},
+        {Pin::A4, {GPIOA, GPIO_PIN_4, preInitPortA}},   {Pin::A5, {GPIOA, GPIO_PIN_5, preInitPortA}},
+        {Pin::A6, {GPIOA, GPIO_PIN_6, preInitPortA}},   {Pin::A7, {GPIOA, GPIO_PIN_7, preInitPortA}},
+        {Pin::A8, {GPIOA, GPIO_PIN_8, preInitPortA}},   {Pin::A9, {GPIOA, GPIO_PIN_9, preInitPortA}},
+        {Pin::A10, {GPIOA, GPIO_PIN_10, preInitPortA}}, {Pin::A11, {GPIOA, GPIO_PIN_11, preInitPortA}},
+        {Pin::A12, {GPIOA, GPIO_PIN_12, preInitPortA}}, {Pin::A13, {GPIOA, GPIO_PIN_13, preInitPortA}},
+        {Pin::A14, {GPIOA, GPIO_PIN_14, preInitPortA}}, {Pin::A15, {GPIOA, GPIO_PIN_15, preInitPortA}},
+        {Pin::B0, {GPIOB, GPIO_PIN_0, preInitPortB}},   {Pin::B1, {GPIOB, GPIO_PIN_1, preInitPortB}},
+        {Pin::B2, {GPIOB, GPIO_PIN_2, preInitPortB}},   {Pin::B3, {GPIOB, GPIO_PIN_3, preInitPortB}},
+        {Pin::B4, {GPIOB, GPIO_PIN_4, preInitPortB}},   {Pin::B5, {GPIOB, GPIO_PIN_5, preInitPortB}},
+        {Pin::B6, {GPIOB, GPIO_PIN_6, preInitPortB}},   {Pin::B7, {GPIOB, GPIO_PIN_7, preInitPortB}},
+        {Pin::B8, {GPIOB, GPIO_PIN_8, preInitPortB}},   {Pin::B9, {GPIOB, GPIO_PIN_9, preInitPortB}},
+        {Pin::B10, {GPIOB, GPIO_PIN_10, preInitPortB}}, {Pin::B11, {GPIOB, GPIO_PIN_11, preInitPortB}},
+        {Pin::B12, {GPIOB, GPIO_PIN_12, preInitPortB}}, {Pin::B13, {GPIOB, GPIO_PIN_13, preInitPortB}},
+        {Pin::B14, {GPIOB, GPIO_PIN_14, preInitPortB}}, {Pin::B15, {GPIOB, GPIO_PIN_15, preInitPortB}},
+        {Pin::C0, {GPIOC, GPIO_PIN_0, preInitPortC}},   {Pin::C1, {GPIOC, GPIO_PIN_1, preInitPortC}},
+        {Pin::C2, {GPIOC, GPIO_PIN_2, preInitPortC}},   {Pin::C3, {GPIOC, GPIO_PIN_3, preInitPortC}},
+        {Pin::C4, {GPIOC, GPIO_PIN_4, preInitPortC}},   {Pin::C5, {GPIOC, GPIO_PIN_5, preInitPortC}},
+        {Pin::C6, {GPIOC, GPIO_PIN_6, preInitPortC}},   {Pin::C7, {GPIOC, GPIO_PIN_7, preInitPortC}},
+        {Pin::C8, {GPIOC, GPIO_PIN_8, preInitPortC}},   {Pin::C9, {GPIOC, GPIO_PIN_9, preInitPortC}},
+        {Pin::C10, {GPIOC, GPIO_PIN_10, preInitPortC}}, {Pin::C11, {GPIOC, GPIO_PIN_11, preInitPortC}},
+        {Pin::C12, {GPIOC, GPIO_PIN_12, preInitPortC}}, {Pin::C13, {GPIOC, GPIO_PIN_13, preInitPortC}},
         {Pin::C14, {GPIOC, GPIO_PIN_14, preInitPortC}}, /* OSC32_IN */
         {Pin::C15, {GPIOC, GPIO_PIN_15, preInitPortC}}, /* OSC32_OUT */
-        {Pin::D2, {GPIOD, GPIO_PIN_2, preInitPortD}},   /* */
+        {Pin::D2, {GPIOD, GPIO_PIN_2, preInitPortD}},
     });
 
-    static constexpr uint32_t getHwMode(Mode mode)
-    {
-        const uint32_t cMap[static_cast<std::size_t>(magic_enum::enum_count<Mode>())] = {GPIO_MODE_INPUT,
-                                                                                         GPIO_MODE_OUTPUT_PP};
+    static constexpr uint32_t getHwMode(Mode mode) {
+        const uint32_t cMap[static_cast<std::size_t>(magic_enum::enum_count<Mode>())] = {GPIO_MODE_INPUT, GPIO_MODE_OUTPUT_PP};
         return cMap[static_cast<std::size_t>(mode)];
     }
 
-    static constexpr uint32_t getHwPull(Pull pull)
-    {
+    static constexpr uint32_t getHwPull(Pull pull) {
         const uint32_t cMap[static_cast<std::size_t>(magic_enum::enum_count<Pull>())] = {GPIO_NOPULL, GPIO_PULLUP,
                                                                                          GPIO_PULLDOWN};
         return cMap[static_cast<std::size_t>(pull)];
     }
 
-    static constexpr GPIO_PinState getHwPinState(PinState pinState)
-    {
-        const GPIO_PinState cMap[static_cast<std::size_t>(magic_enum::enum_count<PinState>())] = {GPIO_PIN_RESET,
-                                                                                                  GPIO_PIN_SET};
+    static constexpr GPIO_PinState getHwPinState(PinState pinState) {
+        const GPIO_PinState cMap[static_cast<std::size_t>(magic_enum::enum_count<PinState>())] = {GPIO_PIN_RESET, GPIO_PIN_SET};
         return cMap[static_cast<std::size_t>(pinState)];
     }
 
-    template <Pin pin> static constexpr PinDescr pinDescrOf()
-    {
-        constexpr auto pinDescr = pinDescrs.find(pin);
-        if (pinDescr != pinDescrs.end())
+    template <Pin pin> static void hwInit(Mode mode, Pull pull) {
+        if (pinDescrs.find(pin)->second.preInitFunction)
         {
-            return pinDescr->second;
-        }
-    }
-
-    template <Pin pin> static void hwInit(Mode mode, Pull pull)
-    {
-        if (pinDescrOf<pin>().preInitFunction)
-        {
-            pinDescrOf<pin>().preInitFunction();
+            pinDescrs.find(pin)->second.preInitFunction();
         }
 
         GPIO_InitTypeDef GPIO_InitStruct = {};
-        GPIO_InitStruct.Pin = pinDescrOf<pin>().hwPin;
+        GPIO_InitStruct.Pin = pinDescrs.find(pin)->second.hwPin;
         GPIO_InitStruct.Mode = getHwMode(mode);
         GPIO_InitStruct.Pull = getHwPull(pull);
         GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-        HAL_GPIO_Init(pinDescrOf<pin>().hwPort, &GPIO_InitStruct);
+        HAL_GPIO_Init(pinDescrs.find(pin)->second.hwPort, &GPIO_InitStruct);
+    }
+
+    template <Pin pin> inline static void hwInitAsOutput(PinState initial, Pull pull) {
+        Gpio::hwWrite<pin>(initial);
+        Gpio::hwInit<pin>(Mode::output, pull);
+    };
+
+    template <Pin pin>[[nodiscard]] static inline bool hwRead() {
+        return (pinDescrs.find(pin)->second.hwPort->IDR & pinDescrs.find(pin)->second.hwPin);
+    };
+
+    template <Pin pin> static inline void hwWrite(PinState pinState) {
+        if (pinState == PinState::high)
+        {
+            pinDescrs.find(pin)->second.hwPort->BSRR = (uint32_t)pinDescrs.find(pin)->second.hwPin;
+        }
+        else
+        { pinDescrs.find(pin)->second.hwPort->BRR = (uint32_t)pinDescrs.find(pin)->second.hwPin; }
+    };
+
+    template <Pin pin> static inline void hwToggle() {
+        pinDescrs.find(pin)->second.hwPort->BSRR =
+            ((pinDescrs.find(pin)->second.hwPort->ODR & pinDescrs.find(pin)->second.hwPin) << 16) |
+            (~pinDescrs.find(pin)->second.hwPort->ODR & pinDescrs.find(pin)->second.hwPin);
+    }
+
+    template <Pin pin> static void hwDeinit() {
+        HAL_GPIO_DeInit(pinDescrs.find(pin)->second.hwPort, pinDescrs.find(pin)->second.hwPin);
+        // note gpio related clock still remain enabled
+    };
+
+    template <Pin pin> static void hwLock() {
+        HAL_GPIO_LockPin(pinDescrs.find(pin)->second.hwPort, pinDescrs.find(pin)->second.hwPin);
     }
 };
