@@ -1,9 +1,10 @@
 BasedOnStyle: Microsoft
+AllowShortFunctionsOnASingleLine: true
 BraceWrapping:
     AfterClass: true
     AfterControlStatement: true
-    AfterEnum: true
-    AfterFunction: true
+    AfterEnum: false
+    AfterFunction: false
     AfterNamespace: true
     AfterObjCDeclaration: true
     AfterStruct: true
@@ -13,4 +14,4 @@ BraceWrapping:
     IndentBraces: false
 BreakBeforeBraces: Custom
 AccessModifierOffset: -4
-ColumnLimit: 120
+ColumnLimit: 128
