@@ -32,13 +32,14 @@
 class Gpio
 {
 public:
+    /** @brief available GPIOs for STM32F303Rx */
     enum class Pin
     {
         // clang-format off
         A0, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15,
         B0, B1, B2, B3, B4, B5, B6, B7, B8, B9, B10, B11, B12, B13, B14, B15,
         C0, C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, C11, C12, C13, C14, C15,
-        D0, D1, D2, D3, D4, D5, D6, D7, D8, D9, D10, D11, D12, D13, D14, D15,
+                D2,
         // clang-format on
     };
 
@@ -68,17 +69,35 @@ public:
 
     template <Pin pin>[[nodiscard]] static inline bool read()
     {
-        return static_cast<bool>(HAL_GPIO_ReadPin(pinDescrOf<pin>().hwPort, pinDescrOf<pin>().hwPin));
+        return (pinDescrOf<pin>().hwPort->IDR & pinDescrOf<pin>().hwPin);
     };
 
     template <Pin pin> static inline void write(PinState pinState)
     {
-        HAL_GPIO_WritePin(pinDescrOf<pin>().hwPort, pinDescrOf<pin>().hwPin, getPinState(pinState));
+        if (pinState == PinState::high)
+        {
+            pinDescrOf<pin>().hwPort->BSRR = (uint32_t)pinDescrOf<pin>().hwPin;
+        }
+        else
+        {
+            pinDescrOf<pin>().hwPort->BRR = (uint32_t)pinDescrOf<pin>().hwPin;
+        }
+    };
+
+    template <Pin pin> static inline void writeHigh()
+    {
+        Gpio::write<pin>(PinState::high);
+    };
+
+    template <Pin pin> static inline void writeLow()
+    {
+        Gpio::write<pin>(PinState::low);
     };
 
     template <Pin pin> static inline void toggle()
     {
-        HAL_GPIO_TogglePin(pinDescrOf<pin>().hwPort, pinDescrOf<pin>().hwPin);
+        pinDescrOf<pin>().hwPort->BSRR = ((pinDescrOf<pin>().hwPort->ODR & pinDescrOf<pin>().hwPin) << 16) |
+                                         (~pinDescrOf<pin>().hwPort->ODR & pinDescrOf<pin>().hwPin);
     }
 
     template <Pin pin> static void deinit()
@@ -92,9 +111,6 @@ public:
     {
         HAL_GPIO_LockPin(pinDescrOf<pin>().hwPort, pinDescrOf<pin>().hwPin);
     }
-
-protected:
-    Gpio() = delete;
 
 private:
     enum class Mode
@@ -176,23 +192,29 @@ private:
         {Pin::C13, {GPIOC, GPIO_PIN_13, preInitPortC}}, /* */
         {Pin::C14, {GPIOC, GPIO_PIN_14, preInitPortC}}, /* OSC32_IN */
         {Pin::C15, {GPIOC, GPIO_PIN_15, preInitPortC}}, /* OSC32_OUT */
-        {Pin::D0, {GPIOD, GPIO_PIN_0, preInitPortD}},   /* na */
-        {Pin::D1, {GPIOD, GPIO_PIN_1, preInitPortD}},   /* na */
         {Pin::D2, {GPIOD, GPIO_PIN_2, preInitPortD}},   /* */
-        {Pin::D3, {GPIOD, GPIO_PIN_3, preInitPortD}},   /* na */
-        {Pin::D4, {GPIOD, GPIO_PIN_4, preInitPortD}},   /* na */
-        {Pin::D5, {GPIOD, GPIO_PIN_5, preInitPortD}},   /* na */
-        {Pin::D6, {GPIOD, GPIO_PIN_6, preInitPortD}},   /* na */
-        {Pin::D7, {GPIOD, GPIO_PIN_7, preInitPortD}},   /* na */
-        {Pin::D8, {GPIOD, GPIO_PIN_8, preInitPortD}},   /* na */
-        {Pin::D9, {GPIOD, GPIO_PIN_9, preInitPortD}},   /* na */
-        {Pin::D10, {GPIOD, GPIO_PIN_10, preInitPortD}}, /* na */
-        {Pin::D11, {GPIOD, GPIO_PIN_11, preInitPortD}}, /* na */
-        {Pin::D12, {GPIOD, GPIO_PIN_12, preInitPortD}}, /* na */
-        {Pin::D13, {GPIOD, GPIO_PIN_13, preInitPortD}}, /* na */
-        {Pin::D14, {GPIOD, GPIO_PIN_14, preInitPortD}}, /* na */
-        {Pin::D15, {GPIOD, GPIO_PIN_15, preInitPortD}}, /* na */
     });
+
+    static constexpr uint32_t getHwMode(Mode mode)
+    {
+        const uint32_t cMap[static_cast<std::size_t>(magic_enum::enum_count<Mode>())] = {GPIO_MODE_INPUT,
+                                                                                         GPIO_MODE_OUTPUT_PP};
+        return cMap[static_cast<std::size_t>(mode)];
+    }
+
+    static constexpr uint32_t getHwPull(Pull pull)
+    {
+        const uint32_t cMap[static_cast<std::size_t>(magic_enum::enum_count<Pull>())] = {GPIO_NOPULL, GPIO_PULLUP,
+                                                                                         GPIO_PULLDOWN};
+        return cMap[static_cast<std::size_t>(pull)];
+    }
+
+    static constexpr GPIO_PinState getHwPinState(PinState pinState)
+    {
+        const GPIO_PinState cMap[static_cast<std::size_t>(magic_enum::enum_count<PinState>())] = {GPIO_PIN_RESET,
+                                                                                                  GPIO_PIN_SET};
+        return cMap[static_cast<std::size_t>(pinState)];
+    }
 
     template <Pin pin> static constexpr PinDescr pinDescrOf()
     {
@@ -203,28 +225,7 @@ private:
         }
     }
 
-    static constexpr uint32_t getMode(Gpio::Mode mode)
-    {
-        const uint32_t cMap[static_cast<std::size_t>(magic_enum::enum_count<Gpio::Mode>())] = {GPIO_MODE_INPUT,
-                                                                                               GPIO_MODE_OUTPUT_PP};
-        return cMap[static_cast<std::size_t>(mode)];
-    }
-
-    static constexpr uint32_t getPull(Gpio::Pull pull)
-    {
-        const uint32_t cMap[static_cast<std::size_t>(magic_enum::enum_count<Gpio::Pull>())] = {GPIO_NOPULL, GPIO_PULLUP,
-                                                                                               GPIO_PULLDOWN};
-        return cMap[static_cast<std::size_t>(pull)];
-    }
-
-    static constexpr GPIO_PinState getPinState(Gpio::PinState pinState)
-    {
-        const GPIO_PinState cMap[static_cast<std::size_t>(magic_enum::enum_count<Gpio::PinState>())] = {GPIO_PIN_RESET,
-                                                                                                        GPIO_PIN_SET};
-        return cMap[static_cast<std::size_t>(pinState)];
-    }
-
-    template <Pin pin> static void hwInit(Gpio::Mode mode, Gpio::Pull pull)
+    template <Pin pin> static void hwInit(Mode mode, Pull pull)
     {
         if (pinDescrOf<pin>().preInitFunction)
         {
@@ -233,8 +234,8 @@ private:
 
         GPIO_InitTypeDef GPIO_InitStruct = {};
         GPIO_InitStruct.Pin = pinDescrOf<pin>().hwPin;
-        GPIO_InitStruct.Mode = Gpio::getMode(mode);
-        GPIO_InitStruct.Pull = Gpio::getPull(pull);
+        GPIO_InitStruct.Mode = getHwMode(mode);
+        GPIO_InitStruct.Pull = getHwPull(pull);
         GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
         HAL_GPIO_Init(pinDescrOf<pin>().hwPort, &GPIO_InitStruct);
     }
