@@ -139,10 +139,6 @@ void DuplexStereoStreamIF::Run() // task code
                 pTxI2sBuffer) {
                 // TODO: try optimizing, making processF variants in case converting to/from
                 // F32 is unnecessary.
-                // TODO: maybe move out conversion functions to user space (like done with
-                // processF)
-                /** @note ADC actually support 24-bit samples in 32-bit frame therefore shifting sample by 8 bits is
-                 * necessary */
 
                 Fib::Dsp::StereoSampleBufferF32 rxStereoSampleBlock, txStereoSampleBlock;
                 Fib::Dsp::Sample::convert<i2sBitDepth>(*pRxI2sBuffer, rxStereoSampleBlock);
