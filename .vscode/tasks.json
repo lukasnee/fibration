@@ -130,7 +130,10 @@
             "label": "build and run unit tests",
             "group": "test",
             "type": "shell",
-            "dependsOn":["build unit tests","run unit tests"],
+            "dependsOn": [
+                "build unit tests",
+                "run unit tests"
+            ],
             "dependsOrder": "sequence"
         },
         {
@@ -150,5 +153,29 @@
                 "problemMatcher": "$gcc",
             }
         },
+        {
+            "label": "Launch OpenOCD",
+            "command": "openocd.exe",
+            "args": [
+                "-c",
+                "\"bindto 0.0.0.0\"",
+                "-f",
+                "\"${input:openocd.config}\"",
+            ],
+            "type": "shell",
+            "isBackground": true,
+            "problemMatcher": []
+        },
+    ],
+    "inputs": [
+        {
+            "id": "openocd.config",
+            "type": "pickString",
+            "description": "Select the configuration file for OpenOCD",
+            "options": [
+                "C:\\Users\\Lukas\\dev\\tools\\openocd.cfg"
+            ],
+            "default": "C:\\Users\\Lukas\\dev\\tools\\openocd.cfg"
+        }
     ]
 }

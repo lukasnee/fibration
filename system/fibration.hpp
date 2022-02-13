@@ -32,5 +32,5 @@ extern "C"
 #include <cmath>
 
 #include "periodicTimerApp.hpp"
-#include "dsp/waveforms.hpp"
+#include "dsp/oscillator.hpp"
 #include "streams/i2sDuplexStream.hpp"
