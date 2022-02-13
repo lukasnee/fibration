@@ -2,50 +2,34 @@
 
 #include "dsp.hpp"
 
-namespace Fib::Dsp
-{
+namespace Fib::Dsp {
 
-template <typename T> class RangedValue
-{
+template <typename T> class RangedValue {
 public:
-    constexpr RangedValue(T const &initialValue, T const &lowerLimit, T const &upperLimit,
-                          std::function<bool(T const &value)> onChangeF = nullptr)
-        : value(initialValue), lowerLimit(lowerLimit), upperLimit(upperLimit), onChangeF(onChangeF)
-    {
-    }
-    bool isInRange(T value) const
-    {
-        return (this->lowerLimit <= value && value <= this->upperLimit);
-    };
+    using OnChangeF = std::function<void(T const &value)>;
 
-    T get()
-    {
-        return this->value;
-    }
+    constexpr RangedValue(T const &initialValue, T const &lowerLimit, T const &upperLimit, OnChangeF onChangeF = nullptr)
+        : value(initialValue), m_lowerLimit(lowerLimit), m_upperLimit(upperLimit), onChangeF(onChangeF) {}
 
-    bool set(T value)
-    {
-        bool result = false;
-        if (this->isInRange(value))
-        {
+    bool isInRange(T value) const { return (this->m_lowerLimit <= value && value <= this->m_upperLimit); };
+
+    T get() { return this->value; }
+
+    void set(T value) {
+        if (this->isInRange(value)) {
             this->value = value;
-            result = onChangeF ? this->onChangeF(this->value) : true;
+            if (this->onChangeF) {
+                this->onChangeF(this->value);
+            }
         }
-        return result;
     }
 
-    constexpr T getLowerLimit() const
-    {
-        return this->lowerLimit;
-    }
-    constexpr T getUpperLimit() const
-    {
-        return this->upperLimit;
-    }
+    constexpr T lowerLimit() const { return this->m_lowerLimit; }
+    constexpr T upperLimit() const { return this->m_upperLimit; }
 
 private:
     T value;
-    const T lowerLimit, upperLimit;
-    std::function<bool(T const &value)> onChangeF;
+    const T m_lowerLimit, m_upperLimit;
+    OnChangeF onChangeF;
 };
 } // namespace Fib::Dsp

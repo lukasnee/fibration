@@ -14,7 +14,7 @@ template <typename T> T relative(const T &in, const T &inMin, const T &inMax, co
 /** @brief scales `zeroBasedIn` value that has upper limit `inMax` to zero based value with upper limit `outMax` */
 template <typename T> T absolute(const T &zeroBasedIn, const T &inMax, const T &outMax)
 {
-    return mapRelative(zeroBasedIn, static_cast<T>(0), inMax, static_cast<T>(0), outMax);
+    return relative(zeroBasedIn, static_cast<T>(0), inMax, static_cast<T>(0), outMax);
 }
 
 /** @brief returns a normalized value (0 to 1) of `in` that ranges from `inMin` to `inMax` */

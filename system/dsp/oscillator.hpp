@@ -2,50 +2,32 @@
 
 #include "rangedValue.hpp"
 
-namespace Fib::Dsp
-{
-class OscF32
-{
+namespace Fib::Dsp {
+class Osc {
 public:
-    struct Config
-    {
-        Config(F32 sampleRateInHz, F32 frequencyInHz);
+    using SynthesizeF = std::function<F32(const F32 &)>;
 
-        F32 sampleRateInHz = 44'100.f;
-        struct Derived
-        {
-        public:
-            Derived(F32 sampleRateInHz = 44'100.f, F32 frequencyInHz = 0.f);
-            void derive(F32 frequencyInHz);
-            const F32 &getSamplePeriodInSec() const
-            {
-                return this->samplePeriodInSec;
-            }
-            const F32 &getPhaseDeltaInRad() const
-            {
-                return this->phaseDeltaInRad;
-            }
-            /* I want to return CONST reference but the flimsy CMSIS DSP API doesn't let me :') */
-            SampleBlock<F32> &getSampleBlockDeltaTimeScale()
-            {
-                return this->sampleBlockDeltaTimeScale;
-            }
+    struct Waveforms {
+        static F32 sine(const F32 &phaseInRad) { return arm_sin_f32(phaseInRad); }
+        static F32 square(const F32 &phaseInRad) { return phaseInRad < PI ? 1.f : -1.f; }
+        static F32 saw(const F32 &phaseInRad) { return ((phaseInRad / (2.f * PI)) * 2.f) - 1.f; }
+        static F32 triangle(const F32 &phaseInRad) {
+            return phaseInRad < PI ? (((phaseInRad / PI) * 2.f) - 1.f) : -1.f * ((((phaseInRad - PI) / PI) * 2.f) - 1.f);
+        }
+    };
 
-        private:
-            F32 samplePeriodInSec, phaseDeltaInRad;
-            SampleBlock<F32> sampleBlockDeltaTimeScale;
-        } derived;
-    } config;
+    Osc(SynthesizeF synthesizeF, F32 sampleRateInHz = 44'100.f);
+    virtual ~Osc() = default;
 
-    OscF32(F32 sampleRateInHz = 44'100.f, F32 frequencyInHz = 0.f, F32 initialPhaseInRad = 0.f);
-    virtual ~OscF32() = default;
-
-    virtual void generate(SampleBlock<F32> &sampleBlocksOut) = 0;
-
-    SampleBlock<F32> &generateMult();
-    void generateMult(SampleBlock<F32> *pSampleBlocksOut, std::size_t sampleBlocksSize);
-
+    SampleBufferF32 synthesize();
+    SynthesizeF synthesizeF;
     RangedValue<F32> amplitudeNormal, frequencyInHz, phaseInRad;
+
+private:
+    void getNewPhases(SampleBufferF32 &phaseSampleBufferOut);
+
+    F32 sampleRateInHz = 44'100.f;
+    F32 samplePeriodInSec, phaseDeltaInRad;
 };
 
 } // namespace Fib::Dsp

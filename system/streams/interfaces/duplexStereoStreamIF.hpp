@@ -7,40 +7,30 @@
 #include "dsp/sample.hpp"
 
 #include "thread.hpp"
+
 #include <array>
+#include <functional>
 
-class DuplexStereoStreamIF : cpp_freertos::Thread
-{
+class DuplexStereoStreamIF : cpp_freertos::Thread {
 public:
-    static constexpr std::size_t stereoBufferSize = 0x20; // TODO experiment on this one
+    // TODO: pass SampleRateInHz
 
-    struct StereoSampleU32
-    {
-        std::uint32_t left, right; // 24-bit value in 32-bit frame
+    static constexpr std::size_t i2sBitDepth = 24;
+
+    struct Buffer {
+        using DmaDoubleBuffer = std::pair<Fib::Dsp::I2sSampleBufferU32, Fib::Dsp::I2sSampleBufferU32>;
+        DmaDoubleBuffer rx, tx;
     };
-    using StereoBufferU32 = std::array<StereoSampleU32, stereoBufferSize>;
-    using CircularStereoBufferU32 = std::array<StereoBufferU32, 2>;
 
-    static_assert(stereoBufferSize % Fib::Dsp::SampleBlock<Fib::Dsp::F32>().size() == 0,
-                  "stereoBufferSize must be a multiple of Fib::Dsp::SampleBlock<F32>::size() !");
-    using SampleBlocksF32 =
-        Fib::Dsp::SampleBlocks<Fib::Dsp::F32, (stereoBufferSize / Fib::Dsp::SampleBlock<Fib::Dsp::F32>().size())>;
-
-// TODO: pass SampleRateInHz
-#define DuplexStereoStreamProcessFunctionParams                                                                        \
-    [[maybe_unused]] const DuplexStereoStreamIF::SampleBlocksF32 &rxLeftSampleBlocksF32,                               \
-        [[maybe_unused]] const DuplexStereoStreamIF::SampleBlocksF32 &rxRightSampleBlocksF32,                          \
-        [[maybe_unused]] DuplexStereoStreamIF::SampleBlocksF32 &txLeftSampleBlocksF32,                                 \
-        [[maybe_unused]] DuplexStereoStreamIF::SampleBlocksF32 &txRightSampleBlocksF32
-    using ProcessFunction = void(DuplexStereoStreamProcessFunctionParams);
+    using ProcessF = std::function<void([[maybe_unused]] const Fib::Dsp::StereoSampleBufferF32 &rxStereoSampleBlock,
+                                        [[maybe_unused]] Fib::Dsp::StereoSampleBufferF32 &txStereoSampleBlock)>;
 
     bool start();
     bool stop();
 
 protected:
-    DuplexStereoStreamIF(const std::string pcName, uint16_t usStackDepth, UBaseType_t uxPriority,
-                         CircularStereoBufferU32 &circularBufferTx, CircularStereoBufferU32 &circularBufferRx,
-                         ProcessFunction processFunction);
+    DuplexStereoStreamIF(const std::string pcName, uint16_t usStackDepth, UBaseType_t uxPriority, Buffer &buffer,
+                         ProcessF processF);
 
     virtual bool init() = 0;
     virtual bool deinit() = 0;
@@ -56,30 +46,7 @@ protected:
     void secondBufferHalfCompletedStreamIsrCallback();
 
 private:
-    void setOwner(cpp_freertos::Thread *pOwner)
-    {
-        this->pOwner = pOwner;
-    }
-    cpp_freertos::Thread *getOwner()
-    {
-        return this->pOwner;
-    }
-
-    virtual void Run() override; // thread entry
-
-    const std::uint16_t *getCircularBufferRx();
-    bool getStereoAudioBuffersTxRxU32(const StereoBufferU32 *&pRxStereoBufferU32Out,
-                                      StereoBufferU32 *&pTxStereoBufferU32Out);
-    bool stereoAudioBufferLoaded();
-
-    CircularStereoBufferU32 &circularStereoBufferTxU32, &circularStereoBufferRxU32;
-
-    ProcessFunction *processFunction = nullptr;
-
-    // TODO group into a struct `CircularDmaTxRxStream` like in ADC2 driver
-
-    enum State
-    {
+    enum State {
         standby = 0,
 
         ready,
@@ -98,7 +65,19 @@ private:
         firstLoadingSecondStreaming,
         firstLoadedSecondStreaming,
 
-    } state = State::standby;
+    };
 
+    void setOwner(cpp_freertos::Thread *pOwner) { this->pOwner = pOwner; }
+    cpp_freertos::Thread *getOwner() { return this->pOwner; }
+    virtual void Run() override;
+
+    const std::uint16_t *getCircularBufferRx();
+    bool getStereoAudioBuffersTxRxU32(Fib::Dsp::I2sSampleBufferU32 *&pRxStereoBufferU32Out,
+                                      Fib::Dsp::I2sSampleBufferU32 *&pTxStereoBufferU32Out);
+    bool stereoAudioBufferLoaded();
+
+    Buffer &buffer;
+    ProcessF processF;
+    State state = State::standby;
     cpp_freertos::Thread *pOwner;
 };

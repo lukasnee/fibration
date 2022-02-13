@@ -1,15 +1,15 @@
 BasedOnStyle: Microsoft
 AllowShortFunctionsOnASingleLine: true
 BraceWrapping:
-    AfterClass: true
-    AfterControlStatement: true
+    AfterClass: false
+    AfterControlStatement: false
     AfterEnum: false
     AfterFunction: false
-    AfterNamespace: true
-    AfterObjCDeclaration: true
-    AfterStruct: true
-    AfterUnion: true
-    BeforeCatch: true
+    AfterNamespace: false
+    AfterObjCDeclaration: false
+    AfterStruct: false
+    AfterUnion: false
+    BeforeCatch: false
     BeforeElse: true
     IndentBraces: false
 BreakBeforeBraces: Custom

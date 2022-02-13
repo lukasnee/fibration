@@ -101,7 +101,6 @@ set(FIBSYS_DSP_SRC
     ${ROOT}/system/dsp/sample.cpp
     ${ROOT}/system/dsp/math.cpp
     ${ROOT}/system/dsp/oscillator.cpp
-    ${ROOT}/system/dsp/waveforms.cpp
 )
 
 set(FIBSYS_UTILITIES_SRC
@@ -178,13 +177,14 @@ set(FIBSYS_SRC
 
 # TODO: all above should roughly be distributed to other subdir cmakelists
 
-set(SPIRALE_SRC
+set(HIGGS_SRC
+    blinkApp.cpp
     main.cpp
 )
 
 add_executable(${PROJECT_NAME} 
     ${FIBSYS_SRC}
-    ${SPIRALE_SRC}
+    ${HIGGS_SRC}
 )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
@@ -262,11 +262,11 @@ target_compile_options(${PROJECT_NAME} PRIVATE
     # -g	default debug information
     # -g3	maximal debug information
 
-    $<$<CONFIG:Debug>:-ggdb -O1 -DDEBUG>
+    $<$<CONFIG:Debug>:-ggdb -Ofast -DDEBUG>
 
     # -O3 compiler tries to reduce code size and execution time, O3 is highest standard optimization.
     # -Os Optimize for size. -Os enables all -O2 optimizations except those that often increase code size
-    $<$<CONFIG:Release>:-O3>
+    $<$<CONFIG:Release>:-Ofast>
 
 )
 

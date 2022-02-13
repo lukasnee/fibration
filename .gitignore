@@ -5,3 +5,5 @@
 .build
 fib-log.txt
 gitHash.def
+*.raw
+*.log

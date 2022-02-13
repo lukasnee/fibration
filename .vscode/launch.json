@@ -10,20 +10,21 @@
                 "group": "Fibration",
                 "order": 1
             },
-            "name": "Higgs",
+            "name": "higgs",
             "device": "STM32F303RE",
             "cwd": "${workspaceRoot}",
-            "executable": "${workspaceRoot}/Build/Debug/Modules/Higgs/Higgs",
+            "executable": "${workspaceRoot}/.build/debug/modules/higgs/higgs",
             "request": "launch",
             "type": "cortex-debug",
-            "servertype": "openocd",
-            "configFiles": [
-                "Modules/Higgs/openocd.cfg",
-            ],
+            "servertype": "external",
+            "gdbTarget": "172.22.160.1:3333",
+            // "configFiles": [
+            //     "modules/higgs/openocd.cfg",
+            // ],
             "interface": "swd",
             "cpu": "cortex-m4",
             "preLaunchTask": "preLaunchTaskHiggs",
-            "svdFile": "${workspaceRoot}/System/MSP/STM32F303.svd",
+            "svdFile": "${workspaceRoot}/system/msp/STM32F303.svd",
             "runToEntryPoint": "BlinkTestApp::Run",
             "debuggerArgs": [
                 "-l",
