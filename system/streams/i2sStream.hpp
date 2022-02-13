@@ -1,17 +1,17 @@
 #pragma once
 
 /*
-    Duplex Stereo Stream Interface
+    I2S full duplex stream implementation
 */
 
 #include "dsp/sample.hpp"
-
+#include "i2sIF.hpp"
 #include "thread.hpp"
 
 #include <array>
 #include <functional>
 
-class DuplexStereoStreamIF : cpp_freertos::Thread {
+class I2sStream : public cpp_freertos::Thread, private I2sIF::TxRxIsrCallbacks {
 public:
     // TODO: pass SampleRateInHz
 
@@ -25,27 +25,16 @@ public:
     using ProcessF = std::function<void([[maybe_unused]] const Fib::Dsp::StereoSampleBufferF32 &rxStereoSampleBlock,
                                         [[maybe_unused]] Fib::Dsp::StereoSampleBufferF32 &txStereoSampleBlock)>;
 
+    I2sStream(I2sIF &i2s, const std::string pcName, uint16_t usStackDepth, UBaseType_t uxPriority, I2sStream::Buffer &buffer,
+              ProcessF processF);
     bool start();
     bool stop();
-
-protected:
-    DuplexStereoStreamIF(const std::string pcName, uint16_t usStackDepth, UBaseType_t uxPriority, Buffer &buffer,
-                         ProcessF processF);
-
-    virtual bool init() = 0;
-    virtual bool deinit() = 0;
-
-    virtual bool startTxRxCircularDma() = 0;
-    virtual bool stopTxRxCircularDma() = 0;
-
-    std::uint16_t *getCircularBufferTx();
-    std::uint16_t *getCircularBufferRxUnsafe();
-    std::size_t getCircularBufferSize();
-
-    void firstBufferHalfCompletedStreamIsrCallback();
-    void secondBufferHalfCompletedStreamIsrCallback();
+    ~I2sStream() = default;
 
 private:
+    I2sStream(const I2sStream &) = delete;
+    I2sStream(I2sStream &&) = delete;
+
     enum State {
         standby = 0,
 
@@ -67,17 +56,25 @@ private:
 
     };
 
+    std::uint16_t *getBufferToStreamOut();
+    std::uint16_t *getBufferToStreamIn();
+    static std::size_t getBufferSize();
+
     void setOwner(cpp_freertos::Thread *pOwner) { this->pOwner = pOwner; }
     cpp_freertos::Thread *getOwner() { return this->pOwner; }
-    virtual void Run() override;
 
-    const std::uint16_t *getCircularBufferRx();
-    bool getStereoAudioBuffersTxRxU32(Fib::Dsp::I2sSampleBufferU32 *&pRxStereoBufferU32Out,
-                                      Fib::Dsp::I2sSampleBufferU32 *&pTxStereoBufferU32Out);
+    bool getBuffersToProcess(Fib::Dsp::I2sSampleBufferU32 *&pRxStereoBufferU32Out,
+                             Fib::Dsp::I2sSampleBufferU32 *&pTxStereoBufferU32Out);
     bool stereoAudioBufferLoaded();
+
+    void onTxRxCompleteIsrCallback();
+    void onTxRxHalfCompleteIsrCallback();
+
+    virtual void Run() override;
 
     Buffer &buffer;
     ProcessF processF;
     State state = State::standby;
     cpp_freertos::Thread *pOwner;
+    I2sIF &i2s;
 };

@@ -33,7 +33,7 @@ bool I2sIF::stopTxRxCircularDma()
     return retval;
 }
 
-void I2sIF::txRxCpltIsrCalback()
+void I2sIF::txRxCpltIsrCallback()
 {
     if (this->pTxRxIsrCallbacks)
     {
@@ -41,7 +41,7 @@ void I2sIF::txRxCpltIsrCalback()
     }
 }
 
-void I2sIF::txRxHalfCpltIsrCalback()
+void I2sIF::txRxHalfCpltIsrCallback()
 {
     if (this->pTxRxIsrCallbacks)
     {

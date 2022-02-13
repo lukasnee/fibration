@@ -4,10 +4,10 @@
 #include <cstdint>
 #include <limits>
 
-static I2sDuplexStream::Buffer i2s2DuplexStreamBuffer;
+static I2sStream::Buffer i2s2StreamBuffer;
 
-I2sDuplexStream i2s2DuplexStream(
-    Periph::getI2s2(), "i2s2stream", 4 * 1024 / sizeof(StackType_t), FibSys::Priority::audioStream, i2s2DuplexStreamBuffer,
+I2sStream i2s2Stream(
+    Periph::getI2s2(), "i2s2stream", 4 * 1024 / sizeof(StackType_t), FibSys::Priority::audioStream, i2s2StreamBuffer,
     []([[maybe_unused]] const Fib::Dsp::StereoSampleBufferF32 &rxStereoSampleBlock,
        [[maybe_unused]] Fib::Dsp::StereoSampleBufferF32 &txStereoSampleBuffer) {
         static auto sineWave = Fib::Dsp::Osc(Fib::Dsp::Osc::Waveforms::sine);

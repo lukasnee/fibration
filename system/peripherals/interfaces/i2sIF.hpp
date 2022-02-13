@@ -23,8 +23,8 @@ public:
         virtual void onTxRxHalfCompleteIsrCallback(){};
     };
 
-    void txRxCpltIsrCalback();
-    void txRxHalfCpltIsrCalback();
+    void txRxCpltIsrCallback();
+    void txRxHalfCpltIsrCallback();
 
     bool startTxRxCircularDma(const std::uint16_t *pTxData16, std::uint16_t *pRxData16, std::uint16_t size,
                               TxRxIsrCallbacks *pTxRxIsrCallbacks = nullptr);
