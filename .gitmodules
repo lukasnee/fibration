@@ -16,3 +16,6 @@
 [submodule "System/Core/Libraries/fibstd"]
 	path = system/core/libraries/fibstd
 	url = https://github.com/lukasnee/fibstd.git
+[submodule "system/libraries/DaisySP"]
+	path = system/libraries/DaisySP
+	url = https://github.com/electro-smith/DaisySP.git
