@@ -1,23 +1,24 @@
-#include "duplexStereoStreamIF.hpp"
+#include "i2sStream.hpp"
 
 #include "system.hpp"
 
-DuplexStereoStreamIF::DuplexStereoStreamIF(const std::string pcName, uint16_t usStackDepth, UBaseType_t uxPriority,
-                                           Buffer &buffer, ProcessF processF)
-    : Thread(pcName, usStackDepth, uxPriority), buffer(buffer), processF(processF) {
+I2sStream::I2sStream(I2sIF &i2s, const std::string pcName, uint16_t usStackDepth, UBaseType_t uxPriority,
+                     I2sStream::Buffer &buffer, ProcessF processF)
+    : Thread(pcName, usStackDepth, uxPriority), buffer(buffer), processF(processF), i2s(i2s) {
     this->setOwner(this);
 
     if (Thread::Start() == false) {
         FIBSYS_PANIC();
     }
-};
+}
 
-bool DuplexStereoStreamIF::start() {
+bool I2sStream::start() {
     bool retval = false;
 
     if (this->state == State::standby) {
-        if (this->startTxRxCircularDma()) // TODO: make DMA start only after the first buffer half is filled with data
-        {
+        // TODO: make DMA start only after the first buffer half is filled with data
+        if (this->i2s.startTxRxCircularDma(this->getBufferToStreamOut(), this->getBufferToStreamIn(), this->getBufferSize(),
+                                           this)) {
             this->state = State::ready;
             xTaskNotifyGive(this->pOwner->GetHandle());
             retval = true;
@@ -27,29 +28,29 @@ bool DuplexStereoStreamIF::start() {
     return retval;
 }
 
-bool DuplexStereoStreamIF::stop() {
+bool I2sStream::stop() {
     bool retval = false;
 
     if (this->state == State::firstStreamingSecondReady || this->state == State::firstStreamingSecondLoading ||
         this->state == State::firstStreamingSecondLoaded) {
-        retval = this->stopTxRxCircularDma();
+        retval = this->i2s.stopTxRxCircularDma();
         this->state = State::standby;
     }
     else if (this->state == State::firstReadySecondStreaming || this->state == State::firstLoadingSecondStreaming ||
              this->state == State::firstLoadedSecondStreaming) {
-        retval = this->stopTxRxCircularDma();
+        retval = this->i2s.stopTxRxCircularDma();
         this->state = State::standby;
     }
 
     return retval;
 }
 
-std::uint16_t *DuplexStereoStreamIF::getCircularBufferTx() { return reinterpret_cast<std::uint16_t *>(&this->buffer.tx); }
-std::uint16_t *DuplexStereoStreamIF::getCircularBufferRxUnsafe() { return reinterpret_cast<std::uint16_t *>(&this->buffer.rx); }
-const std::uint16_t *DuplexStereoStreamIF::getCircularBufferRx() { return reinterpret_cast<std::uint16_t *>(&this->buffer.rx); }
-std::size_t DuplexStereoStreamIF::getCircularBufferSize() { return sizeof(buffer.tx); }
-bool DuplexStereoStreamIF::getStereoAudioBuffersTxRxU32(Fib::Dsp::I2sSampleBufferU32 *&pRxI2sBufferOut,
-                                                        Fib::Dsp::I2sSampleBufferU32 *&pTxI2sBufferOut) {
+std::uint16_t *I2sStream::getBufferToStreamOut() { return reinterpret_cast<std::uint16_t *>(&this->buffer.tx); }
+std::uint16_t *I2sStream::getBufferToStreamIn() { return reinterpret_cast<std::uint16_t *>(&this->buffer.rx); }
+std::size_t I2sStream::getBufferSize() { return sizeof(buffer.tx); }
+
+bool I2sStream::getBuffersToProcess(Fib::Dsp::I2sSampleBufferU32 *&pRxI2sBufferOut,
+                                    Fib::Dsp::I2sSampleBufferU32 *&pTxI2sBufferOut) {
     bool result = false;
     pRxI2sBufferOut = pTxI2sBufferOut = nullptr;
     if (this->state == State::firstStreamingSecondReady) {
@@ -77,7 +78,7 @@ bool DuplexStereoStreamIF::getStereoAudioBuffersTxRxU32(Fib::Dsp::I2sSampleBuffe
     return result;
 }
 
-bool DuplexStereoStreamIF::stereoAudioBufferLoaded() {
+bool I2sStream::stereoAudioBufferLoaded() {
     bool result = false;
     if (this->state == State::firstStreamingSecondLoading) {
         this->state = State::firstStreamingSecondLoaded;
@@ -100,7 +101,7 @@ bool DuplexStereoStreamIF::stereoAudioBufferLoaded() {
     return result;
 };
 
-void DuplexStereoStreamIF::firstBufferHalfCompletedStreamIsrCallback() {
+void I2sStream::onTxRxHalfCompleteIsrCallback() {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     if (this->state == State::firstStreamingSecondLoaded ||  // good case
         this->state == State::firstStreamingSecondLoading || // very bad case
@@ -114,8 +115,7 @@ void DuplexStereoStreamIF::firstBufferHalfCompletedStreamIsrCallback() {
     }
     // TODO: better handle bad cases
 }
-
-void DuplexStereoStreamIF::secondBufferHalfCompletedStreamIsrCallback() {
+void I2sStream::onTxRxCompleteIsrCallback() {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     if (this->state == State::firstLoadedSecondStreaming ||  // good case
         this->state == State::firstLoadingSecondStreaming || // very bad case
@@ -128,15 +128,15 @@ void DuplexStereoStreamIF::secondBufferHalfCompletedStreamIsrCallback() {
     // TODO: better handle bad cases
 }
 
-void DuplexStereoStreamIF::Run() // task code
+void I2sStream::Run() // task code
 {
     cpp_freertos::Thread::Delay(50); // TODO necessary ???
-    if (this->init()) {
+
+    if (this->i2s.init()) {
         while (true) {
             Fib::Dsp::I2sSampleBufferU32 *pRxI2sBuffer = nullptr;
             Fib::Dsp::I2sSampleBufferU32 *pTxI2sBuffer = nullptr;
-            if (this->processF && this->getStereoAudioBuffersTxRxU32(pRxI2sBuffer, pTxI2sBuffer) && pRxI2sBuffer &&
-                pTxI2sBuffer) {
+            if (this->processF && this->getBuffersToProcess(pRxI2sBuffer, pTxI2sBuffer) && pRxI2sBuffer && pTxI2sBuffer) {
                 // TODO: try optimizing, making processF variants in case converting to/from
                 // F32 is unnecessary.
 
@@ -148,5 +148,5 @@ void DuplexStereoStreamIF::Run() // task code
             this->stereoAudioBufferLoaded();
         }
     }
-    this->deinit();
+    this->i2s.deinit();
 }

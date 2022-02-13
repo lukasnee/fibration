@@ -8,12 +8,12 @@ extern I2S_HandleTypeDef hi2s2;
 
 extern "C" void HAL_I2SEx_TxRxCpltCallback(I2S_HandleTypeDef *hi2s)
 {
-    if(hi2s == &hi2s2) { Periph::getI2s2().txRxCpltIsrCalback(); }
+    if(hi2s == &hi2s2) { Periph::getI2s2().txRxCpltIsrCallback(); }
 }
 
 extern "C" void HAL_I2SEx_TxRxHalfCpltCallback(I2S_HandleTypeDef *hi2s)
 {
-    if(hi2s == &hi2s2) { Periph::getI2s2().txRxHalfCpltIsrCalback(); }
+    if(hi2s == &hi2s2) { Periph::getI2s2().txRxHalfCpltIsrCallback(); }
 }
 
 // TODO: if needed

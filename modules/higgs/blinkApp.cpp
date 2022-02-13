@@ -1,6 +1,6 @@
 #include "fibration.hpp"
 
-extern I2sDuplexStream i2s2DuplexStream;
+extern I2sStream i2s2Stream;
 
 class BlinkTestApp : public cpp_freertos::Thread {
 public:
@@ -15,7 +15,7 @@ private:
         Logger::log(Logger::Verbosity::high, Logger::Type::trace, "BlinkTestApp started\n");
         Gpio::initAsOutput<Gpio::Pin::A5>(Gpio::PinState::low, Gpio::Pull::none);
         DelayUntil(cpp_freertos::Ticks::MsToTicks(1000));
-        i2s2DuplexStream.start();
+        i2s2Stream.start();
         while (true) {
             Gpio::writeLow<Gpio::Pin::A5>();
             DelayUntil(cpp_freertos::Ticks::MsToTicks(50));

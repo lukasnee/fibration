@@ -33,4 +33,4 @@ extern "C"
 
 #include "periodicTimerApp.hpp"
 #include "dsp/oscillator.hpp"
-#include "streams/i2sDuplexStream.hpp"
+#include "streams/i2sStream.hpp"
