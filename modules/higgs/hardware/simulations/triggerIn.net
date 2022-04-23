@@ -1,0 +1,23 @@
+* \\wsl$\Ubuntu-20.04\home\lukasnee\dev\git\1\fibration\modules\higgs\hardware\simulations\triggerIn.asc
+Rf MCU_ADC virt 56k
+Roffset virt N001 200k
+Rin virt EXT_IN 100k
+Cf MCU_ADC virt 100p
+V1 VCC 0 12
+V2 0 VEE 12
+V3 3V3A 0 3.3
+V4 0 N001 10
+V5 EXT_IN 0 SINE(0 3 1k) AC 1. Rser=50
+XU3 0 virt 3V3A 0 MCU_ADC TLV6001
+XU1 0 N002 3V3A 0 N003 TLV6001
+Rload1 N003 0 40k
+Rin1 N002 MCU_ADC 100k
+Rin2 N003 N002 100k
+.tran 2m
+;options plotwinsize = 0
+;ac oct 10 1 1meg
+* 3v3 MCU GPIO input
+;op 10m
+.lib TLV6001.txt
+.backanno
+.end

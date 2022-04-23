@@ -1,0 +1,14 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP 22u
+D 25V 22uF X5R ±10% 1206 Multilayer Ceramic Capacitors MLCC - SMD/SMT ROHS
+K capacitor cap
+F https://datasheet.lcsc.com/lcsc/1811031514_Samsung-Electro-Mechanics-CL31A226KAHNNNE_C12891.pdf
+$ENDCMP
+#
+$CMP V7803-500
+D 3.3V 0.5A NON-ISOLATED SWITCHING REGULATOR
+F https://eu.mouser.com/datasheet/2/670/v78_500-1774424.pdf
+$ENDCMP
+#
+#End Doc Library

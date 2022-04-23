@@ -1,0 +1,13 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP V78-500
+D 0.5A NON-ISOLATED SWITCHING REGULATOR
+F https://eu.mouser.com/datasheet/2/670/v78_500-1774424.pdf
+$ENDCMP
+#
+$CMP V7803-500
+D 3.3V 0.5A NON-ISOLATED SWITCHING REGULATOR
+F https://eu.mouser.com/datasheet/2/670/v78_500-1774424.pdf
+$ENDCMP
+#
+#End Doc Library
