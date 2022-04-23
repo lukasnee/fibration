@@ -187,6 +187,7 @@ sudo ln -s /usr/share/gcc-arm-none-eabi-<VERSION>/bin/arm-none-eabi-size /usr/bi
 sudo ln -s /usr/share/gcc-arm-none-eabi-<VERSION>/bin/arm-none-eabi-objcopy /usr/bin/arm-none-eabi-objcopy
 sudo ln -s /usr/share/gcc-arm-none-eabi-<VERSION>/bin/arm-none-eabi-objdump /usr/bin/arm-none-eabi-objdump
 sudo ln -s /usr/share/gcc-arm-none-eabi-<VERSION>/bin/arm-none-eabi-nm /usr/bin/arm-none-eabi-nm
+sudo ln -s /usr/share/gcc-arm-none-eabi-<VERSION>/bin/arm-none-eabi-ar /usr/bin/arm-none-eabi-ar
 # ... link other arm-none-eabi-* if you intend to use
 ```
 
@@ -208,6 +209,7 @@ arm-none-eabi-size --version
 arm-none-eabi-objcopy --version
 arm-none-eabi-objdump --version
 arm-none-eabi-nm --version
+arm-none-eabi-ar --version
 ```
 
 ## OpenOCD on WSL

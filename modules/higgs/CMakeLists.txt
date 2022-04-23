@@ -158,6 +158,7 @@ set(FIBSYS_SHELL_COMMANDS_SRC
     ${ROOT}/system/shell/commands/donutShellCommand.cpp
 )
 
+set(CMAKE_AR /usr/bin/arm-none-eabi-ar)
 #TODO: maybe move system libraries to system/ dir. 
 # Libs used should be split into two lib categories: fibsys dependant and particular apllication dependant libs.
 set(FIBSYS_SRC
