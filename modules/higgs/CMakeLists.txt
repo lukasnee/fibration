@@ -159,6 +159,8 @@ set(FIBSYS_SHELL_COMMANDS_SRC
 )
 
 set(CMAKE_AR /usr/bin/arm-none-eabi-ar)
+add_subdirectory(${ROOT}/system/libraries/DaisySP ${CMAKE_CURRENT_BINARY_DIR}/DaisySP)
+
 #TODO: maybe move system libraries to system/ dir. 
 # Libs used should be split into two lib categories: fibsys dependant and particular apllication dependant libs.
 set(FIBSYS_SRC
@@ -216,6 +218,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${ROOT}/system/peripherals/
     ${ROOT}/system/components/
     ${ROOT}/system/components/shell
+    ${ROOT}/system/libraries/DaisySP/Source
 
     # Real-Time Operating System
     ${ROOT}/system/core/libraries/FreeRTOS-Kernel/include/
@@ -294,6 +297,8 @@ target_link_options(${PROJECT_NAME} PRIVATE
 
 target_link_libraries(${PROJECT_NAME}
     ${ROOT}/system/core/libraries/STM32CubeF3/Drivers/CMSIS/Lib/GCC/libarm_cortexM4lf_math.a
+    # DaisySP/libDaisySP.a
+    ${ROOT}/.build/release/modules/higgs/DaisySP/libDaisySP.a
 )
 
 # Create hex file and print executable size

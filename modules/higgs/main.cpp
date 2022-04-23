@@ -4,12 +4,31 @@
 #include <cstdint>
 #include <limits>
 
+#include "Drums/analogbassdrum.h"
+#include "Drums/analogsnaredrum.h"
+#include "Drums/hihat.h"
+#include "Drums/synthbassdrum.h"
+#include "Drums/synthsnaredrum.h"
+
 static I2sStream::Buffer i2s2StreamBuffer;
 
 I2sStream i2s2Stream(
     Periph::getI2s2(), "i2s2stream", 4 * 1024 / sizeof(StackType_t), FibSys::Priority::audioStream, i2s2StreamBuffer,
     []([[maybe_unused]] const Fib::Dsp::StereoSampleBufferF32 &rxStereoSampleBlock,
        [[maybe_unused]] Fib::Dsp::StereoSampleBufferF32 &txStereoSampleBuffer) {
+        static bool hasSetup = false;
+        static daisysp::SyntheticBassDrum drum1;
+        static daisysp::SyntheticSnareDrum drum2;
+        static daisysp::HiHat drum3;
+        static daisysp::AnalogBassDrum drum4;
+        static daisysp::AnalogSnareDrum drum5;
+
+        auto &drum = drum5;
+        if (!hasSetup) {
+            drum.Init(44100.f);
+            hasSetup = true;
+        }
+
         static auto sineWave = Fib::Dsp::Osc(Fib::Dsp::Osc::Waveforms::sine);
         static auto squareWave = Fib::Dsp::Osc(Fib::Dsp::Osc::Waveforms::square);
         static auto sawWave = Fib::Dsp::Osc(Fib::Dsp::Osc::Waveforms::saw);
@@ -40,10 +59,15 @@ I2sStream i2s2Stream(
         // pWaves[2]->amplitudeNormal.set(pWaves[2]->frequencyInHz.get() < rolloff ? 0.f : 1.f);
         // pWaves[3]->amplitudeNormal.set(pWaves[3]->frequencyInHz.get() < rolloff ? 0.f : 1.f);
 
-        const auto w1 = pWaves[0]->synthesize();
-        const auto w2 = pWaves[1]->synthesize();
-        const auto w3 = pWaves[2]->synthesize();
-        const auto w4 = pWaves[3]->synthesize();
+        // const auto w1 = pWaves[0]->synthesize();
+        // const auto w2 = pWaves[1]->synthesize();
+        // const auto w3 = pWaves[2]->synthesize();
+        // const auto w4 = pWaves[3]->synthesize();
+
+        Fib::Dsp::SampleBufferF32 w5;
+        for (std::size_t i = 0; i < w5.size(); i ++) {
+            w5[i] = drum.Process();
+        }
 
         static float coeff[] = {0.0000000f,  -0.0004873f, -0.0019827f, -0.0044985f, -0.0079935f, -0.0123743f, -0.0175003f,
                                 -0.0231899f, -0.0292296f, -0.0353835f, -0.0414052f, -0.0470488f, -0.0520807f, -0.0562909f,
@@ -54,8 +78,8 @@ I2sStream i2s2Stream(
         // static arm_iir_lattice_instance_f32 iirInstace;
         static arm_fir_instance_f32 firInstace;
         const uint16_t numTaps = sizeof(coeff) / sizeof(Fib::Dsp::F32);
-        const uint32_t blockSize = w1.size();
-        static Fib::Dsp::F32 stateBuffer[numTaps + blockSize - 1];
+        // const uint32_t blockSize = w1.size();
+        // static Fib::Dsp::F32 stateBuffer[numTaps + blockSize - 1];
 
         // float biquada[] = {0.9603640455554292, -1.9576260295124621, 0.9069191056867634, -1.904255735525569};
         // float biquadb[] = {1, -2, 1, -2};
@@ -65,12 +89,13 @@ I2sStream i2s2Stream(
             filterInitialized = true;
             // arm_iir_lattice_init_f32(&iirInstace, (sizeof(biquada)/sizeof(float)), biquada, biquadb, stateBuffer,
             // blockSize);
-            arm_fir_init_f32(&firInstace, numTaps, coeff, stateBuffer, blockSize);
+            // arm_fir_init_f32(&firInstace, numTaps, coeff, stateBuffer, blockSize);
         }
 
         Fib::Dsp::SampleBufferF32 mix;
         for (std::size_t i = 0; i < mix.size(); i++) {
-            mix[i] = (w1[i] + w2[i] + w3[i] + w4[i]) / 4.f;
+            // mix[i] = (w1[i] + w2[i] + w3[i] + w4[i] + w5[i]) / 5.f;
+            mix[i] = w5[i];
             // txStereoSampleBuffer.right[j] = (txStereoSampleBuffer.left[j] + w3[j] + w4[j]) / 4.f;
         }
         txStereoSampleBuffer.left = mix;
@@ -90,5 +115,9 @@ I2sStream i2s2Stream(
                     return Shell::Command::Helper::onOffCommand([&](bool state) { return higgsStats.setState(state); },
                                                                 "higgs stats", ShellCommandFunctionArgs);
                 });
+            static Shell::Command drumCommand("d", nullptr, nullptr, [&] ShellCommandFunctionLambdaSignature {
+                drum.Trig();
+                return Shell::Command::Result::ok;
+            });
         }
     });
