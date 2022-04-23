@@ -255,7 +255,7 @@ void FibSys::Run()
     }
 
     constexpr const char *strFibShellLabel = ANSI_COLOR_BLUE "FIB> " ANSI_COLOR_YELLOW;
-    static Shell shell(strFibShellLabel, textStreamUart2, 0x200, FibSys::Priority::appHigh);
+    static Shell shell(strFibShellLabel, textStreamUart2, 0x200, FibSys::Priority::sysMedium);
     shell.execute(versionCmd);
 
     Periph::getAdc2().init();
