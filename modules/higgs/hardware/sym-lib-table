@@ -1,3 +1,4 @@
 (sym_lib_table
-  (lib (name higgs)(type Legacy)(uri ${KIPRJMOD}/libraries/higgs.lib)(options "")(descr ""))
+  (lib (name "higgs")(type "Legacy")(uri "${KIPRJMOD}/libraries/higgs.lib")(options "")(descr ""))
+  (lib (name "higgs-rescue")(type "Legacy")(uri "${KIPRJMOD}/higgs-rescue.lib")(options "")(descr ""))
 )

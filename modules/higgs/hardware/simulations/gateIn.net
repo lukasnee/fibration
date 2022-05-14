@@ -1,0 +1,29 @@
+* \\wsl$\Ubuntu-20.04\home\lukasnee\dev\git\1\fibration\modules\higgs\hardware\simulations\gateIn.asc
+Rf MCU_GPIO_IN virt 68k
+Roffset -AREF virt 200k
+Rin virt GATE_EXT 100k
+Cf MCU_GPIO_IN virt 100p
+Rload MCU_GPIO_IN 0 40k
+V1 VCC 0 12
+V2 0 VEE 12
+V3 3V3A 0 3.3
+V5 GATE_EXT 0 Rser=50
+XU1 0 virt 3V3A 0 MCU_GPIO_IN MCP6001
+XU2 N002 VEE N002 TL431
+R1 N002 0 6k8
+R2 -AREF N002 6k8
+R3 VEE -AREF 10k
+C1 VEE -AREF 1µ
+Rf1 MCU_ADC_IN N001 33k
+Roffset1 -AREF N001 140k
+Rin1 N001 GATE_EXT 100k
+Cf1 MCU_ADC_IN N001 1n
+Rload1 MCU_ADC_IN 0 1Meg
+XU3 0 N001 3V3A 0 MCU_ADC_IN MCP6001
+.dc V5 -12 12 .1
+;options plotwinsize = 0
+* in max range: [-12V 12V]\nout max range: [0V 3.3V]\nlinear inverse map: from in [0V 5V] to out [3.3V 0V]
+.lib MCP6001.lib
+.lib TL431.mod
+.backanno
+.end
