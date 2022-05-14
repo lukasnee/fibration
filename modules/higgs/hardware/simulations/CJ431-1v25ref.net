@@ -1,0 +1,11 @@
+* \\wsl$\Ubuntu-20.04\home\lukasnee\dev\git\1\fibration\modules\higgs\hardware\simulations\Draft1.asc
+XU1 N001 0 N001 TL431
+R1 N001 Vin 10k
+V1 Vin 0 12
+R2 Vka N001 10k
+R3 Vka 0 100k
+C1 Vka 0 1µ
+.op
+.lib TL431.mod
+.backanno
+.end
