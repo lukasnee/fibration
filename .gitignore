@@ -7,6 +7,7 @@ fib-log.txt
 gitHash.def
 *.raw
 *.log
-modules/*/hardware/_autosave-*
-modules/*/hardware/*-bak
-modules/*/hardware/*-backups/
+*.zip
+modules/*/hardware/design/_autosave-*
+modules/*/hardware/design/*-bak
+modules/*/hardware/design/*-backups/
