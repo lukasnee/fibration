@@ -4,6 +4,10 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+        // note: make sure "Launch OpenOCD" VSCode task is running and "gdbTarget": "<WSL IPv4 Address>:3333"
+        //
+        // TODO: make launch config general and still working. Having to run "Launch OpenOCD" and specifying 
+        // "gdbTarget" IP address is inconvenient ("localhost" does not work - probably refers to Windows', not WSL).
         {
             "presentation": {
                 "hidden": false,
@@ -17,24 +21,34 @@
             "request": "launch",
             "type": "cortex-debug",
             "servertype": "external",
-            "gdbTarget": "172.22.160.1:3333",
+            "gdbTarget": "172.26.160.1:3333",
+            // "servertype": "openocd",
             // "configFiles": [
             //     "modules/higgs/openocd.cfg",
             // ],
             "interface": "swd",
-            "cpu": "cortex-m4",
             "preLaunchTask": "preLaunchTaskHiggs",
             "svdFile": "${workspaceRoot}/system/msp/STM32F303.svd",
-            "runToEntryPoint": "BlinkTestApp::Run",
+            // "runToEntryPoint": "BlinkTestApp::Run",
             "debuggerArgs": [
+                "-d",
+                "${workspaceRoot}",
                 "-l",
                 "30" // necessary ! without it every other session launch would fail
             ],
-            "demangle": true,
-            "showDevDebugOutput": false,
+            "showDevDebugOutput": "raw",
             "showDevDebugTimestamps": false,
             "numberOfProcessors": 1,
             "targetProcessor": 0,
+            "openOCDLaunchCommands": [
+                "init",
+                "reset init"
+            ],
+            "preRestartCommands": [
+                "load",
+                "enable breakpoint",
+                "monitor reset"
+            ],
         }
     ]
 }
