@@ -109,53 +109,53 @@ Experimental. Developing initial features. No stable release yet.
 It started and mostly continued on Raspberry Pi4 (Raspbian OS (debian)) remotely using VSCode "Remote - WSL" extension
 (ms-vscode-remote.remote-wsl) from Windows PC. Yes, that is a pretty weird setup.
 
-I managed to setup building/flashing/debugging experience on VSCode on Windows using Ubuntu WSL (Ubuntu enviroment on
-Windows, just google how to install WSL). The setup is almost identical for both Linux and WSL cases.
+## Linux or Windows (WSL)
 
-0. Install WSL if using windows. I recommend installing WSL version 2.
+I managed to setup a complete build+flash+debug Linux experience on Windows using [WSL](https://docs.microsoft.com/en-us/windows/wsl/install)2 Ubuntu distribution and [usbipd](https://github.com/dorssel/usbipd-win) for ST-LINK and serial console USB device access.
+The following instructions should work for native Linux environment too - just skip steps marked as [WSL only].
+
+1. [WSL only] Install WSL if using windows. I recommend installing WSL version 2.
 
 1. Install common apt package prerequisites:
 
-```shell
-sudo apt install git make cmake clang-format
-```
+    ```shell
+    sudo apt install git make cmake clang-format openocd stlink-tools
+    ```
 
-2. Here's where setup differs for native Linux and WSL.
-   - For WSL follow `USB utilities on WSL` clause below and move on to the step 3.
-   - For native Linux simply install USB tools using the following `sudo apt install stlink-tools openocd`
+1. Install GNU Arm Embedded Toolchain (`arm-none-eabi-*`) - see clause below.
 
-3. Install GNU Arm Embedded Toolchain (`arm-none-eabi-*`) - see clause below.
+1. Install [Visual Studio Code](https://code.visualstudio.com/) and `ms-vscode-remote.remote-wsl` extension if using WSL.
 
-4. Install [Visual Studio Code](https://code.visualstudio.com/) and `ms-vscode-remote.remote-wsl` extension if using WSL.
+1. [WSL only] Install `ms-vscode-remote.remote-wsl` extension if using WSL.
 
-5. In WSL or native linux terminal navigate to where you want to install fibration project and do:
+1. Navigate to where you want to install fibration MDK (`cd ~` if not sure) and do:
 
-```shell
-git clone https://github.com/lukasnee/fibration.git
-cd fibration
-git submodule update --recurse --init
-git checkout -b my-branch
-code .
-```
+    ```shell
+    git clone https://github.com/lukasnee/fibration.git
+    cd fibration
+    git submodule update --recurse --init
+    git checkout -b my-branch
+    code .
+    ```
 
-> A VSCode windows should start loading. In WSL case, make sure VSCode starts in WSL mode (in the bottom left corner you should see a colored box with text: `[WSL: Ubuntu]`
+    > A VSCode windows should start loading. In WSL case, make sure VSCode starts in WSL mode (in the bottom left corner you should see a colored box with text: `[WSL: Ubuntu]`
 
-6. Install following VSCode extensions:
+1. Install following VSCode extensions:
 
--   `ms-vscode.cpptools`
--   `twxs.cmake`
--   `marus25.cortex-debug`
--   `xaver.clang-format`
+    - `ms-vscode.cpptools`
+    - `twxs.cmake`
+    - `marus25.cortex-debug`
+    - `xaver.clang-format`
 
-> make sure they are installed on WSL service thing
+    > Make sure you install these extensions on VSCode WSL service side.
 
-8. Build project `higgs` by running VSCode tasks `build higgs [release]` or run manually using `./utils/build.sh -p higgs -t release`.
+1. Build project `higgs` by running VSCode tasks `build higgs [release]` or run manually using `./utils/build.sh -p higgs -t release`.
 
-> **NOTE**: Initial build can fail so try building a couple times more.
+    > Initial build can fail so try building a couple times more.
 
-9. Flash project `higgs` by running VSCode tasks `build and flash higgs [release]` or run manually using `./utils/flash.sh -p higgs -t release -b`.
+1. Flash project `higgs` by running VSCode tasks `build and flash higgs [release]` or run manually using `./utils/flash.sh -p higgs -t release -b`.
 
-10. That's it!
+1. That's it!
 
 ## GNU Arm Embedded Toolchain
 
@@ -277,3 +277,7 @@ Insert the following in your VSCode's `keybindings.json`. You can search it up u
     { "key": "shift+space t", "command": "workbench.action.tasks.runTask", "args": "build and run unit tests" }
 ]
 ```
+
+# TODOs and Ideas
+
+- Replacing FreeRTOS+cpp_freertos with CMSIS-RTOS whenever [C++ API](https://arm-software.github.io/CMSIS_5/RTOS2/html/rtos_apicpp.html) feature is ready
