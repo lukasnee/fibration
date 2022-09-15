@@ -23,11 +23,6 @@ void Shell::Run()
 {
     if (this->asciiStream.init())
     {
-        this->print('\n');
-        this->printf("Type '%s %s' to view available commands\n", this->helpCommand.name, this->helpCommand.usage);
-        this->print('\n');
-        this->promptNew();
-
         while (true)
         {
             // NOTE: escape sequences are time sensitive !
