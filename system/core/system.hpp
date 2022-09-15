@@ -10,8 +10,7 @@ extern "C"
 
 #include <cstdint>
 
-class FibSys : public cpp_freertos::Thread
-{
+class FibSys : public cpp_freertos::Thread {
 public:
     // entry point of fibration system, should be called in main
     static void boot();
@@ -24,8 +23,7 @@ public:
     static void getUptime(std::uint32_t &days, std::uint32_t &hours, std::uint32_t &minutes, std::uint32_t &seconds,
                           std::uint32_t &milliseconds);
 
-    enum Priority : BaseType_t
-    {
+    enum Priority : BaseType_t {
         lowest = 0,
         veryLow = 1,
         low = 2,

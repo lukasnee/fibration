@@ -16,34 +16,25 @@ extern "C"
 #include <cstdint>
 #include <limits>
 
-extern "C" void vApplicationMallocFailedHook(void)
-{
-    FIBSYS_PANIC();
-}
+extern "C" void vApplicationMallocFailedHook(void) { FIBSYS_PANIC(); }
 
-extern "C" void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-    if (htim->Instance == TIM7)
-    {
+extern "C" void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+    if (htim->Instance == TIM7) {
         HAL_IncTick();
     }
-    if (htim->Instance == TIM6)
-    {
+    if (htim->Instance == TIM6) {
         static bool firstIgnored = false;
 
-        if (firstIgnored == false)
-        {
+        if (firstIgnored == false) {
             firstIgnored = true;
         }
-        else
-        {
+        else {
             Periph::getTim6().overflowCallback();
         }
     }
 }
 
-static void SystemClock_Config(void)
-{
+static void SystemClock_Config(void) {
     RCC_OscInitTypeDef RCC_OscInitStruct = {};
     RCC_ClkInitTypeDef RCC_ClkInitStruct = {};
     RCC_PeriphCLKInitTypeDef PeriphClkInit = {};
@@ -56,8 +47,7 @@ static void SystemClock_Config(void)
     RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
     RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
     RCC_OscInitStruct.PLL.PREDIV = RCC_PREDIV_DIV1;
-    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-    {
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
         FIBSYS_PANIC();
     }
     /* Initializes the CPU, AHB and APB buses clocks */
@@ -68,42 +58,31 @@ static void SystemClock_Config(void)
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
-    {
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK) {
         FIBSYS_PANIC();
     }
 
-    PeriphClkInit.PeriphClockSelection =
-        RCC_PERIPHCLK_I2S | RCC_PERIPHCLK_USART3 | RCC_PERIPHCLK_USART2 | RCC_PERIPHCLK_ADC12;
+    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_I2S | RCC_PERIPHCLK_USART3 | RCC_PERIPHCLK_USART2 | RCC_PERIPHCLK_ADC12;
     PeriphClkInit.Usart2ClockSelection = RCC_USART2CLKSOURCE_PCLK1;
     PeriphClkInit.Usart3ClockSelection = RCC_USART3CLKSOURCE_PCLK1; // TODO not sure what the clk NUMBA
     PeriphClkInit.Adc12ClockSelection = RCC_ADC12PLLCLK_DIV1;
     PeriphClkInit.I2sClockSelection = RCC_I2SCLKSOURCE_SYSCLK;
-    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
-    {
+    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK) {
         FIBSYS_PANIC();
     }
 }
 
-void initPlatform()
-{
+void initPlatform() {
     HAL_Init();
     SystemClock_Config();
 }
 
-uint32_t FibSys::getSysTick()
-{
-    return HAL_GetTick();
-}
+uint32_t FibSys::getSysTick() { return HAL_GetTick(); }
 
-std::uint32_t FibSys::getUptimeInMs()
-{
-    return cpp_freertos::Ticks::TicksToMs(FibSys::getSysTick());
-}
+std::uint32_t FibSys::getUptimeInMs() { return cpp_freertos::Ticks::TicksToMs(FibSys::getSysTick()); }
 
 void FibSys::getUptime(std::uint32_t &days, std::uint32_t &hours, std::uint32_t &minutes, std::uint32_t &seconds,
-                       std::uint32_t &milliseconds)
-{
+                       std::uint32_t &milliseconds) {
     std::uint32_t uptimeInMs = getUptimeInMs();
     std::uint32_t secondsTotal = uptimeInMs / 1000;
     std::uint32_t minutesTotal = secondsTotal / 60;
@@ -117,10 +96,8 @@ void FibSys::getUptime(std::uint32_t &days, std::uint32_t &hours, std::uint32_t 
     days = daysTotal;
 }
 
-static void hexDumpWords(std::uint32_t address, std::size_t size, std::size_t width)
-{
-    for (std::size_t i = 0; i < size; i += width)
-    {
+static void hexDumpWords(std::uint32_t address, std::size_t size, std::size_t width) {
+    for (std::size_t i = 0; i < size; i += width) {
         auto pAddress = reinterpret_cast<std::uint32_t *>(address) + i;
         printf("%08lX: ", reinterpret_cast<std::uint32_t>(pAddress));
         for (std::size_t j = 0; j < width; j++)
@@ -132,8 +109,7 @@ static void hexDumpWords(std::uint32_t address, std::size_t size, std::size_t wi
     }
 }
 
-extern "C" void fibsys_hardfault(ExceptionStackFrame *pExceptionStackFrame, char stackPointerInitial)
-{
+extern "C" void fibsys_hardfault(ExceptionStackFrame *pExceptionStackFrame, char stackPointerInitial) {
     printf(ANSI_COLOR_RESET "S Y S T E M   H A R D F A U L T (uptime: %lu ms)\n", FibSys::getUptimeInMs());
     printf("%cSP frame - r0: %08lX, "
            "r1: %08lX, "
@@ -144,10 +120,9 @@ extern "C" void fibsys_hardfault(ExceptionStackFrame *pExceptionStackFrame, char
            "ret_addr %08lX, "
            "xpsr: %08lX\n",
            stackPointerInitial, pExceptionStackFrame->r0, pExceptionStackFrame->r1, pExceptionStackFrame->r2,
-           pExceptionStackFrame->r3, pExceptionStackFrame->r12, pExceptionStackFrame->lr,
-           pExceptionStackFrame->return_address, pExceptionStackFrame->xpsr);
-    const struct
-    {
+           pExceptionStackFrame->r3, pExceptionStackFrame->r12, pExceptionStackFrame->lr, pExceptionStackFrame->return_address,
+           pExceptionStackFrame->xpsr);
+    const struct {
         std::uint32_t mask;
         const char *strName;
     } CM4_CFSR_MAP[] = {{SCB_CFSR_USGFAULTSR_Msk, "USGFAULTSR"},
@@ -175,12 +150,9 @@ extern "C" void fibsys_hardfault(ExceptionStackFrame *pExceptionStackFrame, char
 
     printf("CFSR: %08lX (", SCB->CFSR);
     uint8_t first = 1;
-    for (size_t i = 0; i < sizeof(CM4_CFSR_MAP) / sizeof(CM4_CFSR_MAP[0]); i++)
-    {
-        if (SCB->CFSR & CM4_CFSR_MAP[i].mask)
-        {
-            if (!first)
-            {
+    for (size_t i = 0; i < sizeof(CM4_CFSR_MAP) / sizeof(CM4_CFSR_MAP[0]); i++) {
+        if (SCB->CFSR & CM4_CFSR_MAP[i].mask) {
+            if (!first) {
                 printf("|");
             }
             printf(CM4_CFSR_MAP[i].strName);
@@ -194,8 +166,7 @@ extern "C" void fibsys_hardfault(ExceptionStackFrame *pExceptionStackFrame, char
     FibSys::hardwareReboot();
 }
 
-extern "C" void fibsys_panic(const char *strFile, std::uint32_t line)
-{
+extern "C" void fibsys_panic(const char *strFile, std::uint32_t line) {
     printf(ANSI_COLOR_RESET "S Y S T E M   P A N I C (uptime: %lu ms)\n", FibSys::getUptimeInMs());
     printf("%s:%lu\n", strFile, line);
     printf("process stack dump:\n");
@@ -203,14 +174,12 @@ extern "C" void fibsys_panic(const char *strFile, std::uint32_t line)
     FibSys::hardwareReboot();
 }
 
-void FibSys::hardwareReboot()
-{
+void FibSys::hardwareReboot() {
     __NVIC_SystemReset();
     /* shall never return ! */
 }
 
-void FibSys::boot()
-{
+void FibSys::boot() {
     initPlatform();
     // init system task
     static FibSys fibSys(0x200, FibSys::Priority::highest);
@@ -218,10 +187,8 @@ void FibSys::boot()
     vTaskStartScheduler();
 }
 
-FibSys::FibSys(std::uint16_t stackDepth, BaseType_t priority) : Thread("FibSys", stackDepth, priority)
-{
-    if (Start() == false)
-    {
+FibSys::FibSys(std::uint16_t stackDepth, BaseType_t priority) : Thread("FibSys", stackDepth, priority) {
+    if (Start() == false) {
         FIBSYS_PANIC();
     }
 };
@@ -249,8 +216,7 @@ void FibSys::Run()
 {
     static IOStream ioStreamUart2(Periph::getUart2());
     static AsciiStream textStreamUart2(ioStreamUart2);
-    if (false == Logger::setAsciiStream(textStreamUart2))
-    {
+    if (false == Logger::setAsciiStream(textStreamUart2)) {
         FIBSYS_PANIC();
     }
 
