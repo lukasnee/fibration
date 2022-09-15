@@ -6,20 +6,26 @@
                                     /_/ /_/_.__/_/  \_,_/\__/_/\___/_//_/
                                             FOSS Modular Synth Framework
 
-Open source modular synthesizer embedded software framework [WIP]
+Microcontroller software kit for synthesizer development.
 
-# Feature
+# Applications
 
--   written in C++
--   based on STM32 (F303xx atm)
--   based on FreeRTOS and interfaced over [ccp_freertos](https://github.com/michaelbecker/freertos-addons) wrapper
--   DMA/I2S driven audio streamer for easy external ADC/DAC interfacing
--   hardware FPU enabled CMSIS DSP support
--   thread-safe and DSP oriented peripheral hardware resource manager (In progress)
--   Common synth component high-level implementations (pot, slider, button, led, rotary encoder... TBD)
--   lightweight command shell and logger over UART (nice for experimenting and debugging)
--   _Tracealyzer_ support (TBD)
+- [Eurorack](https://en.wikipedia.org/wiki/Eurorack) device
+- Effect pedal
 
+# Features
+
+- Written in C++
+- Based on STM32 MCU (F303xx only ATM...)
+- RTOS driven ([FreeRTOS](https://www.freertos.org/) + [ccp_freertos](https://github.com/michaelbecker/freertos-addons) wrappers)
+- I2S+DMA driven audio service thread for easy and timely signal transfer from software to hardware domain and vice versa
+- Thread-safe and DSP oriented hardware peripheral manager (In progress)
+- Hardware FPU exploitation and [CMSIS-DSP](https://arm-software.github.io/CMSIS_5/DSP/html/index.html) support
+- Synth component drivers (knob, slider, button, LED, rotary encoder, etc. TBD)
+- CLI shell and logger over UART (nice for experimenting and debugging)
+- SEGGER [SystemView](https://www.segger.com/products/development-tools/systemview/) support (TBD)
+
+<!-- 
 # Framework
 
         +------------+     +-----------+     +------------+     +-------------+     +-----------+
@@ -87,18 +93,18 @@ Open source modular synthesizer embedded software framework [WIP]
         | Mutro   |                ?                |    |           |         | Muon Neutrino     |
         +---------+---------------------------------+    |           |         +-------------------+
         | Etro    |                ?                |    |           |         | Electron Neutrino |
-        +---------+---------------------------------+    +-----------+---------+-------------------+
+        +---------+---------------------------------+    +-----------+---------+-------------------+ -->
 
 # Status
 
-Experimentation phase, no releases yet.
+Experimental. Developing initial features. No stable release yet.
 
 # Licenses
 
 -   GNU GPL-3.0 for software
 -   CERN OHL-2.0 for hardware
 
-# Development Enviroment
+# Development Environment
 
 It started and mostly continued on Raspberry Pi4 (Raspbian OS (debian)) remotely using VSCode "Remote - WSL" extension
 (ms-vscode-remote.remote-wsl) from Windows PC. Yes, that is a pretty weird setup.
