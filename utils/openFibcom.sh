@@ -13,4 +13,4 @@ DEVICE=$1
 
 [[ ! -f $(command -v minicom) ]] && (printf "${ansiColorRed}no 'minicom' for serial communication\n"; exit -1)
 
-minicom --baudrate=$CONFIG_FIBCOM_BAUDRATE --device=$DEVICE -c on
+minicom --baudrate=$CONFIG_FIBCOM_BAUDRATE --device=$DEVICE --color=on
