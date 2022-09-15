@@ -110,5 +110,7 @@
     "[cmake]": {
         "editor.defaultFormatter": "cheshirekow.cmake-format"
     },
-    "cmake.configureOnEdit": false
+    "cmake.configureOnEdit": false,
+    "git.autoRepositoryDetection": "openEditors",
+    "git.detectSubmodules": false
 }
