@@ -56,6 +56,8 @@ private:
     // can only be instantiated with FibSys::boot()
     FibSys(std::uint16_t stackDepth, BaseType_t priority);
 
+    void startup();
+
     // FibSys thread code
     virtual void Run() override;
 };

@@ -211,9 +211,7 @@ Shell::Command versionCmd("version,ver", nullptr, "show firmware version", [] Sh
     return Shell::Command::Result::okQuiet;
 });
 
-// FibSys thread
-void FibSys::Run()
-{
+void FibSys::startup() {
     static IOStream ioStreamUart2(Periph::getUart2());
     static AsciiStream textStreamUart2(ioStreamUart2);
     if (false == Logger::setAsciiStream(textStreamUart2)) {
@@ -222,16 +220,19 @@ void FibSys::Run()
 
     constexpr const char *strFibShellLabel = ANSI_COLOR_BLUE "FIB> " ANSI_COLOR_YELLOW;
     static Shell shell(strFibShellLabel, textStreamUart2, 0x200, FibSys::Priority::sysMedium);
-    shell.execute(versionCmd);
+    Logger::log(Logger::Verbosity::high, Logger::Type::system, "FibSys: starting up %s v%u.%u.%u (%s, %s %s)\n",
+                Fib::Version::moduleName, Fib::Version::major, Fib::Version::minor, Fib::Version::patch, Fib::Version::gitHash,
+                Fib::Version::compileDate, Fib::Version::compileTime);
 
-    Periph::getAdc2().init();
     Periph::getAdc2().start();
+}
 
-    while (true)
-    {
+// FibSys thread
+void FibSys::Run() {
+    this->startup();
+    while (true) {
         // TODO:
         // this->collectStats();
-
         Delay(cpp_freertos::Ticks::MsToTicks(1000));
     }
 }
