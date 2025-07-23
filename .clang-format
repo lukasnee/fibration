@@ -14,4 +14,6 @@ BraceWrapping:
     IndentBraces: false
 BreakBeforeBraces: Custom
 AccessModifierOffset: -4
-ColumnLimit: 128
+ColumnLimit: 120
+CompactNamespaces: true
+SortIncludes: false
