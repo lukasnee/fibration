@@ -219,7 +219,7 @@ void FibSys::startup() {
     }
 
     constexpr const char *strFibShellLabel = ANSI_COLOR_BLUE "FIB> " ANSI_COLOR_YELLOW;
-    static Shell shell(strFibShellLabel, textStreamUart2, 0x200, FibSys::Priority::sysMedium);
+    static Shell shell(strFibShellLabel, textStreamUart2, 0x200, FibSys::Priority::sysLow);
     Logger::log(Logger::Verbosity::high, Logger::Type::system, "FibSys: starting up %s v%u.%u.%u (%s, %s %s)\n",
                 Fib::Version::moduleName, Fib::Version::major, Fib::Version::minor, Fib::Version::patch, Fib::Version::gitHash,
                 Fib::Version::compileDate, Fib::Version::compileTime);

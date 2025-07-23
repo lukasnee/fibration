@@ -74,7 +74,7 @@ I2sStream i2s2Stream(
             // txStereoSampleBuffer.right[j] = (txStereoSampleBuffer.left[j] + w3[j] + w4[j]) / 4.f;
         }
         txStereoSampleBuffer.left = mix;
-        // arm_fir_f32(&firInstace, mix.data(), mix.data(), mix.size());
+        arm_fir_f32(&firInstace, mix.data(), mix.data(), mix.size());
         txStereoSampleBuffer.right = mix;
         // arm_iir_lattice_f32(&iirInstace, mix.data(), mix.data(), mix.size());
 
