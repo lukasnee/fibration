@@ -19,3 +19,6 @@
 [submodule "system/libraries/DaisySP"]
 	path = system/libraries/DaisySP
 	url = https://github.com/electro-smith/DaisySP.git
+[submodule "extern/ln"]
+	path = extern/ln
+	url = https://github.com/lukasnee/ln.git
