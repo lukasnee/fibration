@@ -1,16 +1,15 @@
 #pragma once
 
 #include "ioStream.hpp"
-#include "thread.hpp"
+
+#include "FreeRTOS/Task.hpp"
 
 #include <string_view>
-//#include <optional>
+// #include <optional>
 
-class AsciiStream
-{
+class AsciiStream {
 public:
-    struct Config
-    {
+    struct Config {
         static constexpr std::size_t printfBufferSize = 256;
     };
 

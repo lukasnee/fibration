@@ -8,7 +8,7 @@
 #include "txStream.hpp"
 
 #include "FreeRTOS.h"
-#include "thread.hpp"
+#include "FreeRTOS/Task.hpp"
 
 #include <cstring>
 

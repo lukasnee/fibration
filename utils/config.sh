@@ -25,7 +25,7 @@ ansiThicknessReset='\e[22m'
 MODULES="modules"
 
 BUILD_DIR=".build" # cross compile
-CMAKE_BUILD_CONFIG_PATH=$(realpath "$SCRIPT_DIR/cmakeToolchainFiles/arm-none-eabi-gcc.cmake")
+CMAKE_BUILD_CONFIG_PATH=$(realpath "extern/ln/cmake/toolchains/arm-none-eabi-gcc.STM32F303.cmake")
 TESTS_DIR="tests"
 CMAKE_TESTS_CONFIG_PATH=$(realpath "$SCRIPT_DIR/cmakeToolchainFiles/gcc.cmake")
 UNIT_TEST_EXE_PATH="$BUILD_DIR/tests/fibrationUnitTests"

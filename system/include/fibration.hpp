@@ -16,4 +16,16 @@
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "fibration.hpp"
+#include "system.hpp"
+
+#include "resources.hpp"
+extern "C"
+{
+#include "FreeRTOS.h"
+}
+
+#include <cmath>
+
+#include "periodicTimerApp.hpp"
+#include "dsp/oscillator.hpp"
+#include "streams/i2sStream.hpp"

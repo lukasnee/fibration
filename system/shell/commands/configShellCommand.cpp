@@ -1,6 +1,5 @@
 #include "shell.hpp"
 
-#include "logger.hpp"
 
 Shell::Command config("config,cfg", nullptr, "system configuration", [] ShellCommandFunctionLambdaSignature {
     shell.print("TODO\n");

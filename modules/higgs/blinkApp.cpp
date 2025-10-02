@@ -2,25 +2,25 @@
 
 extern I2sStream i2s2Stream;
 
-class BlinkTestApp : public cpp_freertos::Thread {
+LOG_MODULE("BlinkTestApp", LOGGER_LEVEL_NOTSET);
+
+class BlinkTestApp : public FreeRTOS::Task {
 public:
-    BlinkTestApp(const char *pcName, uint16_t usStackDepth, UBaseType_t uxPriority) : Thread(pcName, usStackDepth, uxPriority) {
-        if (!Start()) {
-            FIBSYS_PANIC();
-        }
-    };
+    BlinkTestApp(const char *pcName, uint16_t usStackDepth, UBaseType_t uxPriority)
+        : Task(uxPriority, usStackDepth, pcName){};
 
 private:
-    virtual void Run() override {
-        Logger::log(Logger::Verbosity::high, Logger::Type::trace, "BlinkTestApp started\n");
+    virtual void taskFunction() override {
+        LOG_INFO("BlinkTestApp started");
         Gpio::initAsOutput<Gpio::Pin::A5>(Gpio::PinState::low, Gpio::Pull::none);
-        DelayUntil(cpp_freertos::Ticks::MsToTicks(1000));
+        using namespace std::chrono_literals;
+        this->delayUntil(1000ms);
         i2s2Stream.start();
         while (true) {
             Gpio::writeLow<Gpio::Pin::A5>();
-            DelayUntil(cpp_freertos::Ticks::MsToTicks(50));
+            this->delayUntil(50ms);
             Gpio::writeHigh<Gpio::Pin::A5>();
-            DelayUntil(cpp_freertos::Ticks::MsToTicks((50)));
+            this->delayUntil(50ms);
         }
     }
 };

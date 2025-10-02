@@ -2,7 +2,8 @@
 
 #include "dsp/map.hpp"
 
-#include "logger.hpp"
+#include "ln/logger/logger.hpp"
+
 #include <limits>
 
 namespace Fib::Dsp::Sample {
@@ -83,6 +84,6 @@ template <std::size_t bitDepth> void convert(StereoSampleBufferF32 &from, I2sSam
     convert(from.left, tmp.left);
     convert(from.right, tmp.right);
     convert<bitDepth>(tmp, to);
-    // Logger::log("F32: %f, Q31: %ld, U32: %lu\n", from.left[0], tmp.left[0], to[0].left);
+    // LOG(LOGGER_LEVEL_DEBUG3, "F32: %f, Q31: %ld, U32: %lu", from.left[0], tmp.left[0], to[0].left);
 }
 } // namespace Fib::Dsp::Sample

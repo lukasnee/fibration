@@ -6,11 +6,11 @@ extern "C"
 }
 
 #include "status.hpp"
-#include "thread.hpp"
+#include "FreeRTOS/Task.hpp"
 
 #include <cstdint>
 
-class FibSys : public cpp_freertos::Thread {
+class FibSys : public FreeRTOS::Task {
 public:
     // entry point of fibration system, should be called in main
     static void boot();
@@ -18,8 +18,6 @@ public:
     static void hardwareReboot();
 
     // 1KHz system tick time reference
-    static std::uint32_t getSysTick();
-    static std::uint32_t getUptimeInMs();
     static void getUptime(std::uint32_t &days, std::uint32_t &hours, std::uint32_t &minutes, std::uint32_t &seconds,
                           std::uint32_t &milliseconds);
 
@@ -59,5 +57,5 @@ private:
     void startup();
 
     // FibSys thread code
-    virtual void Run() override;
+    virtual void taskFunction() override;
 };

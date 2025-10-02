@@ -1,53 +1,41 @@
 #pragma once
 
-#include "timer.hpp"
+#include "FreeRTOS/Timer.hpp"
+#include "ln/logger/logger.hpp"
+
 #include <functional>
 
-namespace Fib
-{
-class PeriodicTimerApp : public cpp_freertos::Timer
-{
+namespace Fib {
+class PeriodicTimerApp : public FreeRTOS::Timer {
 public:
     PeriodicTimerApp(const char *strName, float frequencyInHz, std::function<void(void)> callbackF = nullptr)
-        : Timer(strName, (TickType_t)(1000.f / frequencyInHz), true), callbackF(callbackF)
-    {
-    }
-    bool setState(bool state)
-    {
-        return state ? this->Start() : this->Stop();
-    }
+        : Timer((TickType_t)(1000.f / frequencyInHz), true, strName), callbackF(callbackF) {}
+    bool setState(bool state) { return state ? this->start() : this->stop(); }
 
 private:
-    virtual void Run() override
-    {
-        if (this->callbackF)
-        {
+    virtual void timerFunction() override {
+        if (this->callbackF) {
             this->callbackF();
         }
     }
     std::function<void(void)> callbackF;
 };
 
-class PeriodicRandomValue : public PeriodicTimerApp
-{
+class PeriodicRandomValue : public PeriodicTimerApp {
 public:
-    PeriodicRandomValue(float frequencyInHz) : PeriodicTimerApp("PRV", frequencyInHz)
-    {
-        if (!Start())
-        {
+    PeriodicRandomValue(float frequencyInHz) : PeriodicTimerApp("PRV", frequencyInHz) {
+        if (!this->start()) {
             FIBSYS_PANIC();
         }
     }
-    float get()
-    {
-        return this->value;
-    }
+    float get() { return this->value; }
 
 private:
-    virtual void Run() override
-    {
+    LOG_MODULE_CLASS_MEMBER("periodicTimerApp", LOGGER_LEVEL_NOTSET);
+
+    virtual void timerFunction() override {
         this->value = static_cast<float>(((2.0f * std::rand()) / RAND_MAX) - 1.0f);
-        Logger::log(Logger::Verbosity::high, Logger::Type::trace, "periodicRandomValue: %f\n", this->value);
+        LOG_INFO("periodicRandomValue: %f\n", this->value);
     }
     float value = 0.f;
 };

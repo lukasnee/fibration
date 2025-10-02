@@ -1,12 +1,10 @@
 #include "system.hpp"
 #include "ioStream.hpp"
-#include "logger.hpp"
 #include "resources.hpp"
 #include "shell.hpp"
 #include "version.hpp"
 
-#include "ticks.hpp"
-#include "timer.hpp"
+#include "FreeRTOS/Addons/Clock.hpp"
 
 extern "C"
 {
@@ -15,6 +13,10 @@ extern "C"
 }
 #include <cstdint>
 #include <limits>
+
+#include "ln/logger/logger.hpp"
+
+LOG_MODULE(system, LOGGER_LEVEL_NOTSET);
 
 extern "C" void vApplicationMallocFailedHook(void) { FIBSYS_PANIC(); }
 
@@ -62,7 +64,8 @@ static void SystemClock_Config(void) {
         FIBSYS_PANIC();
     }
 
-    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_I2S | RCC_PERIPHCLK_USART3 | RCC_PERIPHCLK_USART2 | RCC_PERIPHCLK_ADC12;
+    PeriphClkInit.PeriphClockSelection =
+        RCC_PERIPHCLK_I2S | RCC_PERIPHCLK_USART3 | RCC_PERIPHCLK_USART2 | RCC_PERIPHCLK_ADC12;
     PeriphClkInit.Usart2ClockSelection = RCC_USART2CLKSOURCE_PCLK1;
     PeriphClkInit.Usart3ClockSelection = RCC_USART3CLKSOURCE_PCLK1; // TODO not sure what the clk NUMBA
     PeriphClkInit.Adc12ClockSelection = RCC_ADC12PLLCLK_DIV1;
@@ -77,13 +80,11 @@ void initPlatform() {
     SystemClock_Config();
 }
 
-uint32_t FibSys::getSysTick() { return HAL_GetTick(); }
-
-std::uint32_t FibSys::getUptimeInMs() { return cpp_freertos::Ticks::TicksToMs(FibSys::getSysTick()); }
-
 void FibSys::getUptime(std::uint32_t &days, std::uint32_t &hours, std::uint32_t &minutes, std::uint32_t &seconds,
                        std::uint32_t &milliseconds) {
-    std::uint32_t uptimeInMs = getUptimeInMs();
+    using namespace std::chrono;
+    std::uint32_t uptimeInMs =
+        duration_cast<std::chrono::milliseconds>(FreeRTOS::Addons::Clock::now().time_since_epoch()).count();
     std::uint32_t secondsTotal = uptimeInMs / 1000;
     std::uint32_t minutesTotal = secondsTotal / 60;
     std::uint32_t hoursTotal = minutesTotal / 60;
@@ -110,7 +111,10 @@ static void hexDumpWords(std::uint32_t address, std::size_t size, std::size_t wi
 }
 
 extern "C" void fibsys_hardfault(ExceptionStackFrame *pExceptionStackFrame, char stackPointerInitial) {
-    printf(ANSI_COLOR_RESET "S Y S T E M   H A R D F A U L T (uptime: %lu ms)\n", FibSys::getUptimeInMs());
+    using namespace std::chrono;
+    printf(ANSI_COLOR_RESET "S Y S T E M   H A R D F A U L T (uptime: %llu ms)\n",
+           duration_cast<milliseconds>(FreeRTOS::Addons::Clock::now().time_since_epoch()).count());
+
     printf("%cSP frame - r0: %08lX, "
            "r1: %08lX, "
            "r2: %08lX, "
@@ -120,8 +124,8 @@ extern "C" void fibsys_hardfault(ExceptionStackFrame *pExceptionStackFrame, char
            "ret_addr %08lX, "
            "xpsr: %08lX\n",
            stackPointerInitial, pExceptionStackFrame->r0, pExceptionStackFrame->r1, pExceptionStackFrame->r2,
-           pExceptionStackFrame->r3, pExceptionStackFrame->r12, pExceptionStackFrame->lr, pExceptionStackFrame->return_address,
-           pExceptionStackFrame->xpsr);
+           pExceptionStackFrame->r3, pExceptionStackFrame->r12, pExceptionStackFrame->lr,
+           pExceptionStackFrame->return_address, pExceptionStackFrame->xpsr);
     const struct {
         std::uint32_t mask;
         const char *strName;
@@ -167,7 +171,9 @@ extern "C" void fibsys_hardfault(ExceptionStackFrame *pExceptionStackFrame, char
 }
 
 extern "C" void fibsys_panic(const char *strFile, std::uint32_t line) {
-    printf(ANSI_COLOR_RESET "S Y S T E M   P A N I C (uptime: %lu ms)\n", FibSys::getUptimeInMs());
+    using namespace std::chrono;
+    printf(ANSI_COLOR_RESET "S Y S T E M   P A N I C (uptime: %llu ms)\n",
+           duration_cast<milliseconds>(FreeRTOS::Addons::Clock::now().time_since_epoch()).count());
     printf("%s:%lu\n", strFile, line);
     printf("process stack dump:\n");
     hexDumpWords(__get_PSP(), 32, 4);
@@ -187,11 +193,7 @@ void FibSys::boot() {
     vTaskStartScheduler();
 }
 
-FibSys::FibSys(std::uint16_t stackDepth, BaseType_t priority) : Thread("FibSys", stackDepth, priority) {
-    if (Start() == false) {
-        FIBSYS_PANIC();
-    }
-};
+FibSys::FibSys(std::uint16_t stackDepth, BaseType_t priority) : Task(priority, stackDepth, "FibSys"){};
 
 // void FibSys::collectStats()
 // {
@@ -214,25 +216,24 @@ Shell::Command versionCmd("version,ver", nullptr, "show firmware version", [] Sh
 void FibSys::startup() {
     static IOStream ioStreamUart2(Periph::getUart2());
     static AsciiStream textStreamUart2(ioStreamUart2);
-    if (false == Logger::setAsciiStream(textStreamUart2)) {
-        FIBSYS_PANIC();
-    }
+    // TODO: use textStreamUart2 for ln::logger
 
     constexpr const char *strFibShellLabel = ANSI_COLOR_BLUE "FIB> " ANSI_COLOR_YELLOW;
     static Shell shell(strFibShellLabel, textStreamUart2, 0x200, FibSys::Priority::sysLow);
-    Logger::log(Logger::Verbosity::high, Logger::Type::system, "FibSys: starting up %s v%u.%u.%u (%s, %s %s)\n",
-                Fib::Version::moduleName, Fib::Version::major, Fib::Version::minor, Fib::Version::patch, Fib::Version::gitHash,
-                Fib::Version::compileDate, Fib::Version::compileTime);
+    LOG_INFO("FibSys: starting up %s v%u.%u.%u (%s, %s %s)", Fib::Version::moduleName, Fib::Version::major,
+             Fib::Version::minor, Fib::Version::patch, Fib::Version::gitHash, Fib::Version::compileDate,
+             Fib::Version::compileTime);
 
+    Periph::getAdc2().init();
     Periph::getAdc2().start();
 }
 
-// FibSys thread
-void FibSys::Run() {
+void FibSys::taskFunction() {
     this->startup();
     while (true) {
         // TODO:
         // this->collectStats();
-        Delay(cpp_freertos::Ticks::MsToTicks(1000));
+        this->delay(std::chrono::milliseconds(1000));
+        ln::logger::Logger::get_instance().flush_buffer();
     }
 }

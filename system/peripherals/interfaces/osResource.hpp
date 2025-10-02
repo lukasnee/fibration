@@ -7,43 +7,42 @@
 
 #pragma once
 
-#include <semaphore.hpp>
+#include "FreeRTOS/Semaphore.hpp"
 
-struct OsResource
-{
+struct OsResource {
 public:
-    enum Context
-    {
+    enum Context {
         undefined,
         isr,
         task
     };
 
-    static bool isInIsr(Context context = Context::undefined)
-    {
-        return (context == Context::isr) ? true : (context == Context::task)         ? false
-                                              : (xPortIsInsideInterrupt() == pdTRUE) ? true
-                                                                                     : false;
+    static bool isInIsr(Context context = Context::undefined) {
+        return (context == Context::isr)              ? true
+               : (context == Context::task)           ? false
+               : (xPortIsInsideInterrupt() == pdTRUE) ? true
+                                                      : false;
     }
 
-    OsResource() : binarySemaphore(true){};
+    OsResource() { this->sem.give(); }
 
-    BaseType_t lock(TickType_t timeout = portMAX_DELAY, Context context = Context::undefined)
-    {
-        BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-        this->isInIsr(context) ? this->binarySemaphore.TakeFromISR(&xHigherPriorityTaskWoken) : this->binarySemaphore.Take(timeout);
-        return xHigherPriorityTaskWoken;
+    bool lock(TickType_t timeout = portMAX_DELAY, Context context = Context::undefined) {
+        bool higherPriorityTaskWoken = false;
+        this->isInIsr(context) ? this->sem.takeFromISR(higherPriorityTaskWoken) : this->sem.take(timeout);
+        return higherPriorityTaskWoken;
     }
 
-    BaseType_t unlock(Context context = Context::undefined)
-    {
-        BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-        this->isInIsr(context) ? this->binarySemaphore.GiveFromISR(&xHigherPriorityTaskWoken) : this->binarySemaphore.Give();
-        return xHigherPriorityTaskWoken;
+    bool unlock(Context context = Context::undefined) {
+        bool higherPriorityTaskWoken = false;
+        this->isInIsr(context) ? this->sem.giveFromISR(higherPriorityTaskWoken) : this->sem.give();
+        return higherPriorityTaskWoken;
     }
 
     virtual ~OsResource() = default;
 
 private:
-    cpp_freertos::BinarySemaphore binarySemaphore;
+    /** @note Mutexes cannot be used in ISR context. For more info @see
+     * https://www.freertos.org/Documentation/02-Kernel/02-Kernel-features/02-Queues-mutexes-and-semaphores/04-Mutexes
+     * */
+    FreeRTOS::BinarySemaphore sem;
 };

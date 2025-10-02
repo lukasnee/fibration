@@ -1,6 +1,6 @@
 #include "shell.hpp"
 
-#include "ticks.hpp"
+#include "FreeRTOS/Task.hpp"
 extern "C"
 {
 #include "task.h"
@@ -9,11 +9,11 @@ extern "C"
 #include "arm_math.h"
 #include <cmath>
 
-constexpr std::size_t canvasWidth = 50;
-constexpr std::size_t canvasHeight = 26;
+constexpr int canvasWidth = 50;
+constexpr int canvasHeight = 26;
 
 constexpr float scale = 0.4f;
-constexpr std::size_t canvasSize = canvasWidth * canvasHeight;
+constexpr int canvasSize = canvasWidth * canvasHeight;
 
 std::array<float, canvasSize> z;
 std::array<char, canvasSize> b;

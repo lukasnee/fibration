@@ -48,6 +48,7 @@ EXEC_TO_CHECK="openocd"
 [[ $PREBUILD_FLAG -eq 1 ]] && (utils/build.sh -p $PROJECT -t $BUILD_TYPE || exit -1 )
 
 ELF_PATH="$PROJECT_DIR/$PROJECT"
+echo "ELF_PATH: $ELF_PATH"
 [[ ! -f $ELF_PATH ]] && 
     ( printf "${ansiColorRed}project ${ansiColorPurple}$PROJECT ${ansiColorRed}ELF file does not exist or not built\n"; exit -1 )
 

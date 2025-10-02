@@ -4,8 +4,9 @@
     defines the required interface for I2S implementation and secures as lockable resource in RTOS context.
 */
 
+#include "FreeRTOS/Mutex.hpp"
+
 #include <cstdint>
-#include <semaphore.hpp>
 
 class I2sIF
 {
@@ -39,6 +40,6 @@ protected:
     virtual bool txRxCircularDmaStopUnsafe() = 0;
 
 private:
-    cpp_freertos::BinarySemaphore txRxBinarySemaphore;
+    FreeRTOS::Mutex txRxMutex;
     TxRxIsrCallbacks *pTxRxIsrCallbacks;
 };

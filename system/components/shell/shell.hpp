@@ -2,7 +2,8 @@
 
 #include "input.hpp"
 
-#include "thread.hpp"
+#include "FreeRTOS/Task.hpp"
+#include "FreeRTOS/Addons/Clock.hpp"
 
 #include "asciiStreamIF.hpp"
 #include "uart2.hpp"
@@ -30,7 +31,7 @@ using namespace std::string_view_literals;
 #define ANSI_COLOR_DEFAULT "\e[39m"
 #define ANSI_COLOR_RESET "\e[0m"
 
-class Shell : public cpp_freertos::Thread
+class Shell : public FreeRTOS::Task
 {
 public:
     struct Config
@@ -130,7 +131,7 @@ public:
     static Command helpCommand;
 
 private:
-    virtual void Run() override;
+    virtual void taskFunction() override;
 
     bool receiveChar(const char &c);
     bool lineFeed();
@@ -162,7 +163,7 @@ private:
         finished,
     } escapeState;
 
-    std::uint32_t escapeTick;
+    FreeRTOS::Addons::Clock::time_point escapeStartTime;
 
     Input input;
     bool isPrompted = true;

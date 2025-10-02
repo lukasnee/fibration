@@ -49,6 +49,27 @@
                 "enable breakpoint",
                 "monitor reset"
             ],
-        }
+        },
+        {
+            "name": "higgs [openocd]",
+            "device": "STM32F303RE",
+            "type": "cortex-debug",
+            "request": "attach",
+            "servertype": "openocd",
+            "configFiles": [
+                "modules/higgs/openocd.cfg"
+            ],
+            "rtos": "FreeRTOS",
+            "cwd": "${workspaceRoot}",
+            "executable": "${workspaceRoot}/.build/debug/modules/higgs/higgs",
+            // "preAttachCommands": [
+            //     "monitor tpiu config internal itm.fifo uart off 240000000"
+            // ],
+            "svdFile": "${workspaceRoot}/system/msp/STM32F303.svd",
+            "interface": "swd",
+            "breakAfterReset": true,
+            // "runToEntryPoint": "main"
+            // "showDevDebugOutput": "raw",
+        },
     ]
 }

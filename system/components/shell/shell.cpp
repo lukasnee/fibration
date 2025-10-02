@@ -1,5 +1,5 @@
 #include "shell.hpp"
-#include "logger.hpp"
+#include "ln/logger/logger.hpp"
 #include "resources.hpp"
 #include "system.hpp"
 // TODO: make arrow up repeat buffer
@@ -8,64 +8,50 @@
 
 #include <cstring>
 
+// LOG_MODULE("shell", LOGGER_LEVEL_NOTSET);
+
 Shell::Shell(const char *strPromptLabel, AsciiStream &asciiStream, std::uint16_t stackDepth, BaseType_t priority,
              Shell::Command *pCommandRoot)
-    : Thread("shell", stackDepth, priority), strPromptLabel(strPromptLabel), asciiStream(asciiStream),
-      pCommandRoot(pCommandRoot)
-{
-    if (Start() == false)
-    {
-        FIBSYS_PANIC();
-    }
-};
+    : Task(priority, stackDepth, "shell"), strPromptLabel(strPromptLabel), asciiStream(asciiStream),
+      pCommandRoot(pCommandRoot){};
 
-void Shell::Run()
-{
-    if (this->asciiStream.init())
-    {
-        while (true)
-        {
+void Shell::taskFunction() {
+    if (this->asciiStream.init()) {
+        while (true) {
             // NOTE: escape sequences are time sensitive !
             // TODO: move this to a dedicated uart receiver task and join by char queue
-            if (this->receiveChar(this->asciiStream.getChar()))
-            { // escape sequence finished (not time sensitive)
-              // Logger::trace("shell", "c:%u t:%u %s", this->rxCursorIdx, this->rxCharsTotal, this->input.data());
+            if (this->receiveChar(
+                    this->asciiStream.getChar())) { // escape sequence finished (not time sensitive)
+                                                    // LOG_INFO("c:%u t:%u %s", this->rxCursorIdx,
+                                                    // this->rxCharsTotal, this->input.data());
             }
         }
     }
     this->asciiStream.deinit();
 }
 
-void Shell::print(const char &c, std::size_t timesToRepeat)
-{
-    while (timesToRepeat--)
-    {
+void Shell::print(const char &c, std::size_t timesToRepeat) {
+    while (timesToRepeat--) {
         this->asciiStream.putChar(c);
     }
 }
 
-void Shell::printUnformatted(const char *pData, const std::size_t len, std::size_t timesToRepeat)
-{
-    while (timesToRepeat--)
-    {
+void Shell::printUnformatted(const char *pData, const std::size_t len, std::size_t timesToRepeat) {
+    while (timesToRepeat--) {
         std::size_t lenIt = len;
         const char *pDataIt = pData;
 
-        while (lenIt--)
-        {
+        while (lenIt--) {
             this->print(*(pDataIt++));
         }
     }
 }
 
-int Shell::print(const char *string, std::size_t timesToRepeat)
-{
+int Shell::print(const char *string, std::size_t timesToRepeat) {
     int charsPrinted = 0;
 
-    while (timesToRepeat--)
-    {
-        for (const char *c = string; *c != '\0'; ++c)
-        {
+    while (timesToRepeat--) {
+        for (const char *c = string; *c != '\0'; ++c) {
             this->print(*c); // TODO print whole sentence not char by char !
             charsPrinted++;
         }
@@ -74,8 +60,7 @@ int Shell::print(const char *string, std::size_t timesToRepeat)
     return charsPrinted;
 }
 
-int Shell::printf(const char *fmt, ...)
-{
+int Shell::printf(const char *fmt, ...) {
     va_list args;
     va_start(args, fmt);
 
@@ -88,30 +73,23 @@ int Shell::printf(const char *fmt, ...)
     return charsPrinted;
 }
 
-const Shell::Command *Shell::findCommand(std::size_t argcIn, const char *argvIn[], std::size_t &argCmdOffsetOut)
-{
+const Shell::Command *Shell::findCommand(std::size_t argcIn, const char *argvIn[], std::size_t &argCmdOffsetOut) {
     const Command *pCommand = this->pCommandRoot;
 
     argCmdOffsetOut = 0;
 
-    if (pCommand)
-    {
-        if (argcIn && argvIn[0])
-        {
+    if (pCommand) {
+        if (argcIn && argvIn[0]) {
             pCommand = pCommand->findNeighbourCommand(argvIn[argCmdOffsetOut]);
-            if (pCommand)
-            {
-                while (argcIn - argCmdOffsetOut - 1)
-                {
+            if (pCommand) {
+                while (argcIn - argCmdOffsetOut - 1) {
                     const Command *pSubcommand = pCommand->findSubcommand(argvIn[argCmdOffsetOut + 1]);
-                    if (pSubcommand)
-                    {
+                    if (pSubcommand) {
                         argCmdOffsetOut++;
                         pCommand = pSubcommand;
                         continue;
                     }
-                    else
-                    {
+                    else {
                         break;
                     }
                 }
@@ -123,31 +101,24 @@ const Shell::Command *Shell::findCommand(std::size_t argcIn, const char *argvIn[
 }
 
 Shell::Command::Result Shell::execute(const Shell::Command &command, std::size_t argc, const char *argv[],
-                                      const char *outputColorEscapeSequence)
-{
+                                      const char *outputColorEscapeSequence) {
     Shell::Command::Result result = Shell::Command::Result::unknown;
 
-    if (command.function == nullptr)
-    {
+    if (command.function == nullptr) {
         this->print("\e[31mcommand has no method\n"); // red
     }
-    else
-    {
+    else {
         this->print(outputColorEscapeSequence); // response in green
         result = command.function(*this, argc, argv);
 
-        if (Config::regularResponseIsEnabled)
-        {
-            if (result == Shell::Command::Result::ok)
-            {
+        if (Config::regularResponseIsEnabled) {
+            if (result == Shell::Command::Result::ok) {
                 this->print("\n" ANSI_COLOR_GREEN "OK");
             }
-            else if (static_cast<std::int8_t>(result) < 0)
-            {
+            else if (static_cast<std::int8_t>(result) < 0) {
                 this->printf("\n" ANSI_COLOR_RED "FAIL: %d", static_cast<std::int8_t>(result));
             }
-            else if (result == Shell::Command::Result::okQuiet)
-            {
+            else if (result == Shell::Command::Result::okQuiet) {
                 /* nothin */
             }
             this->print(ANSI_COLOR_RESET "\n");
@@ -158,42 +129,34 @@ Shell::Command::Result Shell::execute(const Shell::Command &command, std::size_t
 }
 
 Shell::Command::Result Shell::execute(const Command &command, const char *argString,
-                                      const char *outputColorEscapeSequence)
-{
+                                      const char *outputColorEscapeSequence) {
     ArgBuffer argBuffer(argString);
     return this->execute(command, argBuffer.getArgc(), argBuffer.getArgv(), outputColorEscapeSequence);
 }
 
 /** @return true if sequence finished */
-bool Shell::receiveChar(const char &c)
-{
+bool Shell::receiveChar(const char &c) {
     bool result = false;
 
-    if (this->handleEscape(c))
-    {
+    if (this->handleEscape(c)) {
     }
-    else if (c == '\b')
-    {
+    else if (c == '\b') {
         result = true;
         this->backspaceChar();
     }
-    else if (' ' <= c && c <= '~')
-    {
+    else if (' ' <= c && c <= '~') {
         result = true;
 
-        if (this->isPrompted)
-        {
+        if (this->isPrompted) {
             this->input.reset();
             this->isPrompted = false;
         }
         this->insertChar(c);
     }
-    else if (c == '\r')
-    {
+    else if (c == '\r') {
         result = true;
 
-        if (this->isPrompted)
-        {
+        if (this->isPrompted) {
             this->input.reset();
         }
         this->lineFeed();
@@ -201,25 +164,21 @@ bool Shell::receiveChar(const char &c)
     return result;
 }
 
-bool Shell::lineFeed()
-{
+bool Shell::lineFeed() {
     bool result = false;
 
     this->print("\n");
 
     const Shell::Command *pCommand = nullptr;
 
-    if (this->input.resolveIntoArgs())
-    {
+    if (this->input.resolveIntoArgs()) {
         std::size_t argOffset;
         pCommand = this->findCommand(this->input.getArgc(), this->input.getArgv(), argOffset);
-        if (!pCommand)
-        {
+        if (!pCommand) {
             this->print("\e[39mcommand not found\n");
             result = false;
         }
-        else
-        {
+        else {
             this->execute(*pCommand, this->input.getArgc() - argOffset, this->input.getArgv() + argOffset);
             result = true;
         }
@@ -231,20 +190,16 @@ bool Shell::lineFeed()
 }
 
 /** @result false - nothing to handle */
-bool Shell::handleEscape(const char &c)
-{
+bool Shell::handleEscape(const char &c) {
     bool result = false;
 
-    if (c == '\e')
-    {
-        this->escapeTick = FibSys::getUptimeInMs();
+    if (c == '\e') {
+        this->escapeStartTime = FreeRTOS::Addons::Clock::now();
         this->escapeState = EscapeState::escaped;
         result = true;
     }
-    else if (Fib::Std::Cast::toUnderlying(this->escapeState) >= Fib::Std::Cast::toUnderlying(EscapeState::escaped))
-    {
-        if (FibSys::getUptimeInMs() - this->escapeTick > 2)
-        {
+    else if (Fib::Std::Cast::toUnderlying(this->escapeState) >= Fib::Std::Cast::toUnderlying(EscapeState::escaped)) {
+        if (FreeRTOS::Addons::Clock::now() - this->escapeStartTime > std::chrono::milliseconds(2)) {
             /* timed out */
             this->escapeState = EscapeState::none;
         }
@@ -254,18 +209,15 @@ bool Shell::handleEscape(const char &c)
             result = true;
             this->escapeState = EscapeState::finished;
         }
-        else
-        {
+        else {
             result = this->handleAnsiEscape(c);
         }
     }
-    else
-    {
+    else {
         this->escapeState = EscapeState::failed;
     }
 
-    if (this->escapeState == EscapeState::failed || this->escapeState == EscapeState::finished)
-    {
+    if (this->escapeState == EscapeState::failed || this->escapeState == EscapeState::finished) {
         this->escapeState = EscapeState::none;
     }
 
@@ -273,8 +225,7 @@ bool Shell::handleEscape(const char &c)
 }
 
 /** @result false - nothing to handle */
-bool Shell::handleAnsiEscape(const char &c)
-{
+bool Shell::handleAnsiEscape(const char &c) {
     bool result = false;
 
     if (c == '[') /* open delimiter */
@@ -282,96 +233,80 @@ bool Shell::handleAnsiEscape(const char &c)
         this->escapeState = EscapeState::delimited;
         result = true;
     }
-    else if (Fib::Std::Cast::toUnderlying(this->escapeState) >= Fib::Std::Cast::toUnderlying(EscapeState::delimited))
-    {
+    else if (Fib::Std::Cast::toUnderlying(this->escapeState) >= Fib::Std::Cast::toUnderlying(EscapeState::delimited)) {
         result = this->handleAnsiDelimitedEscape(c);
     }
-    else
-    {
+    else {
         this->escapeState = EscapeState::failed;
     }
 
     return result;
 }
 
-bool Shell::handleAnsiDelimitedEscape(const char &c)
-{
+bool Shell::handleAnsiDelimitedEscape(const char &c) {
     bool result = false;
 
-    if (this->handleAnsiDelimitedDelEscape(c))
-    {
+    if (this->handleAnsiDelimitedDelEscape(c)) {
         result = true;
     }
-    else if (c == 'H')
-    {
+    else if (c == 'H') {
         this->onHomeKey();
         result = true;
         this->escapeState = EscapeState::finished;
     }
-    else if (c == 'A')
-    {
+    else if (c == 'A') {
         this->onArrowUpKey();
         result = true;
         this->escapeState = EscapeState::finished;
     }
-    else if (c == 'B')
-    {
+    else if (c == 'B') {
         this->onArrowDownKey();
         result = true;
         this->escapeState = EscapeState::finished;
     }
-    else if (c == 'C')
-    {
+    else if (c == 'C') {
         this->onArrowRightKey();
         result = true;
         this->escapeState = EscapeState::finished;
     }
-    else if (c == 'D')
-    {
+    else if (c == 'D') {
         this->onArrowLeftKey();
         result = true;
         this->escapeState = EscapeState::finished;
     }
-    else
-    {
+    else {
         this->escapeState = EscapeState::failed;
     }
 
     return result;
 }
 
-bool Shell::handleAnsiDelimitedDelEscape(const char &c)
-{
+bool Shell::handleAnsiDelimitedDelEscape(const char &c) {
     bool result = false;
 
     if (Fib::Std::Cast::toUnderlying(this->escapeState) >= Fib::Std::Cast::toUnderlying(EscapeState::delimited) &&
-        c == '3')
-    {
+        c == '3') {
         this->escapeState = EscapeState::intermediate;
         result = true;
     }
     else if (Fib::Std::Cast::toUnderlying(this->escapeState) >=
                  Fib::Std::Cast::toUnderlying(EscapeState::intermediate) &&
-             c == '~')
-    {
+             c == '~') {
         this->deleteChar();
         this->escapeState = EscapeState::finished;
         result = true;
     }
-    else
-    {
+    else {
         this->escapeState = EscapeState::failed;
     }
 
     return result;
 }
 
-bool Shell::deleteChar()
-{
+bool Shell::deleteChar() {
     bool result = false;
 
-    if (this->input.deleteCharAtCursor())
-    {
+    if (this->input.deleteCharAtCursor()) {
         std::size_t stringAtCursorLength;
         const char *stringAtCursor = this->input.getBufferAtCursor(stringAtCursorLength);
         this->printUnformatted(stringAtCursor, stringAtCursorLength + 1);
@@ -383,25 +318,19 @@ bool Shell::deleteChar()
     return result;
 }
 
-bool Shell::onHomeKey()
-{
-    while (this->onArrowLeftKey())
-    {
+bool Shell::onHomeKey() {
+    while (this->onArrowLeftKey()) {
     }
     return true;
 }
 
-bool Shell::onArrowUpKey()
-{
+bool Shell::onArrowUpKey() {
     bool result = false;
 
-    if (this->input.restoreIntoString())
-    {
+    if (this->input.restoreIntoString()) {
         int charsPrinted = this->printf(this->input.getBufferAtBase());
-        if (charsPrinted > 0)
-        {
-            if (this->input.setCursor(charsPrinted))
-            {
+        if (charsPrinted > 0) {
+            if (this->input.setCursor(charsPrinted)) {
                 result = true;
             }
         }
@@ -410,19 +339,16 @@ bool Shell::onArrowUpKey()
     return result;
 }
 
-bool Shell::onArrowDownKey()
-{
+bool Shell::onArrowDownKey() {
     this->input.reset();
     this->isPrompted = true;
     return true;
 }
 
-bool Shell::onArrowLeftKey()
-{
+bool Shell::onArrowLeftKey() {
     bool result = false;
 
-    if (this->input.cursorStepLeft())
-    {
+    if (this->input.cursorStepLeft()) {
         this->print('\b');
         result = true;
     }
@@ -430,12 +356,10 @@ bool Shell::onArrowLeftKey()
     return result;
 }
 
-bool Shell::onArrowRightKey()
-{
+bool Shell::onArrowRightKey() {
     bool result = false;
 
-    if (this->input.cursorStepRight())
-    {
+    if (this->input.cursorStepRight()) {
         std::size_t length;
         this->print(*(this->input.getBufferAtCursor(length) - 1));
         result = true;
@@ -444,31 +368,24 @@ bool Shell::onArrowRightKey()
     return result;
 }
 
-void Shell::promptNew(void)
-{
+void Shell::promptNew(void) {
     this->isPrompted = true;
     this->printPrompt();
 }
 
-void Shell::printPrompt(void)
-{
-    this->print(this->strPromptLabel);
-}
+void Shell::printPrompt(void) { this->print(this->strPromptLabel); }
 
 /** @return true if actually backspaced */
-bool Shell::backspaceChar()
-{
+bool Shell::backspaceChar() {
     bool result = false;
 
-    if (this->input.backspaceCharAtCursor())
-    {
+    if (this->input.backspaceCharAtCursor()) {
         std::size_t stringAtCursorLength;
         const char *stringAtCursor = this->input.getBufferAtCursor(stringAtCursorLength);
         this->print('\b');
         this->printUnformatted(stringAtCursor, stringAtCursorLength);
         this->print(' ');
-        for (std::size_t i = stringAtCursorLength; i > 0; i--)
-        {
+        for (std::size_t i = stringAtCursorLength; i > 0; i--) {
             this->print('\b');
         }
         result = true;
@@ -478,20 +395,16 @@ bool Shell::backspaceChar()
 }
 
 /** @return true if actually inserted */
-bool Shell::insertChar(const char &c)
-{
+bool Shell::insertChar(const char &c) {
     bool result = false;
 
-    if (this->input.insertChar(c))
-    {
+    if (this->input.insertChar(c)) {
         result = true;
-        if (this->input.isCursorOnEnd())
-        {
+        if (this->input.isCursorOnEnd()) {
             /* append */
             this->print(c);
         }
-        else
-        {
+        else {
             /* insert in middle */
             std::size_t length;
             this->print(c);

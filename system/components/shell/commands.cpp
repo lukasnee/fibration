@@ -1,4 +1,3 @@
-#include "logger.hpp"
 #include "resources.hpp"
 #include "shell.hpp"
 #include "system.hpp"
