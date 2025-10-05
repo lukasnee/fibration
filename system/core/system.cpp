@@ -208,7 +208,7 @@ FibSys::FibSys(std::uint16_t stackDepth, BaseType_t priority) : Task(priority, s
 
 Shell::Command versionCmd("version,ver", nullptr, "show firmware version", [] ShellCommandFunctionLambdaSignature {
     shell.printf("\nStarting up Fibration %s v%u.%u.%u (%s, %s %s)", Fib::Version::moduleName, Fib::Version::major,
-                 Fib::Version::minor, Fib::Version::patch, Fib::Version::gitHash, Fib::Version::compileDate,
+                 Fib::Version::minor, Fib::Version::patch, Fib::Version::git_hash, Fib::Version::compileDate,
                  Fib::Version::compileTime);
     return Shell::Command::Result::okQuiet;
 });
@@ -221,7 +221,7 @@ void FibSys::startup() {
     constexpr const char *strFibShellLabel = ANSI_COLOR_BLUE "FIB> " ANSI_COLOR_YELLOW;
     static Shell shell(strFibShellLabel, textStreamUart2, 0x200, FibSys::Priority::sysLow);
     LOG_INFO("FibSys: starting up %s v%u.%u.%u (%s, %s %s)", Fib::Version::moduleName, Fib::Version::major,
-             Fib::Version::minor, Fib::Version::patch, Fib::Version::gitHash, Fib::Version::compileDate,
+             Fib::Version::minor, Fib::Version::patch, Fib::Version::git_hash, Fib::Version::compileDate,
              Fib::Version::compileTime);
 
     Periph::getAdc2().init();

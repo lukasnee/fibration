@@ -1,6 +1,11 @@
-project(higgs)
+project(
+  higgs
+  LANGUAGES
+  VERSION 0.0.1)
 
 add_executable(${PROJECT_NAME})
+
+fibsys_firmware()
 
 target_sources(${PROJECT_NAME} PRIVATE blinkApp.cpp main.cpp)
 
@@ -11,11 +16,7 @@ target_include_directories(
 )
 target_compile_options(${PROJECT_NAME} PRIVATE -fsingle-precision-constant)
 
-target_link_options(
-  ${PROJECT_NAME} PRIVATE
-  # -T${CMAKE_SOURCE_DIR}/system/msp/STM32F303CCTX_FLASH.ld
-  -T${CMAKE_SOURCE_DIR}/system/msp/STM32F303RETX_FLASH.ld)
+target_link_options(${PROJECT_NAME} PRIVATE
+                    -T${CMAKE_SOURCE_DIR}/system/msp/STM32F303RETX_FLASH.ld)
 
 target_link_libraries(${PROJECT_NAME} fibsys ln::logger)
-
-generate_firmware_artifacts(${PROJECT_NAME})

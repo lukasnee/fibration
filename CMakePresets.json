@@ -1,0 +1,106 @@
+{
+    "version": 10,
+    "cmakeMinimumRequired": {
+        "major": 4,
+        "minor": 0,
+        "patch": 3
+    },
+    "include": [],
+    "configurePresets": [
+        {
+            "name": "base",
+            "hidden": true,
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/.build/${presetName}"
+        },
+        {
+            "name": "firmware",
+            "hidden": true,
+            "inherits": "base",
+            "toolchainFile": "${sourceDir}/extern/ln/cmake/toolchains/arm-none-eabi-gcc.STM32F303.cmake"
+        },
+        {
+            "name": "tests",
+            "inherits": "base"
+        },
+        {
+            "name": "higgs-rel",
+            "inherits": "firmware",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "higgs-dbg",
+            "inherits": "firmware",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "tests",
+            "configurePreset": "tests"
+        },
+        {
+            "name": "higgs-rel",
+            "configurePreset": "higgs-rel"
+        },
+        {
+            "name": "higgs-dbg",
+            "configurePreset": "higgs-dbg"
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "tests",
+            "configurePreset": "tests"
+        }
+    ],
+    "workflowPresets": [
+        {
+            "name": "tests",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "tests"
+                },
+                {
+                    "type": "build",
+                    "name": "tests"
+                },
+                {
+                    "type": "test",
+                    "name": "tests"
+                }
+            ]
+        },
+        {
+            "name": "higgs-rel",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "higgs-rel"
+                },
+                {
+                    "type": "build",
+                    "name": "higgs-rel"
+                }
+            ]
+        },
+        {
+            "name": "higgs-dbg",
+            "steps": [
+                {
+                    "type": "configure",
+                    "name": "higgs-dbg"
+                },
+                {
+                    "type": "build",
+                    "name": "higgs-dbg"
+                }
+            ]
+        }
+    ]
+}

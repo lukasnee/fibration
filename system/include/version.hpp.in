@@ -1,0 +1,9 @@
+namespace Fib { namespace Version {
+constexpr const char *moduleName = "@PROJECT_NAME@";
+constexpr std::uint32_t major = @PROJECT_VERSION_MAJOR@;
+constexpr std::uint32_t minor = @PROJECT_VERSION_MINOR@;
+constexpr std::uint32_t patch = @PROJECT_VERSION_PATCH@;
+constexpr const char *git_hash = "@GIT_HASH@";
+constexpr const char *compileDate = __DATE__;
+constexpr const char *compileTime = __TIME__;
+}} // namespace Fib::Version

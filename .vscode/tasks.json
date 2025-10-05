@@ -14,18 +14,6 @@
             }
         },
         {
-            "label": "reset target",
-            "group": "none",
-            "type": "shell",
-            "linux": {
-                "command": "./utils/reset-target.sh"
-            },
-            "presentation": {
-                "focus": false,
-                "panel": "shared"
-            }
-        },
-        {
             "label": "open fibcom /dev/serial0 [RPI4 UART]",
             "group": "none",
             "type": "shell",
@@ -62,77 +50,99 @@
             }
         },
         {
-            "label": "build higgs [release]",
+            "label": "clean higgs",
+            "group": "build",
+            "type": "shell",
+            "command": "cmake --build --preset higgs-rel --target clean",
+            "problemMatcher": "$gcc",
+            "presentation": {
+                "focus": true
+            }
+        },
+        {
+            "label": "build higgs",
             "group": {
                 "kind": "build",
                 "isDefault": true
             },
             "type": "shell",
-            "linux": {
-                "command": "./utils/build.sh -p higgs -t release",
-                "problemMatcher": "$gcc",
-            },
+            "command": "cmake --build --preset higgs-rel",
+            "problemMatcher": "$gcc",
             "presentation": {
                 "focus": true
             }
         },
         {
-            "label": "rebuild higgs [release]",
+            "label": "clean build higgs",
             "group": "build",
             "type": "shell",
-            "linux": {
-                "command": "./utils/build.sh -p higgs -t release -r",
-                "problemMatcher": "$gcc",
-            },
+            "command": "cmake --build --preset higgs-rel --clean-first",
+            "problemMatcher": "$gcc",
             "presentation": {
                 "focus": true
             }
         },
         {
-            "label": "build and flash higgs [release]",
+            "label": "reset higgs",
+            "group": "none",
+            "type": "shell",
+            "command": "cmake --build --preset higgs-rel --target reset",
+            "presentation": {
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "flash higgs",
+            "group": "none",
+            "type": "shell",
+            "command": "cmake --build --preset higgs-rel --target flash",
+            "presentation": {
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "label": "build and flash higgs",
             "group": {
                 "kind": "test",
                 "isDefault": true
             },
             "type": "shell",
-            "linux": {
-                "command": "./utils/flash.sh -p higgs -t release -b",
-                "problemMatcher": "$gcc",
-            },
+            "dependsOn": [
+                "build higgs",
+                "flash higgs"
+            ],
             "presentation": {
                 "focus": true
             }
         },
         {
-            "label": "build unit tests",
+            "label": "build tests",
             "group": "build",
             "type": "shell",
-            "linux": {
-                "command": "./utils/buildUnitTests.sh",
-                "problemMatcher": "$gcc",
-            },
+            "command": "cmake --build --preset tests",
+            "problemMatcher": "$gcc",
             "presentation": {
                 "focus": true
             }
         },
         {
-            "label": "run unit tests",
+            "label": "run tests",
             "group": "test",
             "type": "shell",
-            "linux": {
-                "command": "./utils/runUnitTests.sh"
-            },
+            "command": "ctest --preset tests --output-on-failure",
             "presentation": {
                 "focus": true
             }
         },
         {
-            "label": "build and run unit tests",
+            "label": "build and run tests",
             "group": "test",
             "type": "shell",
             "dependsOn": [
-                "build unit tests",
-                "run unit tests"
+                "build tests",
+                "run tests"
             ],
             "dependsOrder": "sequence"
         },

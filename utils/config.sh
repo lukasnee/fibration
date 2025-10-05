@@ -2,10 +2,6 @@
 
 set -e
 
-# General:
-
-SCRIPT_DIR="$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-
 # ANSI colors
 ansiColorReset='\e[0m'
 ansiColorBlack='\e[0;30m'
@@ -21,13 +17,4 @@ ansiThicknessBold='\e[1m'
 ansiThicknessReset='\e[22m'
 
 # Project level:
-
-MODULES="modules"
-
-BUILD_DIR=".build" # cross compile
-CMAKE_BUILD_CONFIG_PATH=$(realpath "extern/ln/cmake/toolchains/arm-none-eabi-gcc.STM32F303.cmake")
-TESTS_DIR="tests"
-CMAKE_TESTS_CONFIG_PATH=$(realpath "$SCRIPT_DIR/cmakeToolchainFiles/gcc.cmake")
-UNIT_TEST_EXE_PATH="$BUILD_DIR/tests/fibrationUnitTests"
-
 CONFIG_FIBCOM_BAUDRATE=921600
