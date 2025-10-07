@@ -15,6 +15,3 @@ ansiColorWhite='\e[0;37m'
 
 ansiThicknessBold='\e[1m'
 ansiThicknessReset='\e[22m'
-
-# Project level:
-CONFIG_FIBCOM_BAUDRATE=921600
