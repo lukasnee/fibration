@@ -2,47 +2,11 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "reset ST-LINK",
+            "label": "open shell",
             "group": "none",
             "type": "shell",
             "linux": {
-                "command": "./utils/reset-stlink.sh"
-            },
-            "presentation": {
-                "clear": true,
-                "reveal": "never"
-            }
-        },
-        {
-            "label": "open fibcom /dev/serial0 [RPI4 UART]",
-            "group": "none",
-            "type": "shell",
-            "linux": {
-                "command": "./utils/openFibcom.sh /dev/serial0"
-            },
-            "presentation": {
-                "focus": true,
-                "panel": "dedicated"
-            }
-        },
-        {
-            "label": "open fibcom /dev/ttyACM0 [ST-LINK UART]",
-            "group": "none",
-            "type": "shell",
-            "linux": {
-                "command": "./utils/openFibcom.sh /dev/ttyACM0"
-            },
-            "presentation": {
-                "focus": true,
-                "panel": "dedicated"
-            }
-        },
-        {
-            "label": "open fibcom /dev/ttyS8 [WSL ST-LINK UART]",
-            "group": "none",
-            "type": "shell",
-            "linux": {
-                "command": "./utils/openFibcom.sh /dev/ttyS8"
+                "command": "python3 system/shell/shell.py"
             },
             "presentation": {
                 "focus": true,
@@ -145,47 +109,6 @@
                 "run tests"
             ],
             "dependsOrder": "sequence"
-        },
-        {
-            "label": "kill openocd processes",
-            "group": "none",
-            "type": "shell",
-            "linux": {
-                "command": "./utils/killProcessesByPattern.sh openocd",
-            }
-        },
-        {
-            "label": "preLaunchTaskHiggs",
-            "group": "none",
-            "type": "shell",
-            "linux": {
-                "command": "./utils/build.sh -p higgs -t debug",
-                "problemMatcher": "$gcc",
-            }
-        },
-        {
-            "label": "Launch OpenOCD",
-            "command": "openocd.exe",
-            "args": [
-                "-c",
-                "\"bindto 0.0.0.0\"",
-                "-f",
-                "\"${input:openocd.config}\"",
-            ],
-            "type": "shell",
-            "isBackground": true,
-            "problemMatcher": []
-        },
-    ],
-    "inputs": [
-        {
-            "id": "openocd.config",
-            "type": "pickString",
-            "description": "Select the configuration file for OpenOCD",
-            "options": [
-                "modules/higgs/openocd.cfg"
-            ],
-            "default": "modules/higgs/openocd.cfg"
         }
     ]
 }
