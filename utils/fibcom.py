@@ -36,6 +36,12 @@ def main():
     parser.add_argument(
         "-b", "--baudrate", type=int, default=921600, help="baudrate (default: 921600)"
     )
+    parser.add_argument(
+        "-r",
+        "--reset",
+        action="store_true",
+        help="reset device on connect using OpenOCD",
+    )
 
     args = parser.parse_args()
 
@@ -67,6 +73,23 @@ def main():
     stop_reading = threading.Event()
 
     try:
+        if args.reset:
+            import subprocess
+
+            subprocess.run(
+                [
+                    "openocd",
+                    "-f",
+                    "interface/stlink.cfg",
+                    "-f",
+                    "target/stm32f3x.cfg",
+                    "-c",
+                    "gdb_port disabled",
+                    "-c",
+                    "init;reset;exit",
+                ],
+                check=True,
+            )
         ser = serial.Serial(device, args.baudrate, timeout=0.1)
         print(f"Device: {device}")
         print(f"Baudrate: {args.baudrate}")
