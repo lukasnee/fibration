@@ -6,7 +6,7 @@
             "group": "none",
             "type": "shell",
             "linux": {
-                "command": "python3 system/shell/shell.py"
+                "command": "python3 extern/ln/ln/shell/tools/shell.py"
             },
             "presentation": {
                 "focus": true,

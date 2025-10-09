@@ -100,20 +100,11 @@ target_sources(
                    streams/ioStream.cpp streams/txStream.cpp)
 
 target_include_directories(fibsys INTERFACE components components/shell)
-target_sources(
-  fibsys
-  INTERFACE components/shell/shell.cpp components/shell/commands.cpp
-            components/shell/input.cpp components/shell/argVector.cpp
-            components/shell/argBuffer.cpp)
 
+target_link_libraries(fibsys INTERFACE ln::shell ln::shell::cmds::core)
 target_sources(
   fibsys
-  INTERFACE shell/commands/clearShellCommand.cpp
-            shell/commands/configShellCommand.cpp
-            shell/commands/echoShellCommand.cpp
-            shell/commands/hexdumpShellCommand.cpp
-            shell/commands/panicShellCommand.cpp
-            shell/commands/resetShellCommand.cpp
-            shell/commands/statusShellCommand.cpp
-            shell/commands/repeatShellCommand.cpp
-            shell/commands/donutShellCommand.cpp)
+  INTERFACE shell_cmds/config.cpp shell_cmds/panic.cpp shell_cmds/reset.cpp
+            shell_cmds/status.cpp
+            # shell_cmds/donut.cpp
+)

@@ -1,7 +1,7 @@
 #include "system.hpp"
 #include "ioStream.hpp"
 #include "resources.hpp"
-#include "shell.hpp"
+#include "ln/shell/CLI.hpp"
 #include "version.hpp"
 
 #include "FreeRTOS/Addons/Clock.hpp"
@@ -206,20 +206,56 @@ FibSys::FibSys(std::uint16_t stackDepth, BaseType_t priority) : Task(priority, s
 //     }
 // }
 
-Shell::Command versionCmd("version,ver", nullptr, "show firmware version", [] ShellCommandFunctionLambdaSignature {
-    shell.printf("\nStarting up Fibration %s v%u.%u.%u (%s, %s %s)", Fib::Version::moduleName, Fib::Version::major,
-                 Fib::Version::minor, Fib::Version::patch, Fib::Version::git_hash, Fib::Version::compileDate,
-                 Fib::Version::compileTime);
-    return Shell::Command::Result::okQuiet;
+namespace ln::shell {
+Cmd versionCmd("version,ver", nullptr, "show firmware version", [](Cmd::Ctx ctx) -> Err {
+    ctx.cli.printf("\nStarting up Fibration %s v%u.%u.%u (%s, %s %s)", Fib::Version::moduleName, Fib::Version::major,
+                   Fib::Version::minor, Fib::Version::patch, Fib::Version::git_hash, Fib::Version::compileDate,
+                   Fib::Version::compileTime);
+    return Err::okQuiet;
 });
+} // namespace ln::shell
+
+class CharStream : public ln::Stream<char> {
+public:
+    CharStream(IOStream &iostream) : iostream(iostream) {}
+    void put(char c) final { iostream.push(reinterpret_cast<const std::uint8_t *>(&c), 1, OsResource::Context::task); }
+    char get() final {
+        char c = 0;
+        if (iostream.pull(reinterpret_cast<std::uint8_t &>(c), portMAX_DELAY, OsResource::Context::task)) {
+            return c;
+        }
+        return 0;
+    }
+
+private:
+    IOStream &iostream;
+};
+
+class CliSvcTask : public FreeRTOS::Task {
+public:
+    CliSvcTask(ln::shell::CLI &cli, ln::InStream<char> &in_stream, FibSys::Priority priority = FibSys::Priority::low,
+               std::uint16_t stack_depth = 0x400, const char *name = "CliSvc")
+        : Task(priority, stack_depth, name), cli(cli), in_stream(in_stream) {}
+
+private:
+    virtual void taskFunction() override {
+        while (true) {
+            this->cli.put_char(this->in_stream.get());
+        }
+    }
+    ln::shell::CLI &cli;
+    ln::InStream<char> &in_stream;
+};
 
 void FibSys::startup() {
-    static IOStream ioStreamUart2(Periph::getUart2());
-    static AsciiStream textStreamUart2(ioStreamUart2);
-    // TODO: use textStreamUart2 for ln::logger
+    static IOStream iostream_uart2(Periph::getUart2());
+    iostream_uart2.init();
+    static CharStream char_stream_uart2(iostream_uart2);
 
-    constexpr const char *strFibShellLabel = ANSI_COLOR_BLUE "FIB> " ANSI_COLOR_YELLOW;
-    static Shell shell(strFibShellLabel, textStreamUart2, 0x200, FibSys::Priority::sysLow);
+    // TODO: use char_stream_uart2 for ln::logger
+
+    static ln::shell::CLI cli(char_stream_uart2);
+    static CliSvcTask CliSvcTask(cli, char_stream_uart2);
     LOG_INFO("FibSys: starting up %s v%u.%u.%u (%s, %s %s)", Fib::Version::moduleName, Fib::Version::major,
              Fib::Version::minor, Fib::Version::patch, Fib::Version::git_hash, Fib::Version::compileDate,
              Fib::Version::compileTime);

@@ -1,6 +1,7 @@
 #include "fibration.hpp"
 
-#include "shell.hpp"
+#include "ln/shell/CLI.hpp"
+#include "ln/shell/generic/cmds.hpp"
 #include "ln/logger/logger.hpp"
 
 #include <array>
@@ -84,63 +85,20 @@ I2sStream i2s2Stream(
         // arm_iir_lattice_f32(&iirInstace, mix.data(), mix.data(), mix.size());
 
         {
+            using ln::shell::CLI;
+            using ln::shell::Cmd;
+            using ln::shell::Err;
             static Fib::PeriodicTimerApp higgsStats("hs", 10.f, [&]() {
-                LOG_DEBUG("%8.2f %8.2f %8.2f %8.2f %8.2f %8.2f %8.2f %8.2f", pWaves[0]->frequencyInHz.get(),
-                          pWaves[1]->frequencyInHz.get(), pWaves[2]->frequencyInHz.get(),
-                          pWaves[3]->frequencyInHz.get(), pWaves[0]->amplitudeNormal.get(),
-                          pWaves[1]->amplitudeNormal.get(), pWaves[2]->amplitudeNormal.get(),
-                          pWaves[3]->amplitudeNormal.get());
+                                 LOG_DEBUG("%8.2f %8.2f %8.2f %8.2f %8.2f %8.2f %8.2f %8.2f",
+                                           pWaves[0]->frequencyInHz.get(), pWaves[1]->frequencyInHz.get(),
+                                           pWaves[2]->frequencyInHz.get(), pWaves[3]->frequencyInHz.get(),
+                                           pWaves[0]->amplitudeNormal.get(), pWaves[1]->amplitudeNormal.get(),
+                                           pWaves[2]->amplitudeNormal.get(), pWaves[3]->amplitudeNormal.get());
             });
-            static Shell::Command statsCommand(
-                "hs", Shell::Command::Helper::Literal::onOffUsage, nullptr, [] ShellCommandFunctionLambdaSignature {
-                    return Shell::Command::Helper::onOffCommand([&](bool state) { return higgsStats.setState(state); },
-                                                                "higgs stats", ShellCommandFunctionArgs);
-                });
-            static Shell::Command log(
-                "log", Shell::Command::Helper::Literal::onOffUsage, nullptr,
-                [] ShellCommandFunctionLambdaSignature {
-                    auto config = ln::logger::Logger::get_instance().get_config();
-                    auto result = Shell::Command::Helper::onOffCommand(config.enabled_run_time, "logging",
-                                                                       ShellCommandFunctionArgs);
-                    if (result != Shell::Command::Result::ok) {
-                        return result;
-                    }
-                    if (!ln::logger::Logger::get_instance().set_config(config)) {
-                        shell.print("failed to set logger config\n");
-                        return Shell::Command::Result::fail;
-                    }
-                    return Shell::Command::Result::ok;
-                },
-                []() {
-                    static Shell::Command color(log, "color", Shell::Command::Helper::Literal::onOffUsage, nullptr,
-                                                [] ShellCommandFunctionLambdaSignature {
-                                                    auto config = ln::logger::Logger::get_instance().get_config();
-                                                    auto result = Shell::Command::Helper::onOffCommand(
-                                                        config.color, "log coloring", ShellCommandFunctionArgs);
-                                                    if (result != Shell::Command::Result::ok) {
-                                                        return result;
-                                                    }
-                                                    if (!ln::logger::Logger::get_instance().set_config(config)) {
-                                                        shell.print("failed to set logger config\n");
-                                                        return Shell::Command::Result::fail;
-                                                    }
-                                                    return Shell::Command::Result::ok;
-                                                });
-                    static Shell::Command prefix(log, "prefix", Shell::Command::Helper::Literal::onOffUsage, nullptr,
-                                                 [] ShellCommandFunctionLambdaSignature {
-                                                     auto config = ln::logger::Logger::get_instance().get_config();
-                                                     auto result = Shell::Command::Helper::onOffCommand(
-                                                         config.print_header_enabled, "log prefix",
-                                                         ShellCommandFunctionArgs);
-                                                     if (result != Shell::Command::Result::ok) {
-                                                         return result;
-                                                     }
-                                                     if (!ln::logger::Logger::get_instance().set_config(config)) {
-                                                         shell.print("failed to set logger config\n");
-                                                         return Shell::Command::Result::fail;
-                                                     }
-                                                     return Shell::Command::Result::ok;
-                                                 });
+                             static Cmd stats_cmd(
+                                 "hs", ln::shell::generic::cmds::on_off_command_usage, nullptr, [](Cmd::Ctx ctx) {
+                                        return ln::shell::generic::cmds::on_off_command_parser(
+                                            [&](bool state) { return higgsStats.setState(state); }, "higgs stats", ctx);
                 });
         }
     });

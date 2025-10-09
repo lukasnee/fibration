@@ -40,12 +40,4 @@ private:
     float value = 0.f;
 };
 
-// PeriodicRandomValue periodicRandomValue(1.f);
-// static Shell::Command psnCommand("psn", Shell::Command::Helper::Literal::onOffUsage, nullptr,
-// [](ShellCommandFunctionParams) {
-//     return Shell::Command::Helper::onOffCommand([&](bool state) -> bool { return periodicRandomValue.setState(state);
-//     },
-//                                                 "psn", ShellCommandFunctionArgs);
-// });
-
 } // namespace Fib
