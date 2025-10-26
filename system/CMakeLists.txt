@@ -13,7 +13,7 @@ function(fibsys_firmware)
   generate_firmware_artifacts(${PROJECT_NAME})
 
   add_custom_target(
-    flash
+    flash_device
     COMMAND
       openocd -f ${CMAKE_CURRENT_SOURCE_DIR}/openocd.cfg -c
       "program ${PROJECT_BINARY_DIR}/${PROJECT_NAME} preverify verify reset exit"
@@ -22,7 +22,7 @@ function(fibsys_firmware)
     COMMENT "Flashing ${PROJECT_NAME} firmware...")
 
   add_custom_target(
-    reset
+    reset_device
     COMMAND openocd -f ${CMAKE_CURRENT_SOURCE_DIR}/openocd.cfg -c
             "init;reset;shutdown"
     VERBATIM

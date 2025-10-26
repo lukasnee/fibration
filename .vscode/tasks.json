@@ -14,101 +14,86 @@
             }
         },
         {
-            "label": "clean higgs",
+            "label": "clean",
             "group": "build",
             "type": "shell",
-            "command": "cmake --build --preset higgs-rel --target clean",
+            "command": "cmake --build --preset ${input:target}-${input:build_type} --clean-first",
             "problemMatcher": "$gcc",
             "presentation": {
                 "focus": true
             }
         },
         {
-            "label": "build higgs",
+            "label": "build",
             "group": {
                 "kind": "build",
                 "isDefault": true
             },
             "type": "shell",
-            "command": "cmake --build --preset higgs-rel",
+            "command": "cmake --build --preset ${input:target}-${input:build_type}",
             "problemMatcher": "$gcc",
             "presentation": {
                 "focus": true
             }
         },
         {
-            "label": "clean build higgs",
+            "label": "clean build",
             "group": "build",
             "type": "shell",
-            "command": "cmake --build --preset higgs-rel --clean-first",
+            "command": "cmake --build --preset ${input:target}-${input:build_type} --clean-first",
             "problemMatcher": "$gcc",
             "presentation": {
                 "focus": true
             }
         },
         {
-            "label": "reset higgs",
+            "label": "reset",
             "group": "none",
             "type": "shell",
-            "command": "cmake --build --preset higgs-rel --target reset",
+            "command": "cmake --build --preset ${input:target}-${input:build_type} --target reset_device",
             "presentation": {
                 "focus": false,
                 "panel": "shared"
             }
         },
         {
-            "label": "flash higgs",
+            "label": "flash",
             "group": "none",
             "type": "shell",
-            "command": "cmake --build --preset higgs-rel --target flash",
+            "command": "cmake --build --preset ${input:target}-${input:build_type} --target flash_device",
             "presentation": {
                 "focus": false,
                 "panel": "shared"
             }
         },
         {
-            "label": "build and flash higgs",
-            "group": {
-                "kind": "test",
-                "isDefault": true
-            },
+            "label": "test",
+            "group": "test",
             "type": "shell",
-            "dependsOn": [
-                "build higgs",
-                "flash higgs"
-            ],
-            "presentation": {
-                "focus": true
-            }
-        },
-        {
-            "label": "build tests",
-            "group": "build",
-            "type": "shell",
-            "command": "cmake --build --preset tests",
+            "command": "cmake --workflow tests",
             "problemMatcher": "$gcc",
             "presentation": {
                 "focus": true
             }
-        },
-        {
-            "label": "run tests",
-            "group": "test",
-            "type": "shell",
-            "command": "ctest --preset tests --output-on-failure",
-            "presentation": {
-                "focus": true
-            }
-        },
-        {
-            "label": "build and run tests",
-            "group": "test",
-            "type": "shell",
-            "dependsOn": [
-                "build tests",
-                "run tests"
-            ],
-            "dependsOrder": "sequence"
         }
+    ],
+    "inputs": [
+        {
+            "id": "build_type",
+            "type": "pickString",
+            "description": "Build type",
+            "options": [
+                "rel",
+                "dbg"
+            ]
+        },
+        {
+            "id": "target",
+            "type": "pickString",
+            "description": "Target project",
+            "options": [
+                "higgs"
+            ]
+        },
     ]
 }
