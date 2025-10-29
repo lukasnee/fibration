@@ -218,7 +218,9 @@ Cmd versionCmd("version,ver", nullptr, "show firmware version", [](Cmd::Ctx ctx)
 class CharStream : public ln::Stream<char> {
 public:
     CharStream(IOStream &iostream) : iostream(iostream) {}
-    void put(char c) final { iostream.push(reinterpret_cast<const std::uint8_t *>(&c), 1, OsResource::Context::task); }
+    void put(std::span<const char> span) final {
+        iostream.push(reinterpret_cast<const std::uint8_t *>(span.data()), span.size(), OsResource::Context::task);
+    }
     char get() final {
         char c = 0;
         if (iostream.pull(reinterpret_cast<std::uint8_t &>(c), portMAX_DELAY, OsResource::Context::task)) {
