@@ -250,6 +250,9 @@ private:
 };
 
 void FibSys::startup() {
+    auto logger_config = ln::logger::Logger::get_instance().get_config();
+    logger_config.eol = "\r\n";
+    ln::logger::Logger::get_instance().set_config(logger_config);
     static IOStream iostream_uart2(Periph::getUart2());
     iostream_uart2.init();
     static CharStream char_stream_uart2(iostream_uart2);
