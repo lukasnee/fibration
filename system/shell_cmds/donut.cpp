@@ -21,7 +21,7 @@ std::array<char, canvasSize> b;
 namespace ln::shell {
 
 Cmd donut("donut", nullptr, "tasty!", []() -> Result {
-    Result result = Result::okQuiet;
+    Result result = Result::ok;
 
     int k;
     float A = 0, B = 0, i, j;
