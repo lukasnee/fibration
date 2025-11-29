@@ -1,6 +1,15 @@
+/*
+ * Copyright (c) 2025 Lukas Neverauskis https://github.com/lukasnee
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ */
+
 #pragma once
 
-#include "stdint.h"
+#include <stdint.h>
 
 #define ANSI_COLOR_BLACK "\e[30m"
 #define ANSI_COLOR_RED "\e[31m"
@@ -13,8 +22,7 @@
 #define ANSI_COLOR_DEFAULT "\e[39m"
 #define ANSI_COLOR_RESET "\e[0m"
 
-typedef struct __attribute__((packed)) ExceptionStackFrame
-{
+typedef struct __attribute__((packed)) ExceptionStackFrame {
     uint32_t r0;
     uint32_t r1;
     uint32_t r2;
@@ -30,4 +38,5 @@ void fibsys_hardfault(ExceptionStackFrame *pExceptionStackFrame, char stackPoint
 
 #define FIBSYS_PANIC() fibsys_panic(__FILE__, __LINE__)
 
-#define FIBSYS_HARDFAULT(pExceptionStackFrame, stackPointerInitial) fibsys_hardfault(pExceptionStackFrame, stackPointerInitial)
+#define FIBSYS_HARDFAULT(pExceptionStackFrame, stackPointerInitial)                                                    \
+    fibsys_hardfault(pExceptionStackFrame, stackPointerInitial)

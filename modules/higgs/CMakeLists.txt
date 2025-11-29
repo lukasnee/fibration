@@ -7,7 +7,7 @@ add_executable(${PROJECT_NAME})
 
 fibsys_firmware()
 
-target_sources(${PROJECT_NAME} PRIVATE blinkApp.cpp main.cpp)
+target_sources(${PROJECT_NAME} PRIVATE main.cpp)
 
 target_include_directories(
   ${PROJECT_NAME}

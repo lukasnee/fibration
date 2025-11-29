@@ -1,7 +1,6 @@
 #pragma once
 
 #include "adc2.hpp"
-#include "gpio.hpp"
 #include "i2s2.hpp"
 #include "tim6.hpp"
 #include "uart2.hpp"

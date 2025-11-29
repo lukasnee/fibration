@@ -56,11 +56,7 @@ target_sources(
             msp/system_stm32f3xx.c
             msp/startup_stm32f303retx.s)
 
-target_include_directories(
-  fibsys
-  INTERFACE core core/Libraries core/libraries/fibstd/include
-            core/libraries/fibstd/libraries/eternal/include
-            core/libraries/magic_enum/include)
+target_include_directories(fibsys INTERFACE core core/Libraries)
 target_sources(
   fibsys
   INTERFACE core/main.cpp core/system.cpp
@@ -102,9 +98,6 @@ target_sources(
 target_include_directories(fibsys INTERFACE components components/shell)
 
 target_link_libraries(fibsys INTERFACE ln::shell ln::shell::cmds::core)
-target_sources(
-  fibsys
-  INTERFACE shell_cmds/config.cpp shell_cmds/panic.cpp shell_cmds/reset.cpp
-            shell_cmds/status.cpp
-            # shell_cmds/donut.cpp
-)
+
+target_sources(fibsys INTERFACE shell_cmds/panic.cpp shell_cmds/reset.cpp
+                                shell_cmds/status.cpp)

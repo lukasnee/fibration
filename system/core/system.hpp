@@ -1,12 +1,20 @@
+/*
+ * Copyright (c) 2025 Lukas Neverauskis https://github.com/lukasnee
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ */
+
 #pragma once
+
+#include "FreeRTOS/Task.hpp"
 
 extern "C"
 {
 #include "system.h"
 }
-
-#include "status.hpp"
-#include "FreeRTOS/Task.hpp"
 
 #include <cstdint>
 
@@ -43,9 +51,6 @@ public:
     };
 
     static_assert(Priority::_enumSize <= configMAX_PRIORITIES, "invalid priority configration!");
-
-    // void collectStats();
-    Stats stats;
 
     FibSys(const FibSys &) = delete;
     FibSys(FibSys &&) = delete;

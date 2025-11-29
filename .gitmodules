@@ -1,9 +1,6 @@
 [submodule "System/MSP/STM32CubeF3"]
 	path = system/core/libraries/STM32CubeF3
 	url = https://github.com/lukasnee/STM32CubeF3.git
-[submodule "System/Core/Libraries/magic_enum"]
-	path = system/core/libraries/magic_enum
-	url = https://github.com/Neargye/magic_enum.git
 [submodule "system/libraries/DaisySP"]
 	path = system/libraries/DaisySP
 	url = https://github.com/electro-smith/DaisySP.git

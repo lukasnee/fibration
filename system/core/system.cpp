@@ -195,17 +195,6 @@ void FibSys::boot() {
 
 FibSys::FibSys(std::uint16_t stackDepth, BaseType_t priority) : Task(priority, stackDepth, "FibSys"){};
 
-// void FibSys::collectStats()
-// {
-//     std::size_t minFreeHeapSize = std::numeric_limits<std::size_t>::max();
-
-//     std::size_t freeHeapSize = xPortGetFreeHeapSize();
-//     if(freeHeapSize < minFreeHeapSize)
-//     {
-//         minFreeHeapSize = freeHeapSize;
-//     }
-// }
-
 namespace ln::shell {
 Cmd versionCmd("version,ver", nullptr, "show firmware version", [](Cmd::Ctx ctx) -> Err {
     ctx.cli.printf("\nStarting up Fibration %s v%u.%u.%u (%s, %s %s)", Fib::Version::moduleName, Fib::Version::major,
@@ -272,8 +261,6 @@ void FibSys::startup() {
 void FibSys::taskFunction() {
     this->startup();
     while (true) {
-        // TODO:
-        // this->collectStats();
         this->delay(std::chrono::milliseconds(1000));
         ln::logger::Logger::get_instance().flush_buffer();
     }
