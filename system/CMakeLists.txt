@@ -18,7 +18,7 @@ function(fibsys_firmware)
       openocd -f ${CMAKE_CURRENT_SOURCE_DIR}/openocd.cfg -c
       "program ${PROJECT_BINARY_DIR}/${PROJECT_NAME} preverify verify reset exit"
     DEPENDS ${PROJECT_NAME}
-    VERBATIM
+    VERBATIM USES_TERMINAL # to get live output from openocd
     COMMENT "Flashing ${PROJECT_NAME} firmware...")
 
   add_custom_target(
