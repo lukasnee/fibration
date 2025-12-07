@@ -4,16 +4,16 @@
 #include "task.h"
 namespace ln::shell {
 
-char szRunTimeStats[20 * 40];
-
-Cmd status("status,s", nullptr, "show system status", [](Cmd::Ctx ctx) {
-    vTaskGetRunTimeStats(szRunTimeStats);
-    ctx.cli.printf("uptime: %lu s\n",
-                  duration_cast<std::chrono::seconds>(FreeRTOS::Addons::Clock::now().time_since_epoch()).count());
-    ctx.cli.printf("freeHeapSbize: %lu\n\r", xPortGetFreeHeapSize());
-    ctx.cli.printf("RunTimeStatsCntVal: %lu\n", uint32GetRunTimeCounterValue());
-    ctx.cli.printf("Task\t\ttime,.1ms\ttime,%%\n%s", szRunTimeStats);
-    return Err::ok;
-});
+Cmd status_cmd{Cmd::Cfg{
+    .name = "status,s", .short_description = "show system status", .fn = [](Cmd::Ctx ctx) {
+        char run_time_stats_buf[20 * 40];
+        vTaskGetRunTimeStats(run_time_stats_buf);
+        ctx.cli.printf("uptime: %lu s\n",
+                       duration_cast<std::chrono::seconds>(FreeRTOS::Addons::Clock::now().time_since_epoch()).count());
+        ctx.cli.printf("freeHeapSbize: %lu\n\r", xPortGetFreeHeapSize());
+        ctx.cli.printf("RunTimeStatsCntVal: %lu\n", uint32GetRunTimeCounterValue());
+        ctx.cli.printf("Task\t\ttime,.1ms\ttime,%%\n%s", run_time_stats_buf);
+        return Err::ok;
+    }}};
 
 } // namespace ln::shell

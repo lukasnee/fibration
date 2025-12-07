@@ -98,10 +98,10 @@ I2sStream i2s2Stream(Periph::getI2s2(), "i2s2stream", 4 * 1024 / sizeof(StackTyp
                                            pWaves[0]->amplitudeNormal.get(), pWaves[1]->amplitudeNormal.get(),
                                            pWaves[2]->amplitudeNormal.get(), pWaves[3]->amplitudeNormal.get());
                              });
-                             static Cmd stats_cmd(
-                                 "hs", ln::shell::generic::cmds::on_off_command_usage, nullptr, [](Cmd::Ctx ctx) {
+            static Cmd stats_cmd{
+                Cmd::Cfg{.name = "hs", .usage = ln::shell::generic::cmds::on_off_command_usage, .fn = [](Cmd::Ctx ctx) {
                                      return ln::shell::generic::cmds::on_off_command_parser(
                                          [&](bool state) { return higgsStats.setState(state); }, "higgs stats", ctx);
-                                 });
+                         }}};
                          }
                      });

@@ -196,12 +196,13 @@ void FibSys::boot() {
 FibSys::FibSys(std::uint16_t stackDepth, BaseType_t priority) : Task(priority, stackDepth, "FibSys"){};
 
 namespace ln::shell {
-Cmd versionCmd("version,ver", nullptr, "show firmware version", [](Cmd::Ctx ctx) -> Err {
-    ctx.cli.printf("\nStarting up Fibration %s v%u.%u.%u (%s, %s %s)", Fib::Version::moduleName, Fib::Version::major,
-                   Fib::Version::minor, Fib::Version::patch, Fib::Version::git_hash, Fib::Version::compileDate,
-                   Fib::Version::compileTime);
-    return Err::ok;
-});
+Cmd version_cmd{Cmd::Cfg{.name = "version,ver", .usage = "show firmware version", .fn = [](Cmd::Ctx ctx) {
+                             ctx.cli.printf("\nStarting up Fibration %s v%u.%u.%u (%s, %s %s)",
+                                            Fib::Version::moduleName, Fib::Version::major, Fib::Version::minor,
+                                            Fib::Version::patch, Fib::Version::git_hash, Fib::Version::compileDate,
+                                            Fib::Version::compileTime);
+                             return Err::ok;
+                         }}};
 } // namespace ln::shell
 
 class CharStream : public ln::Stream<char> {

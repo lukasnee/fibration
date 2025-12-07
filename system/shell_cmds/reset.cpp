@@ -4,6 +4,9 @@
 
 namespace ln::shell {
 
-Cmd reset("reset", nullptr, "soft system reset", [](Cmd::Ctx ctx) -> Err { __NVIC_SystemReset(); });
+Cmd reset_cmd{Cmd::Cfg{.name = "reset", .short_description = "soft system reset", .fn = [](Cmd::Ctx ctx) {
+                           __NVIC_SystemReset();
+                           return Err::unexpected;
+                       }}};
 
 } // namespace ln::shell

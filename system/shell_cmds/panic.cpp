@@ -7,16 +7,22 @@
 
 namespace ln::shell {
 
-Cmd panic(
-    "panic", nullptr, "cause high-level system panic",
-    [](Cmd::Ctx ctx) -> Err {
-        FIBSYS_PANIC();
-        return Err::unexpected;
-    },
-    []() {
-        static Cmd rba(panic, "rba", nullptr, "read bad address (hardfault)", [](Cmd::Ctx ctx) -> Err {
-            return *reinterpret_cast<Err *>(0xbadcafe);
-            /* should never be reached */
-        });
-    });
+Cmd panic_cmd{Cmd::Cfg{.name = "panictest",
+                       .short_description = "trigger a system panic for testing purposes",
+                       .long_description = R"(Usage:
+  panictest
+  panictest rba
+
+Commands:
+  rba        read bad address to trigger hardfault)",
+                       .fn = [](Cmd::Ctx ctx) {
+                           if (ctx.args.size() == 0) {
+                               FIBSYS_PANIC();
+                           }
+                           if (ctx.args.size() == 1 && ctx.args[0] == "rba"sv) {
+                               return *reinterpret_cast<Err *>(0xbadcafe);
+                           }
+                           return Err::badArg;
+                       }}};
+
 } // namespace ln::shell
