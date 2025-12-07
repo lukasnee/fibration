@@ -91,7 +91,7 @@ I2sStream i2s2Stream(
             using ln::shell::CLI;
             using ln::shell::Cmd;
             using ln::shell::Err;
-            static Fib::PeriodicTimerApp higgsStats("hs", 10.f, [&]() {
+            static Fib::PeriodicTimerApp hs_cmd("hs", 10.f, [&]() {
                 LOG_DEBUG("%8.2f %8.2f %8.2f %8.2f %8.2f %8.2f %8.2f %8.2f", pWaves[0]->frequencyInHz.get(),
                           pWaves[1]->frequencyInHz.get(), pWaves[2]->frequencyInHz.get(),
                           pWaves[3]->frequencyInHz.get(), pWaves[0]->amplitudeNormal.get(),
@@ -101,7 +101,7 @@ I2sStream i2s2Stream(
             static Cmd stats_cmd{
                 Cmd::Cfg{.name = "hs", .usage = ln::shell::generic::cmds::on_off_command_usage, .fn = [](Cmd::Ctx ctx) {
                              return ln::shell::generic::cmds::on_off_command_parser(
-                                 [&](bool state) { return higgsStats.setState(state); }, "higgs stats", ctx);
+                                 [&](bool state) { return hs_cmd.setState(state); }, "higgs stats", ctx);
                          }}};
         }
     });
