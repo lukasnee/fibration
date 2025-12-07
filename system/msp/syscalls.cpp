@@ -74,6 +74,15 @@ register char *stack_ptr asm("sp");
 char *__env[1] = {0};
 char **environ = __env;
 
+extern "C" int _gettimeofday(struct timeval *tp, struct timezone *tzp) {
+    if (tzp) {
+        tzp->tz_minuteswest = 0;
+        tzp->tz_dsttime = 0;
+    }
+
+    return 0;
+}
+
 /* Functions */
 extern "C" void initialise_monitor_handles()
 {
