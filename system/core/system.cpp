@@ -240,12 +240,14 @@ private:
 };
 
 void FibSys::startup() {
-    auto logger_config = ln::logger::Logger::get_instance().get_config();
-    logger_config.eol = "\r\n";
-    ln::logger::Logger::get_instance().set_config(logger_config);
     static IOStream iostream_uart2(Periph::getUart2());
     iostream_uart2.init();
     static CharStream char_stream_uart2(iostream_uart2);
+
+    auto logger_config = ln::logger::get_instance().get_config();
+    logger_config.eol = "\r\n";
+    logger_config.enabled_run_time = true;
+    ln::logger::get_instance().set_config(logger_config);
 
     // TODO: use char_stream_uart2 for ln::logger
 
@@ -263,6 +265,6 @@ void FibSys::taskFunction() {
     this->startup();
     while (true) {
         this->delay(std::chrono::milliseconds(1000));
-        ln::logger::Logger::get_instance().flush_buffer();
+        ln::logger::get_instance().flush_buffer();
     }
 }
