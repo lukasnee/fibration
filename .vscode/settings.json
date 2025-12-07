@@ -7,5 +7,12 @@
     "cmake.configureSettings": {
         "CMAKE_TOOLCHAIN_FILE": "arm-none-eabi-gcc.cmake",
     },
-    "cmake.useCMakePresets": "always"
+    "cmake.useCMakePresets": "always",
+    "clangd.arguments": [
+        "--compile-commands-dir=.build/higgs-dbg",
+        "--query-driver=**",
+        "--background-index",
+        "--clang-tidy"
+    ],
+    "clangd.enable": true
 }
