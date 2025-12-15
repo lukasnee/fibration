@@ -170,11 +170,11 @@ extern "C" void fibsys_hardfault(ExceptionStackFrame *pExceptionStackFrame, char
     FibSys::hardwareReboot();
 }
 
-extern "C" void fibsys_panic(const char *strFile, std::uint32_t line) {
+extern "C" void fibsys_panic(const char *str_file, std::uint32_t line) {
     using namespace std::chrono;
     printf(ANSI_COLOR_RESET "S Y S T E M   P A N I C (uptime: %llu ms)\n",
            duration_cast<milliseconds>(FreeRTOS::Addons::Clock::now().time_since_epoch()).count());
-    printf("%s:%lu\n", strFile, line);
+    printf("%s:%lu\n", str_file, line);
     printf("process stack dump:\n");
     hexDumpWords(__get_PSP(), 32, 4);
     FibSys::hardwareReboot();
