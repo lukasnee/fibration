@@ -8,10 +8,11 @@
  */
 
 #include "resources.hpp"
-#include "system.hpp"
 
 #include <limits>
 // NOTE: peripheral instances should get constructer after MCU core and freertos initialization
+
+bool Periph::init() { return getUart2Stream().init(); }
 
 // TODO: cleanup tim6 mess below, put this logic to lower level source file
 // For FreeRTOS TimeGetStats
@@ -30,6 +31,11 @@ extern "C" uint32_t uint32GetRunTimeCounterValue() {
 Uart2 &Periph::getUart2() {
     static Uart2 uart2(921600);
     return uart2;
+}
+
+IOStream &Periph::getUart2Stream() {
+    static IOStream iostream_uart2(Periph::getUart2());
+    return iostream_uart2;
 }
 
 Uart3 &Periph::getUart3() {

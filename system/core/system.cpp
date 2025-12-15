@@ -1,20 +1,19 @@
 #include "system.hpp"
-#include "ioStream.hpp"
-#include "resources.hpp"
-#include "ln/shell/CLI.hpp"
 #include "version.hpp"
+#include "resources.hpp"
+#include "StdStream.hpp"
 
+#include "ln/shell/CLI.hpp"
+#include "ln/logger/logger.hpp"
 #include "FreeRTOS/Addons/Clock.hpp"
 
 extern "C"
 {
 #include "stm32f3xx_hal.h"
-#include "stm32f3xx_it.h"
 }
-#include <cstdint>
-#include <limits>
 
-#include "ln/logger/logger.hpp"
+#include <cstdint>
+#include <cstdio>
 
 LOG_MODULE(system, LOGGER_LEVEL_NOTSET);
 
@@ -205,54 +204,37 @@ Cmd version_cmd{Cmd::Cfg{.name = "version,ver", .usage = "show firmware version"
                          }}};
 } // namespace ln::shell
 
-class CharStream : public ln::Stream<char> {
-public:
-    CharStream(IOStream &iostream) : iostream(iostream) {}
-    void put(std::span<const char> span) final {
-        iostream.push(reinterpret_cast<const std::uint8_t *>(span.data()), span.size(), OsResource::Context::task);
-    }
-    char get() final {
-        char c = 0;
-        if (iostream.pull(reinterpret_cast<std::uint8_t &>(c), portMAX_DELAY, OsResource::Context::task)) {
-            return c;
-        }
-        return 0;
-    }
-
-private:
-    IOStream &iostream;
-};
-
 class CliSvcTask : public FreeRTOS::Task {
 public:
-    CliSvcTask(ln::shell::CLI &cli, ln::InStream<char> &in_stream, FibSys::Priority priority = FibSys::Priority::low,
+    CliSvcTask(ln::shell::CLI &cli, FibSys::Priority priority = FibSys::Priority::low,
                std::uint16_t stack_depth = 0x400, const char *name = "CliSvc")
-        : Task(priority, stack_depth, name), cli(cli), in_stream(in_stream) {}
+        : Task(priority, stack_depth, name), cli(cli) {}
 
 private:
     virtual void taskFunction() override {
         while (true) {
-            this->cli.put_char(this->in_stream.get());
+            this->cli.put_char(std::fgetc(stdin));
         }
     }
     ln::shell::CLI &cli;
-    ln::InStream<char> &in_stream;
 };
 
 void FibSys::startup() {
-    static IOStream iostream_uart2(Periph::getUart2());
-    iostream_uart2.init();
-    static CharStream char_stream_uart2(iostream_uart2);
-
+    {
+        const auto res = Periph::init();
+        LOG(res ? LOGGER_LEVEL_INFO : LOGGER_LEVEL_ERROR, "Periph::init() = %u", static_cast<unsigned>(res));
+    }
+    {
+        const auto res = StdStream::getInstance().init();
+        LOG(res ? LOGGER_LEVEL_INFO : LOGGER_LEVEL_ERROR, "StdStream::init() = %u", static_cast<unsigned>(res));
+    }
     auto logger_config = ln::logger::get_instance().get_config();
     logger_config.eol = "\r\n";
     logger_config.enabled_run_time = true;
     ln::logger::get_instance().set_config(logger_config);
 
-    // TODO: use char_stream_uart2 for ln::logger
-
-    static ln::shell::CLI cli(char_stream_uart2);
-    static CliSvcTask CliSvcTask(cli, char_stream_uart2);
+    static ln::shell::CLI cli;
+    static CliSvcTask CliSvcTask(cli);
     LOG_INFO("FibSys: starting up %s v%u.%u.%u (%s, %s %s)", Fib::Version::moduleName, Fib::Version::major,
              Fib::Version::minor, Fib::Version::patch, Fib::Version::git_hash, Fib::Version::compileDate,
              Fib::Version::compileTime);

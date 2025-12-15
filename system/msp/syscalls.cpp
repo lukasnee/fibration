@@ -1,58 +1,16 @@
-#include "FreeRTOS.h"
-#include "peripherals/resources.hpp"
-#include "ioDataIF.hpp"
-#include "task.h"
+#include "StdStream.hpp"
 
-#include "stm32f3xx_hal.h"
+#include "FreeRTOS.h"
+#include "task.h"
 
 #include <cstdarg>
 #include <cstdio>
 #include <errno.h>
-#include <signal.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/times.h>
 #include <sys/unistd.h> // STDOUT_FILENO, STDERR_FILENO
-#include <time.h>
-
-struct SysCalls {
-    static SysCalls &getInstance() {
-        static SysCalls instance;
-        return instance;
-    }
-
-    int _read(int fd, char *ptr, int len) {
-        if (fd == STDIN_FILENO) {
-            if (Periph::getUart2().rx(reinterpret_cast<std::uint8_t *>(ptr), len, len)) {
-                return 1;
-            }
-            else {
-                return EIO;
-            }
-        }
-        errno = EBADF;
-        return -1;
-    }
-
-    int _write(int fd, char *ptr, int len) {
-        if ((fd != STDOUT_FILENO) && (fd != STDERR_FILENO)) {
-            errno = EBADF;
-            return -1;
-        }
-
-        if (Periph::getUart2().tx(reinterpret_cast<const std::uint8_t *>(ptr), len, len)) {
-            return len;
-        }
-        return -1;
-    }
-
-private:
-    SysCalls() { setvbuf(stdout, this->buf.data(), _IOLBF, this->buf.size()); }
-
-    std::array<char, 64> buf;
-};
 
 // #undef errno
 extern int errno;
@@ -89,9 +47,9 @@ extern "C" void _exit(int status) {
     } /* Make sure we hang here */
 }
 
-extern "C" int _read(int fd, char *ptr, int len) { return SysCalls::getInstance()._read(fd, ptr, len); }
+extern "C" int _read(int fd, char *ptr, int len) { return StdStream::getInstance().read(fd, ptr, len); }
 
-extern "C" int _write(int fd, char *ptr, int len) { return SysCalls::getInstance()._write(fd, ptr, len); }
+extern "C" int _write(int fd, char *ptr, int len) { return StdStream::getInstance().write(fd, ptr, len); }
 
 extern "C" int _close(int fd) {
     if (fd >= STDIN_FILENO && fd <= STDERR_FILENO)
