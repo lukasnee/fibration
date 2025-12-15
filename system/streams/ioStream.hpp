@@ -7,13 +7,11 @@
 
 #include <array>
 
-class IOStream : public IODataIF::IsrRxCallbacks, public IODataIF::IsrTxCallbacks
-{
+class IOStream : public IODataIF::IsrRxCallbacks, public IODataIF::IsrTxCallbacks {
 public:
     using RxData = std::uint8_t;
 
-    struct Config
-    {
+    struct Config {
         static constexpr std::size_t rxStreamBufferSize = 256;
         static constexpr std::size_t txStreamBufferSize = 256;
     };
@@ -22,8 +20,10 @@ public:
 
     bool init();
 
-    bool pull(RxData &rxData, TickType_t timeout, OsResource::Context context);
-    bool push(const std::uint8_t *pData, std::uint32_t size, OsResource::Context context = OsResource::Context::undefined);
+    bool pull(RxData &rxData, TickType_t timeout = portMAX_DELAY,
+              OsResource::Context context = OsResource::Context::undefined);
+    bool push(const std::uint8_t *pData, std::uint32_t size,
+              OsResource::Context context = OsResource::Context::undefined);
 
     void deinit();
 

@@ -49,7 +49,7 @@ void IOStream::deinit()
     }
 }
 
-bool IOStream::pull(RxData &rxData, TickType_t timeout, OsResource::Context context = OsResource::Context::undefined)
+bool IOStream::pull(RxData &rxData, TickType_t timeout, OsResource::Context context)
 {
     bool result = false;
 
