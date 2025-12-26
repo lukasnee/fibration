@@ -19,6 +19,7 @@ Commands:
                            if (ctx.args.size() == 0) {
                                FIBSYS_PANIC();
                            }
+                           using namespace std::literals::string_view_literals;
                            if (ctx.args.size() == 1 && ctx.args[0] == "rba"sv) {
                                return *reinterpret_cast<Err *>(0xbadcafe);
                            }
