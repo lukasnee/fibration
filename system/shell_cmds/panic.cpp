@@ -17,7 +17,7 @@ Commands:
   rba        read bad address to trigger hardfault)",
                        .fn = [](Cmd::Ctx ctx) {
                            if (ctx.args.size() == 0) {
-                               FIBSYS_PANIC();
+                               LN_PANIC();
                            }
                            using namespace std::literals::string_view_literals;
                            if (ctx.args.size() == 1 && ctx.args[0] == "rba"sv) {

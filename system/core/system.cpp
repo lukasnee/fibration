@@ -3,6 +3,7 @@
 #include "resources.hpp"
 #include "StdStream.hpp"
 
+#include "ln/ln.h"
 #include "ln/shell/CLI.hpp"
 #include "ln/logger/logger.hpp"
 #include "FreeRTOS/Addons/Clock.hpp"
@@ -17,7 +18,7 @@ extern "C"
 
 LOG_MODULE(system, LOGGER_LEVEL_NOTSET);
 
-extern "C" void vApplicationMallocFailedHook(void) { FIBSYS_PANIC(); }
+extern "C" void vApplicationMallocFailedHook(void) { LN_PANIC(); }
 
 extern "C" void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
     if (htim->Instance == TIM7) {
@@ -49,7 +50,7 @@ static void SystemClock_Config(void) {
     RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
     RCC_OscInitStruct.PLL.PREDIV = RCC_PREDIV_DIV1;
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
-        FIBSYS_PANIC();
+        LN_PANIC();
     }
     /* Initializes the CPU, AHB and APB buses clocks */
     RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
@@ -60,7 +61,7 @@ static void SystemClock_Config(void) {
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
     if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK) {
-        FIBSYS_PANIC();
+        LN_PANIC();
     }
 
     PeriphClkInit.PeriphClockSelection =
@@ -70,7 +71,7 @@ static void SystemClock_Config(void) {
     PeriphClkInit.Adc12ClockSelection = RCC_ADC12PLLCLK_DIV1;
     PeriphClkInit.I2sClockSelection = RCC_I2SCLKSOURCE_SYSCLK;
     if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK) {
-        FIBSYS_PANIC();
+        LN_PANIC();
     }
 }
 
@@ -169,11 +170,11 @@ extern "C" void fibsys_hardfault(ExceptionStackFrame *pExceptionStackFrame, char
     FibSys::hardwareReboot();
 }
 
-extern "C" void fibsys_panic(const char *str_file, std::uint32_t line) {
+extern "C" void ln_panic(const char *file, int line) {
     using namespace std::chrono;
     printf(ANSI_COLOR_RESET "S Y S T E M   P A N I C (uptime: %llu ms)\n",
            duration_cast<milliseconds>(FreeRTOS::Addons::Clock::now().time_since_epoch()).count());
-    printf("%s:%lu\n", str_file, line);
+    printf("%s:%u\n", file, line);
     printf("process stack dump:\n");
     hexDumpWords(__get_PSP(), 32, 4);
     FibSys::hardwareReboot();

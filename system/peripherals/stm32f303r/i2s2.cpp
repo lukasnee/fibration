@@ -1,5 +1,5 @@
 #include "i2s2.hpp"
-#include "system.hpp"
+#include "ln/ln.h"
 
 extern "C"
 {
@@ -85,7 +85,7 @@ extern "C" void DMA1_Channel5_IRQHandler(void)
 
 static void Error_Handler()
 {
-    FIBSYS_PANIC();
+    LN_PANIC();
 }
 
 extern "C" void HAL_I2S_MspInit(I2S_HandleTypeDef *hi2s)

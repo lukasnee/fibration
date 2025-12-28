@@ -1,4 +1,5 @@
 #include "system.h"
+#include "ln/ln.h"
 
 #include "stm32f3xx_it.h"
 #include "stm32f3xx_hal.h"
@@ -55,7 +56,7 @@ void HardFault_Handler(void)
 // This function handles Memory management fault.
 void MemManage_Handler(void)
 {
-    FIBSYS_PANIC();
+    LN_PANIC();
     while (1)
     {
     }
@@ -64,7 +65,7 @@ void MemManage_Handler(void)
 // This function handles Pre-fetch fault, memory access fault.
 void BusFault_Handler(void)
 {
-    FIBSYS_PANIC();
+    LN_PANIC();
     while (1)
     {
     }
@@ -73,7 +74,7 @@ void BusFault_Handler(void)
 // This function handles Undefined instruction or illegal state.
 void UsageFault_Handler(void)
 {
-    FIBSYS_PANIC();
+    LN_PANIC();
     while (1)
     {
     }

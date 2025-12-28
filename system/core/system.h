@@ -33,10 +33,7 @@ typedef struct __attribute__((packed)) ExceptionStackFrame {
     uint32_t xpsr;
 } ExceptionStackFrame;
 
-void fibsys_panic(const char *strFile, uint32_t line);
 void fibsys_hardfault(ExceptionStackFrame *pExceptionStackFrame, char stackPointerInitial);
-
-#define FIBSYS_PANIC() fibsys_panic(__FILE__, __LINE__)
 
 #define FIBSYS_HARDFAULT(pExceptionStackFrame, stackPointerInitial)                                                    \
     fibsys_hardfault(pExceptionStackFrame, stackPointerInitial)

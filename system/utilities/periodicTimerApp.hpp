@@ -25,7 +25,7 @@ class PeriodicRandomValue : public PeriodicTimerApp {
 public:
     PeriodicRandomValue(float frequencyInHz) : PeriodicTimerApp("PRV", frequencyInHz) {
         if (!this->start()) {
-            FIBSYS_PANIC();
+            LN_PANIC();
         }
     }
     float get() { return this->value; }

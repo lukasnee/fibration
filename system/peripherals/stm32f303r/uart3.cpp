@@ -8,7 +8,7 @@
 // TODO: make DMA priorities referenced (centralize)
 
 #include "uart3.hpp"
-#include "system.hpp"
+#include "ln/ln.h"
 
 extern "C"
 {
@@ -19,27 +19,15 @@ DMA_HandleTypeDef hdma_usart3_tx;
 DMA_HandleTypeDef hdma_usart3_rx;
 UART_HandleTypeDef huart3;
 
-extern "C" void DMA1_Channel2_IRQHandler(void)
-{
-    HAL_DMA_IRQHandler(&hdma_usart3_tx);
-}
+extern "C" void DMA1_Channel2_IRQHandler(void) { HAL_DMA_IRQHandler(&hdma_usart3_tx); }
 
-extern "C" void DMA1_Channel3_IRQHandler(void)
-{
-    HAL_DMA_IRQHandler(&hdma_usart3_rx);
-}
+extern "C" void DMA1_Channel3_IRQHandler(void) { HAL_DMA_IRQHandler(&hdma_usart3_rx); }
 
-extern "C" void USART3_IRQHandler(void)
-{
-    HAL_UART_IRQHandler(&huart3);
-}
+extern "C" void USART3_IRQHandler(void) { HAL_UART_IRQHandler(&huart3); }
 
-Uart3::Uart3(std::uint32_t baudrate) : UartCommon(huart3, baudrate)
-{
-}
+Uart3::Uart3(std::uint32_t baudrate) : UartCommon(huart3, baudrate) {}
 
-bool Uart3::initUnsafe()
-{
+bool Uart3::initUnsafe() {
     bool result = false;
 
     /* setup UART IRQ */
@@ -73,12 +61,10 @@ bool Uart3::initUnsafe()
     hdma_usart3_tx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
     hdma_usart3_tx.Init.Mode = DMA_NORMAL;
     hdma_usart3_tx.Init.Priority = DMA_PRIORITY_LOW;
-    if (HAL_DMA_Init(&hdma_usart3_tx) != HAL_OK)
-    {
-        FIBSYS_PANIC();
+    if (HAL_DMA_Init(&hdma_usart3_tx) != HAL_OK) {
+        LN_PANIC();
     }
-    else
-    {
+    else {
         __HAL_LINKDMA(&huart3, hdmatx, hdma_usart3_tx);
     }
 
@@ -91,12 +77,10 @@ bool Uart3::initUnsafe()
     hdma_usart3_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
     hdma_usart3_rx.Init.Mode = DMA_NORMAL;
     hdma_usart3_rx.Init.Priority = DMA_PRIORITY_LOW;
-    if (HAL_DMA_Init(&hdma_usart3_rx) != HAL_OK)
-    {
-        FIBSYS_PANIC();
+    if (HAL_DMA_Init(&hdma_usart3_rx) != HAL_OK) {
+        LN_PANIC();
     }
-    else
-    {
+    else {
         __HAL_LINKDMA(&huart3, hdmarx, hdma_usart3_rx);
     }
 
@@ -111,33 +95,26 @@ bool Uart3::initUnsafe()
     huart3.Init.OverSampling = UART_OVERSAMPLING_16;
     huart3.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
     huart3.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-    if (HAL_UART_Init(&huart3) == HAL_OK)
-    {
+    if (HAL_UART_Init(&huart3) == HAL_OK) {
         result = true;
     }
 
     return result;
 }
 
-bool Uart3::deinitUnsafe()
-{
+bool Uart3::deinitUnsafe() {
     bool result = false;
 
-    if (HAL_UART_DeInit(&huart3) != HAL_OK)
-    {
+    if (HAL_UART_DeInit(&huart3) != HAL_OK) {
     }
-    else
-    {
+    else {
         __HAL_RCC_USART3_CLK_DISABLE();
         HAL_GPIO_DeInit(GPIOB, GPIO_PIN_9 | GPIO_PIN_10);
-        if (HAL_DMA_DeInit(huart3.hdmatx) != HAL_OK)
-        {
+        if (HAL_DMA_DeInit(huart3.hdmatx) != HAL_OK) {
         }
-        else if (HAL_DMA_DeInit(huart3.hdmarx) != HAL_OK)
-        {
+        else if (HAL_DMA_DeInit(huart3.hdmarx) != HAL_OK) {
         }
-        else
-        {
+        else {
             HAL_NVIC_DisableIRQ(DMA1_Channel2_IRQn);
             HAL_NVIC_DisableIRQ(DMA1_Channel3_IRQn);
             HAL_NVIC_DisableIRQ(USART3_IRQn);
