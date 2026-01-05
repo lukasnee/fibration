@@ -131,12 +131,13 @@ void I2sStream::onTxRxCompleteIsrCallback() {
 
 void I2sStream::taskFunction() // task code
 {
-    this->delay(std::chrono::milliseconds(50)); // let other tasks start first
+    this->delay(std::chrono::milliseconds(50)); // let other tasks start first // TODO: smells
     if (!this->i2s.init()) {
         LOG_ERROR("I2S init failed\n");
         return;
     }
     while (true) {
+        // TODO: figure out why I2S DMA callbacks never get called hence the stream does not work
         if (this->state == State::standby) {
             ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
             if (this->state != State::ready) {

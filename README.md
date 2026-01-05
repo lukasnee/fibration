@@ -36,6 +36,7 @@ microcontrollers.
 ## Documentation
 
 - [Maintenance](docs/MAINTENANCE.md)
+- [TODO List](docs/TODO.md)
 
 ## Licenses
 
