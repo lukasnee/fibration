@@ -62,6 +62,9 @@ target_sources(
   INTERFACE core/main.cpp core/system.cpp
   INTERFACE core/memory.cpp)
 
+target_link_options(fibsys INTERFACE -Wl,--wrap=malloc -Wl,--wrap=free
+                    -Wl,--wrap=realloc -Wl,--wrap=calloc)
+
 target_sources(fibsys INTERFACE dsp/sample.cpp dsp/math.cpp dsp/oscillator.cpp)
 
 target_include_directories(fibsys INTERFACE utilities)
