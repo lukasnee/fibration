@@ -235,7 +235,8 @@ void FibSys::startup() {
     ln::logger::get_instance().set_config(logger_config);
 
     static std::array<char, 256> cli_input_args_buf;
-    static ln::shell::CLI cli{cli_input_args_buf};
+    static std::array<char, 256> cli_history_buffer;
+    static ln::shell::CLI cli{cli_input_args_buf, cli_history_buffer};
     static CliSvcTask CliSvcTask(cli);
     LOG_INFO("FibSys: starting up %s v%u.%u.%u (%s, %s %s)", Fib::Version::moduleName, Fib::Version::major,
              Fib::Version::minor, Fib::Version::patch, Fib::Version::git_hash, Fib::Version::compileDate,
