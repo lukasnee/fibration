@@ -2,7 +2,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "higgs [openocd]",
+            "name": "openocd",
             "device": "STM32F303RE",
             "type": "cortex-debug",
             "request": "attach",
@@ -15,30 +15,39 @@
                 "adapter speed 4000",
                 "init",
                 "reset halt",
-                "program .build/${input:buildType}/modules/higgs/higgs preverify verify reset"
+                "program .build/${input:target}-${input:build_type}/modules/${input:target}/${input:target} preverify verify reset"
             ],
-            "rtos": "FreeRTOS",
+            // "rtos": "FreeRTOS",
             "cwd": "${workspaceRoot}",
-            "executable": "${workspaceRoot}/.build/${input:buildType}/modules/higgs/higgs",
+            "executable": "${workspaceRoot}/.build/${input:target}-${input:build_type}/modules/${input:target}/${input:target}",
+            "preLaunchTask": "build",
             // "preAttachCommands": [
             //     "monitor tpiu config internal itm.fifo uart off 240000000"
             // ],
             "svdFile": "${workspaceRoot}/system/msp/STM32F303.svd",
             "interface": "swd",
-            "breakAfterReset": true,
+            "breakAfterReset": false,
             // "runToEntryPoint": "main"
             // "showDevDebugOutput": "raw",
         }
     ],
     "inputs": [
         {
-            "id": "buildType",
-            "description": "Select build type",
+            "id": "build_type",
             "type": "pickString",
+            "description": "Build type",
             "options": [
-                "higgs-rel",
-                "higgs-dbg"
+                "dbg",
+                "rel"
             ]
-        }
+        },
+        {
+            "id": "target",
+            "type": "pickString",
+            "description": "Target project",
+            "options": [
+                "higgs"
+            ]
+        },
     ]
 }
