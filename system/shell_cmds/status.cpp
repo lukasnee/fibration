@@ -1,7 +1,7 @@
 #include "ln/shell/CLI.hpp"
 
-#include "FreeRTOS.h"
-#include "task.h"
+#include "FreeRTOS/Addons/Clock.hpp"
+
 namespace ln::shell {
 
 Cmd status_cmd{Cmd::Cfg{
