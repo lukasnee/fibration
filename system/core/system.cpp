@@ -214,7 +214,7 @@ public:
 private:
     virtual void taskFunction() override {
         while (true) {
-            this->cli.put_char(std::fgetc(stdin));
+            this->cli.routine();
         }
     }
     ln::shell::CLI &cli;
