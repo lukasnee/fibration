@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include "ln/lua/VM.hpp"
 #include "ln/shell/CLI.hpp"
 
 #include "FreeRTOS/Task.hpp"
@@ -25,10 +26,16 @@ public:
     // entry point of fibration system, should be called in main
     static void boot();
 
+    static ln::lua::VM &getLuaVmInstance() {
+        static ln::lua::VM lua_vm;
+        return lua_vm;
+    }
+
     static ln::shell::CLI &getCliInstance() {
         static std::array<char, 256> input_line_buf;
         static std::array<char, 256> history_buf;
         static ln::shell::CLI instance{input_line_buf, history_buf};
+        instance.config.interpreter = &getLuaVmInstance();
         return instance;
     }
 

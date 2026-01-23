@@ -97,8 +97,8 @@ target_sources(
 
 target_include_directories(fibsys INTERFACE components components/shell)
 
-target_link_libraries(fibsys INTERFACE ln::shell ln::shell::cmds::general
-                                       ln::logger::cmds)
+target_link_libraries(
+  fibsys INTERFACE ln::shell ln::lua ln::shell::cmds::general ln::logger::cmds)
 
 target_sources(fibsys INTERFACE shell_cmds/panic.cpp shell_cmds/reset.cpp
                                 shell_cmds/status.cpp)
