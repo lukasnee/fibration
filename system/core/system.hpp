@@ -9,6 +9,8 @@
 
 #pragma once
 
+#include "ln/shell/CLI.hpp"
+
 #include "FreeRTOS/Task.hpp"
 
 extern "C"
@@ -22,6 +24,13 @@ class FibSys : public FreeRTOS::Task {
 public:
     // entry point of fibration system, should be called in main
     static void boot();
+
+    static ln::shell::CLI &getCliInstance() {
+        static std::array<char, 256> input_line_buf;
+        static std::array<char, 256> history_buf;
+        static ln::shell::CLI instance{input_line_buf, history_buf};
+        return instance;
+    }
 
     static void hardwareReboot();
 
