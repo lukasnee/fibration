@@ -1,5 +1,7 @@
 #include "StdStream.hpp"
 
+#include "system.hpp"
+
 #include "FreeRTOS.h"
 #include "task.h"
 
@@ -39,6 +41,13 @@ extern "C" int _kill(int pid, int sig) {
     (void)sig;
     errno = EINVAL;
     return -1;
+}
+
+extern "C" int system(const char *__string) {
+    if (ln::shell::Err::ok != FibSys::getCliInstance().execute_line(__string)) {
+        return -1;
+    }
+    return 0;
 }
 
 extern "C" void _exit(int status) {
