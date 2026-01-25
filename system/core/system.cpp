@@ -234,7 +234,7 @@ void FibSys::startup() {
     ln::logger::get_instance().set_config(logger_config);
 
     static CliSvcTask CliSvcTask(getCliInstance());
-    LOG_INFO("FibSys: starting up %s v%u.%u.%u (%s, %s %s)", Fib::Version::moduleName, Fib::Version::major,
+    LOG_INFO("FibSys: starting up %s v%lu.%lu.%lu (%s, %s %s)", Fib::Version::moduleName, Fib::Version::major,
              Fib::Version::minor, Fib::Version::patch, Fib::Version::git_hash, Fib::Version::compileDate,
              Fib::Version::compileTime);
 
