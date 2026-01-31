@@ -1,6 +1,14 @@
 add_library(fibsys INTERFACE)
 
-function(fibsys_firmware)
+function(add_firmware target_name linker_script)
+
+  add_executable(${target_name})
+
+  target_link_options(${target_name} PRIVATE -T${linker_script})
+  set_property(TARGET ${target_name} PROPERTY LINK_DEPENDS ${linker_script})
+
+  target_link_libraries(${target_name} fibsys)
+
   execute_process(
     COMMAND git describe --always --dirty --match "NOT A TAG"
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
