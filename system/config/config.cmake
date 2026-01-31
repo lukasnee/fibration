@@ -6,10 +6,7 @@ add_library(freertos_config INTERFACE)
 target_include_directories(
   freertos_config INTERFACE ${CMAKE_CURRENT_LIST_DIR} # FreeRTOSConfig.h
 )
-set(FREERTOS_PORT
-    GCC_ARM_CM4F
-    CACHE STRING ""
-)
+set(FREERTOS_PORT GCC_ARM_CM4F)
 set(FREERTOS_HEAP 4)
 
 add_library(STM32F3xx_HAL_conf INTERFACE)
