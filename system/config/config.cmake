@@ -2,6 +2,7 @@ include_guard(GLOBAL)
 
 set(LN_FREERTOS ON)
 set(LN_LUA ON)
+set(LN_SHELL_CMD_EXCLUDE "repeat")
 add_library(freertos_config INTERFACE)
 target_include_directories(
   freertos_config INTERFACE ${CMAKE_CURRENT_LIST_DIR} # FreeRTOSConfig.h
