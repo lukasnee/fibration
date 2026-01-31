@@ -1,42 +1,5 @@
 add_library(fibsys INTERFACE)
 
-function(add_firmware target_name linker_script)
-
-  add_executable(${target_name})
-
-  target_link_options(${target_name} PRIVATE -T${linker_script})
-  set_property(TARGET ${target_name} PROPERTY LINK_DEPENDS ${linker_script})
-
-  target_link_libraries(${target_name} fibsys)
-
-  execute_process(
-    COMMAND git describe --always --dirty --match "NOT A TAG"
-    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-    OUTPUT_VARIABLE GIT_HASH
-    OUTPUT_STRIP_TRAILING_WHITESPACE)
-  configure_file(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/include/version.hpp.in
-                 ${CMAKE_BINARY_DIR}/include/version.hpp @ONLY)
-  target_include_directories(fibsys INTERFACE ${CMAKE_BINARY_DIR}/include)
-
-  generate_firmware_artifacts(${PROJECT_NAME})
-
-  add_custom_target(
-    flash_device
-    COMMAND
-      openocd -f ${CMAKE_CURRENT_SOURCE_DIR}/openocd.cfg -c
-      "program ${PROJECT_BINARY_DIR}/${PROJECT_NAME} preverify verify reset exit"
-    DEPENDS ${PROJECT_NAME}
-    VERBATIM USES_TERMINAL # to get live output from openocd
-    COMMENT "Flashing ${PROJECT_NAME} firmware...")
-
-  add_custom_target(
-    reset_device
-    COMMAND openocd -f ${CMAKE_CURRENT_SOURCE_DIR}/openocd.cfg -c
-            "init;reset;shutdown"
-    VERBATIM
-    COMMENT "Resetting target...")
-endfunction()
-
 add_subdirectory(core/libraries)
 
 target_link_libraries(fibsys INTERFACE STM32F3xx_HAL_Driver ARM_MATH_CM4_GCC

@@ -13,7 +13,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 if(CMAKE_CROSSCOMPILING)
   add_compile_options(-Wall -Wextra -Werror)
   include(system/config/config.cmake) # TODO move config into project folders?
+
   add_subdirectory(extern/ln)
+  include(${CMAKE_CURRENT_LIST_DIR}/extern/ln/cmake/ln.cmake)
+
   add_subdirectory(system)
   add_subdirectory(modules)
 else()

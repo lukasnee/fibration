@@ -1,5 +1,5 @@
 #include "system.hpp"
-#include "version.hpp"
+#include "ln/build.hpp"
 #include "resources.hpp"
 #include "StdStream.hpp"
 
@@ -196,10 +196,8 @@ FibSys::FibSys(std::uint16_t stackDepth, BaseType_t priority) : Task(priority, s
 
 namespace ln::shell {
 Cmd version_cmd{Cmd::Cfg{.name = "version,ver", .usage = "show firmware version", .fn = [](Cmd::Ctx ctx) {
-                             ctx.cli.printf("\nStarting up Fibration %s v%u.%u.%u (%s, %s %s)",
-                                            Fib::Version::moduleName, Fib::Version::major, Fib::Version::minor,
-                                            Fib::Version::patch, Fib::Version::git_hash, Fib::Version::compileDate,
-                                            Fib::Version::compileTime);
+                             ctx.cli.printf("\n%s v%s [%s] %s %s", ln::build::name, ln::build::version::str,
+                                            ln::build::git_hash, ln::build::date, ln::build::time);
                              return Err::ok;
                          }}};
 } // namespace ln::shell
@@ -234,9 +232,8 @@ void FibSys::startup() {
     ln::logger::get_instance().set_config(logger_config);
 
     static CliSvcTask CliSvcTask(getCliInstance());
-    LOG_INFO("FibSys: starting up %s v%lu.%lu.%lu (%s, %s %s)", Fib::Version::moduleName, Fib::Version::major,
-             Fib::Version::minor, Fib::Version::patch, Fib::Version::git_hash, Fib::Version::compileDate,
-             Fib::Version::compileTime);
+    LOG_INFO("FibSys: starting up %s v%s [%s] %s %s", ln::build::name, ln::build::version::str, ln::build::git_hash,
+             ln::build::date, ln::build::time);
 
     Periph::getAdc2().init();
     Periph::getAdc2().start();

@@ -60,7 +60,7 @@
             "label": "flash",
             "group": "none",
             "type": "shell",
-            "command": "cmake --build --preset ${input:target}-${input:build_type} --target flash_device",
+            "command": "cmake --build --preset ${input:target}-${input:build_type} --target flash_${input:target}",
             "presentation": {
                 "focus": false,
                 "panel": "shared"
