@@ -42,7 +42,7 @@
 /* 32K RAM total for STM32F303CB */ // todo maybe move out to fibsys
 /* 40K RAM total for STM32F303CC */ // todo maybe move out to fibsys
 /* 64K RAM total for STM32F303RE */ // todo maybe move out to fibsys
-#define configTOTAL_HEAP_SIZE                   ((size_t) 24*1024) 
+#define configTOTAL_HEAP_SIZE                   ((size_t) 16*1024) 
 
 /* Hook function related definitions. */
 #define configUSE_IDLE_HOOK                     0
