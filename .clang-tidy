@@ -19,6 +19,7 @@ Checks:
   -readability-qualified-auto,
   -readability-redundant-member-init,
   -readability-uppercase-literal-suffix,
+  -readability-avoid-unconditional-preprocessor-if,
   google-*,
   -google-readability-todo,
   misc-*
