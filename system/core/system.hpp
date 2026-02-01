@@ -32,9 +32,9 @@ public:
     }
 
     static ln::shell::CLI &getCliInstance() {
-        static std::array<char, 512> input_line_buf;
+        static std::array<char, 512> input_buf;
         static std::array<char, 512> history_buf;
-        static ln::shell::CLI instance{input_line_buf, history_buf};
+        static ln::shell::CLI instance{input_buf, history_buf};
         instance.config.interpreter = &getLuaVmInstance();
         return instance;
     }
