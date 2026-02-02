@@ -4,7 +4,10 @@
 
 namespace ln::shell {
 
-Cmd reset_cmd{Cmd::Cfg{.name = "reset", .short_description = "soft system reset", .fn = [](Cmd::Ctx ctx) {
+Cmd reset_cmd{Cmd::Cfg{.name = "reset",
+                       .short_description = "soft system reset",
+                       .fn = []([[maybe_unused]]
+                                Cmd::Ctx ctx) {
                            __NVIC_SystemReset();
                            return Err::unexpected;
                        }}};

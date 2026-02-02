@@ -23,6 +23,7 @@ char *__env[1] = {0};
 char **environ = __env;
 
 extern "C" int _gettimeofday(struct timeval *tp, struct timezone *tzp) {
+    (void)tp;
     if (tzp) {
         tzp->tz_minuteswest = 0;
         tzp->tz_dsttime = 0;
