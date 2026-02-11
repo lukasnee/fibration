@@ -88,7 +88,7 @@ void FibSys::boot() {
 FibSys::FibSys(std::uint16_t stackDepth, BaseType_t priority) : Task(priority, stackDepth, "FibSys"){};
 
 namespace ln::shell {
-Cmd version_cmd{Cmd::Cfg{.name = "version", .usage = "show firmware version", .fn = [](Cmd::Ctx ctx) {
+Cmd version_cmd{Cmd::Cfg{.name = "version", .short_description = "show firmware version", .fn = [](Cmd::Ctx ctx) {
                              ctx.cli.printf("%s v%s [%s] %s %s\n", ln::build::name, ln::build::version::str,
                                             ln::build::git_hash, ln::build::date, ln::build::time);
                              return Err::ok;
