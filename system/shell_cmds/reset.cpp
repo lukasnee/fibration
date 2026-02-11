@@ -1,4 +1,5 @@
 #include "ln/shell/CLI.hpp"
+#include "ln/ln.h"
 
 #include "stm32f3xx.h"
 
@@ -8,7 +9,7 @@ Cmd reset_cmd{Cmd::Cfg{.name = "reset",
                        .short_description = "soft system reset",
                        .fn = []([[maybe_unused]]
                                 Cmd::Ctx ctx) {
-                           __NVIC_SystemReset();
+                           ln::reset();
                            return Err::unexpected;
                        }}};
 

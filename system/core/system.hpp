@@ -14,11 +14,6 @@
 
 #include "FreeRTOS/Task.hpp"
 
-extern "C"
-{
-#include "system.h"
-}
-
 #include <cstdint>
 
 class FibSys : public FreeRTOS::Task {
@@ -38,12 +33,6 @@ public:
         instance.config.interpreter = &getLuaVmInstance();
         return instance;
     }
-
-    static void hardwareReboot();
-
-    // 1KHz system tick time reference
-    static void getUptime(std::uint32_t &days, std::uint32_t &hours, std::uint32_t &minutes, std::uint32_t &seconds,
-                          std::uint32_t &milliseconds);
 
     enum Priority : BaseType_t {
         lowest = 0,
