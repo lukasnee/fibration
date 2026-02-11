@@ -23,13 +23,11 @@ extern "C" void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
     }
     if (htim->Instance == TIM6) {
         static bool firstIgnored = false;
-
         if (firstIgnored == false) {
             firstIgnored = true;
+            return;
         }
-        else {
-            Periph::getTim6().overflowCallback();
-        }
+        Periph::getTim6().overflowCallback();
     }
 }
 

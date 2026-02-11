@@ -67,5 +67,5 @@ private:
     void startup();
 
     // FibSys thread code
-    virtual void taskFunction() override;
+    virtual void taskFunction() final;
 };
