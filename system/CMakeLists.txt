@@ -69,8 +69,11 @@ target_sources(
 target_include_directories(fibsys INTERFACE components components/shell)
 
 target_link_libraries(
-  fibsys INTERFACE ln::port::STM32F3_FreeRTOS ln::shell ln::lua
-                   ln::shell::cmds::general ln::logger::cmds)
-
-target_sources(fibsys INTERFACE shell_cmds/panic.cpp shell_cmds/reset.cpp
-                                shell_cmds/status.cpp)
+  fibsys
+  INTERFACE ln::port::STM32F3_FreeRTOS
+            ln::port::FreeRTOS::shell_cmds
+            ln::core::shell_cmds
+            ln::shell
+            ln::lua
+            ln::shell::cmds::general
+            ln::logger::cmds)

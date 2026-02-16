@@ -8,7 +8,7 @@
  */
 
 #include "ln/ln.h"
-#include "ln/port.h"
+#include "ln/port/exceptions.h"
 
 #include "stm32f3xx_it.h"
 #include "stm32f3xx_hal.h"
