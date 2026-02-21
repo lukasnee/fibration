@@ -4,6 +4,7 @@ set(LN_FREERTOS ON)
 set(LN_LUA ON)
 set(LN_SHELL_CMD_EXCLUDE "repeat")
 set(LN_PORT "STM32F3_FreeRTOS")
+set(LN_FMT ON)
 
 add_library(freertos_config INTERFACE)
 target_include_directories(
