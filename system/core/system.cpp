@@ -4,7 +4,7 @@
 #include "StdStream.hpp"
 
 #include "ln/ln.h"
-#include "ln/logger/logger.hpp"
+#include "ln/logger/logger.h"
 #include "FreeRTOS/Addons/Clock.hpp"
 
 extern "C"

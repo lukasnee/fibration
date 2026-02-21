@@ -1,7 +1,7 @@
 #pragma once
 
 #include "FreeRTOS/Timer.hpp"
-#include "ln/logger/logger.hpp"
+#include "ln/logger/logger.h"
 
 #include <functional>
 

@@ -2,7 +2,7 @@
 
 #include "ln/shell/CLI.hpp"
 #include "ln/shell/generic/cmds.hpp"
-#include "ln/logger/logger.hpp"
+#include "ln/logger/logger.h"
 
 #include <array>
 #include <cstdint>

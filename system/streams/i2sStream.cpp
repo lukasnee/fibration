@@ -2,7 +2,7 @@
 
 #include "system.hpp"
 
-#include "ln/logger/logger.hpp"
+#include "ln/logger/logger.h"
 
 LOG_MODULE(i2sStream, LOGGER_LEVEL_NOTSET);
 

@@ -2,7 +2,7 @@
 
 #include "dsp/map.hpp"
 
-#include "ln/logger/logger.hpp"
+#include "ln/logger/logger.h"
 
 #include <limits>
 
