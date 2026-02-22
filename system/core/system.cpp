@@ -120,6 +120,9 @@ void FibSys::startup() {
             static_cast<unsigned>(res));
     }
     auto logger_config = ln::logger::get_instance().get_config();
+    constexpr size_t logger_out_buf_size = 512;
+    static std::array<char, logger_out_buf_size> logger_out_buf{};
+    logger_config.out_buf = logger_out_buf;
     logger_config.eol = "\r\n";
     logger_config.enabled_run_time = true;
     ln::logger::get_instance().set_config(logger_config);
