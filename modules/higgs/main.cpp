@@ -8,7 +8,7 @@
 #include <cstdint>
 #include <limits>
 
-LOG_MODULE(main, LOGGER_LEVEL_NOTSET);
+LOG_MODULE(main, ln::logger::Level::notset);
 
 static I2sStream::Buffer i2s2StreamBuffer;
 

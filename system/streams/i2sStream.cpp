@@ -4,7 +4,7 @@
 
 #include "ln/logger/logger.h"
 
-LOG_MODULE(i2sStream, LOGGER_LEVEL_NOTSET);
+LOG_MODULE(i2sStream, ln::logger::Level::notset);
 
 I2sStream::I2sStream(I2sIF &i2s, const std::string_view taskName, uint16_t usStackDepth, UBaseType_t uxPriority,
                      I2sStream::Buffer &buffer, ProcessF processF)

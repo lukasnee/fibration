@@ -31,7 +31,7 @@ public:
     float get() { return this->value; }
 
 private:
-    LOG_MODULE_CLASS_MEMBER("periodicTimerApp", LOGGER_LEVEL_NOTSET);
+    LOG_MODULE_CLASS_MEMBER(periodicTimerApp, ln::logger::Level::notset);
 
     virtual void timerFunction() override {
         this->value = static_cast<float>(((2.0f * std::rand()) / RAND_MAX) - 1.0f);

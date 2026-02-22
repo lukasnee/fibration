@@ -8,7 +8,9 @@
 
 namespace Fib::Dsp::Sample {
 /** @attention 1-32 bitDepth max ! */
-template <U32 bitDepth> constexpr U32 maxValueOfBitDepth() { return (std::numeric_limits<U32>::max() >> (32 - bitDepth)); }
+template <U32 bitDepth> constexpr U32 maxValueOfBitDepth() {
+    return (std::numeric_limits<U32>::max() >> (32 - bitDepth));
+}
 
 template <U32 bitDepth> constexpr U32 centerValueOfBitDepth() { return (maxValueOfBitDepth<bitDepth>() / 2); }
 
@@ -84,6 +86,5 @@ template <std::size_t bitDepth> void convert(StereoSampleBufferF32 &from, I2sSam
     convert(from.left, tmp.left);
     convert(from.right, tmp.right);
     convert<bitDepth>(tmp, to);
-    // LOG(LOGGER_LEVEL_DEBUG3, "F32: %f, Q31: %ld, U32: %lu", from.left[0], tmp.left[0], to[0].left);
 }
 } // namespace Fib::Dsp::Sample

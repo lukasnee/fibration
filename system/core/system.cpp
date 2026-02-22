@@ -15,7 +15,7 @@ extern "C"
 #include <cstdint>
 #include <cstdio>
 
-LOG_MODULE(system, LOGGER_LEVEL_NOTSET);
+LOG_MODULE(system, ln::logger::Level::notset);
 
 extern "C" void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
     if (htim->Instance == TIM7) {
@@ -111,11 +111,13 @@ private:
 void FibSys::startup() {
     {
         const auto res = Periph::init();
-        LOG(res ? LOGGER_LEVEL_INFO : LOGGER_LEVEL_ERROR, "Periph::init() = %u", static_cast<unsigned>(res));
+        LOG(res ? ln::logger::Level::info : ln::logger::Level::error, "Periph::init() = %u",
+            static_cast<unsigned>(res));
     }
     {
         const auto res = StdStream::getInstance().init();
-        LOG(res ? LOGGER_LEVEL_INFO : LOGGER_LEVEL_ERROR, "StdStream::init() = %u", static_cast<unsigned>(res));
+        LOG(res ? ln::logger::Level::info : ln::logger::Level::error, "StdStream::init() = %u",
+            static_cast<unsigned>(res));
     }
     auto logger_config = ln::logger::get_instance().get_config();
     logger_config.eol = "\r\n";
