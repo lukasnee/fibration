@@ -141,7 +141,7 @@ void I2sStream::taskFunction() // task code
         if (this->state == State::standby) {
             ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
             if (this->state != State::ready) {
-                LOG_ERROR("I2S state: %d\n", this->state);
+                LOG_ERROR("I2S state: {}\n", static_cast<size_t>(this->state));
                 break;
             }
         }

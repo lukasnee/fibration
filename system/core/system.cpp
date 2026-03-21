@@ -110,12 +110,12 @@ private:
 void FibSys::startup() {
     {
         const auto res = Periph::init();
-        LOG(res ? ln::logger::Level::info : ln::logger::Level::error, "Periph::init() = %u",
+        LOG(res ? ln::logger::Level::info : ln::logger::Level::error, "Periph::init() = {}",
             static_cast<unsigned>(res));
     }
     {
         const auto res = StdStream::getInstance().init();
-        LOG(res ? ln::logger::Level::info : ln::logger::Level::error, "StdStream::init() = %u",
+        LOG(res ? ln::logger::Level::info : ln::logger::Level::error, "StdStream::init() = {}",
             static_cast<unsigned>(res));
     }
     auto logger_config = ln::logger::get_instance().get_config();
@@ -127,7 +127,7 @@ void FibSys::startup() {
     ln::logger::get_instance().set_config(logger_config);
 
     static CliSvcTask CliSvcTask(getCliInstance());
-    LOG_INFO("FibSys: starting up %s v%s [%s] %s %s", ln::build::name, ln::build::version::str, ln::build::git_hash,
+    LOG_INFO("FibSys: starting up {} v{} [{}] {} {}", ln::build::name, ln::build::version::str, ln::build::git_hash,
              ln::build::date, ln::build::time);
 
     Periph::getAdc2().init();
