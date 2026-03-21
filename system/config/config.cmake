@@ -1,5 +1,6 @@
 include_guard(GLOBAL)
 
+set(LN_BLOATY ON)
 set(LN_FREERTOS ON)
 set(LN_LUA ON)
 set(LN_SHELL_CMD_EXCLUDE "repeat")
