@@ -50,7 +50,7 @@
             "label": "reset",
             "group": "none",
             "type": "shell",
-            "command": "cmake --build --preset ${input:target}-${input:build_type} --target reset_device",
+            "command": "cmake --build --preset ${input:target}-${input:build_type} --target reset_${input:target}",
             "presentation": {
                 "focus": false,
                 "panel": "shared"
