@@ -16,7 +16,7 @@
 
 #include <cstdint>
 
-class FibSys : public FreeRTOS::Task {
+class FibSys {
 public:
     // entry point of fibration system, should be called in main
     static void boot();
@@ -57,15 +57,38 @@ public:
 
     static_assert(Priority::_enumSize <= configMAX_PRIORITIES, "invalid priority configration!");
 
+private:
+    FibSys() = default;
     FibSys(const FibSys &) = delete;
     FibSys(FibSys &&) = delete;
 
-private:
-    // can only be instantiated with FibSys::boot()
-    FibSys(std::uint16_t stackDepth, BaseType_t priority);
-
     void startup();
+    bool init_logger();
+    bool init_cli_service();
 
-    // FibSys thread code
-    virtual void taskFunction() final;
+    static constexpr size_t task_stack_size = 1 * 1024;
+    struct Task : public FreeRTOS::StaticTask<task_stack_size> {
+        Task(FibSys &owner)
+            : FreeRTOS::StaticTask<task_stack_size>(FibSys::Priority::highest, "FibSys"), owner(owner) {}
+
+    private:
+        virtual void taskFunction() final;
+        FibSys &owner;
+    };
+    Task task{*this};
+
+    static constexpr size_t cli_svc_task_stack_size = 1024;
+    struct CliSvcTask : public FreeRTOS::StaticTask<cli_svc_task_stack_size> {
+        CliSvcTask(ln::shell::CLI &cli)
+            : FreeRTOS::StaticTask<cli_svc_task_stack_size>(FibSys::Priority::low, "CliSvc"), cli(cli) {}
+
+    private:
+        virtual void taskFunction() final {
+            while (true) {
+                this->cli.routine();
+            }
+        }
+        ln::shell::CLI &cli;
+    };
+    CliSvcTask cliSvcTask{getCliInstance()};
 };

@@ -83,12 +83,10 @@ void initPlatform() {
 void FibSys::boot() {
     initPlatform();
     // init system task
-    static FibSys fibSys(0x800, FibSys::Priority::highest);
+    static FibSys fibSys{};
     // start task scheduler
     vTaskStartScheduler();
 }
-
-FibSys::FibSys(std::uint16_t stackDepth, BaseType_t priority) : Task(priority, stackDepth, "FibSys"){};
 
 namespace ln::shell {
 Cmd version_cmd{Cmd::Cfg{.name = "version", .short_description = "show firmware version", .fn = [](Cmd::Ctx ctx) {
@@ -97,21 +95,6 @@ Cmd version_cmd{Cmd::Cfg{.name = "version", .short_description = "show firmware 
                              return Err::ok;
                          }}};
 } // namespace ln::shell
-
-class CliSvcTask : public FreeRTOS::Task {
-public:
-    CliSvcTask(ln::shell::CLI &cli, FibSys::Priority priority = FibSys::Priority::low,
-               std::uint16_t stack_depth = 0x400, const char *name = "CliSvc")
-        : Task(priority, stack_depth, name), cli(cli) {}
-
-private:
-    virtual void taskFunction() override {
-        while (true) {
-            this->cli.routine();
-        }
-    }
-    ln::shell::CLI &cli;
-};
 
 void FibSys::startup() {
     {
@@ -132,7 +115,6 @@ void FibSys::startup() {
     logger_config.enabled_run_time = true;
     ln::logger::get_instance().set_config(logger_config);
 
-    static CliSvcTask CliSvcTask(getCliInstance());
     LOG_INFO("FibSys: starting up {} v{} [{}] {} {}", ln::build::name, ln::build::version::str, ln::build::git_hash,
              ln::build::date, ln::build::time);
 
@@ -140,8 +122,8 @@ void FibSys::startup() {
     Periph::getAdc2().start();
 }
 
-void FibSys::taskFunction() {
-    this->startup();
+void FibSys::Task::taskFunction() {
+    this->owner.startup();
     while (true) {
         this->delay(std::chrono::milliseconds(1000));
         ln::logger::get_instance().flush_buffer();
