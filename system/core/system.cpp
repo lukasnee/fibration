@@ -77,7 +77,7 @@ void initPlatform() {
 void FibSys::boot() {
     initPlatform();
     // init system task
-    static FibSys fibSys(0x200, FibSys::Priority::highest);
+    static FibSys fibSys(0x800, FibSys::Priority::highest);
     // start task scheduler
     vTaskStartScheduler();
 }
