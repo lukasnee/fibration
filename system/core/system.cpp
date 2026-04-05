@@ -16,6 +16,12 @@ extern "C"
 
 LOG_MODULE(system, ln::logger::Level::notset);
 
+extern "C" void vApplicationStackOverflowHook([[maybe_unused]] TaskHandle_t xTask, char *pcTaskName) {
+    LOG_CRITICAL("Stack overflow in task {}!", pcTaskName);
+    while (true) {
+    }
+}
+
 extern "C" void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
     if (htim->Instance == TIM7) {
         HAL_IncTick();
