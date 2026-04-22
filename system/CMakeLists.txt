@@ -73,6 +73,7 @@ target_link_libraries(
   INTERFACE ln::port::STM32F3_FreeRTOS
             ln::port::FreeRTOS::shell_cmds
             ln::core::shell_cmds
+            ln::algo
             ln::shell
             ln::lua
             ln::shell::cmds::general

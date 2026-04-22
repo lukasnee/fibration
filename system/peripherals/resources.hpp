@@ -19,8 +19,6 @@
 
 class Periph {
 public:
-    static bool init();
-
     static Tim6 &getTim6();
     static Uart2 &getUart2();
     static IOStream &getUart2Stream();

@@ -12,8 +12,6 @@
 #include <limits>
 // NOTE: peripheral instances should get constructer after MCU core and freertos initialization
 
-bool Periph::init() { return getUart2Stream().init(); }
-
 // TODO: cleanup tim6 mess below, put this logic to lower level source file
 // For FreeRTOS TimeGetStats
 Tim6 &Periph::getTim6() {

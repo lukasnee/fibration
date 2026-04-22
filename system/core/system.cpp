@@ -1,5 +1,6 @@
 #include "system.hpp"
-#include "ln/build.hpp"
+#include "logger.hpp"
+#include "init.hpp"
 #include "resources.hpp"
 #include "StdStream.hpp"
 
@@ -10,9 +11,6 @@ extern "C"
 {
 #include "stm32f3xx_hal.h"
 }
-
-#include <cstdint>
-#include <cstdio>
 
 LOG_MODULE(system, ln::logger::Level::notset);
 
@@ -75,16 +73,14 @@ static void SystemClock_Config(void) {
     }
 }
 
-void initPlatform() {
+void low_level_init() {
     HAL_Init();
     SystemClock_Config();
 }
 
-void FibSys::boot() {
-    initPlatform();
-    // init system task
-    static FibSys fibSys{};
-    // start task scheduler
+void FibSys::launch() {
+    low_level_init();
+    get_instance(); // construct the singleton, create init_items...
     vTaskStartScheduler();
 }
 
@@ -97,29 +93,41 @@ Cmd version_cmd{Cmd::Cfg{.name = "version", .short_description = "show firmware 
 } // namespace ln::shell
 
 void FibSys::startup() {
-    {
-        const auto res = Periph::init();
-        LOG(res ? ln::logger::Level::info : ln::logger::Level::error, "Periph::init() = {}",
-            static_cast<unsigned>(res));
-    }
-    {
-        const auto res = StdStream::getInstance().init();
-        LOG(res ? ln::logger::Level::info : ln::logger::Level::error, "StdStream::init() = {}",
-            static_cast<unsigned>(res));
-    }
-    auto logger_config = ln::logger::get_instance().get_config();
-    constexpr size_t logger_out_buf_size = 512;
-    static std::array<char, logger_out_buf_size> logger_out_buf{};
-    logger_config.out_buf = logger_out_buf;
-    logger_config.eol = "\r\n";
-    logger_config.enabled_run_time = true;
-    ln::logger::get_instance().set_config(logger_config);
 
-    LOG_INFO("FibSys: starting up {} v{} [{}] {} {}", ln::build::name, ln::build::version::str, ln::build::git_hash,
-             ln::build::date, ln::build::time);
+    enum class ID {
+        logger,
+        uart2,
+        std_stream,
+        cli_service,
+        adc2,
+        adc2_start,
+    };
 
-    Periph::getAdc2().init();
-    Periph::getAdc2().start();
+    constexpr std::array init_items = {
+        init::Item{ID::logger, "logger", []() { return logger::init(); }},
+        init::Item{ID::uart2, "uart2", []() { return Periph::getUart2Stream().init(); }},
+        init::Item{ID::std_stream, "std_stream", []() { return StdStream::getInstance().init(); }},
+        init::Item{ID::cli_service, "cli_service",
+                   []() {
+                       get_instance().cli_svc_task.start();
+                       return true;
+                   }},
+        init::Item{ID::adc2, "adc2", []() { return Periph::getAdc2().init(); }},
+        init::Item{ID::adc2_start, "adc2_start", []() { return Periph::getAdc2().start(); }},
+    };
+    constexpr std::array init_deps = {
+        /* logger does depend on std_stream but not crucial in the beginning,
+         since logger buffers output. std_stream is necessary once the buffers
+         is full and needs to flushed.
+        */
+        // init::Dep{ID::std_stream, ID::logger},
+        init::Dep{ID::uart2, ID::std_stream},
+        init::Dep{ID::uart2, ID::cli_service},
+        init::Dep{ID::std_stream, ID::cli_service},
+        init::Dep{ID::adc2, ID::adc2_start},
+    };
+    static constexpr auto ordered_initializers = ln::algo::CompileTimeDAG::Graph(init_items, init_deps).topo_sort();
+    init::init(ordered_initializers);
 }
 
 void FibSys::Task::taskFunction() {

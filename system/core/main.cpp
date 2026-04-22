@@ -2,7 +2,4 @@
 
 #include "system.hpp"
 
-int main()
-{
-    FibSys::boot();
-}
+int main() { FibSys::launch(); }

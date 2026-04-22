@@ -18,19 +18,21 @@
 
 class FibSys {
 public:
-    // entry point of fibration system, should be called in main
-    static void boot();
+    static FibSys &get_instance() {
+        static FibSys instance;
+        return instance;
+    }
 
-    static ln::lua::VM &getLuaVmInstance() {
+    static ln::lua::VM &get_lua_vm_instance() {
         static ln::lua::VM lua_vm;
         return lua_vm;
     }
 
-    static ln::shell::CLI &getCliInstance() {
+    static ln::shell::CLI &get_cli_instance() {
         static std::array<char, 512> input_buf;
         static std::array<char, 512> history_buf;
         static ln::shell::CLI instance{input_buf, history_buf};
-        instance.config.interpreter = &getLuaVmInstance();
+        instance.config.interpreter = &get_lua_vm_instance();
         return instance;
     }
 
@@ -57,14 +59,18 @@ public:
 
     static_assert(Priority::_enumSize <= configMAX_PRIORITIES, "invalid priority configration!");
 
+    /**
+     * @brief Launch the fibration system. This should be called in bare-metal
+     * main() function, and it will never return.
+     */
+    static void launch();
+
 private:
     FibSys() = default;
     FibSys(const FibSys &) = delete;
     FibSys(FibSys &&) = delete;
 
     void startup();
-    bool init_logger();
-    bool init_cli_service();
 
     static constexpr size_t task_stack_size = 1 * 1024;
     struct Task : public FreeRTOS::StaticTask<task_stack_size> {
@@ -82,13 +88,16 @@ private:
         CliSvcTask(ln::shell::CLI &cli)
             : FreeRTOS::StaticTask<cli_svc_task_stack_size>(FibSys::Priority::low, "CliSvc"), cli(cli) {}
 
+        void start() { this->notifyGive(); }
+
     private:
         virtual void taskFunction() final {
+            this->notifyTake();
             while (true) {
                 this->cli.routine();
             }
         }
         ln::shell::CLI &cli;
     };
-    CliSvcTask cliSvcTask{getCliInstance()};
+    CliSvcTask cli_svc_task{get_cli_instance()};
 };

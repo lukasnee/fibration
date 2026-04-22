@@ -46,7 +46,7 @@ extern "C" int _kill(int pid, int sig) {
 
 // NOLINTNEXTLINE(bugprone-reserved-identifier)
 extern "C" int system(const char *__string) {
-    if (ln::shell::Err::ok != FibSys::getCliInstance().execute(__string)) {
+    if (ln::shell::Err::ok != FibSys::get_cli_instance().execute(__string)) {
         return -1;
     }
     return 0;
