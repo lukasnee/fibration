@@ -42,7 +42,7 @@
 /* 32K RAM total for STM32F303CB */ // todo maybe move out to fibsys
 /* 40K RAM total for STM32F303CC */ // todo maybe move out to fibsys
 /* 64K RAM total for STM32F303RE */ // todo maybe move out to fibsys
-#define configTOTAL_HEAP_SIZE                   ((size_t) 10*1024) 
+#define configTOTAL_HEAP_SIZE                   ((size_t) 10*1024)
 
 /* Hook function related definitions. */
 #define configUSE_IDLE_HOOK                     0
@@ -52,7 +52,7 @@
 #define configUSE_DAEMON_TASK_STARTUP_HOOK      0
 
 /* Run time and task stats gathering related definitions. */
-#define configGENERATE_RUN_TIME_STATS           1 
+#define configGENERATE_RUN_TIME_STATS           1
 #define configUSE_STATS_FORMATTING_FUNCTIONS    0
 extern void vConfigureTimerForRunTimeStats();
 extern uint32_t uint32GetRunTimeCounterValue();

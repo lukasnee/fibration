@@ -1,6 +1,6 @@
 #include <cstdint>
 
-class Tim6 
+class Tim6
 {
 public:
     typedef std::uint32_t CounterType;
