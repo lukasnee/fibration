@@ -2,17 +2,21 @@
 #include "FreeRTOS.h"
 #include <cstdint>
 
+// NOLINTBEGIN(clang-diagnostic-inline-new-delete)
+
 inline void *operator new(size_t size) { return pvPortMalloc(size); }
 
 inline void *operator new[](size_t size) { return pvPortMalloc(size); }
 
 inline void operator delete(void *ptr) { vPortFree(ptr); }
 
-inline void operator delete(void *ptr, unsigned int) { vPortFree(ptr); }
+inline void operator delete(void *ptr, [[maybe_unused]] unsigned int size) { vPortFree(ptr); }
 
 inline void operator delete[](void *ptr) { vPortFree(ptr); }
 
-inline void operator delete[](void *ptr, unsigned int) { vPortFree(ptr); }
+inline void operator delete[](void *ptr, [[maybe_unused]] unsigned int size) { vPortFree(ptr); }
+
+// NOLINTEND(clang-diagnostic-inline-new-delete)
 
 /* relates to configSUPPORT_STATIC_ALLOCATION  */
 extern "C" void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer,

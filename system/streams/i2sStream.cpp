@@ -6,9 +6,9 @@
 
 LOG_MODULE(i2sStream, ln::logger::Level::notset);
 
-I2sStream::I2sStream(I2sIF &i2s, const std::string_view taskName, uint16_t usStackDepth, UBaseType_t uxPriority,
+I2sStream::I2sStream(I2sIF &i2s, const char *taskName, uint16_t usStackDepth, UBaseType_t uxPriority,
                      I2sStream::Buffer &buffer, ProcessF processF)
-    : Task(uxPriority, usStackDepth, taskName.data()), buffer(buffer), processF(processF), i2s(i2s) {
+    : Task(uxPriority, usStackDepth, taskName), buffer(buffer), processF(processF), i2s(i2s) {
     this->setOwner(this);
 }
 
@@ -18,7 +18,7 @@ bool I2sStream::start() {
     if (this->state == State::standby) {
         // TODO: make DMA start only after the first buffer half is filled with data
         if (this->i2s.startTxRxCircularDma(this->getBufferToStreamOut(), this->getBufferToStreamIn(),
-                                           this->getBufferSize(), this)) {
+                                           I2sStream::getBufferSize(), this)) {
             this->state = State::ready;
             this->pOwner->notifyGive();
             retval = true;
@@ -31,17 +31,15 @@ bool I2sStream::start() {
 bool I2sStream::stop() {
     bool retval = false;
 
-    if (this->state == State::firstStreamingSecondReady || this->state == State::firstStreamingSecondLoading ||
-        this->state == State::firstStreamingSecondLoaded) {
+    if (this->state == State::firstStreamingSecondReady ||
+        this->state == State::firstStreamingSecondLoading ||
+        this->state == State::firstStreamingSecondLoaded ||
+        this->state == State::firstReadySecondStreaming ||
+        this->state == State::firstLoadingSecondStreaming ||
+        this->state == State::firstLoadedSecondStreaming) {
         retval = this->i2s.stopTxRxCircularDma();
         this->state = State::standby;
     }
-    else if (this->state == State::firstReadySecondStreaming || this->state == State::firstLoadingSecondStreaming ||
-             this->state == State::firstLoadedSecondStreaming) {
-        retval = this->i2s.stopTxRxCircularDma();
-        this->state = State::standby;
-    }
-
     return retval;
 }
 
@@ -66,7 +64,7 @@ bool I2sStream::getBuffersToProcess(Fib::Dsp::I2sSampleBufferU32 *&pRxI2sBufferO
         result = true;
     }
     else if (this->state == State::standby) {
-        this->notifyTake(portMAX_DELAY);
+        Task::notifyTake(portMAX_DELAY);
     }
 
     if (this->state == State::ready) {
@@ -83,19 +81,19 @@ bool I2sStream::stereoAudioBufferLoaded() {
     bool result = false;
     if (this->state == State::firstStreamingSecondLoading) {
         this->state = State::firstStreamingSecondLoaded;
-        this->notifyTake(portMAX_DELAY);
+        Task::notifyTake(portMAX_DELAY);
         this->state = State::firstReadySecondStreaming;
         result = true;
     }
     else if (this->state == State::firstLoadingSecondStreaming) {
         this->state = State::firstLoadedSecondStreaming;
-        this->notifyTake(portMAX_DELAY);
+        Task::notifyTake(portMAX_DELAY);
         this->state = State::firstStreamingSecondReady;
         result = true;
     }
     else if (this->state == State::firstStandbySecondLoading) {
         this->state = State::firstStandbySecondLoaded;
-        this->notifyTake(portMAX_DELAY);
+        Task::notifyTake(portMAX_DELAY);
         this->state = State::firstReadySecondStreaming;
         result = true;
     }
@@ -131,7 +129,7 @@ void I2sStream::onTxRxCompleteIsrCallback() {
 
 void I2sStream::taskFunction() // task code
 {
-    this->delay(std::chrono::milliseconds(50)); // let other tasks start first // TODO: smells
+    Task::delay(std::chrono::milliseconds(50)); // let other tasks start first // TODO: smells
     if (!this->i2s.init()) {
         LOG_ERROR("I2S init failed\n");
         return;

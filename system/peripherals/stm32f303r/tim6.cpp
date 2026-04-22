@@ -71,7 +71,7 @@ void Tim6::overflowCallback()
     this->counterValue += std::numeric_limits<std::uint16_t>::max();
 }
 
-Tim6::CounterType Tim6::getCounterValue()
+Tim6::CounterType Tim6::getCounterValue() const
 {
     return this->counterValue + htim6.Instance->CNT;
 }

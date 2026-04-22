@@ -46,7 +46,7 @@ void OutStream::reset()
     this->taskHandleToNotify = nullptr;
 }
 
-bool OutStream::isEmpty()
+bool OutStream::isEmpty() const
 {
     return (!isRolledOver && this->tailIdx == this->headIdx);
 }
@@ -147,17 +147,14 @@ bool OutStream::out(OsResource::Context context)
     {
         this->activeTxSize = (this->isRolledOver || this->tailIdx > this->headIdx) ? this->buffer.size() - this->tailIdx : this->headIdx - this->tailIdx;
 
-        if (!this->activeTxSize)
-        {
-            /* queue empty - nothing to do */
-            result = true;
-        }
-        else if (false == this->ioData.txDma(&this->buffer[this->tailIdx], this->activeTxSize, this, context))
+        if (!this->ioData.txDma(&this->buffer[this->tailIdx], this->activeTxSize, this, context))
         {
             this->activeTxSize = 0;
         }
-        else
-        {
+        else {
+            if (!this->activeTxSize) {
+                /* queue empty - nothing to do */
+            }
             result = true;
         }
     }

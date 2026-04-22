@@ -7,7 +7,7 @@ bool I2sIF::startTxRxCircularDma(const std::uint16_t *pTxData16, std::uint16_t *
     bool retval = false;
 
     this->txRxMutex.lock();
-    if (false == txRxCircularDmaUnsafe(pTxData16, pRxData16, size8)) {
+    if (!txRxCircularDmaUnsafe(pTxData16, pRxData16, size8)) {
         this->txRxMutex.unlock();
     }
     else {

@@ -4,7 +4,7 @@ StringContainer::StringContainer() {}
 
 char *StringContainer::getBase() { return this->pBase; }
 char *StringContainer::getHead() { return this->pHead; }
-int StringContainer::getSize() { return this->size; }
+int StringContainer::getSize() const { return static_cast<int>(this->size); }
 int StringContainer::getCharsUsed() { return (this->getHead() - this->getBase()); }
 int StringContainer::getCharsLeft() { return (this->getSize() - this->getCharsUsed()); }
 

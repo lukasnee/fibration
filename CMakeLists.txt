@@ -9,6 +9,7 @@ set(CMAKE_C_STANDARD 23)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 
 if(CMAKE_CROSSCOMPILING)
   add_compile_options(-Wall -Wextra -Werror)
@@ -16,6 +17,7 @@ if(CMAKE_CROSSCOMPILING)
 
   add_subdirectory(extern/ln)
   include(${CMAKE_CURRENT_LIST_DIR}/extern/ln/cmake/ln.cmake)
+  ln_enable_clang_tidy()
 
   add_subdirectory(system)
   add_subdirectory(modules)
@@ -30,3 +32,4 @@ else()
   list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
   include(Catch)
 endif()
+

@@ -7,12 +7,15 @@ Checks:
   -bugprone-easily-swappable-parameters,
   -bugprone-macro-parentheses,
   -bugprone-dynamic-static-initializers,
+  -bugprone-branch-clone,
   performance-*,
   -performance-enum-size,
   -performance-unnecessary-value-param,
   -performance-no-int-to-ptr,
   portability-*,
   readability-*,
+  -readability-magic-numbers,
+  -readability-isolate-declaration,
   -readability-convert-member-functions-to-static,
   -readability-identifier-length,
   -readability-implicit-bool-conversion,
@@ -34,6 +37,7 @@ Checks:
   # -cppcoreguidelines-avoid-non-const-global-variables,
   # -cppcoreguidelines-pro-bounds-pointer-arithmetic,
 HeaderFilterRegex: ""
+ExcludeHeaderFilterRegex: "^.*/(?:build|.tmp|extern|.vscode|docs)/.*"
 WarningsAsErrors: "*,-bugprone-unchecked-optional-access"
 HeaderFileExtensions:
   - ""

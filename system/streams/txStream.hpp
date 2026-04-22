@@ -36,7 +36,7 @@ private:
     bool out(OsResource::Context context);
 
     void reset();
-    bool isEmpty();
+    bool isEmpty() const;
     std::size_t unbrokenSizeLeft();
 
     std::array<std::uint8_t, Config::txStreamBufferSize * sizeof(Data)> buffer;

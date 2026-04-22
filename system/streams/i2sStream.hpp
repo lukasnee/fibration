@@ -8,9 +8,7 @@
 #include "i2sIF.hpp"
 #include "FreeRTOS/Task.hpp"
 
-#include <array>
 #include <functional>
-#include <string_view>
 
 class I2sStream : public FreeRTOS::Task, private I2sIF::TxRxIsrCallbacks {
 public:
@@ -23,10 +21,10 @@ public:
         DmaDoubleBuffer rx, tx;
     };
 
-    using ProcessF = std::function<void([[maybe_unused]] const Fib::Dsp::StereoSampleBufferF32 &rxStereoSampleBlock,
-                                        [[maybe_unused]] Fib::Dsp::StereoSampleBufferF32 &txStereoSampleBlock)>;
+    using ProcessF = std::function<void(const Fib::Dsp::StereoSampleBufferF32 &rxStereoSampleBlock,
+                                        Fib::Dsp::StereoSampleBufferF32 &txStereoSampleBlock)>;
 
-    I2sStream(I2sIF &i2s, const std::string_view taskName, uint16_t usStackDepth, UBaseType_t uxPriority,
+    I2sStream(I2sIF &i2s, const char* taskName, uint16_t usStackDepth, UBaseType_t uxPriority,
               I2sStream::Buffer &buffer, ProcessF processF);
     bool start();
     bool stop();
@@ -63,8 +61,8 @@ private:
     void setOwner(FreeRTOS::Task *pOwner) { this->pOwner = pOwner; }
     FreeRTOS::Task *getOwner() { return this->pOwner; }
 
-    bool getBuffersToProcess(Fib::Dsp::I2sSampleBufferU32 *&pRxStereoBufferU32Out,
-                             Fib::Dsp::I2sSampleBufferU32 *&pTxStereoBufferU32Out);
+    bool getBuffersToProcess(Fib::Dsp::I2sSampleBufferU32 *&pRxI2sBufferOut,
+                             Fib::Dsp::I2sSampleBufferU32 *&pTxI2sBufferOut);
     bool stereoAudioBufferLoaded();
 
     void onTxRxCompleteIsrCallback();

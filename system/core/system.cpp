@@ -28,7 +28,7 @@ extern "C" void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
     }
     if (htim->Instance == TIM6) {
         static bool firstIgnored = false;
-        if (firstIgnored == false) {
+        if (!firstIgnored) {
             firstIgnored = true;
             return;
         }
@@ -125,7 +125,7 @@ void FibSys::startup() {
 void FibSys::Task::taskFunction() {
     this->owner.startup();
     while (true) {
-        this->delay(std::chrono::milliseconds(1000));
+        Task::delay(std::chrono::milliseconds(1000));
         ln::logger::get_instance().flush_buffer();
     }
 }

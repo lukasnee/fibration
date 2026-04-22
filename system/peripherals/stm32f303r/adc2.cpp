@@ -22,22 +22,22 @@ static bool isRunning = false;
 
 struct Channel
 {
-    GPIO_TypeDef *port;
+    uintptr_t port;
     std::uint32_t pin;
     std::uint32_t channel;
 };
 /* NOTE: GPIO and ADC channel pairs are hardware defined */
 constexpr std::array<Channel, Config::channelsTotal> channels = {
-    {{.port = GPIOA, .pin = GPIO_PIN_6, .channel = ADC_CHANNEL_3},
-     {.port = GPIOA, .pin = GPIO_PIN_7, .channel = ADC_CHANNEL_4},
-     {.port = GPIOC, .pin = GPIO_PIN_4, .channel = ADC_CHANNEL_5},
-     {.port = GPIOC, .pin = GPIO_PIN_0, .channel = ADC_CHANNEL_6},
-     {.port = GPIOC, .pin = GPIO_PIN_1, .channel = ADC_CHANNEL_7},
-     {.port = GPIOC, .pin = GPIO_PIN_2, .channel = ADC_CHANNEL_8},
-     {.port = GPIOC, .pin = GPIO_PIN_3, .channel = ADC_CHANNEL_9},
-     {.port = GPIOC, .pin = GPIO_PIN_5, .channel = ADC_CHANNEL_11},
-     {.port = GPIOB, .pin = GPIO_PIN_2, .channel = ADC_CHANNEL_12},
-     {.port = GPIOB, .pin = GPIO_PIN_11, .channel = ADC_CHANNEL_14}}};
+    {{.port = GPIOA_BASE, .pin = GPIO_PIN_6, .channel = ADC_CHANNEL_3},
+     {.port = GPIOA_BASE, .pin = GPIO_PIN_7, .channel = ADC_CHANNEL_4},
+     {.port = GPIOC_BASE, .pin = GPIO_PIN_4, .channel = ADC_CHANNEL_5},
+     {.port = GPIOC_BASE, .pin = GPIO_PIN_0, .channel = ADC_CHANNEL_6},
+     {.port = GPIOC_BASE, .pin = GPIO_PIN_1, .channel = ADC_CHANNEL_7},
+     {.port = GPIOC_BASE, .pin = GPIO_PIN_2, .channel = ADC_CHANNEL_8},
+     {.port = GPIOC_BASE, .pin = GPIO_PIN_3, .channel = ADC_CHANNEL_9},
+     {.port = GPIOC_BASE, .pin = GPIO_PIN_5, .channel = ADC_CHANNEL_11},
+     {.port = GPIOB_BASE, .pin = GPIO_PIN_2, .channel = ADC_CHANNEL_12},
+     {.port = GPIOB_BASE, .pin = GPIO_PIN_11, .channel = ADC_CHANNEL_14}}};
 
 Adc2 &Adc2::getInstance()
 {
@@ -86,11 +86,11 @@ bool Adc2::init()
     {
         LN_PANIC();
     }
-    else if (false == this->configChannels())
+    else if (!this->configChannels())
     {
         LN_PANIC();
     }
-    else if (false == this->autoCalibrate())
+    else if (!this->autoCalibrate())
     {
         LN_PANIC();
     }
@@ -132,7 +132,7 @@ bool Adc2::autoCalibrate()
     bool result = false;
 
     const bool restartRequired = isRunning;
-    if (restartRequired && false == this->stop())
+    if (restartRequired && !this->stop())
     {
         LN_PANIC();
     }
@@ -146,7 +146,7 @@ bool Adc2::autoCalibrate()
         else
         {
             result = true;
-            if (restartRequired && false == this->start())
+            if (restartRequired && !this->start())
             {
                 LN_PANIC();
             }
@@ -217,7 +217,7 @@ bool Adc2::Internal::init()
     for (const auto &channel : channels)
     {
         GPIO_InitStruct.Pin = channel.pin;
-        HAL_GPIO_Init(channel.port, &GPIO_InitStruct);
+        HAL_GPIO_Init(reinterpret_cast<GPIO_TypeDef *>(channel.port), &GPIO_InitStruct);
     }
 
     hdma_adc2.Instance = DMA2_Channel1;
@@ -256,7 +256,7 @@ bool Adc2::Internal::deinit()
     {
         for (const auto &channel : channels)
         {
-            HAL_GPIO_DeInit(channel.port, channel.pin);
+            HAL_GPIO_DeInit(reinterpret_cast<GPIO_TypeDef *>(channel.port), channel.pin);
         }
         __HAL_RCC_ADC12_CLK_DISABLE();
         HAL_NVIC_DisableIRQ(ADC1_2_IRQn);

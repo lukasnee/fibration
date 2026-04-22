@@ -8,7 +8,7 @@ public:
     StringContainer();
     char *getBase();
     char *getHead();
-    int getSize();
+    int getSize() const;
     int getCharsUsed();
     int getCharsLeft();
     bool allocate(const int &maxStringLength);
