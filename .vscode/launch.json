@@ -21,6 +21,19 @@
             "breakAfterReset": true,
             // "runToEntryPoint": "main"
             // "showDevDebugOutput": "raw",
+        },
+        {
+            "name": "jlink",
+            "device": "STM32F303RE",
+            "type": "cortex-debug",
+            "request": "attach",
+            "servertype": "jlink",
+            "rtos": "FreeRTOS",
+            "cwd": "${workspaceRoot}",
+            "executable": "${workspaceRoot}/.build/${input:target}-${input:build_type}/modules/${input:target}/${input:target}",
+            "svdFile": "${workspaceRoot}/system/msp/STM32F303.svd",
+            "interface": "swd",
+            "breakAfterReset": true,
         }
     ],
     "inputs": [
