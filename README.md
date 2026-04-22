@@ -31,7 +31,6 @@ microcontrollers.
 - Hardware component drivers and abstractions: knob, slider, button, LED, rotary
   encoder, etc.
 - STM32H7xx support
-- SEGGER [SystemView](https://www.segger.com/products/development-tools/systemview/) support
 
 ## Documentation
 
