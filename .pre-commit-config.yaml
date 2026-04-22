@@ -1,0 +1,45 @@
+fail_fast: false
+repos:
+  - hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+    repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.2.0
+  - hooks:
+      - id: commitizen
+      - id: commitizen-branch
+        stages:
+          - pre-push
+    repo: https://github.com/commitizen-tools/commitizen
+    rev: v4.10.1
+  - repo: https://github.com/pocc/pre-commit-hooks
+    rev: v1.3.5
+    hooks:
+      - id: clang-format
+      # - id: cppcheck # TODO: try out cppcheck
+      # - id: cpplint # TODO: try out cpplint
+      # - id: include-what-you-use
+  - repo: https://github.com/cheshirekow/cmake-format-precommit
+    rev: v0.6.10
+    hooks:
+      - id: cmake-format
+    # - id: cmake-lint # default configuration seems too strict, could be
+    #   revisited later
+  - repo: local
+    hooks:
+      - id: cmake-crosscompile-check
+        name: CMake Cross-Compile Build Check
+        entry: cmake --build --preset higgs-dbg
+        language: system
+        files: \.(c|cpp|h|hpp|cmake|CMakeLists\.txt)$
+        pass_filenames: false
+        description: Ensures the project cross-compiles successfully with CMake
+      - id: cmake-tests-check
+        name: Tests Build and Run Check
+        entry: cmake --build --preset tests && ctest --preset tests --output-on-failure
+        language: system
+        files: \.(c|cpp|h|hpp|cmake|CMakeLists\.txt)$
+        pass_filenames: false
+        description: Ensures the project tests build and run successfully with CMake
