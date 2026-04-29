@@ -1,8 +1,9 @@
+// Copyright (c) 2026 Lukas Neverauskis <lukas.neverauskis@gmail.com>
+// SPDX-License-Identifier: GPL-2.0-only
+
 /*
- * Thread-safe full-duplex input/output data API for hardware peripheral such as UART.
- *
- * Copyright (C) 2021 Lukas Neverauskis <lukas.neverauskis@gmail.com>
- *
+ * Thread-safe full-duplex input/output data API for hardware peripheral such as
+ * UART.
  */
 
 #pragma once

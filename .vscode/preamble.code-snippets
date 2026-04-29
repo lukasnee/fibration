@@ -1,17 +1,11 @@
 {
-    "GPL License Preamble": {
-        "prefix": "ln_c_cpp_preamble",
+    "GPL License Preamble SPDX": {
+        "prefix": "c_cpp_spdx_license_preamble",
         "body": [
-            "/*",
-            " * Copyright (c) ${CURRENT_YEAR} Lukas Neverauskis https://github.com/lukasnee",
-            " *",
-            " * This program is free software; you can redistribute it and/or modify",
-            " * it under the terms of the GNU General Public License as published by",
-            " * the Free Software Foundation; either version 2 of the License, or",
-            " * (at your option) any later version.",
-            " */",
+            "// Copyright (c) ${CURRENT_YEAR} Lukas Neverauskis <lukas.neverauskis@gmail.com>",
+            "// SPDX-License-Identifier: GPL-2.0-only",
             ""
         ],
-        "description": "ln library GPL license preamble with copyright notice for C/C++ files"
+        "description": "ln library GPL-2.0-only SPDX license preamble with copyright notice for C/C++ files"
     }
 }

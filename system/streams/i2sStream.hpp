@@ -1,10 +1,8 @@
+// Copyright (c) 2026 Lukas Neverauskis <lukas.neverauskis@gmail.com>
+// SPDX-License-Identifier: GPL-2.0-only
+
 #pragma once
 
-/*
-    I2S full duplex stream implementation
-*/
-
-#include "dsp/sample.hpp"
 #include "i2sIF.hpp"
 #include "FreeRTOS/Task.hpp"
 

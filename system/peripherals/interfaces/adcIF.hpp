@@ -1,3 +1,5 @@
+// Copyright (c) 2026 Lukas Neverauskis <lukas.neverauskis@gmail.com>
+// SPDX-License-Identifier: GPL-2.0-only
 
 /*
     defines the required interface for ADC implementation

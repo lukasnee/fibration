@@ -1,9 +1,5 @@
-/*
- * Data stream out mechanism
- *
- * Copyright (C) 2021 Lukas Neverauskis <lukas.neverauskis@gmail.com>
- *
- */
+// Copyright (c) 2026 Lukas Neverauskis <lukas.neverauskis@gmail.com>
+// SPDX-License-Identifier: GPL-2.0-only
 
 #include "txStream.hpp"
 

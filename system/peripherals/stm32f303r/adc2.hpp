@@ -1,8 +1,10 @@
+// Copyright (c) 2026 Lukas Neverauskis <lukas.neverauskis@gmail.com>
+// SPDX-License-Identifier: GPL-2.0-only
+
 #pragma once
 
 #include "adcIF.hpp"
 #include <cstdint>
-#include <array>
 
 class Adc2 : public AdcIF
 {
