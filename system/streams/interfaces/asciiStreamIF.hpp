@@ -5,10 +5,7 @@
 
 #include "ioStream.hpp"
 
-#include "FreeRTOS/Task.hpp"
-
 #include <string_view>
-// #include <optional>
 
 class AsciiStream {
 public:
@@ -28,7 +25,8 @@ public:
     int printf(const char *fmt, const va_list &argList);
     int printf(const char *fmt, ...);
 
-    char getChar(TickType_t timeout = portMAX_DELAY, OsResource::Context context = OsResource::Context::undefined);
+    char getChar(TickType_t timeout = portMAX_DELAY,
+                 OsResource::Context context = OsResource::Context::undefined);
 
 private:
     IOStream &ioStream;

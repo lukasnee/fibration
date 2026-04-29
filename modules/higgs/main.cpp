@@ -1,4 +1,18 @@
-#include "fibration.hpp"
+#include "system.hpp"
+
+#include "resources.hpp"
+extern "C"
+{
+#include "FreeRTOS.h"
+}
+
+#include <cmath>
+
+#include "periodicTimerApp.hpp"
+#include "dsp/oscillator.hpp"
+#include "streams/i2sStream.hpp"
+
+#include "dsp/map.hpp"
 
 #include "ln/shell/CLI.hpp"
 #include "ln/shell/generic/cmds.hpp"
@@ -6,7 +20,6 @@
 
 #include <array>
 #include <cstdint>
-#include <limits>
 
 LOG_MODULE(main, ln::logger::Level::notset);
 

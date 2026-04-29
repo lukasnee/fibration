@@ -3,9 +3,6 @@
 
 #include "txStream.hpp"
 
-#include "FreeRTOS.h"
-#include "FreeRTOS/Task.hpp"
-
 #include <cstring>
 
 OutStream::OutStream(IODataIF &ioData) : ioData(ioData) {}

@@ -33,10 +33,9 @@ target_sources(
   INTERFACE core/main.cpp core/system.cpp
   INTERFACE core/memory.cpp)
 
-target_sources(fibsys INTERFACE dsp/sample.cpp dsp/math.cpp dsp/oscillator.cpp)
+target_sources(fibsys INTERFACE dsp/oscillator.cpp)
 
 target_include_directories(fibsys INTERFACE utilities)
-target_sources(fibsys INTERFACE utilities/stringContainer.cpp)
 
 # TODO: Make all peripherals work over interfaces
 target_include_directories(fibsys INTERFACE peripherals/interfaces

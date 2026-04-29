@@ -1,6 +1,7 @@
-#include "i2sStream.hpp"
+#include "dsp/dsp.hpp"
+#include "dsp/sample.hpp"
 
-#include "system.hpp"
+#include "i2sStream.hpp"
 
 #include "ln/logger/logger.h"
 

@@ -7,8 +7,7 @@
 
 #include <cstdint>
 
-class Uart2 : public UartCommon
-{
+class Uart2 : public UartCommon {
 public:
     Uart2(std::uint32_t baudrate = UartCommon::Default::baudrate);
     ~Uart2() = default;

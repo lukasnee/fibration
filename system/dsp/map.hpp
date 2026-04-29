@@ -1,8 +1,5 @@
 #pragma once
 
-#include "dsp.hpp"
-#include "math.hpp"
-
 namespace Fib::Dsp::Map
 {
 /** @brief  maps (scales) value from [inMin inMax] relative range to [outMin outMax] relative range */
