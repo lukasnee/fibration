@@ -7,9 +7,11 @@
 
 LOG_MODULE(i2sStream, ln::logger::Level::notset);
 
-I2sStream::I2sStream(I2sIF &i2s, const char *taskName, uint16_t usStackDepth, UBaseType_t uxPriority,
-                     I2sStream::Buffer &buffer, ProcessF processF)
-    : Task(uxPriority, usStackDepth, taskName), buffer(buffer), processF(processF), i2s(i2s) {
+I2sStream::I2sStream(I2sIF &i2s, const char *taskName, uint16_t usStackDepth,
+                     UBaseType_t uxPriority, I2sStream::Buffer &buffer,
+                     ProcessF processF)
+    : Task(uxPriority, usStackDepth, taskName), buffer(buffer),
+      processF(processF), i2s(i2s) {
     this->setOwner(this);
 }
 
@@ -17,8 +19,10 @@ bool I2sStream::start() {
     bool retval = false;
 
     if (this->state == State::standby) {
-        // TODO: make DMA start only after the first buffer half is filled with data
-        if (this->i2s.startTxRxCircularDma(this->getBufferToStreamOut(), this->getBufferToStreamIn(),
+        // TODO: make DMA start only after the first buffer half is filled with
+        // data
+        if (this->i2s.startTxRxCircularDma(this->getBufferToStreamOut(),
+                                           this->getBufferToStreamIn(),
                                            I2sStream::getBufferSize(), this)) {
             this->state = State::ready;
             this->pOwner->notifyGive();
@@ -44,12 +48,17 @@ bool I2sStream::stop() {
     return retval;
 }
 
-std::uint16_t *I2sStream::getBufferToStreamOut() { return reinterpret_cast<std::uint16_t *>(&this->buffer.tx); }
-std::uint16_t *I2sStream::getBufferToStreamIn() { return reinterpret_cast<std::uint16_t *>(&this->buffer.rx); }
+std::uint16_t *I2sStream::getBufferToStreamOut() {
+    return reinterpret_cast<std::uint16_t *>(&this->buffer.tx);
+}
+std::uint16_t *I2sStream::getBufferToStreamIn() {
+    return reinterpret_cast<std::uint16_t *>(&this->buffer.rx);
+}
 std::size_t I2sStream::getBufferSize() { return sizeof(buffer.tx); }
 
-bool I2sStream::getBuffersToProcess(Fib::Dsp::I2sSampleBufferU32 *&pRxI2sBufferOut,
-                                    Fib::Dsp::I2sSampleBufferU32 *&pTxI2sBufferOut) {
+bool I2sStream::getBuffersToProcess(
+    Fib::Dsp::I2sSampleBufferU32 *&pRxI2sBufferOut,
+    Fib::Dsp::I2sSampleBufferU32 *&pTxI2sBufferOut) {
     bool result = false;
     pRxI2sBufferOut = pTxI2sBufferOut = nullptr;
     if (this->state == State::firstStreamingSecondReady) {
@@ -130,7 +139,8 @@ void I2sStream::onTxRxCompleteIsrCallback() {
 
 void I2sStream::taskFunction() // task code
 {
-    Task::delay(std::chrono::milliseconds(50)); // let other tasks start first // TODO: smells
+    Task::delay(std::chrono::milliseconds(
+        50)); // let other tasks start first // TODO: smells
     if (!this->i2s.init()) {
         LOG_ERROR("I2S init failed\n");
         return;
@@ -149,14 +159,19 @@ void I2sStream::taskFunction() // task code
         }
         Fib::Dsp::I2sSampleBufferU32 *pRxI2sBuffer = nullptr;
         Fib::Dsp::I2sSampleBufferU32 *pTxI2sBuffer = nullptr;
-        if (this->processF && this->getBuffersToProcess(pRxI2sBuffer, pTxI2sBuffer) && pRxI2sBuffer && pTxI2sBuffer) {
-            // TODO: try optimizing, making processF variants in case converting to/from
-            // F32 is unnecessary.
+        if (this->processF &&
+            this->getBuffersToProcess(pRxI2sBuffer, pTxI2sBuffer) &&
+            pRxI2sBuffer && pTxI2sBuffer) {
+            // TODO: try optimizing, making processF variants in case converting
+            // to/from F32 is unnecessary.
 
-            Fib::Dsp::StereoSampleBufferF32 rxStereoSampleBlock, txStereoSampleBlock;
-            Fib::Dsp::Sample::convert<i2sBitDepth>(*pRxI2sBuffer, rxStereoSampleBlock);
+            Fib::Dsp::StereoSampleBufferF32 rxStereoSampleBlock,
+                txStereoSampleBlock;
+            Fib::Dsp::Sample::convert<i2sBitDepth>(*pRxI2sBuffer,
+                                                   rxStereoSampleBlock);
             this->processF(rxStereoSampleBlock, txStereoSampleBlock);
-            Fib::Dsp::Sample::convert<i2sBitDepth>(txStereoSampleBlock, *pTxI2sBuffer);
+            Fib::Dsp::Sample::convert<i2sBitDepth>(txStereoSampleBlock,
+                                                   *pTxI2sBuffer);
         }
         this->stereoAudioBufferLoaded();
     }
