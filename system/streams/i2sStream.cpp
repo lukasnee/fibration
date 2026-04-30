@@ -135,8 +135,11 @@ void I2sStream::taskFunction() // task code
         LOG_ERROR("I2S init failed\n");
         return;
     }
+    if (!this->start()) {
+        LOG_ERROR("I2S start failed\n");
+        return;
+    }
     while (true) {
-        // TODO: figure out why I2S DMA callbacks never get called hence the stream does not work
         if (this->state == State::standby) {
             ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
             if (this->state != State::ready) {
