@@ -129,10 +129,15 @@ I2sStream i2s2Stream(
             using ln::shell::Cmd;
             using ln::shell::Err;
             static Fib::PeriodicTimerApp hs_cmd("hs", 10.f, [&]() {
-                LOG_DEBUG("%8.2f %8.2f %8.2f %8.2f %8.2f %8.2f %8.2f %8.2f", pWaves[0]->frequencyInHz.get(),
-                          pWaves[1]->frequencyInHz.get(), pWaves[2]->frequencyInHz.get(),
-                          pWaves[3]->frequencyInHz.get(), pWaves[0]->amplitudeNormal.get(),
-                          pWaves[1]->amplitudeNormal.get(), pWaves[2]->amplitudeNormal.get(),
+                LOG_DEBUG("{:8.2f} {:8.2f} {:8.2f} {:8.2f} {:8.2f} {:8.2f} "
+                          "{:8.2f} {:8.2f}",
+                          pWaves[0]->frequencyInHz.get(),
+                          pWaves[1]->frequencyInHz.get(),
+                          pWaves[2]->frequencyInHz.get(),
+                          pWaves[3]->frequencyInHz.get(),
+                          pWaves[0]->amplitudeNormal.get(),
+                          pWaves[1]->amplitudeNormal.get(),
+                          pWaves[2]->amplitudeNormal.get(),
                           pWaves[3]->amplitudeNormal.get());
             });
             static Cmd stats_cmd{Cmd::Cfg{
