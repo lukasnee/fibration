@@ -280,36 +280,3 @@ void Adc2::Internal::Irq::convCpltCallback()
 void Adc2::Internal::Irq::convHalfCpltCallback()
 {
 }
-
-// TODO: maybe implement flip-flow read/write sequence
-// template <typename SampleFrame, std::size_t samplesTotal>
-// struct CircularDmaRxStream
-// {
-//     using HalfBuffer = std::array<SampleFrame, samplesTotal>;
-//     using Buffer = std::pair<HalfBuffer, HalfBuffer>;
-
-//     Buffer buffer;
-
-//     enum State
-//     {
-//         standby = 0,
-
-//         // starting states
-//         firstDmaBeginSecondStandby,
-//         firstDmaActiveSecondStandby,
-//         firstDmaEndSecondStandby,
-
-//         // running states - ping
-//         firstReadyToUseSecondDmaBegin,
-//         firstReadyToUseSecondDmaActive,
-//         firstReadyToUseSecondDmaDone,
-
-//         // running states - pong
-//         firstDmaBeginSecondReadyToUse,
-//         firstDmaActiveSecondReadyToUse,
-//         firstDmaDoneSecondReadyToUse,
-
-//     } state = State::standby;
-// };
-
-// CircularDmaRxStream<std::uint32_t, Config::channelsTotal> circularDmaRxStream;
