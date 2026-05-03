@@ -1,32 +1,18 @@
 #include "i2sIF.hpp"
 
-I2sIF::I2sIF(){};
+I2sIF::I2sIF() {};
 
-bool I2sIF::startTxRxCircularDma(const std::uint16_t *pTxData16, std::uint16_t *pRxData16, std::uint16_t size8,
+bool I2sIF::startTxRxCircularDma(const std::uint16_t *pTxData16,
+                                 std::uint16_t *pRxData16, std::uint16_t size8,
                                  TxRxIsrCallbacks *pTxRxIsrCallbacks) {
-    bool retval = false;
-
-    this->txRxMutex.lock();
-    if (!txRxCircularDmaUnsafe(pTxData16, pRxData16, size8)) {
-        this->txRxMutex.unlock();
+    if (!this->txRxCircularDmaUnsafe(pTxData16, pRxData16, size8)) {
+        return false;
     }
-    else {
-        this->pTxRxIsrCallbacks = pTxRxIsrCallbacks;
-        retval = true;
-    }
-
-    return retval;
+    this->pTxRxIsrCallbacks = pTxRxIsrCallbacks;
+    return true;
 }
 
-bool I2sIF::stopTxRxCircularDma() {
-    bool retval = false;
-
-    if (txRxCircularDmaStopUnsafe()) {
-        retval = this->txRxMutex.unlock();
-    }
-
-    return retval;
-}
+bool I2sIF::stopTxRxCircularDma() { return this->txRxCircularDmaStopUnsafe(); }
 
 void I2sIF::txRxCpltIsrCallback() {
     if (this->pTxRxIsrCallbacks) {
