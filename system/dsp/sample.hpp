@@ -5,29 +5,25 @@
 #include <limits>
 
 namespace Fib::Dsp::Sample {
-/** @attention 1-32 bitDepth max ! */
-template <U32 bitDepth> constexpr U32 maxValueOfBitDepth() {
+template <U32 bitDepth> consteval U32 maxValueOfBitDepth() {
+    static_assert(bitDepth > 0 && bitDepth <= std::numeric_limits<U32>::digits,
+                  "invalid bit depth");
     return (std::numeric_limits<U32>::max() >> (32 - bitDepth));
 }
 
-template <U32 bitDepth> constexpr U32 centerValueOfBitDepth() {
+template <U32 bitDepth> consteval U32 centerValueOfBitDepth() {
     return (maxValueOfBitDepth<bitDepth>() / 2);
 }
 
 inline U32 swap(U32 val) { return __REV(val); };
 
 template <std::size_t bitDepth> Q31 rawSampleToQ31(const U32 &sample) {
-    if (sample < centerValueOfBitDepth<bitDepth>()) {
-        return static_cast<Q31>(sample) - centerValueOfBitDepth<bitDepth>();
-    }
-    return static_cast<Q31>(sample - centerValueOfBitDepth<bitDepth>());
+    return static_cast<Q31>(sample) -
+           static_cast<Q31>(centerValueOfBitDepth<bitDepth>());
 }
 
 template <std::size_t bitDepth> U32 q31ToRawSample(const Q31 &q31) {
-    if (q31 < 0) {
-        return (centerValueOfBitDepth<bitDepth>() - static_cast<U32>(-1 * q31));
-    }
-    return (centerValueOfBitDepth<bitDepth>() + static_cast<U32>(q31));
+    return centerValueOfBitDepth<bitDepth>() + static_cast<U32>(q31);
 }
 
 template <std::size_t size>
@@ -80,6 +76,8 @@ void convert(const StereoSampleBufferQ31 &from, I2sSampleBufferU32 &to) {
     }
 }
 
+// TODO: optimize, convert directly between F32 and U32, skipping Q31 as
+// intermediate format.
 template <std::size_t bitDepth>
 void convert(I2sSampleBufferU32 &from, StereoSampleBufferF32 &to) {
     StereoSampleBufferQ31 tmp;
