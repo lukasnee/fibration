@@ -11,21 +11,19 @@ I2sStream::I2sStream(I2sIF &i2s, const char *taskName, uint16_t usStackDepth,
                      UBaseType_t uxPriority, I2sStream::Buffer &buffer,
                      ProcessF processF)
     : Task(uxPriority, usStackDepth, taskName), buffer(buffer),
-      processF(processF), i2s(i2s) {
-    this->setOwner(this);
-}
+      processF(processF), i2s(i2s) {}
 
 bool I2sStream::start() {
     bool retval = false;
 
     if (this->state == State::standby) {
-        // TODO: make DMA start only after the first buffer half is filled with
-        // data
+        // TODO: make DMA start only after the first buffer half is filled
+        // with data
         if (this->i2s.startTxRxCircularDma(this->getBufferToStreamOut(),
                                            this->getBufferToStreamIn(),
                                            I2sStream::getBufferSize(), this)) {
             this->state = State::ready;
-            this->pOwner->notifyGive();
+            this->notifyGive();
             retval = true;
         }
     }
@@ -79,7 +77,7 @@ bool I2sStream::getBuffersToProcess(
 
     if (this->state == State::ready) {
         this->state = State::firstStandbySecondLoading;
-        this->pOwner->notifyGive();
+        this->notifyGive();
         pRxI2sBufferOut = &this->buffer.rx.second;
         pTxI2sBufferOut = &this->buffer.tx.second;
         result = true;
@@ -119,7 +117,7 @@ void I2sStream::onTxRxHalfCompleteIsrCallback() {
         this->state == State::firstStandbySecondLoading)     // very bad case
     {
         this->state = State::firstReadySecondStreaming;
-        this->pOwner->notifyGiveFromISR(higherPriorityTaskWoken);
+        this->notifyGiveFromISR(higherPriorityTaskWoken);
         portYIELD_FROM_ISR(higherPriorityTaskWoken);
     }
     // TODO: better handle bad cases
@@ -131,14 +129,13 @@ void I2sStream::onTxRxCompleteIsrCallback() {
         this->state == State::firstReadySecondStreaming)     // really bad case
     {
         this->state = State::firstStreamingSecondReady;
-        this->pOwner->notifyGiveFromISR(higherPriorityTaskWoken);
+        this->notifyGiveFromISR(higherPriorityTaskWoken);
         portYIELD_FROM_ISR(higherPriorityTaskWoken);
     }
     // TODO: better handle bad cases
 }
 
-void I2sStream::taskFunction() // task code
-{
+void I2sStream::taskFunction() {
     Task::delay(std::chrono::milliseconds(
         50)); // let other tasks start first // TODO: smells
     if (!this->i2s.init()) {
@@ -162,8 +159,8 @@ void I2sStream::taskFunction() // task code
         if (this->processF &&
             this->getBuffersToProcess(pRxI2sBuffer, pTxI2sBuffer) &&
             pRxI2sBuffer && pTxI2sBuffer) {
-            // TODO: try optimizing, making processF variants in case converting
-            // to/from F32 is unnecessary.
+            // TODO: try optimizing, making processF variants in case
+            // converting to/from F32 is unnecessary.
 
             Fib::Dsp::StereoSampleBufferF32 rxStereoSampleBlock,
                 txStereoSampleBlock;
