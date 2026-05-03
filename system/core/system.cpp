@@ -14,7 +14,8 @@ extern "C"
 
 LOG_MODULE(system, ln::logger::Level::notset);
 
-extern "C" void vApplicationStackOverflowHook([[maybe_unused]] TaskHandle_t xTask, char *pcTaskName) {
+extern "C" void vApplicationStackOverflowHook(
+    [[maybe_unused]] TaskHandle_t xTask, char *pcTaskName) {
     LOG_CRITICAL("Stack overflow in task {}!", pcTaskName);
     while (true) {
     }
@@ -51,7 +52,8 @@ static void SystemClock_Config(void) {
         LN_PANIC();
     }
     /* Initializes the CPU, AHB and APB buses clocks */
-    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
+    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK |
+                                  RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
 
     RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
     RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
@@ -63,9 +65,11 @@ static void SystemClock_Config(void) {
     }
 
     PeriphClkInit.PeriphClockSelection =
-        RCC_PERIPHCLK_I2S | RCC_PERIPHCLK_USART3 | RCC_PERIPHCLK_USART2 | RCC_PERIPHCLK_ADC12;
+        RCC_PERIPHCLK_I2S | RCC_PERIPHCLK_USART3 | RCC_PERIPHCLK_USART2 |
+        RCC_PERIPHCLK_ADC12;
     PeriphClkInit.Usart2ClockSelection = RCC_USART2CLKSOURCE_PCLK1;
-    PeriphClkInit.Usart3ClockSelection = RCC_USART3CLKSOURCE_PCLK1; // TODO not sure what the clk NUMBA
+    PeriphClkInit.Usart3ClockSelection =
+        RCC_USART3CLKSOURCE_PCLK1; // TODO not sure what the clk NUMBA
     PeriphClkInit.Adc12ClockSelection = RCC_ADC12PLLCLK_DIV1;
     PeriphClkInit.I2sClockSelection = RCC_I2SCLKSOURCE_SYSCLK;
     if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK) {
@@ -85,9 +89,13 @@ void FibSys::launch() {
 }
 
 namespace ln::shell {
-Cmd version_cmd{Cmd::Cfg{.name = "version", .short_description = "show firmware version", .fn = [](Cmd::Ctx ctx) {
-                             ctx.cli.print("{} v{} [{}] {} {}\n", ln::build::name, ln::build::version::str,
-                                           ln::build::git_hash, ln::build::date, ln::build::time);
+Cmd version_cmd{Cmd::Cfg{.name = "version",
+                         .short_description = "show firmware version",
+                         .fn = [](Cmd::Ctx ctx) {
+                             ctx.cli.print(
+                                 "{} v{} [{}] {} {}\n", ln::build::name,
+                                 ln::build::version::str, ln::build::git_hash,
+                                 ln::build::date, ln::build::time);
                              return Err::ok;
                          }}};
 } // namespace ln::shell
