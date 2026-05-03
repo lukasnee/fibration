@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Lukas Neverauskis <lukas.neverauskis@gmail.com>
+// SPDX-License-Identifier: GPL-2.0-only
+
 #pragma once
 
 #include "FreeRTOS/Timer.hpp"
@@ -8,8 +11,10 @@
 namespace Fib {
 class PeriodicTimerApp : public FreeRTOS::Timer {
 public:
-    PeriodicTimerApp(const char *strName, float frequencyInHz, std::function<void(void)> callbackF = nullptr)
-        : Timer((TickType_t)(1000.f / frequencyInHz), true, strName), callbackF(callbackF) {}
+    PeriodicTimerApp(const char *strName, float frequencyInHz,
+                     std::function<void(void)> callbackF = nullptr)
+        : Timer((TickType_t)(1000.f / frequencyInHz), true, strName),
+          callbackF(callbackF) {}
     bool setState(bool state) { return state ? this->start() : this->stop(); }
 
 private:
@@ -23,7 +28,8 @@ private:
 
 class PeriodicRandomValue : public PeriodicTimerApp {
 public:
-    PeriodicRandomValue(float frequencyInHz) : PeriodicTimerApp("PRV", frequencyInHz) {
+    PeriodicRandomValue(float frequencyInHz)
+        : PeriodicTimerApp("PRV", frequencyInHz) {
         if (!this->start()) {
             LN_PANIC();
         }
@@ -34,7 +40,8 @@ private:
     LOG_MODULE_CLASS_MEMBER(periodicTimerApp, ln::logger::Level::notset);
 
     virtual void timerFunction() override {
-        this->value = static_cast<float>(((2.0f * std::rand()) / RAND_MAX) - 1.0f);
+        this->value =
+            static_cast<float>(((2.0f * std::rand()) / RAND_MAX) - 1.0f);
         LOG_INFO("periodicRandomValue: %f\n", this->value);
     }
     float value = 0.f;

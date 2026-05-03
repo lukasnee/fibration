@@ -1,3 +1,6 @@
+// Copyright (c)  2026 Lukas Neverauskis <lukas.neverauskis@gmail.com>
+// SPDX-License-Identifier: GPL-2.0-only
+
 #include "oscillator.hpp"
 
 #include "arm_math.h"
@@ -7,7 +10,10 @@ namespace Fib::Dsp {
 Osc::Osc(SynthesizeF synthesizeF, F32 sampleRateInHz)
     : synthesizeF(synthesizeF), amplitudeNormal(1.f, 0.f, 1.f),
       frequencyInHz(0.f, 0.f, 20'000.f,
-                    [&](F32 const &frequencyInHz) { this->phaseDeltaInRad = frequencyInHz * this->samplePeriodInSec; }),
+                    [&](F32 const &frequencyInHz) {
+                        this->phaseDeltaInRad =
+                            frequencyInHz * this->samplePeriodInSec;
+                    }),
       phaseInRad(0.f, 0.f, (2.f * PI)), sampleRateInHz(sampleRateInHz) {
     this->samplePeriodInSec = 2 * PI / this->sampleRateInHz;
 };
@@ -21,7 +27,8 @@ SampleBufferF32 Osc::synthesize() {
     }
     /* scale to amplitude normal */
     if (this->amplitudeNormal.get() != 1.f) {
-        arm_scale_f32(sampleBlockF32.data(), this->amplitudeNormal.get(), sampleBlockF32.data(), sampleBlockF32.size());
+        arm_scale_f32(sampleBlockF32.data(), this->amplitudeNormal.get(),
+                      sampleBlockF32.data(), sampleBlockF32.size());
     }
     return sampleBlockF32;
 }
@@ -35,6 +42,7 @@ void Osc::getNewPhases(SampleBufferF32 &phaseSampleBufferOut) {
         }
         this->phaseInRad.set(phaseSample);
     }
-    // arm_offset_f32(this->phaseTable.data(), this->phaseInRad.get(), result.data(), result.size());
+    // arm_offset_f32(this->phaseTable.data(), this->phaseInRad.get(),
+    // result.data(), result.size());
 }
 } // namespace Fib::Dsp

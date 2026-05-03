@@ -12,33 +12,27 @@
 
 #include <cstdint>
 
-class IODataIF
-{
+class IODataIF {
 public:
-    IODataIF(){};
-    ~IODataIF(){};
+    IODataIF() {};
+    ~IODataIF() {};
 
-    struct IsrTxCallbacks
-    {
-        virtual void onTxCompleteFromIsr(){};
+    struct IsrTxCallbacks {
+        virtual void onTxCompleteFromIsr() {};
     };
-    struct IsrRxCallbacks
-    {
-        virtual void onRxCompleteFromIsr(){};
+    struct IsrRxCallbacks {
+        virtual void onRxCompleteFromIsr() {};
     };
 
-    bool init(OsResource::Context context = OsResource::Context::undefined)
-    {
+    bool init(OsResource::Context context = OsResource::Context::undefined) {
         bool result = false;
 
         this->osResources.lock(portMAX_DELAY, context);
 
-        if (this->isInitialized)
-        {
+        if (this->isInitialized) {
             result = true;
         }
-        else if (this->initUnsafe())
-        {
+        else if (this->initUnsafe()) {
             result = this->isInitialized = true;
         }
 
@@ -47,8 +41,8 @@ public:
         return result;
     }
 
-    bool tx(const std::uint8_t *pData, std::size_t size, std::size_t timeout, OsResource::Context context = OsResource::Context::undefined)
-    {
+    bool tx(const std::uint8_t *pData, std::size_t size, std::size_t timeout,
+            OsResource::Context context = OsResource::Context::undefined) {
         bool retval = false;
 
         this->osResources.tx.lock(portMAX_DELAY, context);
@@ -60,40 +54,38 @@ public:
         return retval;
     }
 
-    bool txDma(const std::uint8_t *pData, std::size_t size, IsrTxCallbacks *pIsrTxCallbacks = nullptr, OsResource::Context context = OsResource::Context::undefined)
-    {
+    bool txDma(const std::uint8_t *pData, std::size_t size,
+               IsrTxCallbacks *pIsrTxCallbacks = nullptr,
+               OsResource::Context context = OsResource::Context::undefined) {
         bool retval = false;
 
         this->osResources.tx.lock(portMAX_DELAY, context);
 
         this->pIsrTxCallbacks = pIsrTxCallbacks;
-        if (false == this->txDmaUnsafe(pData, size))
-        {
+        if (false == this->txDmaUnsafe(pData, size)) {
             this->pIsrTxCallbacks = nullptr;
             this->osResources.tx.unlock(context);
         }
-        else
-        {
+        else {
             retval = true;
         }
 
         return retval;
     }
 
-    void txDmaCpltIsrCallback()
-    {
-        bool higherPriorityTaskWoken = this->osResources.tx.unlock(OsResource::Context::isr);
+    void txDmaCpltIsrCallback() {
+        bool higherPriorityTaskWoken =
+            this->osResources.tx.unlock(OsResource::Context::isr);
 
-        if (this->pIsrTxCallbacks)
-        {
+        if (this->pIsrTxCallbacks) {
             this->pIsrTxCallbacks->onTxCompleteFromIsr();
         }
 
         portYIELD_FROM_ISR(higherPriorityTaskWoken);
     }
 
-    bool rx(std::uint8_t *pData, std::size_t size, std::size_t timeout, OsResource::Context context = OsResource::Context::undefined)
-    {
+    bool rx(std::uint8_t *pData, std::size_t size, std::size_t timeout,
+            OsResource::Context context = OsResource::Context::undefined) {
         bool retval = false;
 
         this->osResources.rx.lock(portMAX_DELAY, context);
@@ -105,55 +97,49 @@ public:
         return retval;
     }
 
-    bool rxDma(std::uint8_t *pData, std::size_t size, IsrRxCallbacks *pIsrRxCallbacks = nullptr, OsResource::Context context = OsResource::Context::undefined)
-    {
+    bool rxDma(std::uint8_t *pData, std::size_t size,
+               IsrRxCallbacks *pIsrRxCallbacks = nullptr,
+               OsResource::Context context = OsResource::Context::undefined) {
         bool retval = false;
 
         this->osResources.rx.lock(portMAX_DELAY, context);
 
         this->pIsrRxCallbacks = pIsrRxCallbacks;
-        if (false == this->rxDmaUnsafe(pData, size))
-        {
+        if (false == this->rxDmaUnsafe(pData, size)) {
             this->pIsrRxCallbacks = nullptr;
             this->osResources.rx.unlock(context);
         }
-        else
-        {
+        else {
             retval = true;
         }
 
         return retval;
     }
 
-    void rxDmaCpltIsrCallback()
-    {
-        auto higherPriorityTaskWoken = this->osResources.rx.unlock(OsResource::Context::isr);
+    void rxDmaCpltIsrCallback() {
+        auto higherPriorityTaskWoken =
+            this->osResources.rx.unlock(OsResource::Context::isr);
 
-        if (this->pIsrRxCallbacks)
-        {
+        if (this->pIsrRxCallbacks) {
             this->pIsrRxCallbacks->onRxCompleteFromIsr();
         }
 
         portYIELD_FROM_ISR(higherPriorityTaskWoken);
     }
 
-    bool deinit(OsResource::Context context = OsResource::Context::undefined)
-    {
+    bool deinit(OsResource::Context context = OsResource::Context::undefined) {
         bool result = false;
 
         this->osResources.lock(portMAX_DELAY, context);
 
-        if (this->isInitialized)
-        {
+        if (this->isInitialized) {
             result = this->deinitUnsafe();
 
-            if (result)
-            {
+            if (result) {
                 this->isInitialized = false;
             }
         }
-        else
-        {
+        else {
             result = true;
         }
 
@@ -164,9 +150,11 @@ public:
 
 protected:
     virtual bool initUnsafe() = 0;
-    virtual bool txUnsafe(const std::uint8_t *pData, std::size_t size, std::size_t timeout) = 0;
+    virtual bool txUnsafe(const std::uint8_t *pData, std::size_t size,
+                          std::size_t timeout) = 0;
     virtual bool txDmaUnsafe(const std::uint8_t *pData, std::size_t size) = 0;
-    virtual bool rxUnsafe(std::uint8_t *pData, std::size_t size, std::size_t timeout) = 0;
+    virtual bool rxUnsafe(std::uint8_t *pData, std::size_t size,
+                          std::size_t timeout) = 0;
     virtual bool rxDmaUnsafe(std::uint8_t *pData, std::size_t size) = 0;
     virtual bool deinitUnsafe() = 0;
 
@@ -174,18 +162,18 @@ private:
     IsrRxCallbacks *pIsrRxCallbacks = nullptr;
     IsrTxCallbacks *pIsrTxCallbacks = nullptr;
 
-    struct OsResources
-    {
-        bool lock(TickType_t timeout = portMAX_DELAY, OsResource::Context context = OsResource::Context::undefined)
-        {
+    struct OsResources {
+        bool lock(
+            TickType_t timeout = portMAX_DELAY,
+            OsResource::Context context = OsResource::Context::undefined) {
             bool higherPriorityTaskWoken = false;
             higherPriorityTaskWoken |= this->tx.lock(timeout, context);
             higherPriorityTaskWoken |= this->rx.lock(timeout, context);
             return higherPriorityTaskWoken;
         }
 
-        bool unlock(OsResource::Context context = OsResource::Context::undefined)
-        {
+        bool unlock(
+            OsResource::Context context = OsResource::Context::undefined) {
             bool higherPriorityTaskWoken = false;
             higherPriorityTaskWoken |= this->tx.unlock(context);
             higherPriorityTaskWoken |= this->rx.unlock(context);

@@ -6,8 +6,7 @@
 #include "i2sIF.hpp"
 #include <cstdint>
 
-class I2s2 : public I2sIF
-{
+class I2s2 : public I2sIF {
 public:
     static I2s2 &getInstance();
 
@@ -18,7 +17,9 @@ public:
     bool init() override;
     bool deinit() override;
 
-    bool txRxCircularDmaUnsafe(const std::uint16_t *pTxData16, std::uint16_t *pRxData16, std::uint16_t size) override;
+    bool txRxCircularDmaUnsafe(const std::uint16_t *pTxData16,
+                               std::uint16_t *pRxData16,
+                               std::uint16_t size) override;
     bool txRxCircularDmaStopUnsafe() override;
 
     void operator=(I2s2 const &) = delete;

@@ -1,3 +1,6 @@
+// Copyright (c)  2026 Lukas Neverauskis <lukas.neverauskis@gmail.com>
+// SPDX-License-Identifier: GPL-2.0-only
+
 #pragma once
 
 #include "dsp.hpp"
@@ -8,10 +11,14 @@ template <typename T> class RangedValue {
 public:
     using OnChangeF = std::function<void(T const &value)>;
 
-    constexpr RangedValue(T const &initialValue, T const &lowerLimit, T const &upperLimit, OnChangeF onChangeF = nullptr)
-        : value(initialValue), m_lowerLimit(lowerLimit), m_upperLimit(upperLimit), onChangeF(onChangeF) {}
+    constexpr RangedValue(T const &initialValue, T const &lowerLimit,
+                          T const &upperLimit, OnChangeF onChangeF = nullptr)
+        : value(initialValue), m_lowerLimit(lowerLimit),
+          m_upperLimit(upperLimit), onChangeF(onChangeF) {}
 
-    bool isInRange(T value) const { return (this->m_lowerLimit <= value && value <= this->m_upperLimit); };
+    bool isInRange(T value) const {
+        return (this->m_lowerLimit <= value && value <= this->m_upperLimit);
+    };
 
     T get() { return this->value; }
 

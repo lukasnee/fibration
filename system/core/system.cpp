@@ -1,3 +1,6 @@
+// Copyright (c)  2026 Lukas Neverauskis <lukas.neverauskis@gmail.com>
+// SPDX-License-Identifier: GPL-2.0-only
+
 #include "system.hpp"
 #include "logger.hpp"
 #include "init.hpp"
@@ -113,15 +116,18 @@ void FibSys::startup() {
 
     constexpr std::array init_items = {
         init::Item{ID::logger, "logger", []() { return logger::init(); }},
-        init::Item{ID::uart2, "uart2", []() { return Periph::getUart2Stream().init(); }},
-        init::Item{ID::std_stream, "std_stream", []() { return StdStream::getInstance().init(); }},
+        init::Item{ID::uart2, "uart2",
+                   []() { return Periph::getUart2Stream().init(); }},
+        init::Item{ID::std_stream, "std_stream",
+                   []() { return StdStream::getInstance().init(); }},
         init::Item{ID::cli_service, "cli_service",
                    []() {
                        get_instance().cli_svc_task.start();
                        return true;
                    }},
         init::Item{ID::adc2, "adc2", []() { return Periph::getAdc2().init(); }},
-        init::Item{ID::adc2_start, "adc2_start", []() { return Periph::getAdc2().start(); }},
+        init::Item{ID::adc2_start, "adc2_start",
+                   []() { return Periph::getAdc2().start(); }},
     };
     constexpr std::array init_deps = {
         /* logger does depend on std_stream but not crucial in the beginning,
@@ -134,7 +140,8 @@ void FibSys::startup() {
         init::Dep{ID::std_stream, ID::cli_service},
         init::Dep{ID::adc2, ID::adc2_start},
     };
-    static constexpr auto ordered_initializers = ln::algo::CompileTimeDAG::Graph(init_items, init_deps).topo_sort();
+    static constexpr auto ordered_initializers =
+        ln::algo::CompileTimeDAG::Graph(init_items, init_deps).topo_sort();
     init::init(ordered_initializers);
 }
 

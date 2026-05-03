@@ -1,3 +1,6 @@
+// Copyright (c)  2026 Lukas Neverauskis <lukas.neverauskis@gmail.com>
+// SPDX-License-Identifier: GPL-2.0-only
+
 #pragma once
 
 #include "peripherals/resources.hpp"
@@ -8,7 +11,8 @@
 
 /* TODO: Expose/express Periph::getUart2Stream() as FILE to increase usage
  flexibility with features like ln::shell, ln::logger. It could also be cleanly
- tied to stdin/stdout. Currently it is hardcoded in StdStream which is not ideal.
+ tied to stdin/stdout. Currently it is hardcoded in StdStream which is not
+ ideal.
 */
 
 struct StdStream {
@@ -19,7 +23,8 @@ struct StdStream {
 
     bool init() {
         setvbuf(stdin, nullptr, _IONBF, 0);
-        setvbuf(stdout, this->stdout_buf.data(), _IOLBF, this->stdout_buf.size());
+        setvbuf(stdout, this->stdout_buf.data(), _IOLBF,
+                this->stdout_buf.size());
         return true;
     }
 
@@ -30,7 +35,9 @@ struct StdStream {
             // simplicity. This could potentially pose performance issues, so
             // should be revisited later.
             if (len) {
-                if (!Periph::getUart2Stream().pull(reinterpret_cast<std::uint8_t &>(ptr[0]), portMAX_DELAY)) {
+                if (!Periph::getUart2Stream().pull(
+                        reinterpret_cast<std::uint8_t &>(ptr[0]),
+                        portMAX_DELAY)) {
                     return 0;
                 }
             }
@@ -46,7 +53,8 @@ struct StdStream {
             return -1;
         }
         // TODO: why not txDma()?
-        if (Periph::getUart2().tx(reinterpret_cast<const std::uint8_t *>(ptr), len, len)) {
+        if (Periph::getUart2().tx(reinterpret_cast<const std::uint8_t *>(ptr),
+                                  len, len)) {
             return len;
         }
         return -1;

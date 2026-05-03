@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Lukas Neverauskis <lukas.neverauskis@gmail.com>
+// SPDX-License-Identifier: GPL-2.0-only
+
 #include "i2s2.hpp"
 #include "ln/ln.h"
 
@@ -10,29 +13,20 @@ I2S_HandleTypeDef hi2s2;
 DMA_HandleTypeDef hdma_spi2_rx;
 DMA_HandleTypeDef hdma_spi2_tx;
 
-I2s2 &I2s2::getInstance()
-{
+I2s2 &I2s2::getInstance() {
     static I2s2 instance;
     return instance;
 }
 
-std::uint32_t I2s2::getSampleRateInHz() const
-{
-    return 44100;
-}
+std::uint32_t I2s2::getSampleRateInHz() const { return 44100; }
 
-std::uint32_t I2s2::getSampleBitDepthInBits() const
-{
-    return 24;
-}
+std::uint32_t I2s2::getSampleBitDepthInBits() const { return 24; }
 
-std::uint32_t I2s2::getSampleFrameSizeInBytes() const
-{
+std::uint32_t I2s2::getSampleFrameSizeInBytes() const {
     return sizeof(std::uint32_t);
 }
 
-bool I2s2::init()
-{
+bool I2s2::init() {
 
     HAL_NVIC_SetPriority(DMA1_Channel4_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(DMA1_Channel4_IRQn);
@@ -53,46 +47,37 @@ bool I2s2::init()
     return (HAL_I2S_Init(&hi2s2) == HAL_OK);
 }
 
-bool I2s2::deinit()
-{
-    return (HAL_I2S_DeInit(&hi2s2) == HAL_OK);
-}
+bool I2s2::deinit() { return (HAL_I2S_DeInit(&hi2s2) == HAL_OK); }
 
-bool I2s2::txRxCircularDmaUnsafe(const std::uint16_t *pTxData16, std::uint16_t *pRxData16, std::uint16_t size8)
-{
-    /* ATTENTION: the following function `Size` parameter stands for amount of samples.
-    When I2S is configured in:
+bool I2s2::txRxCircularDmaUnsafe(const std::uint16_t *pTxData16,
+                                 std::uint16_t *pRxData16,
+                                 std::uint16_t size8) {
+    /* ATTENTION: the following function `Size` parameter stands for amount of
+    samples. When I2S is configured in:
     - 16-bit mode, sample is considered 16-bit wide
     - 24-bit or 32-bit mode, sample is considered 32-bit wide */
-    return (HAL_I2SEx_TransmitReceive_DMA(&hi2s2, const_cast<std::uint16_t *>(pTxData16), pRxData16,
-                                          (size8 / sizeof(std::uint32_t))) == HAL_OK);
+    return (HAL_I2SEx_TransmitReceive_DMA(
+                &hi2s2, const_cast<std::uint16_t *>(pTxData16), pRxData16,
+                (size8 / sizeof(std::uint32_t))) == HAL_OK);
 }
 
-bool I2s2::txRxCircularDmaStopUnsafe()
-{
+bool I2s2::txRxCircularDmaStopUnsafe() {
     return (HAL_I2S_DMAStop(&hi2s2) == HAL_OK);
 }
 
-extern "C" void DMA1_Channel4_IRQHandler(void)
-{
+extern "C" void DMA1_Channel4_IRQHandler(void) {
     HAL_DMA_IRQHandler(&hdma_spi2_rx);
 }
 
-extern "C" void DMA1_Channel5_IRQHandler(void)
-{
+extern "C" void DMA1_Channel5_IRQHandler(void) {
     HAL_DMA_IRQHandler(&hdma_spi2_tx);
 }
 
-static void Error_Handler()
-{
-    LN_PANIC();
-}
+static void Error_Handler() { LN_PANIC(); }
 
-extern "C" void HAL_I2S_MspInit(I2S_HandleTypeDef *hi2s)
-{
+extern "C" void HAL_I2S_MspInit(I2S_HandleTypeDef *hi2s) {
     GPIO_InitTypeDef GPIO_InitStruct = {};
-    if (hi2s->Instance == SPI2)
-    {
+    if (hi2s->Instance == SPI2) {
         /* Peripheral clock enable */
         __HAL_RCC_SPI2_CLK_ENABLE();
 
@@ -136,8 +121,7 @@ extern "C" void HAL_I2S_MspInit(I2S_HandleTypeDef *hi2s)
         hdma_spi2_rx.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
         hdma_spi2_rx.Init.Mode = DMA_CIRCULAR;
         hdma_spi2_rx.Init.Priority = DMA_PRIORITY_HIGH;
-        if (HAL_DMA_Init(&hdma_spi2_rx) != HAL_OK)
-        {
+        if (HAL_DMA_Init(&hdma_spi2_rx) != HAL_OK) {
             Error_Handler();
         }
 
@@ -152,8 +136,7 @@ extern "C" void HAL_I2S_MspInit(I2S_HandleTypeDef *hi2s)
         hdma_spi2_tx.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
         hdma_spi2_tx.Init.Mode = DMA_CIRCULAR;
         hdma_spi2_tx.Init.Priority = DMA_PRIORITY_HIGH;
-        if (HAL_DMA_Init(&hdma_spi2_tx) != HAL_OK)
-        {
+        if (HAL_DMA_Init(&hdma_spi2_tx) != HAL_OK) {
             Error_Handler();
         }
 
@@ -161,10 +144,8 @@ extern "C" void HAL_I2S_MspInit(I2S_HandleTypeDef *hi2s)
     }
 }
 
-extern "C" void HAL_I2S_MspDeInit(I2S_HandleTypeDef *hi2s)
-{
-    if (hi2s->Instance == SPI2)
-    {
+extern "C" void HAL_I2S_MspDeInit(I2S_HandleTypeDef *hi2s) {
+    if (hi2s->Instance == SPI2) {
         /* Peripheral clock disable */
         __HAL_RCC_SPI2_CLK_DISABLE();
 
@@ -175,7 +156,8 @@ extern "C" void HAL_I2S_MspDeInit(I2S_HandleTypeDef *hi2s)
         PB15     ------> I2S2_SD
         PC6     ------> I2S2_MCK
         */
-        HAL_GPIO_DeInit(GPIOB, GPIO_PIN_12 | GPIO_PIN_13 | GPIO_PIN_14 | GPIO_PIN_15);
+        HAL_GPIO_DeInit(GPIOB,
+                        GPIO_PIN_12 | GPIO_PIN_13 | GPIO_PIN_14 | GPIO_PIN_15);
 
         HAL_GPIO_DeInit(GPIOC, GPIO_PIN_6);
 

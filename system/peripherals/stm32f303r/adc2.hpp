@@ -6,8 +6,7 @@
 #include "adcIF.hpp"
 #include <cstdint>
 
-class Adc2 : public AdcIF
-{
+class Adc2 : public AdcIF {
 public:
     static Adc2 &getInstance();
 
@@ -19,13 +18,11 @@ public:
     virtual bool stop() override;
     virtual bool deinit() override;
 
-    struct Internal
-    {
+    struct Internal {
         bool init();
         bool deinit();
 
-        struct Irq
-        {
+        struct Irq {
             void handle();
             void convHalfCpltCallback();
             void convCpltCallback();
@@ -33,7 +30,8 @@ public:
     } internal;
 
 protected:
-    virtual bool getValueUnsafe(std::size_t channelNo, std::uint32_t &valueOut) override;
+    virtual bool getValueUnsafe(std::size_t channelNo,
+                                std::uint32_t &valueOut) override;
 
 private:
     Adc2() = default;

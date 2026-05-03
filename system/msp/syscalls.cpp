@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Lukas Neverauskis <lukas.neverauskis@gmail.com>
+// SPDX-License-Identifier: GPL-2.0-only
+
 #include "StdStream.hpp"
 
 #include "system.hpp"
@@ -58,9 +61,13 @@ extern "C" void _exit(int status) {
     } /* Make sure we hang here */
 }
 
-extern "C" int _read(int fd, char *ptr, int len) { return StdStream::getInstance().read(fd, ptr, len); }
+extern "C" int _read(int fd, char *ptr, int len) {
+    return StdStream::getInstance().read(fd, ptr, len);
+}
 
-extern "C" int _write(int fd, char *ptr, int len) { return StdStream::getInstance().write(fd, ptr, len); }
+extern "C" int _write(int fd, char *ptr, int len) {
+    return StdStream::getInstance().write(fd, ptr, len);
+}
 
 extern "C" int _close(int fd) {
     if (fd >= STDIN_FILENO && fd <= STDERR_FILENO) {

@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Lukas Neverauskis <lukas.neverauskis@gmail.com>
+// SPDX-License-Identifier: GPL-2.0-only
+
 #include "adc2.hpp"
 #include "ln/ln.h"
 
@@ -7,8 +10,7 @@ extern "C"
 #include "stm32f3xx_hal.h"
 }
 
-struct Config
-{
+struct Config {
     static constexpr std::uint32_t channelsTotal = 10;
     static constexpr std::uint32_t frameBitWidth = 16;
     static constexpr std::uint32_t bitDepth = 12;
@@ -20,8 +22,7 @@ static ADC_HandleTypeDef hadc2 = {};
 static DMA_HandleTypeDef hdma_adc2 = {};
 static bool isRunning = false;
 
-struct Channel
-{
+struct Channel {
     uintptr_t port;
     std::uint32_t pin;
     std::uint32_t channel;
@@ -39,29 +40,18 @@ constexpr std::array<Channel, Config::channelsTotal> channels = {
      {.port = GPIOB_BASE, .pin = GPIO_PIN_2, .channel = ADC_CHANNEL_12},
      {.port = GPIOB_BASE, .pin = GPIO_PIN_11, .channel = ADC_CHANNEL_14}}};
 
-Adc2 &Adc2::getInstance()
-{
+Adc2 &Adc2::getInstance() {
     static Adc2 instance;
     return instance;
 }
 
-std::uint32_t Adc2::getChannelsTotal()
-{
-    return Config::channelsTotal;
-}
+std::uint32_t Adc2::getChannelsTotal() { return Config::channelsTotal; }
 
-std::uint32_t Adc2::getBitDepth()
-{
-    return Config::bitDepth;
-}
+std::uint32_t Adc2::getBitDepth() { return Config::bitDepth; }
 
-std::uint32_t Adc2::getFrameBitWidth()
-{
-    return Config::frameBitWidth;
-}
+std::uint32_t Adc2::getFrameBitWidth() { return Config::frameBitWidth; }
 
-bool Adc2::init()
-{
+bool Adc2::init() {
     bool result = false;
 
     __HAL_RCC_DMA2_CLK_ENABLE();
@@ -82,28 +72,23 @@ bool Adc2::init()
     hadc2.Init.EOCSelection = ADC_EOC_SEQ_CONV;
     hadc2.Init.LowPowerAutoWait = DISABLE;
     hadc2.Init.Overrun = ADC_OVR_DATA_OVERWRITTEN;
-    if (HAL_OK != HAL_ADC_Init(&hadc2))
-    {
+    if (HAL_OK != HAL_ADC_Init(&hadc2)) {
         LN_PANIC();
     }
-    else if (!this->configChannels())
-    {
+    else if (!this->configChannels()) {
         LN_PANIC();
     }
-    else if (!this->autoCalibrate())
-    {
+    else if (!this->autoCalibrate()) {
         LN_PANIC();
     }
-    else
-    {
+    else {
         result = true;
     }
 
     return result;
 }
 
-bool Adc2::configChannels()
-{
+bool Adc2::configChannels() {
     bool result = true;
 
     ADC_ChannelConfTypeDef sConfig = {};
@@ -112,12 +97,10 @@ bool Adc2::configChannels()
     sConfig.SamplingTime = ADC_SAMPLETIME_601CYCLES_5;
     sConfig.OffsetNumber = ADC_OFFSET_NONE;
     sConfig.Offset = 0;
-    for (std::size_t i = 0; i < channels.size(); i++)
-    {
+    for (std::size_t i = 0; i < channels.size(); i++) {
         sConfig.Rank = ADC_REGULAR_RANK_1 + i;
         sConfig.Channel = channels[i].channel;
-        if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
-        {
+        if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK) {
             LN_PANIC();
             result = false;
             break;
@@ -127,27 +110,22 @@ bool Adc2::configChannels()
     return result;
 }
 
-bool Adc2::autoCalibrate()
-{
+bool Adc2::autoCalibrate() {
     bool result = false;
 
     const bool restartRequired = isRunning;
-    if (restartRequired && !this->stop())
-    {
+    if (restartRequired && !this->stop()) {
         LN_PANIC();
     }
-    else
-    {
-        /* NOTE: must be called before HAL_ADC_Start() or after HAL_ADC_Stop() */
-        if (HAL_ADCEx_Calibration_Start(&hadc2, Config::singleDiff) != HAL_OK)
-        {
+    else {
+        /* NOTE: must be called before HAL_ADC_Start() or after HAL_ADC_Stop()
+         */
+        if (HAL_ADCEx_Calibration_Start(&hadc2, Config::singleDiff) != HAL_OK) {
             LN_PANIC();
         }
-        else
-        {
+        else {
             result = true;
-            if (restartRequired && !this->start())
-            {
+            if (restartRequired && !this->start()) {
                 LN_PANIC();
             }
         }
@@ -156,12 +134,11 @@ bool Adc2::autoCalibrate()
     return result;
 }
 
-bool Adc2::start()
-{
+bool Adc2::start() {
     bool result = false;
 
-    if (HAL_OK == HAL_ADC_Start_DMA(&hadc2, sampleBuffer.data(), sampleBuffer.size()))
-    {
+    if (HAL_OK ==
+        HAL_ADC_Start_DMA(&hadc2, sampleBuffer.data(), sampleBuffer.size())) {
         isRunning = true;
         result = true;
     }
@@ -169,12 +146,10 @@ bool Adc2::start()
     return result;
 }
 
-bool Adc2::stop()
-{
+bool Adc2::stop() {
     bool result = false;
 
-    if (HAL_OK == HAL_ADC_Stop_DMA(&hadc2))
-    {
+    if (HAL_OK == HAL_ADC_Stop_DMA(&hadc2)) {
         sampleBuffer.fill(0);
         isRunning = false;
         result = true;
@@ -183,16 +158,11 @@ bool Adc2::stop()
     return result;
 }
 
-bool Adc2::deinit()
-{
-    return (HAL_OK == HAL_ADC_DeInit(&hadc2));
-}
+bool Adc2::deinit() { return (HAL_OK == HAL_ADC_DeInit(&hadc2)); }
 
-bool Adc2::getValueUnsafe(std::size_t channelNo, std::uint32_t &valueOut)
-{
+bool Adc2::getValueUnsafe(std::size_t channelNo, std::uint32_t &valueOut) {
     bool result = false;
-    if (channelNo < this->getChannelsTotal())
-    {
+    if (channelNo < this->getChannelsTotal()) {
         valueOut = sampleBuffer[channelNo];
         result = true;
     }
@@ -200,8 +170,7 @@ bool Adc2::getValueUnsafe(std::size_t channelNo, std::uint32_t &valueOut)
     return result;
 }
 
-bool Adc2::Internal::init()
-{
+bool Adc2::Internal::init() {
     bool result = false;
 
     __HAL_RCC_ADC12_CLK_ENABLE();
@@ -214,10 +183,10 @@ bool Adc2::Internal::init()
 
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    for (const auto &channel : channels)
-    {
+    for (const auto &channel : channels) {
         GPIO_InitStruct.Pin = channel.pin;
-        HAL_GPIO_Init(reinterpret_cast<GPIO_TypeDef *>(channel.port), &GPIO_InitStruct);
+        HAL_GPIO_Init(reinterpret_cast<GPIO_TypeDef *>(channel.port),
+                      &GPIO_InitStruct);
     }
 
     hdma_adc2.Instance = DMA2_Channel1;
@@ -228,12 +197,10 @@ bool Adc2::Internal::init()
     hdma_adc2.Init.MemDataAlignment = DMA_MDATAALIGN_WORD;
     hdma_adc2.Init.Mode = DMA_CIRCULAR;
     hdma_adc2.Init.Priority = DMA_PRIORITY_LOW;
-    if (HAL_DMA_Init(&hdma_adc2) != HAL_OK)
-    {
+    if (HAL_DMA_Init(&hdma_adc2) != HAL_OK) {
         LN_PANIC();
     }
-    else
-    {
+    else {
         __HAL_LINKDMA(&hadc2, DMA_Handle, hdma_adc2);
 
         HAL_NVIC_SetPriority(ADC1_2_IRQn, 5, 0);
@@ -244,19 +211,16 @@ bool Adc2::Internal::init()
     return result;
 }
 
-bool Adc2::Internal::deinit()
-{
+bool Adc2::Internal::deinit() {
     bool result = false;
 
-    if (HAL_OK != HAL_DMA_DeInit(hadc2.DMA_Handle))
-    {
+    if (HAL_OK != HAL_DMA_DeInit(hadc2.DMA_Handle)) {
         LN_PANIC();
     }
-    else
-    {
-        for (const auto &channel : channels)
-        {
-            HAL_GPIO_DeInit(reinterpret_cast<GPIO_TypeDef *>(channel.port), channel.pin);
+    else {
+        for (const auto &channel : channels) {
+            HAL_GPIO_DeInit(reinterpret_cast<GPIO_TypeDef *>(channel.port),
+                            channel.pin);
         }
         __HAL_RCC_ADC12_CLK_DISABLE();
         HAL_NVIC_DisableIRQ(ADC1_2_IRQn);
@@ -267,16 +231,10 @@ bool Adc2::Internal::deinit()
     return result;
 }
 
-// TODO: maybe implement flip-flop pattern for reading ADC value securely ???. Not sure if it's an actual problem tho.
-void Adc2::Internal::Irq::handle()
-{
-    HAL_DMA_IRQHandler(&hdma_adc2);
-}
+// TODO: maybe implement flip-flop pattern for reading ADC value securely ???.
+// Not sure if it's an actual problem tho.
+void Adc2::Internal::Irq::handle() { HAL_DMA_IRQHandler(&hdma_adc2); }
 
-void Adc2::Internal::Irq::convCpltCallback()
-{
-}
+void Adc2::Internal::Irq::convCpltCallback() {}
 
-void Adc2::Internal::Irq::convHalfCpltCallback()
-{
-}
+void Adc2::Internal::Irq::convHalfCpltCallback() {}

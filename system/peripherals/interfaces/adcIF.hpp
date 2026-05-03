@@ -34,8 +34,10 @@ public:
         bool retval = false;
         std::uint32_t valueRaw;
         if (this->getValueRaw(channelNo, valueRaw)) {
-            valueOut = reinterpret_cast<q31_t>(static_cast<std::int32_t>(valueRaw - (this->getMaxValue() / 2)) *
-                                               static_cast<std::int32_t>(0xFFFF'FFFF / this->getMaxValue()));
+            valueOut = reinterpret_cast<q31_t>(
+                static_cast<std::int32_t>(valueRaw -
+                                          (this->getMaxValue() / 2)) *
+                static_cast<std::int32_t>(0xFFFF'FFFF / this->getMaxValue()));
             retval = true;
         }
         return retval;
@@ -45,7 +47,8 @@ public:
         bool retval = false;
         std::uint32_t valueRaw;
         if (this->getValueRaw(channelNo, valueRaw)) {
-            valueOut = static_cast<float>(valueRaw) / static_cast<float>(this->getMaxValue());
+            valueOut = static_cast<float>(valueRaw) /
+                       static_cast<float>(this->getMaxValue());
             retval = true;
         }
         return retval;
@@ -55,7 +58,7 @@ public:
     virtual bool deinit() = 0;
 
 protected:
-    AdcIF(){};
+    AdcIF() {};
     virtual ~AdcIF() = default;
 
     bool getValueRaw(std::size_t channelNo, std::uint32_t &valueRawOut) {
@@ -68,7 +71,8 @@ protected:
         return result;
     }
 
-    virtual bool getValueUnsafe(std::size_t channelNo, std::uint32_t &valueOut) = 0;
+    virtual bool getValueUnsafe(std::size_t channelNo,
+                                std::uint32_t &valueOut) = 0;
 
 private:
     FreeRTOS::Mutex mutex;

@@ -1,4 +1,8 @@
-extern "C" {
+// Copyright (c) 2026 Lukas Neverauskis <lukas.neverauskis@gmail.com>
+// SPDX-License-Identifier: GPL-2.0-only
+
+extern "C"
+{
 #include "stm32f3xx_hal.h"
 }
 
@@ -6,14 +10,16 @@ extern "C" {
 
 extern I2S_HandleTypeDef hi2s2;
 
-extern "C" void HAL_I2SEx_TxRxCpltCallback(I2S_HandleTypeDef *hi2s)
-{
-    if(hi2s == &hi2s2) { Periph::getI2s2().txRxCpltIsrCallback(); }
+extern "C" void HAL_I2SEx_TxRxCpltCallback(I2S_HandleTypeDef *hi2s) {
+    if (hi2s == &hi2s2) {
+        Periph::getI2s2().txRxCpltIsrCallback();
+    }
 }
 
-extern "C" void HAL_I2SEx_TxRxHalfCpltCallback(I2S_HandleTypeDef *hi2s)
-{
-    if(hi2s == &hi2s2) { Periph::getI2s2().txRxHalfCpltIsrCallback(); }
+extern "C" void HAL_I2SEx_TxRxHalfCpltCallback(I2S_HandleTypeDef *hi2s) {
+    if (hi2s == &hi2s2) {
+        Periph::getI2s2().txRxHalfCpltIsrCallback();
+    }
 }
 
 // TODO: if needed

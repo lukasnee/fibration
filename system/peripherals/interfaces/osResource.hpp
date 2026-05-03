@@ -22,15 +22,18 @@ public:
 
     OsResource() { this->sem.give(); }
 
-    bool lock(TickType_t timeout = portMAX_DELAY, Context context = Context::undefined) {
+    bool lock(TickType_t timeout = portMAX_DELAY,
+              Context context = Context::undefined) {
         bool higherPriorityTaskWoken = false;
-        this->isInIsr(context) ? this->sem.takeFromISR(higherPriorityTaskWoken) : this->sem.take(timeout);
+        this->isInIsr(context) ? this->sem.takeFromISR(higherPriorityTaskWoken)
+                               : this->sem.take(timeout);
         return higherPriorityTaskWoken;
     }
 
     bool unlock(Context context = Context::undefined) {
         bool higherPriorityTaskWoken = false;
-        this->isInIsr(context) ? this->sem.giveFromISR(higherPriorityTaskWoken) : this->sem.give();
+        this->isInIsr(context) ? this->sem.giveFromISR(higherPriorityTaskWoken)
+                               : this->sem.give();
         return higherPriorityTaskWoken;
     }
 

@@ -10,7 +10,8 @@
 
 #include <array>
 
-class IOStream : public IODataIF::IsrRxCallbacks, public IODataIF::IsrTxCallbacks {
+class IOStream : public IODataIF::IsrRxCallbacks,
+                 public IODataIF::IsrTxCallbacks {
 public:
     using RxData = std::uint8_t;
 
@@ -43,7 +44,8 @@ private:
     StreamBufferHandle_t xRxStreamBuffer;
     StaticStreamBuffer_t xRxStreamBufferStruct;
     const std::size_t xRxTriggerLevel = 1;
-    std::array<RxData, Config::rxStreamBufferSize * sizeof(RxData)> ucRxBufferStorage;
+    std::array<RxData, Config::rxStreamBufferSize * sizeof(RxData)>
+        ucRxBufferStorage;
 
     OutStream txQueue;
 

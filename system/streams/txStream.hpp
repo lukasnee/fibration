@@ -10,19 +10,18 @@
 #include <cstdint>
 #include <cstdio>
 
-class OutStream : public IODataIF::IsrTxCallbacks
-{
+class OutStream : public IODataIF::IsrTxCallbacks {
 public:
     using Data = std::uint8_t;
 
-    struct Config
-    {
+    struct Config {
         static constexpr std::size_t txStreamBufferSize = 256;
     };
 
     OutStream(IODataIF &ioData);
     bool init();
-    bool in(const std::uint8_t *pData, std::uint32_t size, OsResource::Context context);
+    bool in(const std::uint8_t *pData, std::uint32_t size,
+            OsResource::Context context);
     bool deinit();
 
 protected:

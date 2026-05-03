@@ -1,3 +1,6 @@
+// Copyright (c)  2026 Lukas Neverauskis <lukas.neverauskis@gmail.com>
+// SPDX-License-Identifier: GPL-2.0-only
+
 #pragma once
 
 #include "rangedValue.hpp"
@@ -8,11 +11,19 @@ public:
     using SynthesizeF = std::function<F32(const F32 &)>;
 
     struct Waveforms {
-        static F32 sine(const F32 &phaseInRad) { return arm_sin_f32(phaseInRad); }
-        static F32 square(const F32 &phaseInRad) { return phaseInRad < PI ? 1.f : -1.f; }
-        static F32 saw(const F32 &phaseInRad) { return ((phaseInRad / (2.f * PI)) * 2.f) - 1.f; }
+        static F32 sine(const F32 &phaseInRad) {
+            return arm_sin_f32(phaseInRad);
+        }
+        static F32 square(const F32 &phaseInRad) {
+            return phaseInRad < PI ? 1.f : -1.f;
+        }
+        static F32 saw(const F32 &phaseInRad) {
+            return ((phaseInRad / (2.f * PI)) * 2.f) - 1.f;
+        }
         static F32 triangle(const F32 &phaseInRad) {
-            return phaseInRad < PI ? (((phaseInRad / PI) * 2.f) - 1.f) : -1.f * ((((phaseInRad - PI) / PI) * 2.f) - 1.f);
+            return phaseInRad < PI
+                       ? (((phaseInRad / PI) * 2.f) - 1.f)
+                       : -1.f * ((((phaseInRad - PI) / PI) * 2.f) - 1.f);
         }
     };
 

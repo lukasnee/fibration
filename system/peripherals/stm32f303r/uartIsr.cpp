@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Lukas Neverauskis <lukas.neverauskis@gmail.com>
+// SPDX-License-Identifier: GPL-2.0-only
+
 extern "C"
 {
 #include "stm32f3xx_hal.h"
@@ -7,26 +10,20 @@ extern "C"
 extern UART_HandleTypeDef huart2;
 extern UART_HandleTypeDef huart3;
 
-extern "C" void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
-{
-    if (huart == &huart2)
-    {
+extern "C" void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
+    if (huart == &huart2) {
         Periph::getUart2().txDmaCpltIsrCallback();
     }
-    else if (huart == &huart3)
-    {
+    else if (huart == &huart3) {
         Periph::getUart3().txDmaCpltIsrCallback();
     }
 }
 
-extern "C" void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-    if (huart == &huart2)
-    {
+extern "C" void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+    if (huart == &huart2) {
         Periph::getUart2().rxDmaCpltIsrCallback();
     }
-    else if (huart == &huart3)
-    {
+    else if (huart == &huart3) {
         Periph::getUart3().rxDmaCpltIsrCallback();
     }
 }

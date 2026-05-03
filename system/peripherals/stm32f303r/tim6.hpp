@@ -5,8 +5,7 @@
 
 #include <cstdint>
 
-class Tim6
-{
+class Tim6 {
 public:
     typedef std::uint32_t CounterType;
 
@@ -15,9 +14,10 @@ public:
     void overflowCallback();
     CounterType getCounterValue() const;
     void stop();
-    void operator=(Tim6 const&) = delete;
-    Tim6(Tim6 const&) = delete;
+    void operator=(Tim6 const &) = delete;
+    Tim6(Tim6 const &) = delete;
     ~Tim6();
+
 private:
     CounterType counterValue;
 };
