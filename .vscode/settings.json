@@ -14,5 +14,59 @@
         "--background-index",
         "--clang-tidy"
     ],
-    "clangd.enable": true
+    "clangd.enable": true,
+    "psi-header.templates": [
+        {
+            "language": "c",
+            "template": [
+                "Copyright (c) <<year>> <<author>> <<<authoremail>>>",
+                "SPDX-License-Identifier: GPL-2.0-only",
+            ]
+        },
+        {
+            "language": "cpp",
+            "template": [
+                "Copyright (c) <<year>> <<author>> <<<authoremail>>>",
+                "SPDX-License-Identifier: GPL-2.0-only"
+            ]
+        },
+        {
+            "language": "python",
+            "template": [
+                "Copyright (c) <<year>> <<author>> <<<authoremail>>>",
+                "SPDX-License-Identifier: GPL-2.0-only"
+            ]
+        },
+    ],
+    "psi-header.lang-config": [
+        {
+            "language": "c",
+            "begin": "",
+            "prefix": "// ",
+            "end": "",
+            "blankLinesAfter": 1
+        },
+        {
+            "language": "cpp",
+            "begin": "",
+            "prefix": "// ",
+            "end": "",
+            "blankLinesAfter": 1
+        },
+        {
+            "language": "python",
+            "begin": "",
+            "prefix": "# ",
+            "end": "",
+            "blankLinesAfter": 1
+        },
+    ],
+    "psi-header.changes-tracking": {
+        "autoHeader": "autoSave",
+        "include": [
+            "c",
+            "cpp",
+            "python"
+        ],
+    },
 }
