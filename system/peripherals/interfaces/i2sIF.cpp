@@ -1,7 +1,5 @@
 #include "i2sIF.hpp"
 
-I2sIF::I2sIF() {};
-
 bool I2sIF::startTxRxCircularDma(const std::uint16_t *pTxData16,
                                  std::uint16_t *pRxData16, std::uint16_t size8,
                                  TxRxIsrCallbacks *pTxRxIsrCallbacks) {
