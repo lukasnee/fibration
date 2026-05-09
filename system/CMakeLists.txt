@@ -62,7 +62,7 @@ target_sources(
 
 target_include_directories(fibsys INTERFACE streams/interfaces streams)
 target_sources(
-  fibsys INTERFACE streams/interfaces/asciiStreamIF.cpp streams/i2sStream.cpp
+  fibsys INTERFACE streams/interfaces/asciiStreamIF.cpp streams/i2sStreamer.cpp
                    streams/ioStream.cpp streams/txStream.cpp)
 
 target_include_directories(fibsys INTERFACE components components/shell)

@@ -141,6 +141,6 @@ void i2s2_stream_process(
 };
 
 bool app_init() {
-    FibSys::get_i2s2_stream().set_fn(i2s2_stream_process);
-    return FibSys::get_i2s2_stream().start();
+    FibSys::get_i2s2_streamer().set_fn(i2s2_stream_process);
+    return FibSys::get_i2s2_streamer().start();
 }

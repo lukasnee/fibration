@@ -1,27 +1,25 @@
 // Copyright (c) 2026 Lukas Neverauskis <lukas.neverauskis@gmail.com>
 // SPDX-License-Identifier: GPL-2.0-only
 
+#include "i2sStreamer.hpp"
+
 #include "dsp/dsp.hpp"
 #include "dsp/sample.hpp"
 
-#include "i2sStream.hpp"
-
-#include "ln/logger/logger.h"
-
-I2sStream::I2sStream(I2sIF &i2s, const char *taskName, uint16_t usStackDepth,
-                     UBaseType_t uxPriority, I2sStream::Buffer &buffer,
-                     ProcessF processF)
+I2sStreamer::I2sStreamer(I2sIF &i2s, const char *taskName,
+                         uint16_t usStackDepth, UBaseType_t uxPriority,
+                         I2sStreamer::Buffer &buffer, ProcessF processF)
     : Task(uxPriority, usStackDepth, taskName), buffer(buffer),
       processF(processF), i2s(i2s) {}
 
-bool I2sStream::init() {
+bool I2sStreamer::init() {
     if (!this->i2s.init()) {
         return false;
     }
     return this->isValid();
 }
 
-bool I2sStream::set_fn(ProcessF processF) {
+bool I2sStreamer::set_fn(ProcessF processF) {
     if (this->state != State::stopped) {
         return false;
     }
@@ -29,7 +27,7 @@ bool I2sStream::set_fn(ProcessF processF) {
     return true;
 }
 
-bool I2sStream::start() {
+bool I2sStreamer::start() {
     if (!this->isValid()) {
         return false;
     }
@@ -40,7 +38,7 @@ bool I2sStream::start() {
     // with data
     if (!this->i2s.startTxRxCircularDma(this->getBufferToStreamOut(),
                                         this->getBufferToStreamIn(),
-                                        I2sStream::getBufferSize(), this)) {
+                                        I2sStreamer::getBufferSize(), this)) {
         return false;
     }
     this->state = State::started;
@@ -48,7 +46,7 @@ bool I2sStream::start() {
     return true;
 }
 
-bool I2sStream::stop() {
+bool I2sStreamer::stop() {
     if (this->state != State::firstStreamingSecondReady &&
         this->state != State::firstStreamingSecondLoading &&
         this->state != State::firstStreamingSecondLoaded &&
@@ -62,15 +60,15 @@ bool I2sStream::stop() {
     return retval;
 }
 
-std::uint16_t *I2sStream::getBufferToStreamOut() {
+std::uint16_t *I2sStreamer::getBufferToStreamOut() {
     return reinterpret_cast<std::uint16_t *>(&this->buffer.tx);
 }
-std::uint16_t *I2sStream::getBufferToStreamIn() {
+std::uint16_t *I2sStreamer::getBufferToStreamIn() {
     return reinterpret_cast<std::uint16_t *>(&this->buffer.rx);
 }
-std::size_t I2sStream::getBufferSize() { return sizeof(buffer.tx); }
+std::size_t I2sStreamer::getBufferSize() { return sizeof(buffer.tx); }
 
-bool I2sStream::getBuffersToProcess(
+bool I2sStreamer::getBuffersToProcess(
     Fib::Dsp::I2sSampleBufferU32 *&pRxI2sBufferOut,
     Fib::Dsp::I2sSampleBufferU32 *&pTxI2sBufferOut) {
     bool result = false;
@@ -101,7 +99,7 @@ bool I2sStream::getBuffersToProcess(
     return result;
 }
 
-bool I2sStream::stereoAudioBufferLoaded() {
+bool I2sStreamer::stereoAudioBufferLoaded() {
     bool result = false;
     if (this->state == State::firstStreamingSecondLoading) {
         this->state = State::firstStreamingSecondLoaded;
@@ -124,7 +122,7 @@ bool I2sStream::stereoAudioBufferLoaded() {
     return result;
 };
 
-void I2sStream::onTxRxHalfCompleteIsrCallback() {
+void I2sStreamer::onTxRxHalfCompleteIsrCallback() {
     bool higherPriorityTaskWoken = false;
     if (this->state == State::firstStreamingSecondLoaded ||  // good case
         this->state == State::firstStreamingSecondLoading || // very bad case
@@ -138,7 +136,7 @@ void I2sStream::onTxRxHalfCompleteIsrCallback() {
     }
     // TODO: better handle bad cases
 }
-void I2sStream::onTxRxCompleteIsrCallback() {
+void I2sStreamer::onTxRxCompleteIsrCallback() {
     bool higherPriorityTaskWoken = false;
     if (this->state == State::firstLoadedSecondStreaming ||  // good case
         this->state == State::firstLoadingSecondStreaming || // very bad case
@@ -151,7 +149,7 @@ void I2sStream::onTxRxCompleteIsrCallback() {
     // TODO: better handle bad cases
 }
 
-void I2sStream::taskFunction() {
+void I2sStreamer::taskFunction() {
     while (true) {
         if (this->state == State::stopped) {
             ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
