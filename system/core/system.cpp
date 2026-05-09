@@ -111,6 +111,7 @@ void FibSys::startup() {
         cli_service,
         adc2,
         i2s_streamer,
+        services_target,
         app_main,
     };
 
@@ -132,6 +133,7 @@ void FibSys::startup() {
                    }},
         init::Item{ID::i2s_streamer, "i2s_streamer",
                    []() { return FibSys::get_i2s2_streamer().init(); }},
+        init::Item{ID::services_target, "services_target"},
         init::Item{ID::app_main, "app_main",
                    []() {
                        bool app_init(void); // application-specific entry point
@@ -149,6 +151,9 @@ void FibSys::startup() {
         init::Dep{ID::std_stream, ID::cli_service},
         init::Dep{ID::adc2, ID::app_main},
         init::Dep{ID::i2s_streamer, ID::app_main},
+        init::Dep{ID::i2s_streamer, ID::services_target},
+        init::Dep{ID::cli_service, ID::services_target},
+        init::Dep{ID::services_target, ID::app_main},
     };
     static constexpr auto ordered_initializers =
         ln::algo::CompileTimeDAG::Graph(init_items, init_deps).topo_sort();

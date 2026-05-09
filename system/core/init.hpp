@@ -17,17 +17,17 @@ template <typename ID> using Dep = ln::algo::CompileTimeDAG::Edge<ID>;
 template <typename ID> struct Item {
     ID key;
     std::string_view name;
-    bool (*init_fn)();
+    bool (*init_fn)() = nullptr;
 };
 
 template <typename T> static void init(T &ordered_initializers) {
     LOG_INFO("initializing {} items", ordered_initializers.size());
     size_t index = 0;
-    for (auto &ordered_initializer : ordered_initializers) {
-        const auto result = ordered_initializer.init_fn();
+    for (auto &initializer : ordered_initializers) {
+        const auto result = initializer.init_fn ? initializer.init_fn() : true;
         LOG(result ? ln::logger::Level::info : ln::logger::Level::critical,
             "[{}/{}] {}: {}", index + 1, ordered_initializers.size(),
-            ordered_initializer.name, result ? "OK" : "FAIL");
+            initializer.name, result ? "OK" : "FAIL");
         if (!result) {
             LN_PANIC();
         }
