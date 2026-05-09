@@ -8,44 +8,57 @@
 
 #include "ln/logger/logger.h"
 
-LOG_MODULE(i2sStream, ln::logger::Level::notset);
-
 I2sStream::I2sStream(I2sIF &i2s, const char *taskName, uint16_t usStackDepth,
                      UBaseType_t uxPriority, I2sStream::Buffer &buffer,
                      ProcessF processF)
     : Task(uxPriority, usStackDepth, taskName), buffer(buffer),
       processF(processF), i2s(i2s) {}
 
-bool I2sStream::start() {
-    bool retval = false;
-
-    if (this->state == State::standby) {
-        // TODO: make DMA start only after the first buffer half is filled
-        // with data
-        if (this->i2s.startTxRxCircularDma(this->getBufferToStreamOut(),
-                                           this->getBufferToStreamIn(),
-                                           I2sStream::getBufferSize(), this)) {
-            this->state = State::ready;
-            this->notifyGive();
-            retval = true;
-        }
+bool I2sStream::init() {
+    if (!this->i2s.init()) {
+        return false;
     }
+    return this->isValid();
+}
 
-    return retval;
+bool I2sStream::set_fn(ProcessF processF) {
+    if (this->state != State::stopped) {
+        return false;
+    }
+    this->processF = processF;
+    return true;
+}
+
+bool I2sStream::start() {
+    if (!this->isValid()) {
+        return false;
+    }
+    if (this->state != State::stopped) {
+        return false;
+    }
+    // TODO: make DMA start only after the first buffer half is filled
+    // with data
+    if (!this->i2s.startTxRxCircularDma(this->getBufferToStreamOut(),
+                                        this->getBufferToStreamIn(),
+                                        I2sStream::getBufferSize(), this)) {
+        return false;
+    }
+    this->state = State::started;
+    this->notifyGive();
+    return true;
 }
 
 bool I2sStream::stop() {
-    bool retval = false;
-
-    if (this->state == State::firstStreamingSecondReady ||
-        this->state == State::firstStreamingSecondLoading ||
-        this->state == State::firstStreamingSecondLoaded ||
-        this->state == State::firstReadySecondStreaming ||
-        this->state == State::firstLoadingSecondStreaming ||
-        this->state == State::firstLoadedSecondStreaming) {
-        retval = this->i2s.stopTxRxCircularDma();
-        this->state = State::standby;
+    if (this->state != State::firstStreamingSecondReady &&
+        this->state != State::firstStreamingSecondLoading &&
+        this->state != State::firstStreamingSecondLoaded &&
+        this->state != State::firstReadySecondStreaming &&
+        this->state != State::firstLoadingSecondStreaming &&
+        this->state != State::firstLoadedSecondStreaming) {
+        return false;
     }
+    auto retval = this->i2s.stopTxRxCircularDma();
+    this->state = State::stopped;
     return retval;
 }
 
@@ -74,11 +87,11 @@ bool I2sStream::getBuffersToProcess(
         pTxI2sBufferOut = &this->buffer.tx.first;
         result = true;
     }
-    else if (this->state == State::standby) {
+    else if (this->state == State::stopped) {
         Task::notifyTake(portMAX_DELAY);
     }
 
-    if (this->state == State::ready) {
+    if (this->state == State::started) {
         this->state = State::firstStandbySecondLoading;
         this->notifyGive();
         pRxI2sBufferOut = &this->buffer.rx.second;
@@ -139,21 +152,10 @@ void I2sStream::onTxRxCompleteIsrCallback() {
 }
 
 void I2sStream::taskFunction() {
-    Task::delay(std::chrono::milliseconds(
-        50)); // let other tasks start first // TODO: smells
-    if (!this->i2s.init()) {
-        LOG_ERROR("I2S init failed\n");
-        return;
-    }
-    if (!this->start()) {
-        LOG_ERROR("I2S start failed\n");
-        return;
-    }
     while (true) {
-        if (this->state == State::standby) {
+        if (this->state == State::stopped) {
             ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-            if (this->state != State::ready) {
-                LOG_ERROR("I2S state: {}\n", static_cast<size_t>(this->state));
+            if (this->state != State::started) {
                 break;
             }
         }

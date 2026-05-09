@@ -4,7 +4,6 @@
 #include "system.hpp"
 #include "logger.hpp"
 #include "init.hpp"
-#include "resources.hpp"
 #include "StdStream.hpp"
 
 #include "ln/ln.h"
@@ -111,7 +110,8 @@ void FibSys::startup() {
         std_stream,
         cli_service,
         adc2,
-        adc2_start,
+        i2s_stream,
+        app_main,
     };
 
     constexpr std::array init_items = {
@@ -125,9 +125,18 @@ void FibSys::startup() {
                        get_instance().cli_svc_task.start();
                        return true;
                    }},
-        init::Item{ID::adc2, "adc2", []() { return Periph::getAdc2().init(); }},
-        init::Item{ID::adc2_start, "adc2_start",
-                   []() { return Periph::getAdc2().start(); }},
+        init::Item{ID::adc2, "adc2",
+                   []() {
+                       return Periph::getAdc2().init() &&
+                              Periph::getAdc2().start();
+                   }},
+        init::Item{ID::i2s_stream, "i2s_stream",
+                   []() { return FibSys::get_i2s2_stream().init(); }},
+        init::Item{ID::app_main, "app_main",
+                   []() {
+                       bool app_init(void); // application-specific entry point
+                       return app_init();
+                   }},
     };
     constexpr std::array init_deps = {
         /* logger does depend on std_stream but not crucial in the beginning,
@@ -138,7 +147,8 @@ void FibSys::startup() {
         init::Dep{ID::uart2, ID::std_stream},
         init::Dep{ID::uart2, ID::cli_service},
         init::Dep{ID::std_stream, ID::cli_service},
-        init::Dep{ID::adc2, ID::adc2_start},
+        init::Dep{ID::adc2, ID::app_main},
+        init::Dep{ID::i2s_stream, ID::app_main},
     };
     static constexpr auto ordered_initializers =
         ln::algo::CompileTimeDAG::Graph(init_items, init_deps).topo_sort();

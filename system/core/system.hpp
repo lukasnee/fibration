@@ -5,10 +5,11 @@
 
 #include "ln/lua/VM.hpp"
 #include "ln/shell/CLI.hpp"
+#include "streams/i2sStream.hpp"
 
 #include "FreeRTOS/Task.hpp"
 
-#include <cstdint>
+#include "resources.hpp"
 
 class FibSys {
 public:
@@ -51,6 +52,14 @@ public:
         static std::array<char, 512> history_buf;
         static ln::shell::CLI instance{input_buf, history_buf};
         instance.config.interpreter = &get_lua_vm_instance();
+        return instance;
+    }
+
+    static I2sStream &get_i2s2_stream() {
+        static I2sStream::Buffer i2s2StreamBuffer;
+        static I2sStream instance(Periph::getI2s2(), "i2s2stream",
+                                  4 * 1024 / sizeof(StackType_t),
+                                  Priority::audioStream, i2s2StreamBuffer);
         return instance;
     }
 
