@@ -3,178 +3,168 @@
 
 #include "i2sStreamer.hpp"
 
+#include "FreeRTOS/Addons/LockGuard.hpp"
 #include "dsp/dsp.hpp"
 #include "dsp/sample.hpp"
 
+#include "ln/ln.h"
+
 I2sStreamer::I2sStreamer(I2sIF &i2s, const char *taskName,
                          uint16_t usStackDepth, UBaseType_t uxPriority,
-                         I2sStreamer::Buffer &buffer, ProcessF processF)
-    : Task(uxPriority, usStackDepth, taskName), buffer(buffer),
+                         I2sStreamer::Buffer &dma_buffer, ProcessF processF)
+    : Task(uxPriority, usStackDepth, taskName), dma_buffer(dma_buffer),
       processF(processF), i2s(i2s) {}
 
 bool I2sStreamer::init() {
+    FreeRTOS::Addons::LockGuard lock_guard(this->public_access_mutex);
+    if (this->initialized) {
+        return true;
+    }
     if (!this->i2s.init()) {
         return false;
     }
+    this->initialized = true;
     return this->isValid();
 }
 
-bool I2sStreamer::set_fn(ProcessF processF) {
-    if (this->state != State::stopped) {
+bool I2sStreamer::deinit() {
+    FreeRTOS::Addons::LockGuard lock_guard(this->public_access_mutex);
+    if (!this->initialized) {
+        return true;
+    }
+    if (!this->stop()) {
         return false;
     }
-    this->processF = processF;
+    if (!this->i2s.deinit()) {
+        return false;
+    }
+    this->initialized = false;
     return true;
+}
+
+void I2sStreamer::set_fn(ProcessF processF) {
+    FreeRTOS::Addons::LockGuard lock_guard(this->public_access_mutex);
+    this->processF = processF;
 }
 
 bool I2sStreamer::start() {
-    if (!this->isValid()) {
+    FreeRTOS::Addons::LockGuard lock_guard(this->public_access_mutex);
+    if (!this->initialized) {
         return false;
     }
-    if (this->state != State::stopped) {
-        return false;
+    if (this->state == State::running) {
+        return true;
     }
-    // TODO: make DMA start only after the first buffer half is filled
-    // with data
-    if (!this->i2s.startTxRxCircularDma(this->getBufferToStreamOut(),
-                                        this->getBufferToStreamIn(),
-                                        I2sStreamer::getBufferSize(), this)) {
-        return false;
-    }
-    this->state = State::started;
-    this->notifyGive();
-    return true;
+    LN_ASSERT_PANIC(this->request.sendToBack(Request::start, 0));
+    const auto opt_response = this->response.receive(portMAX_DELAY);
+    LN_ASSERT_PANIC(opt_response.has_value());
+    return opt_response == Response::started;
 }
 
 bool I2sStreamer::stop() {
-    if (this->state != State::firstStreamingSecondReady &&
-        this->state != State::firstStreamingSecondLoading &&
-        this->state != State::firstStreamingSecondLoaded &&
-        this->state != State::firstReadySecondStreaming &&
-        this->state != State::firstLoadingSecondStreaming &&
-        this->state != State::firstLoadedSecondStreaming) {
+    FreeRTOS::Addons::LockGuard lock_guard(this->public_access_mutex);
+    if (!this->initialized) {
         return false;
     }
-    auto retval = this->i2s.stopTxRxCircularDma();
-    this->state = State::stopped;
-    return retval;
+    if (this->state == State::stopped) {
+        return true;
+    }
+    LN_ASSERT_PANIC(this->request.sendToBack(Request::stop, 0));
+    const auto opt_response = this->response.receive(portMAX_DELAY);
+    LN_ASSERT_PANIC(opt_response.has_value());
+    return opt_response == Response::stopped;
 }
 
-std::uint16_t *I2sStreamer::getBufferToStreamOut() {
-    return reinterpret_cast<std::uint16_t *>(&this->buffer.tx);
+std::pair<Fib::Dsp::I2sSampleBufferU32 &, Fib::Dsp::I2sSampleBufferU32 &>
+I2sStreamer::get_buf_to_process() {
+    Task::notifyTake(portMAX_DELAY);
+    if (this->dma_just_started_streaming_first_half) {
+        if (this->curr_streaming != CurrentlyStreaming::second) {
+            LN_PANIC();
+        }
+        this->dma_just_started_streaming_first_half = false;
+        // half complete - the second half is now being processed
+    }
+    if (this->curr_streaming == CurrentlyStreaming::none ||
+        this->curr_streaming == CurrentlyStreaming::second) {
+        return {this->dma_buffer.rx.first, this->dma_buffer.tx.first};
+    }
+    return {this->dma_buffer.rx.second, this->dma_buffer.tx.second};
 }
-std::uint16_t *I2sStreamer::getBufferToStreamIn() {
-    return reinterpret_cast<std::uint16_t *>(&this->buffer.rx);
-}
-std::size_t I2sStreamer::getBufferSize() { return sizeof(buffer.tx); }
-
-bool I2sStreamer::getBuffersToProcess(
-    Fib::Dsp::I2sSampleBufferU32 *&pRxI2sBufferOut,
-    Fib::Dsp::I2sSampleBufferU32 *&pTxI2sBufferOut) {
-    bool result = false;
-    pRxI2sBufferOut = pTxI2sBufferOut = nullptr;
-    if (this->state == State::firstStreamingSecondReady) {
-        this->state = State::firstStreamingSecondLoading;
-        pRxI2sBufferOut = &this->buffer.rx.second;
-        pTxI2sBufferOut = &this->buffer.tx.second;
-        result = true;
-    }
-    else if (this->state == State::firstReadySecondStreaming) {
-        this->state = State::firstLoadingSecondStreaming;
-        pRxI2sBufferOut = &this->buffer.rx.first;
-        pTxI2sBufferOut = &this->buffer.tx.first;
-        result = true;
-    }
-    else if (this->state == State::stopped) {
-        Task::notifyTake(portMAX_DELAY);
-    }
-
-    if (this->state == State::started) {
-        this->state = State::firstStandbySecondLoading;
-        this->notifyGive();
-        pRxI2sBufferOut = &this->buffer.rx.second;
-        pTxI2sBufferOut = &this->buffer.tx.second;
-        result = true;
-    }
-    return result;
-}
-
-bool I2sStreamer::stereoAudioBufferLoaded() {
-    bool result = false;
-    if (this->state == State::firstStreamingSecondLoading) {
-        this->state = State::firstStreamingSecondLoaded;
-        Task::notifyTake(portMAX_DELAY);
-        this->state = State::firstReadySecondStreaming;
-        result = true;
-    }
-    else if (this->state == State::firstLoadingSecondStreaming) {
-        this->state = State::firstLoadedSecondStreaming;
-        Task::notifyTake(portMAX_DELAY);
-        this->state = State::firstStreamingSecondReady;
-        result = true;
-    }
-    else if (this->state == State::firstStandbySecondLoading) {
-        this->state = State::firstStandbySecondLoaded;
-        Task::notifyTake(portMAX_DELAY);
-        this->state = State::firstReadySecondStreaming;
-        result = true;
-    }
-    return result;
-};
 
 void I2sStreamer::onTxRxHalfCompleteIsrCallback() {
+    this->curr_streaming = CurrentlyStreaming::second;
     bool higherPriorityTaskWoken = false;
-    if (this->state == State::firstStreamingSecondLoaded ||  // good case
-        this->state == State::firstStreamingSecondLoading || // very bad case
-        this->state == State::firstStreamingSecondReady ||   // really bad case
-        this->state == State::firstStandbySecondLoaded ||    // good case
-        this->state == State::firstStandbySecondLoading)     // very bad case
-    {
-        this->state = State::firstReadySecondStreaming;
-        this->notifyGiveFromISR(higherPriorityTaskWoken);
-        portYIELD_FROM_ISR(higherPriorityTaskWoken);
-    }
-    // TODO: better handle bad cases
+    this->Task::notifyGiveFromISR(higherPriorityTaskWoken);
+    portYIELD_FROM_ISR(higherPriorityTaskWoken);
 }
 void I2sStreamer::onTxRxCompleteIsrCallback() {
+    this->curr_streaming = CurrentlyStreaming::first;
     bool higherPriorityTaskWoken = false;
-    if (this->state == State::firstLoadedSecondStreaming ||  // good case
-        this->state == State::firstLoadingSecondStreaming || // very bad case
-        this->state == State::firstReadySecondStreaming)     // really bad case
-    {
-        this->state = State::firstStreamingSecondReady;
-        this->notifyGiveFromISR(higherPriorityTaskWoken);
-        portYIELD_FROM_ISR(higherPriorityTaskWoken);
-    }
-    // TODO: better handle bad cases
+    this->Task::notifyGiveFromISR(higherPriorityTaskWoken);
+    portYIELD_FROM_ISR(higherPriorityTaskWoken);
 }
 
+void I2sStreamer::clear_i2s_dma_tx_buffer() {
+    this->dma_buffer.tx.first.fill(
+        {Fib::Dsp::Sample::centerValueOfBitDepth<i2sBitDepth>(),
+         Fib::Dsp::Sample::centerValueOfBitDepth<i2sBitDepth>()});
+    this->dma_buffer.tx.second.fill(
+        {Fib::Dsp::Sample::centerValueOfBitDepth<i2sBitDepth>(),
+         Fib::Dsp::Sample::centerValueOfBitDepth<i2sBitDepth>()});
+}
+
+void I2sStreamer::process() {
+    auto [rx_i2s_dma_buf, tx_i2s_dma_buf] = this->get_buf_to_process();
+
+    // TODO: add alternative user-switcable raw_processF that operates on
+    // i2s dma buffers directly (saving the conversion step to/from F32)
+    if (this->processF) {
+        Fib::Dsp::StereoSampleBufferF32 rx_sample_buf, tx_sample_buf;
+        Fib::Dsp::Sample::convert<i2sBitDepth>(rx_i2s_dma_buf, rx_sample_buf);
+        this->processF(rx_sample_buf, tx_sample_buf);
+        Fib::Dsp::Sample::convert<i2sBitDepth>(tx_sample_buf, tx_i2s_dma_buf);
+    }
+}
+
+// NOLINTNEXTLINE(readability-function-cognitive-complexity)
 void I2sStreamer::taskFunction() {
     while (true) {
-        if (this->state == State::stopped) {
-            ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-            if (this->state != State::started) {
-                break;
+        if (this->state == State::running) {
+            const auto opt_request = this->request.receive(0);
+            if (!opt_request) {
+                this->process();
+                continue;
             }
+            LN_ASSERT_PANIC(opt_request == Request::stop);
+            if (!this->i2s.stopTxRxCircularDma()) {
+                LN_ASSERT_PANIC(
+                    this->response.sendToBack(Response::failed_to_stop, 0));
+                continue;
+            }
+            this->state = State::stopped;
+            this->curr_streaming = CurrentlyStreaming::none;
+            LN_ASSERT_PANIC(this->response.sendToBack(Response::stopped, 0));
         }
-        Fib::Dsp::I2sSampleBufferU32 *pRxI2sBuffer = nullptr;
-        Fib::Dsp::I2sSampleBufferU32 *pTxI2sBuffer = nullptr;
-        if (this->processF &&
-            this->getBuffersToProcess(pRxI2sBuffer, pTxI2sBuffer) &&
-            pRxI2sBuffer && pTxI2sBuffer) {
-            // TODO: try optimizing, making processF variants in case
-            // converting to/from F32 is unnecessary.
-
-            Fib::Dsp::StereoSampleBufferF32 rxStereoSampleBlock,
-                txStereoSampleBlock;
-            Fib::Dsp::Sample::convert<i2sBitDepth>(*pRxI2sBuffer,
-                                                   rxStereoSampleBlock);
-            this->processF(rxStereoSampleBlock, txStereoSampleBlock);
-            Fib::Dsp::Sample::convert<i2sBitDepth>(txStereoSampleBlock,
-                                                   *pTxI2sBuffer);
+        if (this->state == State::stopped) {
+            const auto opt_request = this->request.receive(
+                portMAX_DELAY); // wait indefinitely for start request
+            LN_ASSERT_PANIC(opt_request.has_value());
+            LN_ASSERT_PANIC(opt_request == Request::start);
+            this->clear_i2s_dma_tx_buffer();
+            this->state = State::running;
+            if (!this->i2s.startTxRxCircularDma(
+                    reinterpret_cast<std::uint16_t *>(&this->dma_buffer.tx),
+                    reinterpret_cast<std::uint16_t *>(&this->dma_buffer.rx),
+                    sizeof(dma_buffer.tx), this)) {
+                this->state = State::stopped;
+                this->curr_streaming = CurrentlyStreaming::first;
+                this->dma_just_started_streaming_first_half = true;
+                LN_ASSERT_PANIC(
+                    this->response.sendToBack(Response::failed_to_start, 0));
+                continue;
+            }
+            LN_ASSERT_PANIC(this->response.sendToBack(Response::started, 0));
         }
-        this->stereoAudioBufferLoaded();
     }
-
-    this->i2s.deinit();
 }
