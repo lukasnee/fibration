@@ -56,10 +56,9 @@ public:
     }
 
     static I2sStreamer &get_i2s2_streamer() {
-        static I2sStreamer::Buffer i2s2StreamBuffer;
-        static I2sStreamer instance(Periph::getI2s2(), "i2s2stream",
+        static I2sStreamer instance("i2s2_streamer",
                                     4 * 1024 / sizeof(StackType_t),
-                                    Priority::audioStream, i2s2StreamBuffer);
+                                    Priority::audioStream);
         return instance;
     }
 

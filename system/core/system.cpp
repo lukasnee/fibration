@@ -132,7 +132,20 @@ void FibSys::startup() {
                               Periph::getAdc2().start();
                    }},
         init::Item{ID::i2s_streamer, "i2s_streamer",
-                   []() { return FibSys::get_i2s2_streamer().init(); }},
+                   []() {
+                       static I2sStreamer::Buffer dma_buffer;
+                       I2sStreamer::Config config{
+                           .i2s = &Periph::getI2s2(),
+                           .i2s_config =
+                               I2sIF::Config{
+                                   .sample_rate_Hz = 44100,
+                                   .sample_bit_depth = 24,
+                                   .sample_frame_size = sizeof(uint32_t),
+                               },
+                           .dma_buffer = &dma_buffer,
+                       };
+                       return FibSys::get_i2s2_streamer().init(config);
+                   }},
         init::Item{ID::services_target, "services_target"},
         init::Item{ID::app_main, "app_main",
                    []() {

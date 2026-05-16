@@ -18,16 +18,11 @@ I2s2 &I2s2::getInstance() {
     return instance;
 }
 
-std::uint32_t I2s2::getSampleRateInHz() const { return 44100; }
-
-std::uint32_t I2s2::getSampleBitDepthInBits() const { return 24; }
-
-std::uint32_t I2s2::getSampleFrameSizeInBytes() const {
-    return sizeof(std::uint32_t);
-}
-
-bool I2s2::init() {
-
+bool I2s2::init(const I2sIF::Config &config) {
+    if (!I2s2::validate_config(config)) {
+        return false;
+    }
+    this->config = config;
     HAL_NVIC_SetPriority(DMA1_Channel4_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(DMA1_Channel4_IRQn);
 
@@ -49,11 +44,27 @@ bool I2s2::init() {
 
 bool I2s2::deinit() { return (HAL_I2S_DeInit(&hi2s2) == HAL_OK); }
 
+I2sIF::Config I2s2::get_config() const { return this->config; }
+
+bool I2s2::validate_config(const I2sIF::Config &config) {
+    // Currently only one specific configuration is supported
+    if (config.sample_rate_Hz != 44100) {
+        return false;
+    }
+    if (config.sample_bit_depth != 24) {
+        return false;
+    }
+    if (config.sample_frame_size != sizeof(std::uint32_t)) {
+        return false;
+    }
+    return true;
+}
+
 bool I2s2::txRxCircularDmaUnsafe(const std::uint16_t *pTxData16,
                                  std::uint16_t *pRxData16,
                                  std::uint16_t size8) {
-    /* ATTENTION: the following function `Size` parameter stands for amount of
-    samples. When I2S is configured in:
+    /* ATTENTION: the following function `Size` parameter stands for amount
+    of samples. When I2S is configured in:
     - 16-bit mode, sample is considered 16-bit wide
     - 24-bit or 32-bit mode, sample is considered 32-bit wide */
     return (HAL_I2SEx_TransmitReceive_DMA(

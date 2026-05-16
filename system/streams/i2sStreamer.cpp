@@ -7,24 +7,37 @@
 #include "dsp/dsp.hpp"
 #include "dsp/sample.hpp"
 
+#include "i2sIF.hpp"
 #include "ln/ln.h"
 
-I2sStreamer::I2sStreamer(I2sIF &i2s, const char *taskName,
-                         uint16_t usStackDepth, UBaseType_t uxPriority,
-                         I2sStreamer::Buffer &dma_buffer, ProcessF processF)
-    : Task(uxPriority, usStackDepth, taskName), dma_buffer(dma_buffer),
-      processF(processF), i2s(i2s) {}
+I2sStreamer::I2sStreamer(const char *taskName, uint16_t usStackDepth,
+                         UBaseType_t uxPriority)
+    : Task(uxPriority, usStackDepth, taskName) {}
 
-bool I2sStreamer::init() {
+bool I2sStreamer::init(const Config &config) {
+    if (!validate_config(config)) {
+        return false;
+    }
     FreeRTOS::Addons::LockGuard lock_guard(this->public_access_mutex);
     if (this->initialized) {
         return true;
     }
-    if (!this->i2s.init()) {
+    this->config = config;
+    if (!this->config.i2s->init(config.i2s_config)) {
         return false;
     }
     this->initialized = true;
-    return this->isValid();
+    return this->Task::isValid();
+}
+
+bool I2sStreamer::validate_config(const Config &config) {
+    if (!config.i2s) {
+        return false;
+    }
+    if (!config.dma_buffer) {
+        return false;
+    }
+    return true;
 }
 
 bool I2sStreamer::deinit() {
@@ -35,16 +48,16 @@ bool I2sStreamer::deinit() {
     if (!this->stop()) {
         return false;
     }
-    if (!this->i2s.deinit()) {
+    if (!this->config.i2s->deinit()) {
         return false;
     }
     this->initialized = false;
     return true;
 }
 
-void I2sStreamer::set_fn(ProcessF processF) {
+void I2sStreamer::set_fn(ProcessF process_fn) {
     FreeRTOS::Addons::LockGuard lock_guard(this->public_access_mutex);
-    this->processF = processF;
+    this->config.process_fn = process_fn;
 }
 
 bool I2sStreamer::start() {
@@ -55,8 +68,8 @@ bool I2sStreamer::start() {
     if (this->state == State::running) {
         return true;
     }
-    LN_ASSERT_PANIC(this->request.sendToBack(Request::start, 0));
-    const auto opt_response = this->response.receive(portMAX_DELAY);
+    LN_ASSERT_PANIC(this->task_request.sendToBack(Request::start, 0));
+    const auto opt_response = this->task_response.receive(portMAX_DELAY);
     LN_ASSERT_PANIC(opt_response.has_value());
     return opt_response == Response::started;
 }
@@ -69,8 +82,8 @@ bool I2sStreamer::stop() {
     if (this->state == State::stopped) {
         return true;
     }
-    LN_ASSERT_PANIC(this->request.sendToBack(Request::stop, 0));
-    const auto opt_response = this->response.receive(portMAX_DELAY);
+    LN_ASSERT_PANIC(this->task_request.sendToBack(Request::stop, 0));
+    const auto opt_response = this->task_response.receive(portMAX_DELAY);
     LN_ASSERT_PANIC(opt_response.has_value());
     return opt_response == Response::stopped;
 }
@@ -87,9 +100,11 @@ I2sStreamer::get_buf_to_process() {
     }
     if (this->curr_streaming == CurrentlyStreaming::none ||
         this->curr_streaming == CurrentlyStreaming::second) {
-        return {this->dma_buffer.rx.first, this->dma_buffer.tx.first};
+        return {this->config.dma_buffer->rx.first,
+                this->config.dma_buffer->tx.first};
     }
-    return {this->dma_buffer.rx.second, this->dma_buffer.tx.second};
+    return {this->config.dma_buffer->rx.second,
+            this->config.dma_buffer->tx.second};
 }
 
 void I2sStreamer::onTxRxHalfCompleteIsrCallback() {
@@ -105,13 +120,15 @@ void I2sStreamer::onTxRxCompleteIsrCallback() {
     portYIELD_FROM_ISR(higherPriorityTaskWoken);
 }
 
+// NOLINTNEXTLINE(readability-make-member-function-const)
 void I2sStreamer::clear_i2s_dma_tx_buffer() {
-    this->dma_buffer.tx.first.fill(
-        {Fib::Dsp::Sample::centerValueOfBitDepth<i2sBitDepth>(),
-         Fib::Dsp::Sample::centerValueOfBitDepth<i2sBitDepth>()});
-    this->dma_buffer.tx.second.fill(
-        {Fib::Dsp::Sample::centerValueOfBitDepth<i2sBitDepth>(),
-         Fib::Dsp::Sample::centerValueOfBitDepth<i2sBitDepth>()});
+    const auto bit_depth = this->config.i2s_config.sample_bit_depth;
+    this->config.dma_buffer->tx.first.fill(
+        {Fib::Dsp::Sample::centerValueOfBitDepth(bit_depth),
+         Fib::Dsp::Sample::centerValueOfBitDepth(bit_depth)});
+    this->config.dma_buffer->tx.second.fill(
+        {Fib::Dsp::Sample::centerValueOfBitDepth(bit_depth),
+         Fib::Dsp::Sample::centerValueOfBitDepth(bit_depth)});
 }
 
 void I2sStreamer::process() {
@@ -119,11 +136,13 @@ void I2sStreamer::process() {
 
     // TODO: add alternative user-switcable raw_processF that operates on
     // i2s dma buffers directly (saving the conversion step to/from F32)
-    if (this->processF) {
+    if (this->config.process_fn) {
         Fib::Dsp::StereoSampleBufferF32 rx_sample_buf, tx_sample_buf;
-        Fib::Dsp::Sample::convert<i2sBitDepth>(rx_i2s_dma_buf, rx_sample_buf);
-        this->processF(rx_sample_buf, tx_sample_buf);
-        Fib::Dsp::Sample::convert<i2sBitDepth>(tx_sample_buf, tx_i2s_dma_buf);
+        Fib::Dsp::Sample::convert(rx_i2s_dma_buf, rx_sample_buf,
+                                  this->config.i2s_config.sample_bit_depth);
+        this->config.process_fn(rx_sample_buf, tx_sample_buf);
+        Fib::Dsp::Sample::convert(tx_sample_buf, tx_i2s_dma_buf,
+                                  this->config.i2s_config.sample_bit_depth);
     }
 }
 
@@ -131,40 +150,44 @@ void I2sStreamer::process() {
 void I2sStreamer::taskFunction() {
     while (true) {
         if (this->state == State::running) {
-            const auto opt_request = this->request.receive(0);
+            const auto opt_request = this->task_request.receive(0);
             if (!opt_request) {
                 this->process();
                 continue;
             }
             LN_ASSERT_PANIC(opt_request == Request::stop);
-            if (!this->i2s.stopTxRxCircularDma()) {
-                LN_ASSERT_PANIC(
-                    this->response.sendToBack(Response::failed_to_stop, 0));
+            if (!this->config.i2s->stopTxRxCircularDma()) {
+                LN_ASSERT_PANIC(this->task_response.sendToBack(
+                    Response::failed_to_stop, 0));
                 continue;
             }
             this->state = State::stopped;
             this->curr_streaming = CurrentlyStreaming::none;
-            LN_ASSERT_PANIC(this->response.sendToBack(Response::stopped, 0));
+            LN_ASSERT_PANIC(
+                this->task_response.sendToBack(Response::stopped, 0));
         }
         if (this->state == State::stopped) {
-            const auto opt_request = this->request.receive(
+            const auto opt_request = this->task_request.receive(
                 portMAX_DELAY); // wait indefinitely for start request
             LN_ASSERT_PANIC(opt_request.has_value());
             LN_ASSERT_PANIC(opt_request == Request::start);
             this->clear_i2s_dma_tx_buffer();
             this->state = State::running;
-            if (!this->i2s.startTxRxCircularDma(
-                    reinterpret_cast<std::uint16_t *>(&this->dma_buffer.tx),
-                    reinterpret_cast<std::uint16_t *>(&this->dma_buffer.rx),
-                    sizeof(dma_buffer.tx), this)) {
+            if (!this->config.i2s->startTxRxCircularDma(
+                    reinterpret_cast<std::uint16_t *>(
+                        &this->config.dma_buffer->tx),
+                    reinterpret_cast<std::uint16_t *>(
+                        &this->config.dma_buffer->rx),
+                    sizeof(this->config.dma_buffer->tx), this)) {
                 this->state = State::stopped;
                 this->curr_streaming = CurrentlyStreaming::first;
                 this->dma_just_started_streaming_first_half = true;
-                LN_ASSERT_PANIC(
-                    this->response.sendToBack(Response::failed_to_start, 0));
+                LN_ASSERT_PANIC(this->task_response.sendToBack(
+                    Response::failed_to_start, 0));
                 continue;
             }
-            LN_ASSERT_PANIC(this->response.sendToBack(Response::started, 0));
+            LN_ASSERT_PANIC(
+                this->task_response.sendToBack(Response::started, 0));
         }
     }
 }

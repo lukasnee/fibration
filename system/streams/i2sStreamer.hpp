@@ -12,10 +12,6 @@
 
 class I2sStreamer : public FreeRTOS::Task, private I2sIF::TxRxIsrCallbacks {
 public:
-    // TODO: pass SampleRateInHz
-
-    static constexpr std::size_t i2sBitDepth = 24;
-
     struct Buffer {
         using DmaDoubleBuffer = std::pair<Fib::Dsp::I2sSampleBufferU32,
                                           Fib::Dsp::I2sSampleBufferU32>;
@@ -26,15 +22,22 @@ public:
         const Fib::Dsp::StereoSampleBufferF32 &rxStereoSampleBlock,
         Fib::Dsp::StereoSampleBufferF32 &txStereoSampleBlock)>;
 
-    I2sStreamer(I2sIF &i2s, const char *taskName, uint16_t usStackDepth,
-                UBaseType_t uxPriority, I2sStreamer::Buffer &dma_buffer,
-                ProcessF processF = nullptr);
+    struct Config {
+        I2sIF *i2s;
+        I2sIF::Config i2s_config;
+        // TODO: make dma_buffer adjustable (std::span, etc.)
+        I2sStreamer::Buffer *dma_buffer;
+        ProcessF process_fn = nullptr;
+    };
+
+    I2sStreamer(const char *taskName, uint16_t usStackDepth,
+                UBaseType_t uxPriority);
     ~I2sStreamer() = default;
 
-    bool init();
+    bool init(const Config &config);
     bool deinit();
 
-    void set_fn(ProcessF processF);
+    void set_fn(ProcessF process_fn);
 
     bool start();
     bool stop();
@@ -73,6 +76,7 @@ private:
     std::pair<Fib::Dsp::I2sSampleBufferU32 &, Fib::Dsp::I2sSampleBufferU32 &>
     get_buf_to_process();
 
+    static bool validate_config(const Config &config);
     void clear_i2s_dma_tx_buffer();
     void process();
 
@@ -85,11 +89,10 @@ private:
 
     bool initialized = false;
     bool dma_just_started_streaming_first_half = false;
-    FreeRTOS::StaticQueue<Request, 1> request;
-    FreeRTOS::StaticQueue<Response, 1> response;
-    FreeRTOS::RecursiveMutex public_access_mutex;
-    Buffer &dma_buffer;
-    ProcessF processF;
     State state = State::stopped;
-    I2sIF &i2s;
+    FreeRTOS::StaticQueue<Request, 1> task_request;
+    FreeRTOS::StaticQueue<Response, 1> task_response;
+    FreeRTOS::RecursiveMutex public_access_mutex;
+
+    Config config;
 };
