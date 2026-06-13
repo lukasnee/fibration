@@ -14,23 +14,25 @@ namespace Fib::Dsp::Sample {
 // becuase they are called for every sample which hinders performance.
 // Implementation is currently inefficiently nested.
 
-constexpr U32 maxValueOfBitDepth(U32 bit_depth) {
+__STATIC_FORCEINLINE constexpr U32 maxValueOfBitDepth(U32 bit_depth) {
     // TODO: assert bit_depth is between 1 and 32
     return (std::numeric_limits<U32>::max() >> (32 - bit_depth));
 }
 
-constexpr U32 centerValueOfBitDepth(U32 bit_depth) {
+__STATIC_FORCEINLINE constexpr U32 centerValueOfBitDepth(U32 bit_depth) {
     return maxValueOfBitDepth(bit_depth) / 2;
 }
 
-inline U32 swap(U32 val) { return __REV(val); };
+__STATIC_FORCEINLINE U32 swap(U32 val) { return __REV(val); };
 
-constexpr Q31 rawSampleToQ31(const U32 &sample, size_t bit_depth) {
+__STATIC_FORCEINLINE constexpr Q31 rawSampleToQ31(const U32 &sample,
+                                                  size_t bit_depth) {
     return static_cast<Q31>(sample) -
            static_cast<Q31>(centerValueOfBitDepth(bit_depth));
 }
 
-constexpr U32 q31ToRawSample(const Q31 &q31, size_t bit_depth) {
+__STATIC_FORCEINLINE constexpr U32 q31ToRawSample(const Q31 &q31,
+                                                  size_t bit_depth) {
     return centerValueOfBitDepth(bit_depth) + static_cast<U32>(q31);
 }
 
@@ -64,12 +66,15 @@ constexpr void convert(const I2sSampleBufferU32 &in, StereoSampleBufferQ31 &out,
                        size_t bit_depth) {
     const size_t inverse_bit_depth =
         std::numeric_limits<U32>::digits - bit_depth;
-    // TODO experiment with #pragma unroll N
-    // TODO: maybe I2S peripheral or DMA can swap for us? Or present data in a
-    // more convenient format
+// TODO: maybe I2S peripheral or DMA can swap for us? Or present data in a
+// more convenient format
+#pragma GCC unroll 4
     for (std::size_t i = 0; i < out.left.size(); i++) {
         out.left[i] =
             rawSampleToQ31(swap(in[i].left) << inverse_bit_depth, bit_depth);
+    }
+#pragma GCC unroll 4
+    for (std::size_t i = 0; i < out.right.size(); i++) {
         out.right[i] =
             rawSampleToQ31(swap(in[i].right) << inverse_bit_depth, bit_depth);
     }
@@ -79,30 +84,53 @@ constexpr void convert(const StereoSampleBufferQ31 &in, I2sSampleBufferU32 &out,
                        size_t bit_depth) {
     const size_t inverse_bit_depth =
         std::numeric_limits<U32>::digits - bit_depth;
-    // TODO experiment with #pragma unroll N
+#pragma GCC unroll 4
     for (size_t i = 0; i < in.left.size(); i++) {
         out[i].left =
             swap(q31ToRawSample(in.left[i], bit_depth) >> inverse_bit_depth);
+    }
+#pragma GCC unroll 4
+    for (size_t i = 0; i < in.right.size(); i++) {
         out[i].right =
             swap(q31ToRawSample(in.right[i], bit_depth) >> inverse_bit_depth);
     }
 }
 
-// TODO: optimize, convert directly between F32 and U32, skipping Q31 as
-// intermediate format.
-constexpr void convert(I2sSampleBufferU32 &in, StereoSampleBufferF32 &out,
-                       size_t bit_depth) {
-    StereoSampleBufferQ31 tmp;
-    convert(in, tmp, bit_depth);
-    convert(tmp.left, out.left);
-    convert(tmp.right, out.right);
+inline void convert(const I2sSampleBufferU32 &in, StereoSampleBufferF32 &out,
+                    size_t bit_depth) {
+    const size_t inverse_bit_depth =
+        std::numeric_limits<U32>::digits - bit_depth;
+    const auto center = static_cast<int32_t>(centerValueOfBitDepth(bit_depth));
+    constexpr float scale = 1.0f / 2147483648.0f;
+#pragma GCC unroll 8
+    for (std::size_t i = 0; i < out.left.size(); i++) {
+        out.left[i] =
+            static_cast<float>(
+                (static_cast<int32_t>(swap(in[i].left) << inverse_bit_depth)) -
+                center) *
+            scale;
+        out.right[i] =
+            static_cast<float>(
+                (static_cast<int32_t>(swap(in[i].right) << inverse_bit_depth)) -
+                center) *
+            scale;
+    }
 }
 
-constexpr void convert(StereoSampleBufferF32 &in, I2sSampleBufferU32 &out,
-                       size_t bit_depth) {
-    StereoSampleBufferQ31 tmp;
-    convert(in.left, tmp.left);
-    convert(in.right, tmp.right);
-    convert(tmp, out, bit_depth);
+inline void convert(StereoSampleBufferF32 &in, I2sSampleBufferU32 &out,
+                    size_t bit_depth) {
+    const size_t inverse_bit_depth =
+        std::numeric_limits<U32>::digits - bit_depth;
+    const auto center = static_cast<uint32_t>(centerValueOfBitDepth(bit_depth));
+#pragma GCC unroll 8
+    for (std::size_t i = 0; i < in.left.size(); i++) {
+        out[i].left = swap((center + static_cast<uint32_t>(static_cast<int32_t>(
+                                         in.left[i] * 2147483648.0f))) >>
+                           inverse_bit_depth);
+        out[i].right =
+            swap((center + static_cast<uint32_t>(static_cast<int32_t>(
+                               in.right[i] * 2147483648.0f))) >>
+                 inverse_bit_depth);
+    }
 }
 } // namespace Fib::Dsp::Sample
