@@ -8,7 +8,7 @@
             "request": "attach",
             "servertype": "openocd",
             "configFiles": [
-                "modules/${input:target}/openocd.cfg"
+                "modules/${input:target}/openocd.${input:probe}.cfg"
             ],
             "rtos": "FreeRTOS",
             "cwd": "${workspaceRoot}",
@@ -52,6 +52,15 @@
             "description": "Target project",
             "options": [
                 "higgs"
+            ]
+        },
+        {
+            "id": "probe",
+            "type": "pickString",
+            "description": "Probe type",
+            "options": [
+                "stlink",
+                "jlink"
             ]
         },
     ]
