@@ -20,6 +20,9 @@ extern "C"
 #include "ln/shell/generic/cmds.hpp"
 #include "ln/logger/logger.h"
 
+#include "ln/build.hpp"
+#include "ln/project.hpp"
+
 #include <array>
 #include <cstdint>
 
@@ -140,7 +143,24 @@ void i2s2_stream_process(
                  }}};
 };
 
+namespace ln::shell {
+Cmd version_cmd{Cmd::Cfg{.name = "version",
+                         .short_description = "show firmware version",
+                         .fn = [](Cmd::Ctx ctx) {
+                             ctx.cli.print(
+                                 "{} v{} [{}] {} {}\n", ln::project::name,
+                                 ln::project::version::str, ln::build::git_hash,
+                                 ln::build::date, ln::build::time);
+                             return Err::ok;
+                         }}};
+} // namespace ln::shell
+
 bool app_init() {
+
+    LOG_INFO("starting up {} v{} [{}] {} {}", ln::project::name,
+             ln::project::version::str, ln::build::git_hash, ln::build::date,
+             ln::build::time);
+
     FibSys::get_i2s2_streamer().set_fn(i2s2_stream_process);
     return FibSys::get_i2s2_streamer().start();
 }

@@ -17,6 +17,7 @@ if(CMAKE_CROSSCOMPILING)
 
   add_subdirectory(extern/ln)
   include(${CMAKE_CURRENT_LIST_DIR}/extern/ln/cmake/ln.cmake)
+  ln_configure()
   ln_enable_clang_tidy()
 
   add_subdirectory(system)
@@ -32,4 +33,3 @@ else()
   list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
   include(Catch)
 endif()
-

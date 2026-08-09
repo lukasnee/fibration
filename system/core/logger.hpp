@@ -5,8 +5,6 @@
 
 #include "ln/logger/logger.h"
 
-#include "ln/build.hpp"
-
 LOG_EXTERN(system);
 
 namespace logger {
@@ -21,9 +19,7 @@ bool init() {
     logger_config.eol = "\r\n";
     logger_config.enabled_run_time = true;
     const auto res = ln::logger::get_instance().set_config(logger_config);
-    LOG_INFO("starting up {} v{} [{}] {} {}", ln::build::name,
-             ln::build::version::str, ln::build::git_hash, ln::build::date,
-             ln::build::time);
+    LOG_INFO("system starting up");
     return res;
 }
 

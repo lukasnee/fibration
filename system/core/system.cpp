@@ -90,18 +90,6 @@ void FibSys::launch() {
     vTaskStartScheduler();
 }
 
-namespace ln::shell {
-Cmd version_cmd{Cmd::Cfg{.name = "version",
-                         .short_description = "show firmware version",
-                         .fn = [](Cmd::Ctx ctx) {
-                             ctx.cli.print(
-                                 "{} v{} [{}] {} {}\n", ln::build::name,
-                                 ln::build::version::str, ln::build::git_hash,
-                                 ln::build::date, ln::build::time);
-                             return Err::ok;
-                         }}};
-} // namespace ln::shell
-
 void FibSys::startup() {
 
     enum class ID {
