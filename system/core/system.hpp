@@ -3,7 +3,9 @@
 
 #pragma once
 
+#ifdef LN_LUA
 #include "ln/lua/VM.hpp"
+#endif
 #include "ln/shell/CLI.hpp"
 #include "streams/i2sStreamer.hpp"
 
@@ -42,16 +44,20 @@ public:
         return instance;
     }
 
+#ifdef LN_LUA
     static ln::lua::VM &get_lua_vm_instance() {
         static ln::lua::VM instance;
         return instance;
     }
+#endif
 
     static ln::shell::CLI &get_cli_instance() {
         static std::array<char, 512> input_buf;
         static std::array<char, 512> history_buf;
         static ln::shell::CLI instance{input_buf, history_buf};
+#ifdef LN_LUA
         instance.config.interpreter = &get_lua_vm_instance();
+#endif
         return instance;
     }
 

@@ -74,6 +74,10 @@ target_link_libraries(
             ln::core::shell_cmds
             ln::algo
             ln::shell
-            ln::lua
             ln::shell::cmds::general
             ln::logger::cmds)
+
+if(LN_LUA)
+  target_link_libraries(fibsys INTERFACE ln::lua)
+  target_compile_definitions(fibsys INTERFACE LN_LUA)
+endif()
