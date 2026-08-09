@@ -9,6 +9,10 @@ gitHash.def
 *.raw
 *.log
 *.zip
+
+# speedscope
+*.spsc
+
 modules/*/hardware/design/_autosave-*
 modules/*/hardware/design/*-bak
 modules/*/hardware/design/*-backups/
