@@ -10,6 +10,8 @@
 #include "FreeRTOS/Mutex.hpp"
 #include "FreeRTOS/Queue.hpp"
 
+#include <functional>
+
 class I2sStreamer : public FreeRTOS::Task, private I2sIF::TxRxIsrCallbacks {
 public:
     struct Buffer {
