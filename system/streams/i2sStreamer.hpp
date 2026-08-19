@@ -80,7 +80,7 @@ private:
 
     static bool validate_config(const Config &config);
     void clear_i2s_dma_tx_buffer();
-    void process();
+    void process_audio_buffers();
 
     bool stereoAudioBufferLoaded();
 

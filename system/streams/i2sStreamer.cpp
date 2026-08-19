@@ -131,7 +131,7 @@ void I2sStreamer::clear_i2s_dma_tx_buffer() {
          Fib::Dsp::Sample::centerValueOfBitDepth(bit_depth)});
 }
 
-void I2sStreamer::process() {
+void I2sStreamer::process_audio_buffers() {
     auto [rx_i2s_dma_buf, tx_i2s_dma_buf] = this->get_buf_to_process();
 
     // TODO: add alternative user-switcable raw_processF that operates on
@@ -152,7 +152,7 @@ void I2sStreamer::taskFunction() {
         if (this->state == State::running) {
             const auto opt_request = this->task_request.receive(0);
             if (!opt_request) {
-                this->process();
+                this->process_audio_buffers();
                 continue;
             }
             LN_ASSERT_PANIC(opt_request == Request::stop);
