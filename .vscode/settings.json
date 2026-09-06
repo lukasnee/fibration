@@ -1,5 +1,8 @@
 {
     "C_Cpp.autoAddFileAssociations": false,
+    "workbench.editorAssociations": {
+        "*.spsc": "speedscope-in-vscode.speedscope"
+    },
     "[python]": {
         "editor.defaultFormatter": "ms-python.black-formatter"
     },

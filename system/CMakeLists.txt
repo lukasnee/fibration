@@ -4,7 +4,7 @@ add_subdirectory(core/libraries)
 
 target_link_libraries(
   fibsys_interface_lib INTERFACE STM32F3xx_HAL_Driver ARM_MATH_CM4_GCC
-                                 FreeRTOS-Cpp)
+                                 FreeRTOS-Cpp ln::prof)
 target_include_directories(
   fibsys_interface_lib
   INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
