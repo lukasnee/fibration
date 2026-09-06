@@ -8,6 +8,7 @@
 
 #include "ln/ln.h"
 #include "ln/logger/logger.h"
+#include "ln/prof/prof.h"
 
 extern "C"
 {
@@ -86,6 +87,7 @@ void low_level_init() {
 
 void FibSys::launch() {
     low_level_init();
+    LN_PROF_START();
     get_instance(); // construct the singleton, create init_items...
     vTaskStartScheduler();
 }

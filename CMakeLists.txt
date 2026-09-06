@@ -15,10 +15,33 @@ if(CMAKE_CROSSCOMPILING)
   add_compile_options(-Wall -Wextra -Werror)
   include(system/config/config.cmake) # TODO move config into project folders?
 
+  # set(LN_PROF ON)
   add_subdirectory(extern/ln)
   include(${CMAKE_CURRENT_LIST_DIR}/extern/ln/cmake/ln.cmake)
   ln_configure()
-  ln_enable_clang_tidy()
+
+  ln_prof(
+    EXCLUDE_FUNCTIONS
+    "std::"
+    "fmt::"
+    "FreeRTOS::"
+    "AdcIF::"
+    "Adc2::"
+    "Periph::getAdc2"
+    "Fib::Dsp::Map"
+    "Fib::Dsp::Osc"
+    "Fib::Dsp::RangedValue"
+    "Fib::Dsp::Osc::Waveforms"
+    "power2"
+    "power4"
+    "::get_sample"
+    "::Param::Arithmetic"
+    "__REV"
+    "swap"
+    "maxValueOfBitDepth"
+    "centerValueOfBitDepth"
+    "rawSampleToQ31"
+    "q31ToRawSample")
 
   add_subdirectory(system)
   add_subdirectory(modules)
