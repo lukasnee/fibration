@@ -31,7 +31,7 @@ repos:
     hooks:
       - id: cmake-crosscompile-check
         name: CMake Cross-Compile Build Check
-        entry: cmake --build --preset higgs-dbg
+        entry: cmake --build --preset higgs-rel
         language: system
         files: \.(c|cpp|h|hpp|cmake|CMakeLists\.txt)$
         pass_filenames: false
