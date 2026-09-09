@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "ioStream.hpp"
+#include "streams/ioStream.hpp"
 
 #include "adc2.hpp"
 #include "i2s2.hpp"

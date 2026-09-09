@@ -62,13 +62,14 @@ protected:
     virtual ~AdcIF() = default;
 
     bool getValueRaw(std::size_t channelNo, std::uint32_t &valueRawOut) {
-        bool result = false;
-        this->mutex.lock();
-        if (this->getValueUnsafe(channelNo, valueRawOut)) {
-            result = true;
-        }
-        this->mutex.unlock();
-        return result;
+        // bool result = false;
+        // this->mutex.lock();
+        // if (this->getValueUnsafe(channelNo, valueRawOut)) {
+        //     result = true;
+        // }
+        // this->mutex.unlock();
+        // return result;
+        return this->getValueUnsafe(channelNo, valueRawOut);
     }
 
     virtual bool getValueUnsafe(std::size_t channelNo,

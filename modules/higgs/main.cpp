@@ -31,10 +31,10 @@ LOG_MODULE(app, ln::logger::Level::debug);
 void i2s2_stream_process(
     [[maybe_unused]] const Fib::Dsp::StereoSampleBufferF32 &rxStereoSampleBlock,
     [[maybe_unused]] Fib::Dsp::StereoSampleBufferF32 &txStereoSampleBuffer) {
-    static auto sineWave = Fib::Dsp::Osc(Fib::Dsp::Osc::Waveforms::sine);
-    static auto squareWave = Fib::Dsp::Osc(Fib::Dsp::Osc::Waveforms::square);
-    static auto sawWave = Fib::Dsp::Osc(Fib::Dsp::Osc::Waveforms::saw);
-    static auto triangeWave = Fib::Dsp::Osc(Fib::Dsp::Osc::Waveforms::triangle);
+    static auto sineWave = Fib::Dsp::Waveforms::Sine{};
+    static auto squareWave = Fib::Dsp::Waveforms::Square{};
+    static auto sawWave = Fib::Dsp::Waveforms::Saw{};
+    static auto triangeWave = Fib::Dsp::Waveforms::Triangle{};
     static Fib::Dsp::Osc *pWaves[] = {&squareWave, &sawWave, &triangeWave,
                                       &sineWave};
 

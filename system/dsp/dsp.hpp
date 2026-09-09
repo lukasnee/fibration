@@ -6,8 +6,6 @@
 #include "stm32f303xe.h"
 #include <array>
 #include <cstdint>
-#include <functional>
-#include <limits>
 extern "C"
 {
 #include "arm_math.h"
@@ -19,7 +17,7 @@ using F32 = float;
 using Q31 = q31_t;
 
 static constexpr std::size_t sampleBufferSize =
-    0x20; // TODO experiment on this one
+    0x20; // 128; // TODO experiment on this one
 
 template <std::size_t size> using BufferU32 = std::array<U32, size>;
 template <std::size_t size> using BufferF32 = std::array<F32, size>;

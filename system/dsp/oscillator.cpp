@@ -7,13 +7,8 @@
 
 namespace Fib::Dsp {
 
-Osc::Osc(SynthesizeF synthesizeF, F32 sampleRateInHz)
-    : synthesizeF(synthesizeF), amplitudeNormal(1.f, 0.f, 1.f),
-      frequencyInHz(0.f, 0.f, 20'000.f,
-                    [&](F32 const &frequencyInHz) {
-                        this->phaseDeltaInRad =
-                            frequencyInHz * this->samplePeriodInSec;
-                    }),
+Osc::Osc(F32 sampleRateInHz)
+    : amplitudeNormal(1.f, 0.f, 1.f), frequencyInHz(0.f, 0.f, 20'000.f),
       phaseInRad(0.f, 0.f, (2.f * PI)), sampleRateInHz(sampleRateInHz) {
     this->samplePeriodInSec = 2 * PI / this->sampleRateInHz;
 };
@@ -23,7 +18,7 @@ SampleBufferF32 Osc::synthesize() {
     Fib::Dsp::SampleBufferF32 newPhasesInRad;
     this->getNewPhases(newPhasesInRad);
     for (std::size_t i = 0; i < sampleBlockF32.size(); i++) {
-        sampleBlockF32[i] = this->synthesizeF(newPhasesInRad[i]);
+        sampleBlockF32[i] = this->get_sample(newPhasesInRad[i]);
     }
     /* scale to amplitude normal */
     if (this->amplitudeNormal.get() != 1.f) {
@@ -36,9 +31,10 @@ SampleBufferF32 Osc::synthesize() {
 void Osc::getNewPhases(SampleBufferF32 &phaseSampleBufferOut) {
     // TODO: try optimizing with CMSIS math
     for (auto &phaseSample : phaseSampleBufferOut) {
-        phaseSample = this->phaseInRad.get() + this->phaseDeltaInRad;
-        if (phaseSample > this->phaseInRad.upperLimit()) {
-            phaseSample = phaseSample - this->phaseInRad.upperLimit();
+        phaseSample = this->phaseInRad.get() +
+                      frequencyInHz.get() * this->samplePeriodInSec;
+        if (phaseSample > this->phaseInRad.get_max()) {
+            phaseSample = phaseSample - this->phaseInRad.get_max();
         }
         this->phaseInRad.set(phaseSample);
     }

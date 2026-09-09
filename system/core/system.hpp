@@ -63,7 +63,7 @@ public:
 
     static I2sStreamer &get_i2s2_streamer() {
         static I2sStreamer instance("i2s2_streamer",
-                                    4 * 1024 / sizeof(StackType_t),
+                                    6 * 1024 / sizeof(StackType_t),
                                     Priority::audioStream);
         return instance;
     }
