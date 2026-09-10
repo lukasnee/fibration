@@ -1,1 +1,0 @@
-# Outsourced libraries

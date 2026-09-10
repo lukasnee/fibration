@@ -17,6 +17,8 @@ if(CMAKE_CROSSCOMPILING)
 
   # set(LN_PROF ON)
   add_subdirectory(extern/ln)
+  add_subdirectory(extern/STM32CubeF3)
+
   include(${CMAKE_CURRENT_LIST_DIR}/extern/ln/cmake/ln.cmake)
   ln_configure()
 

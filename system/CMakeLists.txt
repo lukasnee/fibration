@@ -3,8 +3,6 @@ add_library(fibsys_obj_lib OBJECT)
 
 # TODO: separate hw specific and generic code
 
-add_subdirectory(core/libraries)
-
 target_link_libraries(
   fibsys_obj_lib PUBLIC STM32F3xx_HAL_Driver ARM_MATH_CM4_GCC FreeRTOS-Cpp
                         ln::prof)
