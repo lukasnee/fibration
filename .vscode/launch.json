@@ -13,9 +13,9 @@
             "rtos": "FreeRTOS",
             "cwd": "${workspaceRoot}",
             "executable": "${workspaceRoot}/.build/${input:target}-${input:build_type}/modules/${input:target}/${input:target}",
-            // "preAttachCommands": [
-            //     "monitor tpiu config internal itm.fifo uart off 240000000"
-            // ],
+            "preAttachCommands": [
+                // "monitor tpiu config internal prof.dat uart off 72000000 2000000"
+            ],
             "svdFile": "${workspaceRoot}/system/msp/STM32F303.svd",
             "interface": "swd",
             "breakAfterReset": true,
