@@ -12,7 +12,7 @@
     },
     "cmake.useCMakePresets": "always",
     "clangd.arguments": [
-        "--compile-commands-dir=.build/higgs-dbg",
+        "--compile-commands-dir=.build/higgs-rel",
         "--query-driver=**",
         "--background-index",
         "--clang-tidy"
