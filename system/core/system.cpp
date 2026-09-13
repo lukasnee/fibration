@@ -3,10 +3,10 @@
 
 #include "system.hpp"
 #include "logger.hpp"
-#include "init.hpp"
 #include "StdStream.hpp"
 
 #include "ln/ln.h"
+#include "ln/sysinit.hpp"
 #include "ln/logger/logger.h"
 #include "ln/prof/prof.h"
 
@@ -92,75 +92,78 @@ void FibSys::launch() {
     vTaskStartScheduler();
 }
 
+enum class ID {
+    logger,
+    uart2,
+    std_stream,
+    cli_service,
+    adc2,
+    i2s_streamer,
+    services_target,
+    app_main,
+};
+
+template <typename ID> using Unit = ln::sysinit::Unit<ID>;
+template <typename ID> using Dep = ln::sysinit::Dep<ID>;
+
 void FibSys::startup() {
 
-    enum class ID {
-        logger,
-        uart2,
-        std_stream,
-        cli_service,
-        adc2,
-        i2s_streamer,
-        services_target,
-        app_main,
+    constexpr std::array init_items = {
+        Unit{ID::logger, "logger", []() { return logger::init(); }},
+        Unit{ID::uart2, "uart2",
+             []() { return Periph::getUart2Stream().init(); }},
+        Unit{ID::std_stream, "std_stream",
+             []() { return StdStream::getInstance().init(); }},
+        Unit{ID::cli_service, "cli_service",
+             []() {
+                 get_instance().cli_svc_task.start();
+                 return true;
+             }},
+        Unit{ID::adc2, "adc2",
+             []() {
+                 return Periph::getAdc2().init() && Periph::getAdc2().start();
+             }},
+        Unit{ID::i2s_streamer, "i2s_streamer",
+             []() {
+                 static I2sStreamer::Buffer dma_buffer;
+                 I2sStreamer::Config config{
+                     .i2s = &Periph::getI2s2(),
+                     .i2s_config =
+                         I2sIF::Config{
+                             .sample_rate_Hz = 44100,
+                             .sample_bit_depth = 24,
+                             .sample_frame_size = sizeof(uint32_t),
+                         },
+                     .dma_buffer = &dma_buffer,
+                 };
+                 return FibSys::get_i2s2_streamer().init(config);
+             }},
+        Unit{ID::services_target, "services_target"},
+        Unit{ID::app_main, "app_main",
+             []() {
+                 bool app_init(void); // application-specific entry point
+                 return app_init();
+             }},
     };
 
-    constexpr std::array init_items = {
-        init::Item{ID::logger, "logger", []() { return logger::init(); }},
-        init::Item{ID::uart2, "uart2",
-                   []() { return Periph::getUart2Stream().init(); }},
-        init::Item{ID::std_stream, "std_stream",
-                   []() { return StdStream::getInstance().init(); }},
-        init::Item{ID::cli_service, "cli_service",
-                   []() {
-                       get_instance().cli_svc_task.start();
-                       return true;
-                   }},
-        init::Item{ID::adc2, "adc2",
-                   []() {
-                       return Periph::getAdc2().init() &&
-                              Periph::getAdc2().start();
-                   }},
-        init::Item{ID::i2s_streamer, "i2s_streamer",
-                   []() {
-                       static I2sStreamer::Buffer dma_buffer;
-                       I2sStreamer::Config config{
-                           .i2s = &Periph::getI2s2(),
-                           .i2s_config =
-                               I2sIF::Config{
-                                   .sample_rate_Hz = 44100,
-                                   .sample_bit_depth = 24,
-                                   .sample_frame_size = sizeof(uint32_t),
-                               },
-                           .dma_buffer = &dma_buffer,
-                       };
-                       return FibSys::get_i2s2_streamer().init(config);
-                   }},
-        init::Item{ID::services_target, "services_target"},
-        init::Item{ID::app_main, "app_main",
-                   []() {
-                       bool app_init(void); // application-specific entry point
-                       return app_init();
-                   }},
-    };
     constexpr std::array init_deps = {
-        /* logger does depend on std_stream but not crucial in the beginning,
-         since logger buffers output. std_stream is necessary once the buffers
-         is full and needs to flushed.
+        /* logger does depend on std_stream but not crucial in the
+         beginning, since logger buffers output. std_stream is necessary
+         once the buffers is full and needs to flushed.
         */
-        // init::Dep{ID::std_stream, ID::logger},
-        init::Dep{ID::uart2, ID::std_stream},
-        init::Dep{ID::uart2, ID::cli_service},
-        init::Dep{ID::std_stream, ID::cli_service},
-        init::Dep{ID::adc2, ID::app_main},
-        init::Dep{ID::i2s_streamer, ID::app_main},
-        init::Dep{ID::i2s_streamer, ID::services_target},
-        init::Dep{ID::cli_service, ID::services_target},
-        init::Dep{ID::services_target, ID::app_main},
+        // Dep{ID::std_stream, ID::logger},
+        Dep{ID::uart2, ID::std_stream},
+        Dep{ID::uart2, ID::cli_service},
+        Dep{ID::std_stream, ID::cli_service},
+        Dep{ID::adc2, ID::app_main},
+        Dep{ID::i2s_streamer, ID::app_main},
+        Dep{ID::i2s_streamer, ID::services_target},
+        Dep{ID::cli_service, ID::services_target},
+        Dep{ID::services_target, ID::app_main},
     };
     static constexpr auto ordered_initializers =
         ln::algo::CompileTimeDAG::Graph(init_items, init_deps).topo_sort();
-    init::init(ordered_initializers);
+    ln::sysinit::init(ordered_initializers);
 }
 
 void FibSys::Task::taskFunction() {

@@ -18,9 +18,7 @@ bool init() {
     logger_config.out_buf = logger_out_buf;
     logger_config.eol = "\r\n";
     logger_config.enabled_run_time = true;
-    const auto res = ln::logger::get_instance().set_config(logger_config);
-    LOG_INFO("system starting up");
-    return res;
+    return ln::logger::get_instance().set_config(logger_config);
 }
 
 } // namespace logger

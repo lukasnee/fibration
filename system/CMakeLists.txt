@@ -66,6 +66,7 @@ target_link_libraries(
          ln::port::FreeRTOS::shell_cmds
          ln::core::shell_cmds
          ln::algo
+         ln::sysinit
          ln::shell
          ln::shell::cmds::general
          ln::logger::cmds)
