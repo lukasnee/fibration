@@ -26,6 +26,7 @@ if(CMAKE_CROSSCOMPILING)
     EXCLUDE_FUNCTIONS
     "std::"
     "fmt::"
+    "ln::Mutex"
     "FreeRTOS::"
     "AdcIF::"
     "Adc2::"
