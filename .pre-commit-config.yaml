@@ -38,7 +38,7 @@ repos:
         description: Ensures the project cross-compiles successfully with CMake
       - id: cmake-tests-check
         name: Tests Build and Run Check
-        entry: cmake --build --preset tests && ctest --preset tests --output-on-failure
+        entry: cmake --workflow tests && ctest --preset tests --output-on-failure
         language: system
         files: \.(c|cpp|h|hpp|cmake|CMakeLists\.txt)$
         pass_filenames: false
