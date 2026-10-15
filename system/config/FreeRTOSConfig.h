@@ -1,5 +1,7 @@
 #pragma once
 
+// clang-format off
+
 // #include "stm32f303xe.h"
 //#include "stm32f303xc.h"
 
@@ -15,7 +17,7 @@
 #define configUSE_TICKLESS_IDLE                 0
 #define configCPU_CLOCK_HZ                      ( SystemCoreClock ) // eventually 72M (Hz) - note this value updates at run-time
 #define configTICK_RATE_HZ                      ( ( TickType_t ) 1000 )
-#define configMAX_PRIORITIES                    ( 56 )
+#define configMAX_PRIORITIES                    ( 8 )
 #define configMINIMAL_STACK_SIZE                ( ( uint16_t ) 128 )
 #define configMAX_TASK_NAME_LEN                 ( 16 )
 #define configUSE_TRACE_FACILITY                1
@@ -124,3 +126,5 @@ standard names. */
 #define vPortSVCHandler 	SVC_Handler
 #define xPortPendSVHandler 	PendSV_Handler
 #define xPortSysTickHandler SysTick_Handler
+
+// clang-format on

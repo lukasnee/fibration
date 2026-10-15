@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "ln/ln.h"
 #ifdef LN_LUA
 #include "ln/lua/VM.hpp"
 #endif
@@ -93,24 +94,4 @@ private:
         FibSys &owner;
     };
     Task task{*this};
-
-    static constexpr size_t cli_svc_task_stack_size = 1024;
-    struct CliSvcTask : public FreeRTOS::StaticTask<cli_svc_task_stack_size> {
-        CliSvcTask(ln::shell::CLI &cli)
-            : FreeRTOS::StaticTask<cli_svc_task_stack_size>(
-                  FibSys::Priority::low, "CliSvc"),
-              cli(cli) {}
-
-        void start() { this->notifyGive(); }
-
-    private:
-        virtual void taskFunction() final {
-            this->notifyTake();
-            while (true) {
-                this->cli.routine();
-            }
-        }
-        ln::shell::CLI &cli;
-    };
-    CliSvcTask cli_svc_task{get_cli_instance()};
 };

@@ -8,6 +8,7 @@
 #include "ln/ln.h"
 #include "ln/sysinit.hpp"
 #include "ln/logger/logger.h"
+#include "ln/shell/CLId.hpp"
 #include "ln/prof/prof.h"
 
 extern "C"
@@ -92,79 +93,80 @@ void FibSys::launch() {
     vTaskStartScheduler();
 }
 
-enum class ID {
-    logger,
-    uart2,
-    std_stream,
-    cli_service,
-    adc2,
-    i2s_streamer,
-    services_target,
-    app_main,
-};
+bool uart2_init() { return Periph::getUart2Stream().init(); }
 
-template <typename ID> using Unit = ln::sysinit::Unit<ID>;
-template <typename ID> using Dep = ln::sysinit::Dep<ID>;
+bool std_stream_init() { return StdStream::getInstance().init(); }
 
-void FibSys::startup() {
-
-    constexpr std::array init_items = {
-        Unit{ID::logger, "logger", []() { return logger::init(); }},
-        Unit{ID::uart2, "uart2",
-             []() { return Periph::getUart2Stream().init(); }},
-        Unit{ID::std_stream, "std_stream",
-             []() { return StdStream::getInstance().init(); }},
-        Unit{ID::cli_service, "cli_service",
-             []() {
-                 get_instance().cli_svc_task.start();
-                 return true;
-             }},
-        Unit{ID::adc2, "adc2",
-             []() {
-                 return Periph::getAdc2().init() && Periph::getAdc2().start();
-             }},
-        Unit{ID::i2s_streamer, "i2s_streamer",
-             []() {
-                 static I2sStreamer::Buffer dma_buffer;
-                 I2sStreamer::Config config{
-                     .i2s = &Periph::getI2s2(),
-                     .i2s_config =
-                         I2sIF::Config{
-                             .sample_rate_Hz = 44100,
-                             .sample_bit_depth = 24,
-                             .sample_frame_size = sizeof(uint32_t),
-                         },
-                     .dma_buffer = &dma_buffer,
-                 };
-                 return FibSys::get_i2s2_streamer().init(config);
-             }},
-        Unit{ID::services_target, "services_target"},
-        Unit{ID::app_main, "app_main",
-             []() {
-                 bool app_init(void); // application-specific entry point
-                 return app_init();
-             }},
+ln::shell::CLId &get_clid_instance() {
+    alignas(size_t) static std::array<uint8_t, 1024> task_stack;
+    static ln::Task::Cfg task_cfg{
+        .prio = ln::Task::Prio::medium,
+        .name = "clid",
+        .static_stack = task_stack,
     };
-
-    constexpr std::array init_deps = {
-        /* logger does depend on std_stream but not crucial in the
-         beginning, since logger buffers output. std_stream is necessary
-         once the buffers is full and needs to flushed.
-        */
-        // Dep{ID::std_stream, ID::logger},
-        Dep{ID::uart2, ID::std_stream},
-        Dep{ID::uart2, ID::cli_service},
-        Dep{ID::std_stream, ID::cli_service},
-        Dep{ID::adc2, ID::app_main},
-        Dep{ID::i2s_streamer, ID::app_main},
-        Dep{ID::i2s_streamer, ID::services_target},
-        Dep{ID::cli_service, ID::services_target},
-        Dep{ID::services_target, ID::app_main},
-    };
-    static constexpr auto ordered_initializers =
-        ln::algo::CompileTimeDAG::Graph(init_items, init_deps).topo_sort();
-    ln::sysinit::init(ordered_initializers);
+    static ln::shell::CLId instance{FibSys::get_cli_instance(), task_cfg};
+    return instance;
 }
+
+bool cli_service_init() {
+    get_clid_instance().start();
+    return true;
+}
+
+bool adc2_init() {
+    if (!Periph::getAdc2().init()) {
+        return false;
+    }
+    if (!Periph::getAdc2().start()) {
+        return false;
+    }
+    return true;
+}
+
+bool i2s_streamer_init() {
+    static I2sStreamer::Buffer dma_buffer;
+    I2sStreamer::Config config{
+        .i2s = &Periph::getI2s2(),
+        .i2s_config =
+            I2sIF::Config{
+                .sample_rate_Hz = 44100,
+                .sample_bit_depth = 24,
+                .sample_frame_size = sizeof(uint32_t),
+            },
+        .dma_buffer = &dma_buffer,
+    };
+    return FibSys::get_i2s2_streamer().init(config);
+}
+
+bool app_init(void); // project-specific entry point
+
+#define FIBSYSINIT_UNITS(X)                                                    \
+    X(logger, logger::init)                                                    \
+    X(uart2, uart2_init)                                                       \
+    X(std_stream, std_stream_init)                                             \
+    X(cli_service, cli_service_init)                                           \
+    X(adc2, adc2_init)                                                         \
+    X(i2s_streamer, i2s_streamer_init)                                         \
+    X(services_target, nullptr)                                                \
+    X(app_main, app_init)
+
+/* X(std_stream, logger) - logger does depend on std_stream but not crucial in
+ the beginning, since logger buffers output. std_stream is necessary once the
+ buffers is full and needs to flushed.
+*/
+#define FIBSYSINIT_DEPS(X)                                                     \
+    X(uart2, std_stream)                                                       \
+    X(uart2, cli_service)                                                      \
+    X(std_stream, cli_service)                                                 \
+    X(adc2, app_main)                                                          \
+    X(i2s_streamer, app_main)                                                  \
+    X(i2s_streamer, services_target)                                           \
+    X(cli_service, services_target)                                            \
+    X(services_target, app_main)
+
+LN_SYSINIT_DECLARE(fibsysinit, FIBSYSINIT_UNITS, FIBSYSINIT_DEPS)
+
+void FibSys::startup() { LN_SYSINIT_INIT(fibsysinit); }
 
 void FibSys::Task::taskFunction() {
     this->owner.startup();
