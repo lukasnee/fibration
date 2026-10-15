@@ -23,6 +23,7 @@ Checks:
   -readability-redundant-member-init,
   -readability-uppercase-literal-suffix,
   -readability-avoid-unconditional-preprocessor-if,
+  -readability-simplify-boolean-expr,
   google-*,
   -google-readability-todo,
   misc-*
