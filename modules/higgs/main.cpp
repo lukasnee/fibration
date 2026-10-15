@@ -23,6 +23,8 @@ extern "C"
 #include "ln/build.hpp"
 #include "ln/project.hpp"
 
+#include "ln/prof/prof.h"
+
 #include <array>
 #include <cstdint>
 
@@ -40,20 +42,29 @@ void i2s2_stream_process(
 
     Fib::Dsp::BufferF32<4> potNormal;
     auto &adc2 = Periph::getAdc2();
-    adc2.getNormal(3, potNormal[0]);
-    adc2.getNormal(4, potNormal[1]);
-    adc2.getNormal(5, potNormal[2]);
-    adc2.getNormal(2, potNormal[3]);
-    Fib::Dsp::power2(potNormal, potNormal);
+    {
+        LN_PROF_SCOPE();
+        adc2.getNormal(3, potNormal[0]);
+        adc2.getNormal(4, potNormal[1]);
+        adc2.getNormal(5, potNormal[2]);
+        adc2.getNormal(2, potNormal[3]);
+    }
+    {
+        LN_PROF_SCOPE();
+        Fib::Dsp::power2(potNormal, potNormal);
+    }
 
-    pWaves[0]->frequencyInHz.set(
-        Fib::Dsp::Map::denormalize(potNormal[0], 0.f, 20'000.f));
-    pWaves[1]->frequencyInHz.set(
-        Fib::Dsp::Map::denormalize(potNormal[1], 0.f, 20'000.f));
-    pWaves[2]->frequencyInHz.set(
-        Fib::Dsp::Map::denormalize(potNormal[2], 0.f, 20'000.f));
-    pWaves[3]->frequencyInHz.set(
-        Fib::Dsp::Map::denormalize(potNormal[3], 0.f, 20'000.f));
+    {
+        LN_PROF_SCOPE();
+        pWaves[0]->frequencyInHz.set(
+            Fib::Dsp::Map::denormalize(potNormal[0], 0.f, 20'000.f));
+        pWaves[1]->frequencyInHz.set(
+            Fib::Dsp::Map::denormalize(potNormal[1], 0.f, 20'000.f));
+        pWaves[2]->frequencyInHz.set(
+            Fib::Dsp::Map::denormalize(potNormal[2], 0.f, 20'000.f));
+        pWaves[3]->frequencyInHz.set(
+            Fib::Dsp::Map::denormalize(potNormal[3], 0.f, 20'000.f));
+    }
 
     // const Fib::Dsp::F32 rolloff = 1.f;
     // pWaves[0]->amplitudeNormal.set(pWaves[0]->frequencyInHz.get() <
@@ -73,10 +84,17 @@ void i2s2_stream_process(
     // pWaves[3]->amplitudeNormal.set(pWaves[3]->frequencyInHz.get() <
     // rolloff ? 0.f : 1.f);
 
-    const auto w1 = pWaves[0]->synthesize();
-    const auto w2 = pWaves[1]->synthesize();
-    const auto w3 = pWaves[2]->synthesize();
-    const auto w4 = pWaves[3]->synthesize();
+    Fib::Dsp::SampleBufferF32 w1;
+    Fib::Dsp::SampleBufferF32 w2;
+    Fib::Dsp::SampleBufferF32 w3;
+    Fib::Dsp::SampleBufferF32 w4;
+    {
+        LN_PROF_SCOPE();
+        w1 = pWaves[0]->synthesize();
+        w2 = pWaves[1]->synthesize();
+        w3 = pWaves[2]->synthesize();
+        w4 = pWaves[3]->synthesize();
+    }
 
 #ifdef FILTER_TEST
     static float coeff[] = {
@@ -104,19 +122,26 @@ void i2s2_stream_process(
         // arm_iir_lattice_init_f32(&iirInstace,
         // (sizeof(biquada)/sizeof(float)), biquada, biquadb,
         // stateBuffer, blockSize);
+        LN_PROF_SCOPE();
         arm_fir_init_f32(&firInstace, numTaps, coeff, stateBuffer, blockSize);
     }
 #endif
 
     Fib::Dsp::SampleBufferF32 mix;
-    for (std::size_t i = 0; i < mix.size(); i++) {
-        mix[i] = (w1[i] + w2[i] + w3[i] + w4[i]) / 4.f;
-        // txStereoSampleBuffer.right[j] = (txStereoSampleBuffer.left[j]
-        // + w3[j] + w4[j]) / 4.f;
+    {
+        LN_PROF_SCOPE();
+        for (std::size_t i = 0; i < mix.size(); i++) {
+            mix[i] = (w1[i] + w2[i] + w3[i] + w4[i]) / 4.f;
+            // txStereoSampleBuffer.right[j] = (txStereoSampleBuffer.left[j]
+            // + w3[j] + w4[j]) / 4.f;
+        }
     }
     txStereoSampleBuffer.left = mix;
 #ifdef FILTER_TEST
-    arm_fir_f32(&firInstace, mix.data(), mix.data(), mix.size());
+    {
+        LN_PROF_SCOPE();
+        arm_fir_f32(&firInstace, mix.data(), mix.data(), mix.size());
+    }
     // arm_iir_lattice_f32(&iirInstace, mix.data(), mix.data(), mix.size());
 #endif
     txStereoSampleBuffer.right = mix;
