@@ -102,9 +102,9 @@ ln::shell::CLId &get_clid_instance() {
     static ln::Thread::Cfg thread_cfg{
         .prio = ln::Thread::Prio::medium,
         .name = "clid",
-        .static_stack = task_stack,
+        .static_stack = thread_stack,
     };
-    static ln::shell::CLId instance{FibSys::get_cli_instance(), task_cfg};
+    static ln::shell::CLId instance{FibSys::get_cli_instance(), thread_cfg};
     return instance;
 }
 
