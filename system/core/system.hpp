@@ -32,7 +32,7 @@ public:
         sysLow = medium,
         sysMedium = high,
         sysHigh = veryHigh,
-        audioStream = sysLow,
+        audioStream = sysHigh,
 
         _enumSize
     };
