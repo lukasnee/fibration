@@ -2,6 +2,8 @@
 .vscode/.cortex-debug.registers.state.json
 .vscode/settings.json
 
+.zed/
+
 .build
 .tmp
 fib-log.txt
