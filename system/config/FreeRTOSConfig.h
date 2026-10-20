@@ -21,6 +21,7 @@
 #define configMINIMAL_STACK_SIZE                ( ( uint16_t ) 128 )
 #define configMAX_TASK_NAME_LEN                 ( 16 )
 #define configUSE_TRACE_FACILITY                1
+#define configRECORD_STACK_HIGH_ADDRESS         1
 #define configUSE_16_BIT_TICKS                  0
 #define configIDLE_SHOULD_YIELD                 1
 #define configUSE_TASK_NOTIFICATIONS            1
@@ -126,5 +127,9 @@ standard names. */
 #define vPortSVCHandler 	SVC_Handler
 #define xPortPendSVHandler 	PendSV_Handler
 #define xPortSysTickHandler SysTick_Handler
+
+#ifdef LN_PROF
+  #include "ln/port/prof_hooks.h"
+#endif
 
 // clang-format on
