@@ -98,7 +98,7 @@ bool uart2_init() { return Periph::getUart2Stream().init(); }
 bool std_stream_init() { return StdStream::getInstance().init(); }
 
 ln::shell::CLId &get_clid_instance() {
-    alignas(size_t) static std::array<uint8_t, 4 * 1024> thread_stack;
+    alignas(size_t) static std::array<uint8_t, 5 * 1024> thread_stack;
     static ln::Thread::Cfg thread_cfg{
         .prio = ln::Thread::Prio::medium,
         .name = "clid",
