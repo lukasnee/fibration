@@ -7,7 +7,7 @@
 
 #include "ln/ln.h"
 #include "ln/sysinit.hpp"
-#include "ln/logger/logger.h"
+#include "ln/log.h"
 #include "ln/shell/CLId.hpp"
 #include "ln/prof/prof.h"
 
@@ -16,11 +16,11 @@ extern "C"
 #include "stm32f3xx_hal.h"
 }
 
-LOG_MODULE(system, ln::logger::Level::notset);
+LN_LOG_MODULE(system, ln::logger::Level::notset);
 
 extern "C" void vApplicationStackOverflowHook(
     [[maybe_unused]] TaskHandle_t xTask, char *pcTaskName) {
-    LOG_CRITICAL("Stack overflow in task {}!", pcTaskName);
+    LN_LOG_CRT("Stack overflow in task {}!", pcTaskName);
     while (true) {
     }
 }

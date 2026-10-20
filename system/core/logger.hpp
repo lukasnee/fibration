@@ -3,13 +3,13 @@
 
 #pragma once
 
-#include "ln/logger/logger.h"
+#include "ln/log.h"
 
-LOG_EXTERN(system);
+LN_LOG_EXTERN(system);
 
 namespace logger {
 
-LOG_SCOPE(system);
+LN_LOG_SCOPE(system);
 
 bool init() {
     auto logger_config = ln::logger::get_instance().get_config();

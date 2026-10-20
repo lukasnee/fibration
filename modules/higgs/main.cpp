@@ -18,7 +18,7 @@ extern "C"
 
 #include "ln/shell/CLI.hpp"
 #include "ln/shell/generic/cmds.hpp"
-#include "ln/logger/logger.h"
+#include "ln/log.h"
 
 #include "ln/build.hpp"
 #include "ln/project.hpp"
@@ -28,7 +28,7 @@ extern "C"
 #include <array>
 #include <cstdint>
 
-LOG_MODULE(app, ln::logger::Level::debug);
+LN_LOG_MODULE(app, ln::logger::Level::debug);
 
 void i2s2_stream_process(
     [[maybe_unused]] const Fib::Dsp::StereoSampleBufferF32 &rxStereoSampleBlock,
@@ -150,7 +150,7 @@ void i2s2_stream_process(
     using ln::shell::Cmd;
     using ln::shell::Err;
     static Fib::PeriodicTimerApp hs_cmd("hs", 10.f, [&]() {
-        LOG_DEBUG(
+        LN_LOG_DBG(
             "{:8.2f} {:8.2f} {:8.2f} {:8.2f} {:8.2f} {:8.2f} "
             "{:8.2f} {:8.2f}",
             pWaves[0]->frequencyInHz.get(), pWaves[1]->frequencyInHz.get(),
@@ -182,9 +182,9 @@ Cmd version_cmd{Cmd::Cfg{.name = "version",
 
 bool app_init() {
 
-    LOG_INFO("starting up {} v{} [{}] {} {}", ln::project::name,
-             ln::project::version::str, ln::build::git_hash, ln::build::date,
-             ln::build::time);
+    LN_LOG_INF("starting up {} v{} [{}] {} {}", ln::project::name,
+               ln::project::version::str, ln::build::git_hash, ln::build::date,
+               ln::build::time);
 
     FibSys::get_i2s2_streamer().set_fn(i2s2_stream_process);
     return FibSys::get_i2s2_streamer().start();

@@ -4,7 +4,7 @@
 #pragma once
 
 #include "FreeRTOS/Timer.hpp"
-#include "ln/logger/logger.h"
+#include "ln/log.h"
 
 #include <functional>
 
@@ -37,12 +37,12 @@ public:
     float get() { return this->value; }
 
 private:
-    LOG_MODULE_CLASS_MEMBER(periodicTimerApp, ln::logger::Level::notset);
+    LN_LOG_MODULE_CLASS_MEMBER(periodicTimerApp, ln::logger::Level::notset);
 
     virtual void timerFunction() override {
         this->value =
             static_cast<float>(((2.0f * std::rand()) / RAND_MAX) - 1.0f);
-        LOG_INFO("periodicRandomValue: %f\n", this->value);
+        LN_LOG_INF("periodicRandomValue: %f\n", this->value);
     }
     float value = 0.f;
 };
