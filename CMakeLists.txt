@@ -46,8 +46,13 @@ if(CMAKE_CROSSCOMPILING)
     "swap"
     "maxValueOfBitDepth"
     "centerValueOfBitDepth"
+    "xPortIsInsideInterrupt"
+    "Periph::"
+    "Tim6::"
     "rawSampleToQ31"
-    "q31ToRawSample")
+    "q31ToRawSample"
+    EXCLUDE_FILES
+    "system/peripherals/resources.cpp")
 
   add_subdirectory(system)
   add_subdirectory(modules)
