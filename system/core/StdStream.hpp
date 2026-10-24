@@ -30,16 +30,17 @@ struct StdStream {
 
     int read(int fd, char *ptr, int len) {
         if (fd == STDIN_FILENO) {
-            // TODO: simple getc call invokes read with len=1024 (likely tied
-            // to BUFSIZ). Currently we disregard len and read one byte only for
-            // simplicity. This could potentially pose performance issues, so
-            // should be revisited later.
-            if (len) {
-                if (!Periph::getUart2Stream().pull(
-                        reinterpret_cast<std::uint8_t &>(ptr[0]),
-                        portMAX_DELAY)) {
-                    return 0;
-                }
+            if (len <= 0) {
+                return len;
+            }
+            // TODO: simple getc call invokes read with len=1024 (likely tied to
+            // BUFSIZ). Currently we disregard len and read one byte only for
+            // responsiveness. This could potentially pose performance issues.
+            // It would likely be best to read min(available, len) if available
+            // > 0, else wait for data.
+            if (!Periph::getUart2().read(reinterpret_cast<std::uint8_t *>(ptr),
+                                         1)) {
+                return 0;
             }
             return 1;
         }
@@ -48,15 +49,14 @@ struct StdStream {
     }
 
     int write(int fd, char *ptr, int len) {
-        if ((fd != STDOUT_FILENO) && (fd != STDERR_FILENO)) {
-            errno = EBADF;
+        if (fd == STDERR_FILENO || fd == STDOUT_FILENO) {
+            if (Periph::getUart2().write(reinterpret_cast<std::uint8_t *>(ptr),
+                                         len)) {
+                return len;
+            }
             return -1;
         }
-        // TODO: why not txDma()?
-        if (Periph::getUart2().tx(reinterpret_cast<const std::uint8_t *>(ptr),
-                                  len, len)) {
-            return len;
-        }
+        errno = EBADF;
         return -1;
     }
 

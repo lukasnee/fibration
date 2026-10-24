@@ -62,11 +62,19 @@ extern "C" void _exit(int status) {
 }
 
 extern "C" int _read(int fd, char *ptr, int len) {
-    return StdStream::getInstance().read(fd, ptr, len);
+    if (fd == STDIN_FILENO || fd == STDOUT_FILENO || fd == STDERR_FILENO) {
+        return StdStream::getInstance().read(fd, ptr, len);
+    }
+    errno = EBADF;
+    return -1;
 }
 
 extern "C" int _write(int fd, char *ptr, int len) {
-    return StdStream::getInstance().write(fd, ptr, len);
+    if (fd == STDIN_FILENO || fd == STDOUT_FILENO || fd == STDERR_FILENO) {
+        return StdStream::getInstance().write(fd, ptr, len);
+    }
+    errno = EBADF;
+    return -1;
 }
 
 extern "C" int _close(int fd) {

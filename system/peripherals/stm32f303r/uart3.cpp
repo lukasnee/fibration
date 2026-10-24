@@ -1,33 +1,28 @@
-/*
- * STM32 UART3 instance driver
- *
- * Copyright (C) 2021 Lukas Neverauskis <lukas.neverauskis@gmail.com>
- */
-
-// TODO: better API for baudrate parametrization
-// TODO: make DMA priorities referenced (centralize)
+// Copyright (c) 2026 Lukas Neverauskis <lukas.neverauskis@gmail.com>
+// SPDX-License-Identifier: GPL-2.0-only
 
 #include "uart3.hpp"
 #include "ln/ln.h"
 
-extern "C"
-{
 #include "stm32f3xx_hal.h"
-}
 
 DMA_HandleTypeDef hdma_usart3_tx;
 DMA_HandleTypeDef hdma_usart3_rx;
 UART_HandleTypeDef huart3;
 
-extern "C" void DMA1_Channel2_IRQHandler(void) { HAL_DMA_IRQHandler(&hdma_usart3_tx); }
+extern "C" void DMA1_Channel2_IRQHandler(void) {
+    HAL_DMA_IRQHandler(&hdma_usart3_tx);
+}
 
-extern "C" void DMA1_Channel3_IRQHandler(void) { HAL_DMA_IRQHandler(&hdma_usart3_rx); }
+extern "C" void DMA1_Channel3_IRQHandler(void) {
+    HAL_DMA_IRQHandler(&hdma_usart3_rx);
+}
 
 extern "C" void USART3_IRQHandler(void) { HAL_UART_IRQHandler(&huart3); }
 
 Uart3::Uart3(std::uint32_t baudrate) : UartCommon(huart3, baudrate) {}
 
-bool Uart3::initUnsafe() {
+bool Uart3::ll_init() {
     bool result = false;
 
     /* setup UART IRQ */
@@ -102,7 +97,7 @@ bool Uart3::initUnsafe() {
     return result;
 }
 
-bool Uart3::deinitUnsafe() {
+bool Uart3::ll_deinit() {
     bool result = false;
 
     if (HAL_UART_DeInit(&huart3) != HAL_OK) {

@@ -93,7 +93,7 @@ void FibSys::launch() {
     vTaskStartScheduler();
 }
 
-bool uart2_init() { return Periph::getUart2Stream().init(); }
+bool uart2_init() { return Periph::getUart2().init(); }
 
 bool std_stream_init() { return StdStream::getInstance().init(); }
 

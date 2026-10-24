@@ -27,11 +27,6 @@ Uart2 &Periph::getUart2() {
     return uart2;
 }
 
-IOStream &Periph::getUart2Stream() {
-    static IOStream iostream_uart2(Periph::getUart2());
-    return iostream_uart2;
-}
-
 Uart3 &Periph::getUart3() {
     static Uart3 uart3(921600);
     return uart3;

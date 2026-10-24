@@ -13,8 +13,8 @@ public:
     ~Uart3() = default;
 
 protected:
-    virtual bool initUnsafe() override;
-    virtual bool deinitUnsafe() override;
+    virtual bool ll_init() override;
+    virtual bool ll_deinit() override;
 
 private:
     void operator=(Uart3 const &) = delete;

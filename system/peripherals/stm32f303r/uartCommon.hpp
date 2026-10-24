@@ -3,78 +3,47 @@
 
 #pragma once
 
-#include "ioDataIF.hpp"
+#include "ln/drivers/EventDrivenStream.hpp"
 
-extern "C"
-{
 #include "stm32f3xx_hal.h"
-}
 
 #include <cstdint>
 #include <limits>
 
-class UartCommon : public IODataIF {
+class UartCommon : public ln::drivers::EventDriven::Stream<
+                       ln::drivers::EventDriven::StreamType::rw> {
 public:
     struct Default {
         static constexpr std::uint32_t baudrate = 115200;
     };
 
-    virtual bool initUnsafe() = 0;
-    virtual bool deinitUnsafe() = 0;
-
-    virtual bool txUnsafe(const std::uint8_t *pData, std::size_t size,
-                          std::size_t timeout) override {
-        bool retval = false;
-
-        if (pData && size <= std::numeric_limits<std::uint16_t>::max()) {
-            if (HAL_OK == HAL_UART_Transmit(
-                              &this->handle, const_cast<std::uint8_t *>(pData),
-                              static_cast<std::uint16_t>(size), timeout)) {
-                retval = true;
-            }
+    bool ll_write_async(const std::uint8_t *data, std::size_t size) final {
+        if (!data) {
+            return false;
         }
-        return retval;
+        if (size > std::numeric_limits<std::uint16_t>::max()) {
+            return false;
+        }
+        if (HAL_OK != HAL_UART_Transmit_DMA(&this->handle,
+                                            const_cast<std::uint8_t *>(data),
+                                            static_cast<std::uint16_t>(size))) {
+            return false;
+        }
+        return true;
     }
 
-    virtual bool txDmaUnsafe(const std::uint8_t *pData,
-                             std::size_t size) override {
-        bool retval = false;
-
-        if (pData && size <= std::numeric_limits<std::uint16_t>::max()) {
-            if (HAL_OK == HAL_UART_Transmit_DMA(
-                              &this->handle, const_cast<std::uint8_t *>(pData),
-                              static_cast<std::uint16_t>(size))) {
-                retval = true;
-            }
+    bool ll_read_async(std::uint8_t *pData, std::size_t size) final {
+        if (!pData) {
+            return false;
         }
-        return retval;
-    }
-
-    virtual bool rxUnsafe(std::uint8_t *pData, std::size_t size,
-                          std::size_t timeout) override {
-        bool retval = false;
-        if (pData && size <= std::numeric_limits<std::uint16_t>::max()) {
-            if (HAL_OK == HAL_UART_Receive(&this->handle, pData,
-                                           static_cast<std::uint16_t>(size),
-                                           timeout)) {
-                retval = true;
-            }
+        if (size > std::numeric_limits<std::uint16_t>::max()) {
+            return false;
         }
-
-        return retval;
-    }
-
-    virtual bool rxDmaUnsafe(std::uint8_t *pData, std::size_t size) override {
-        bool retval = false;
-        if (pData && size <= std::numeric_limits<std::uint16_t>::max()) {
-            if (HAL_OK ==
-                HAL_UART_Receive_DMA(&this->handle, pData,
-                                     static_cast<std::uint16_t>(size))) {
-                retval = true;
-            }
+        if (HAL_OK != HAL_UART_Receive_DMA(&this->handle, pData,
+                                           static_cast<std::uint16_t>(size))) {
+            return false;
         }
-
-        return retval;
+        return true;
     }
 
 protected:

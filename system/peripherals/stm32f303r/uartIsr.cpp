@@ -1,66 +1,42 @@
 // Copyright (c) 2026 Lukas Neverauskis <lukas.neverauskis@gmail.com>
 // SPDX-License-Identifier: GPL-2.0-only
 
-extern "C"
-{
-#include "stm32f3xx_hal.h"
-}
+#include "ln/ln.h"
 #include "resources.hpp"
+
+#include "stm32f3xx_hal.h"
 
 extern UART_HandleTypeDef huart2;
 extern UART_HandleTypeDef huart3;
 
 extern "C" void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart) {
+    bool result = false;
+    bool higher_priority_thread_woken = false;
     if (huart == &huart2) {
-        Periph::getUart2().txDmaCpltIsrCallback();
+        std::tie(result, higher_priority_thread_woken) =
+            Periph::getUart2().ll_async_write_completed_cb_from_isr();
     }
     else if (huart == &huart3) {
-        Periph::getUart3().txDmaCpltIsrCallback();
+        std::tie(result, higher_priority_thread_woken) =
+            Periph::getUart3().ll_async_write_completed_cb_from_isr();
+    }
+    if (result) {
+        ln::yield_from_isr(higher_priority_thread_woken);
     }
 }
 
 extern "C" void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+    bool result = false;
+    bool higher_priority_thread_woken = false;
     if (huart == &huart2) {
-        Periph::getUart2().rxDmaCpltIsrCallback();
+        std::tie(result, higher_priority_thread_woken) =
+            Periph::getUart2().ll_async_read_completed_cb_from_isr();
     }
     else if (huart == &huart3) {
-        Periph::getUart3().rxDmaCpltIsrCallback();
+        std::tie(result, higher_priority_thread_woken) =
+            Periph::getUart3().ll_async_read_completed_cb_from_isr();
+    }
+    if (result) {
+        ln::yield_from_isr(higher_priority_thread_woken);
     }
 }
-
-// TODO: if ever needed
-// void HAL_UART_TxHalfCpltCallback(UART_HandleTypeDef *huart)
-// {
-// 	if(huart == &huart2) { Periph::getUart2().txHalfCpltIsrCalback(); }
-// 	if(huart == &huart3) { Periph::getUart3().txHalfCpltIsrCalback(); }
-// }
-
-// void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart)
-// {
-// 	if(huart == &huart2) { Periph::getUart2().rxHalfCpltIsrCalback(); }
-// 	if(huart == &huart3) { Periph::getUart3().rxHalfCpltIsrCalback(); }
-// }
-
-// void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
-// {
-// 	if(huart == &huart2) { Periph::getUart2().errorIsrCalback(); }
-// 	if(huart == &huart3) { Periph::getUart3().errorIsrCalback(); }
-// }
-
-// void HAL_UART_AbortCpltCallback(UART_HandleTypeDef *huart)
-// {
-// 	if(huart == &huart2) { Periph::getUart2().abortCpltIsrCalback(); }
-// 	if(huart == &huart3) { Periph::getUart3().abortCpltIsrCalback(); }
-// }
-
-// void HAL_UART_AbortTransmitCpltCallback(UART_HandleTypeDef *huart)
-// {
-// 	if(huart == &huart2) { Periph::getUart2().abortTransmitCpltIsrCalback(); }
-// 	if(huart == &huart3) { Periph::getUart3().abortTransmitCpltIsrCalback(); }
-// }
-
-// void HAL_UART_AbortReceiveCpltCallback(UART_HandleTypeDef *huart)
-// {
-// 	if(huart == &huart2) { Periph::getUart2().abortReceiveCpltIsrCalback(); }
-// 	if(huart == &huart3) { Periph::getUart3().abortReceiveCpltIsrCalback(); }
-// }

@@ -66,6 +66,7 @@ target_link_libraries(
          ln::port::FreeRTOS::shell_cmds
          ln::core::shell_cmds
          ln::algo
+         ln::drivers
          ln::sysinit
          ln::shell
          ln::shell::cmds::general
@@ -82,6 +83,4 @@ endif()
 add_library(fibsys)
 target_link_libraries(fibsys PUBLIC fibsys_obj_lib)
 target_include_directories(fibsys PUBLIC streams/interfaces streams)
-target_sources(
-  fibsys PRIVATE streams/interfaces/asciiStreamIF.cpp streams/i2sStreamer.cpp
-                 streams/ioStream.cpp streams/txStream.cpp dsp/oscillator.cpp)
+target_sources(fibsys PRIVATE streams/i2sStreamer.cpp dsp/oscillator.cpp)
