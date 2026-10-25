@@ -17,20 +17,25 @@ if(CMAKE_CROSSCOMPILING)
 
   # set(LN_PROF ON)
   add_subdirectory(extern/ln)
-  add_subdirectory(extern/STM32CubeF3)
-
-  include(${CMAKE_CURRENT_LIST_DIR}/extern/ln/cmake/ln.cmake)
-  ln_configure()
 
   ln_prof(
     EXCLUDE_FUNCTIONS
     "std::"
     "fmt::"
     "ln::Mutex"
+    "ln::interfaces::Mutex"
     "ln::RecursiveMutex"
+    "ln::interfaces::RecursiveMutex"
+    "ln::BinarySemaphore"
+    "ln::interfaces::"
+    "ln::LockGuard"
+    "ln::Timeout"
+    "ln::port::to_ticks"
     "OsResource::"
     "StdStream::"
     "FreeRTOS::"
+    "callTaskFunction"
+    "I2sStreamer::taskFunction"
     "AdcIF::"
     "Adc2::"
     "Periph::getAdc2"
@@ -51,8 +56,30 @@ if(CMAKE_CROSSCOMPILING)
     "Tim6::"
     "rawSampleToQ31"
     "q31ToRawSample"
+    "HAL_ADC_ConvHalfCpltCallback"
+    "HAL_ADC_ConvCpltCallback"
+    "HAL_I2SEx_TxRxHalfCpltCallback"
+    "HAL_I2SEx_TxRxCpltCallback"
+    "I2sIF::txRxHalfCpltIsrCallback"
+    "I2sIF::txRxCpltIsrCallback"
+    "I2sStreamer::onTxRxHalfCompleteIsrCallback"
+    "I2sStreamer::onTxRxCompleteIsrCallback"
+    "_IRQHandler"
+    "getInstance"
+    "get_instance"
+    "HAL_TIM_PeriodElapsedCallback"
+    "HAL_UART_TxCpltCallback"
+    "HAL_UART_RxCpltCallback"
     EXCLUDE_FILES
-    "system/peripherals/resources.cpp")
+    "gcc-arm-none-eabi/arm-none-eabi/include"
+    "system/peripherals/resources.cpp"
+    "extern/STM32CubeF3/STM32CubeF3/Drivers/CMSIS"
+    "extern/STM32CubeF3/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver")
+
+  add_subdirectory(extern/STM32CubeF3)
+
+  include(${CMAKE_CURRENT_LIST_DIR}/extern/ln/cmake/ln.cmake)
+  ln_configure()
 
   add_subdirectory(system)
   add_subdirectory(modules)

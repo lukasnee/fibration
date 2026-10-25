@@ -49,10 +49,7 @@ void i2s2_stream_process(
         adc2.getNormal(5, potNormal[2]);
         adc2.getNormal(2, potNormal[3]);
     }
-    {
-        LN_PROF_SCOPE();
-        Fib::Dsp::power2(potNormal, potNormal);
-    }
+    Fib::Dsp::power2(potNormal, potNormal);
 
     {
         LN_PROF_SCOPE();
