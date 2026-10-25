@@ -8,6 +8,9 @@ set(LN_PORT "STM32F3_FreeRTOS")
 set(LN_FMT ON)
 
 # set(LN_PROF ON)
+set(LN_PROF_HOT_SECTION
+    .ccmram
+    CACHE STRING "Linker section for the ln::prof hot path")
 
 add_library(freertos_config INTERFACE)
 target_include_directories(
