@@ -7,6 +7,8 @@ set(LN_SHELL_CMD_EXCLUDE "repeat")
 set(LN_PORT "STM32F3_FreeRTOS")
 set(LN_FMT ON)
 
+# set(LN_PROF ON)
+
 add_library(freertos_config INTERFACE)
 target_include_directories(
   freertos_config INTERFACE ${CMAKE_CURRENT_LIST_DIR} # FreeRTOSConfig.h

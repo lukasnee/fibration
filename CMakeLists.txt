@@ -13,9 +13,9 @@ set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 
 if(CMAKE_CROSSCOMPILING)
   add_compile_options(-Wall -Wextra -Werror)
+
   include(system/config/config.cmake) # TODO move config into project folders?
 
-  # set(LN_PROF ON)
   add_subdirectory(extern/ln)
 
   ln_prof(
