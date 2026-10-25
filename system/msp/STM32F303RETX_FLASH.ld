@@ -137,6 +137,8 @@ SECTIONS
     _eccmram = .;      /* create a global symbol at ccmram end */
 
   } >CCMRAM AT> FLASH
+  /* Used by the startup to initialize ccmram */
+  _siccmram = LOADADDR(.ccmram);
 
   /* Initialized data sections into "RAM" Ram type memory */
   .data :
