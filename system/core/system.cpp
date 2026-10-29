@@ -88,7 +88,9 @@ void low_level_init() {
 
 void FibSys::launch() {
     low_level_init();
-    LN_PROF_START();
+    ln_prof_config_t prof_cfg = {};
+    prof_cfg.profile_interrupts = true;
+    LN_PROF_START(prof_cfg);
     get_instance(); // construct the singleton, create init_items...
     vTaskStartScheduler();
 }
