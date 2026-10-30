@@ -61,6 +61,22 @@ extern "C" void _exit(int status) {
     } /* Make sure we hang here */
 }
 
+extern "C" int _open(const char *path, int flags, ...) {
+    (void)path;
+    (void)flags;
+    /* Pretend like we always fail */
+    return -1;
+}
+
+extern "C" int _close(int fd) {
+    if (fd >= STDIN_FILENO && fd <= STDERR_FILENO) {
+        return 0;
+    }
+
+    errno = EBADF;
+    return -1;
+}
+
 extern "C" int _read(int fd, char *ptr, int len) {
     if (fd == STDIN_FILENO || fd == STDOUT_FILENO || fd == STDERR_FILENO) {
         return StdStream::getInstance().read(fd, ptr, len);
@@ -73,15 +89,6 @@ extern "C" int _write(int fd, char *ptr, int len) {
     if (fd == STDIN_FILENO || fd == STDOUT_FILENO || fd == STDERR_FILENO) {
         return StdStream::getInstance().write(fd, ptr, len);
     }
-    errno = EBADF;
-    return -1;
-}
-
-extern "C" int _close(int fd) {
-    if (fd >= STDIN_FILENO && fd <= STDERR_FILENO) {
-        return 0;
-    }
-
     errno = EBADF;
     return -1;
 }
@@ -111,13 +118,6 @@ extern "C" int _lseek(int fd, int ptr, int dir) {
     (void)dir;
 
     errno = EBADF;
-    return -1;
-}
-
-extern "C" int _open(const char *path, int flags, ...) {
-    (void)path;
-    (void)flags;
-    /* Pretend like we always fail */
     return -1;
 }
 
