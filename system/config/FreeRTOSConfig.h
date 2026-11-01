@@ -58,10 +58,17 @@
 /* Run time and task stats gathering related definitions. */
 #define configGENERATE_RUN_TIME_STATS           1
 #define configUSE_STATS_FORMATTING_FUNCTIONS    0
-extern void vConfigureTimerForRunTimeStats();
-extern uint32_t uint32GetRunTimeCounterValue();
-#define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() vConfigureTimerForRunTimeStats();
-#define portGET_RUN_TIME_COUNTER_VALUE() uint32GetRunTimeCounterValue();
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+extern void ln_FreeRTOS_portCONFIGURE_TIMER_FOR_RUN_TIME_STATS(void);
+extern uint32_t ln_FreeRTOS_portGET_RUN_TIME_COUNTER_VALUE(void);
+#ifdef __cplusplus
+}
+#endif
+#define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() ln_FreeRTOS_portCONFIGURE_TIMER_FOR_RUN_TIME_STATS()
+#define portGET_RUN_TIME_COUNTER_VALUE() ln_FreeRTOS_portGET_RUN_TIME_COUNTER_VALUE()
 
 /* Co-routine related definitions. */
 #define configUSE_CO_ROUTINES                   0

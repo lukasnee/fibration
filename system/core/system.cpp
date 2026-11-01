@@ -25,20 +25,6 @@ extern "C" void vApplicationStackOverflowHook(
     }
 }
 
-extern "C" void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-    if (htim->Instance == TIM7) {
-        HAL_IncTick();
-    }
-    if (htim->Instance == TIM6) {
-        static bool firstIgnored = false;
-        if (!firstIgnored) {
-            firstIgnored = true;
-            return;
-        }
-        Periph::getTim6().overflowCallback();
-    }
-}
-
 static void SystemClock_Config(void) {
     RCC_OscInitTypeDef RCC_OscInitStruct = {};
     RCC_ClkInitTypeDef RCC_ClkInitStruct = {};

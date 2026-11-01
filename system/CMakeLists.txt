@@ -40,23 +40,18 @@ target_include_directories(fibsys_obj_lib PUBLIC utilities)
 target_include_directories(
   fibsys_obj_lib PUBLIC peripherals/interfaces peripherals/stm32f303r
                         peripherals)
-target_sources(
-  fibsys_obj_lib
-  PRIVATE peripherals/interfaces/i2sIF.cpp
-          peripherals/stm32f303r/tim6.cpp
-          peripherals/stm32f303r/uart2.cpp
-          peripherals/stm32f303r/uart3.cpp
-          peripherals/stm32f303r/i2s2.cpp
-          peripherals/stm32f303r/adc2.cpp
-          peripherals/resources.cpp)
 
-# NOTE: these files contain STM32 HAL weak function overrides so they must be
-# compiled and linked directly into the final executable. They cannot be
-# compiled into a static library and then linked.
 target_sources(
   fibsys_obj_lib
-  PUBLIC peripherals/stm32f303r/uartIsr.cpp peripherals/stm32f303r/i2sIsr.cpp
-         peripherals/stm32f303r/adcIsr.cpp)
+  PUBLIC # NOTE: these files contain STM32 HAL weak function overrides so they
+         # must be compiled and linked directly into the final executable. They
+         # cannot be compiled into a static library and then linked.
+         peripherals/stm32f303r/uartIsr.cpp
+         peripherals/stm32f303r/i2sIsr.cpp
+         peripherals/stm32f303r/adcIsr.cpp
+  PRIVATE peripherals/interfaces/i2sIF.cpp peripherals/stm32f303r/uart2.cpp
+          peripherals/stm32f303r/uart3.cpp peripherals/stm32f303r/i2s2.cpp
+          peripherals/stm32f303r/adc2.cpp peripherals/resources.cpp)
 
 target_include_directories(fibsys_obj_lib PUBLIC components components/shell)
 

@@ -39,8 +39,3 @@ void TIM7_IRQHandler(void) {
     extern TIM_HandleTypeDef htim7;
     HAL_TIM_IRQHandler(&htim7);
 }
-
-void TIM6_DAC_IRQHandler(void) {
-    extern TIM_HandleTypeDef htim6;
-    HAL_TIM_IRQHandler(&htim6);
-}

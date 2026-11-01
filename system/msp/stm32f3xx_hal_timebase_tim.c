@@ -1,3 +1,4 @@
+// clang-format off
 /* USER CODE BEGIN Header */
 /**
   ******************************************************************************
@@ -29,6 +30,7 @@
 TIM_HandleTypeDef        htim7;
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
+static void HAL_TIM7_PeriodElapsedCallback([[maybe_unused]] TIM_HandleTypeDef *htim) { HAL_IncTick(); }
 
 /**
   * @brief  This function configures the TIM7 as a time base source.
@@ -75,11 +77,24 @@ HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority)
   htim7.Init.Prescaler = uwPrescalerValue;
   htim7.Init.ClockDivision = 0;
   htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
-  if(HAL_TIM_Base_Init(&htim7) == HAL_OK)
+  auto rc = HAL_TIM_Base_Init(&htim7) ;
+  if(rc != HAL_OK)
   {
-    /* Start the TIM time Base generation in interrupt mode */
-    return HAL_TIM_Base_Start_IT(&htim7);
+    return rc;
   }
+  rc = HAL_TIM_RegisterCallback(&htim7, HAL_TIM_PERIOD_ELAPSED_CB_ID, HAL_TIM7_PeriodElapsedCallback);
+  if(rc != HAL_OK)
+  {
+    return rc;
+  }
+  /* Start the TIM time Base generation in interrupt mode */
+  rc = HAL_TIM_Base_Start_IT(&htim7);
+  if(rc != HAL_OK)
+  {
+    return rc;
+  }
+
+  return HAL_TIM_Base_Start_IT(&htim7);
 
   /* Return function status */
   return HAL_ERROR;
