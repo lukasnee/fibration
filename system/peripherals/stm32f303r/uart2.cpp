@@ -29,8 +29,6 @@ Uart2 &Uart2::get_instance() {
 }
 
 bool Uart2::ll_init() {
-    bool result = false;
-
     /* setup UART IRQ */
     __HAL_RCC_USART2_CLK_ENABLE();
     HAL_NVIC_SetPriority(USART2_IRQn, 6, 0);
@@ -96,11 +94,13 @@ bool Uart2::ll_init() {
     huart2.Init.OverSampling = UART_OVERSAMPLING_16;
     huart2.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
     huart2.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-    if (HAL_UART_Init(&huart2) == HAL_OK) {
-        result = true;
+    if (HAL_UART_Init(&huart2) != HAL_OK) {
+        return false;
     }
-
-    return result;
+    if (!this->register_callbacks<&Uart2::get_instance>()) {
+        return false;
+    }
+    return true;
 }
 
 bool Uart2::ll_deinit() {

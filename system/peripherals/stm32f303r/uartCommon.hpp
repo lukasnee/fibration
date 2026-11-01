@@ -62,10 +62,41 @@ protected:
     UartCommon(UART_HandleTypeDef &handle) : handle(handle) {}
     virtual ~UartCommon() = default;
 
+    template <auto instance> bool register_callbacks() {
+        if (HAL_OK != HAL_UART_RegisterCallback(&this->handle,
+                                                HAL_UART_TX_COMPLETE_CB_ID,
+                                                on_tx_complete<instance>)) {
+            return false;
+        }
+        if (HAL_OK != HAL_UART_RegisterCallback(&this->handle,
+                                                HAL_UART_RX_COMPLETE_CB_ID,
+                                                on_rx_event<instance>)) {
+            return false;
+        }
+        return true;
+    }
+
     Cfg cfg;
     UART_HandleTypeDef &handle;
 
 private:
+    static void finish_isr(std::tuple<bool, bool> result) {
+        const auto [ok, higher_priority_thread_woken] = result;
+        if (ok) {
+            ln::yield_from_isr(higher_priority_thread_woken);
+        }
+    }
+
+    template <auto instance>
+    static void on_tx_complete(UART_HandleTypeDef * /*huart*/) {
+        finish_isr(instance().ll_async_write_completed_cb_from_isr());
+    }
+
+    template <auto instance>
+    static void on_rx_event(UART_HandleTypeDef * /*huart*/) {
+        finish_isr(instance().ll_async_read_completed_cb_from_isr());
+    }
+
     void operator=(UartCommon const &) = delete;
     UartCommon(UartCommon const &) = delete;
 };

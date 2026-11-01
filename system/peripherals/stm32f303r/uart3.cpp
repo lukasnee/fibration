@@ -28,8 +28,6 @@ Uart3 &Uart3::get_instance() {
 }
 
 bool Uart3::ll_init() {
-    bool result = false;
-
     /* setup UART IRQ */
     __HAL_RCC_USART3_CLK_ENABLE();
     HAL_NVIC_SetPriority(USART3_IRQn, 6, 0);
@@ -95,11 +93,13 @@ bool Uart3::ll_init() {
     huart3.Init.OverSampling = UART_OVERSAMPLING_16;
     huart3.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
     huart3.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-    if (HAL_UART_Init(&huart3) == HAL_OK) {
-        result = true;
+    if (HAL_UART_Init(&huart3) != HAL_OK) {
+        return false;
     }
-
-    return result;
+    if (!this->register_callbacks<&Uart3::get_instance>()) {
+        return false;
+    }
+    return true;
 }
 
 bool Uart3::ll_deinit() {

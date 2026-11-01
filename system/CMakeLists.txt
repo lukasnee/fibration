@@ -46,7 +46,6 @@ target_sources(
   PUBLIC # NOTE: these files contain STM32 HAL weak function overrides so they
          # must be compiled and linked directly into the final executable. They
          # cannot be compiled into a static library and then linked.
-         peripherals/stm32f303r/uartIsr.cpp
          peripherals/stm32f303r/i2sIsr.cpp
          peripherals/stm32f303r/adcIsr.cpp
   PRIVATE peripherals/interfaces/i2sIF.cpp peripherals/stm32f303r/uart2.cpp
