@@ -4,6 +4,9 @@
 #include "system.hpp"
 #include "logger.hpp"
 #include "StdStream.hpp"
+#include "adc2.hpp"
+#include "i2s2.hpp"
+#include "uart2.hpp"
 
 #include "ln/ln.h"
 #include "ln/sysinit.hpp"
@@ -81,7 +84,9 @@ void FibSys::launch() {
     vTaskStartScheduler();
 }
 
-bool uart2_init() { return Periph::getUart2().init(); }
+bool uart2_init() {
+    return Uart2::get_instance().init(UartCommon::Cfg{.baudrate = 921600});
+}
 
 bool std_stream_init() { return StdStream::getInstance().init(); }
 
@@ -102,10 +107,10 @@ bool cli_service_init() {
 }
 
 bool adc2_init() {
-    if (!Periph::getAdc2().init()) {
+    if (!Adc2::getInstance().init()) {
         return false;
     }
-    if (!Periph::getAdc2().start()) {
+    if (!Adc2::getInstance().start()) {
         return false;
     }
     return true;
@@ -114,7 +119,7 @@ bool adc2_init() {
 bool i2s_streamer_init() {
     static I2sStreamer::Buffer dma_buffer;
     I2sStreamer::Config config{
-        .i2s = &Periph::getI2s2(),
+        .i2s = &I2s2::getInstance(),
         .i2s_config =
             I2sIF::Config{
                 .sample_rate_Hz = 44100,

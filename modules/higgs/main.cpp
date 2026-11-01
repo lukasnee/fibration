@@ -3,7 +3,7 @@
 
 #include "system.hpp"
 
-#include "resources.hpp"
+#include "adc2.hpp"
 extern "C"
 {
 #include "FreeRTOS.h"
@@ -41,7 +41,7 @@ void i2s2_stream_process(
                                       &sineWave};
 
     Fib::Dsp::BufferF32<4> potNormal;
-    auto &adc2 = Periph::getAdc2();
+    auto &adc2 = Adc2::getInstance();
     {
         LN_PROF_SCOPE();
         adc2.getNormal(3, potNormal[0]);

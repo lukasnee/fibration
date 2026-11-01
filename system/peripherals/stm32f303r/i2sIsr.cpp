@@ -6,19 +6,19 @@ extern "C"
 #include "stm32f3xx_hal.h"
 }
 
-#include "resources.hpp"
+#include "i2s2.hpp"
 
 extern I2S_HandleTypeDef hi2s2;
 
 extern "C" void HAL_I2SEx_TxRxCpltCallback(I2S_HandleTypeDef *hi2s) {
     if (hi2s == &hi2s2) {
-        Periph::getI2s2().txRxCpltIsrCallback();
+        I2s2::getInstance().txRxCpltIsrCallback();
     }
 }
 
 extern "C" void HAL_I2SEx_TxRxHalfCpltCallback(I2S_HandleTypeDef *hi2s) {
     if (hi2s == &hi2s2) {
-        Periph::getI2s2().txRxHalfCpltIsrCallback();
+        I2s2::getInstance().txRxHalfCpltIsrCallback();
     }
 }
 

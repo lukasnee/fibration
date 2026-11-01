@@ -51,7 +51,7 @@ target_sources(
          peripherals/stm32f303r/adcIsr.cpp
   PRIVATE peripherals/interfaces/i2sIF.cpp peripherals/stm32f303r/uart2.cpp
           peripherals/stm32f303r/uart3.cpp peripherals/stm32f303r/i2s2.cpp
-          peripherals/stm32f303r/adc2.cpp peripherals/resources.cpp)
+          peripherals/stm32f303r/adc2.cpp)
 
 target_include_directories(fibsys_obj_lib PUBLIC components components/shell)
 

@@ -20,7 +20,12 @@ extern "C" void DMA1_Channel3_IRQHandler(void) {
 
 extern "C" void USART3_IRQHandler(void) { HAL_UART_IRQHandler(&huart3); }
 
-Uart3::Uart3(std::uint32_t baudrate) : UartCommon(huart3, baudrate) {}
+Uart3::Uart3() : UartCommon(huart3) {}
+
+Uart3 &Uart3::get_instance() {
+    static Uart3 instance;
+    return instance;
+}
 
 bool Uart3::ll_init() {
     bool result = false;
@@ -81,7 +86,7 @@ bool Uart3::ll_init() {
 
     /* setup UART itself */
     huart3.Instance = USART3;
-    huart3.Init.BaudRate = this->baudrate;
+    huart3.Init.BaudRate = this->cfg.baudrate;
     huart3.Init.WordLength = UART_WORDLENGTH_8B;
     huart3.Init.StopBits = UART_STOPBITS_1;
     huart3.Init.Parity = UART_PARITY_NONE;

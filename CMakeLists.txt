@@ -59,8 +59,6 @@ if(CMAKE_CROSSCOMPILING)
     "ln::Timeout"
     "maxValueOfBitDepth"
     "OsResource::"
-    "Periph::"
-    "Periph::getAdc2"
     "power2"
     "power4"
     "q31ToRawSample"
@@ -72,7 +70,6 @@ if(CMAKE_CROSSCOMPILING)
     "xPortIsInsideInterrupt"
     EXCLUDE_FILES
     "gcc-arm-none-eabi/arm-none-eabi/include"
-    "system/peripherals/resources.cpp"
     "extern/STM32CubeF3/STM32CubeF3/Drivers/CMSIS"
     "extern/STM32CubeF3/STM32CubeF3/Drivers/STM32F3xx_HAL_Driver")
 

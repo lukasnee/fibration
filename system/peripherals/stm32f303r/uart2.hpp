@@ -5,18 +5,18 @@
 
 #include "uartCommon.hpp"
 
-#include <cstdint>
-
 class Uart2 : public UartCommon {
 public:
-    Uart2(std::uint32_t baudrate = UartCommon::Default::baudrate);
-    ~Uart2() = default;
+    static Uart2 &get_instance();
 
 protected:
     virtual bool ll_init() override;
     virtual bool ll_deinit() override;
 
 private:
-    void operator=(Uart2 const &) = delete;
+    Uart2();
+    ~Uart2() = default;
+
     Uart2(Uart2 const &) = delete;
+    Uart2 &operator=(Uart2 const &) = delete;
 };

@@ -12,8 +12,6 @@
 
 #include "FreeRTOS/Task.hpp"
 
-#include "resources.hpp"
-
 class FibSys {
 public:
     enum Priority : BaseType_t {

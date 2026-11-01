@@ -13,9 +13,21 @@
 class UartCommon : public ln::drivers::EventDriven::Stream<
                        ln::drivers::EventDriven::StreamType::rw> {
 public:
-    struct Default {
-        static constexpr std::uint32_t baudrate = 115200;
+    struct Cfg {
+        std::uint32_t baudrate = 115200;
     };
+
+    /**
+     * @note cfg is ignored if already initialized.
+     */
+    bool init(const Cfg &cfg) {
+        if (!this->initialized) {
+            this->cfg = cfg;
+        }
+        return ln::drivers::Initializable::init();
+    }
+
+    bool init() { return this->init(Cfg{}); }
 
     bool ll_write_async(const std::uint8_t *data, std::size_t size) final {
         if (!data) {
@@ -47,12 +59,10 @@ public:
     }
 
 protected:
-    UartCommon(UART_HandleTypeDef &handle,
-               std::uint32_t baudrate = Default::baudrate)
-        : baudrate(baudrate), handle(handle) {}
+    UartCommon(UART_HandleTypeDef &handle) : handle(handle) {}
     virtual ~UartCommon() = default;
 
-    std::uint32_t baudrate = Default::baudrate;
+    Cfg cfg;
     UART_HandleTypeDef &handle;
 
 private:

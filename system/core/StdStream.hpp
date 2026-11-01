@@ -3,13 +3,13 @@
 
 #pragma once
 
-#include "peripherals/resources.hpp"
+#include "uart2.hpp"
 
 #include <stdio.h>
 #include <sys/unistd.h> // STDOUT_FILENO, STDERR_FILENO
 #include <array>
 
-/* TODO: Expose/express Periph::getUart2Stream() as FILE to increase usage
+/* TODO: Expose/express Uart2::get_instance() as FILE to increase usage
  flexibility with features like ln::shell, ln::logger. It could also be cleanly
  tied to stdin/stdout. Currently it is hardcoded in StdStream which is not
  ideal.
@@ -38,8 +38,8 @@ struct StdStream {
             // responsiveness. This could potentially pose performance issues.
             // It would likely be best to read min(available, len) if available
             // > 0, else wait for data.
-            if (!Periph::getUart2().read(reinterpret_cast<std::uint8_t *>(ptr),
-                                         1)) {
+            if (!Uart2::get_instance().read(
+                    reinterpret_cast<std::uint8_t *>(ptr), 1)) {
                 return 0;
             }
             return 1;
@@ -50,8 +50,8 @@ struct StdStream {
 
     int write(int fd, char *ptr, int len) {
         if (fd == STDERR_FILENO || fd == STDOUT_FILENO) {
-            if (Periph::getUart2().write(reinterpret_cast<std::uint8_t *>(ptr),
-                                         len)) {
+            if (Uart2::get_instance().write(
+                    reinterpret_cast<std::uint8_t *>(ptr), len)) {
                 return len;
             }
             return -1;

@@ -20,7 +20,13 @@ extern "C" void DMA1_Channel6_IRQHandler(void) {
 
 extern "C" void USART2_IRQHandler(void) { HAL_UART_IRQHandler(&huart2); }
 
-Uart2::Uart2(std::uint32_t baudrate) : UartCommon(huart2, baudrate) {}
+Uart2::Uart2() : UartCommon(huart2) {}
+
+// For Shell and Logger
+Uart2 &Uart2::get_instance() {
+    static Uart2 instance;
+    return instance;
+}
 
 bool Uart2::ll_init() {
     bool result = false;
@@ -81,7 +87,7 @@ bool Uart2::ll_init() {
 
     /* setup UART itself */
     huart2.Instance = USART2;
-    huart2.Init.BaudRate = this->baudrate;
+    huart2.Init.BaudRate = this->cfg.baudrate;
     huart2.Init.WordLength = UART_WORDLENGTH_8B;
     huart2.Init.StopBits = UART_STOPBITS_1;
     huart2.Init.Parity = UART_PARITY_NONE;
