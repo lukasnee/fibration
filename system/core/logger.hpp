@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "ln/log.h"
+#include "ln/logger/logger.h"
 
 LN_LOG_EXTERN(system);
 
@@ -18,6 +18,7 @@ bool init() {
     logger_config.out_buf = logger_out_buf;
     logger_config.eol = "\r\n";
     logger_config.enabled_run_time = true;
+    logger_config.log_level = ln::logger::Level::info;
     return ln::logger::get_instance().set_config(logger_config);
 }
 
