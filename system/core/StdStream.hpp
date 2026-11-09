@@ -5,6 +5,8 @@
 
 #include "uart2.hpp"
 
+#include "ln/prof/prof.h"
+
 #include <stdio.h>
 #include <sys/unistd.h> // STDOUT_FILENO, STDERR_FILENO
 #include <array>
@@ -50,6 +52,7 @@ struct StdStream {
 
     int write(int fd, char *ptr, int len) {
         if (fd == STDERR_FILENO || fd == STDOUT_FILENO) {
+            LN_PROF_MSG(ptr, static_cast<std::size_t>(len));
             if (Uart2::get_instance().write(
                     reinterpret_cast<std::uint8_t *>(ptr), len)) {
                 return len;

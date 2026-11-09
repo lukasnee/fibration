@@ -8,6 +8,11 @@ set(LN_PORT "STM32F3_FreeRTOS")
 set(LN_FMT ON)
 
 # set(LN_PROF ON)
+set(LN_PROF_CONFIG_DIR ${CMAKE_CURRENT_LIST_DIR})
+if(LN_PROF)
+  set(LN_LOG_TO_PROF ON)
+endif()
+
 set(LN_PROF_HOT_SECTION
     .ccmram
     CACHE STRING "Linker section for the ln::prof hot path")
