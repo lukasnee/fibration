@@ -21,7 +21,7 @@ public:
      * @note cfg is ignored if already initialized.
      */
     bool init(const Cfg &cfg) {
-        if (!this->initialized) {
+        if (!this->is_initialized()) {
             this->cfg = cfg;
         }
         return ln::drivers::Initializable::init();
