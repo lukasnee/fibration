@@ -32,7 +32,7 @@ target_sources(
   fibsys_obj_lib
   PUBLIC core/memory.cpp # PUBLIC for FreeRTOS for vApplicationGetIdleTaskMemory
                          # and vApplicationGetTimerTaskMemory
-  PRIVATE core/main.cpp core/system.cpp)
+  PRIVATE core/main.cpp core/system.cpp core/StdStream.cpp)
 
 target_include_directories(fibsys_obj_lib PUBLIC utilities)
 

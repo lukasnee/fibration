@@ -3,66 +3,74 @@
 
 #pragma once
 
-#include "uart2.hpp"
+#include <span>
 
-#include "ln/prof/prof.h"
-
-#include <stdio.h>
-#include <sys/unistd.h> // STDOUT_FILENO, STDERR_FILENO
-#include <array>
-
-/* TODO: Expose/express Uart2::get_instance() as FILE to increase usage
- flexibility with features like ln::shell, ln::logger. It could also be cleanly
- tied to stdin/stdout. Currently it is hardcoded in StdStream which is not
- ideal.
-*/
+#include <cstdio>
 
 struct StdStream {
-    static StdStream &getInstance() {
-        static StdStream instance;
-        return instance;
-    }
+    static StdStream &get_instance();
 
-    bool init() {
-        setvbuf(stdin, nullptr, _IONBF, 0);
-        setvbuf(stdout, this->stdout_buf.data(), _IOLBF,
-                this->stdout_buf.size());
-        return true;
-    }
+    struct Cfg {
 
-    int read(int fd, char *ptr, int len) {
-        if (fd == STDIN_FILENO) {
-            if (len <= 0) {
-                return len;
-            }
-            // TODO: simple getc call invokes read with len=1024 (likely tied to
-            // BUFSIZ). Currently we disregard len and read one byte only for
-            // responsiveness. This could potentially pose performance issues.
-            // It would likely be best to read min(available, len) if available
-            // > 0, else wait for data.
-            if (!Uart2::get_instance().read(
-                    reinterpret_cast<std::uint8_t *>(ptr), 1)) {
-                return 0;
-            }
-            return 1;
-        }
-        errno = EBADF;
-        return -1;
-    }
+        /**
+         * @brief The std::setvbuf mode (stdio.h). Either `_IONBF` (unbuffered),
+         * `_IOLBF` (line buffered), or `_IOFBF` (fully buffered).
+         */
+        using BufferMode = int;
 
-    int write(int fd, char *ptr, int len) {
-        if (fd == STDERR_FILENO || fd == STDOUT_FILENO) {
-            LN_PROF_MSG(ptr, static_cast<std::size_t>(len));
-            if (Uart2::get_instance().write(
-                    reinterpret_cast<std::uint8_t *>(ptr), len)) {
-                return len;
-            }
-            return -1;
-        }
-        errno = EBADF;
-        return -1;
-    }
+        struct {
+            BufferMode mode{_IONBF};
 
-private:
-    std::array<char, 64> stdout_buf;
+            /**
+             * @note Buffer may be provided only for modes other than `_IONBF`.
+             */
+            std::span<char> buf{};
+        } in;
+
+        struct {
+            BufferMode mode{_IONBF};
+
+            /**
+             * @note Buffer may be provided only for modes other than `_IONBF`.
+             */
+            std::span<char> buf{};
+        } out;
+
+        struct {
+            BufferMode mode{_IONBF};
+
+            /**
+             * @note Buffer may be provided only for modes other than `_IONBF`.
+             */
+            std::span<char> buf{};
+        } err;
+    };
+
+    /**
+     * @brief Initialize the standard streams with the given configuration.
+     *
+     * @param cfg
+     */
+    bool init(const Cfg &cfg);
+
+    /**
+     * @brief System call `read` handler for standard input (stdin).
+     *
+     * @param fd
+     * @param ptr
+     * @param len
+     * @retval int
+     */
+    int read(int fd, char *ptr, int len);
+
+    /**
+     * @brief System call `write` handler for standard output (stdout) or
+     * standard error (stderr).
+     *
+     * @param fd
+     * @param ptr
+     * @param len
+     * @retval int
+     */
+    int write(int fd, char *ptr, int len);
 };

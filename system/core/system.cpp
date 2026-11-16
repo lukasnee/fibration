@@ -88,7 +88,13 @@ bool uart2_init() {
     return Uart2::get_instance().init(UartCommon::Cfg{.baudrate = 921600});
 }
 
-bool std_stream_init() { return StdStream::getInstance().init(); }
+bool std_stream_init() {
+    StdStream::Cfg cfg{};
+    cfg.out.mode = _IOFBF;
+    alignas(4) static std::array<char, 256> out_buf;
+    cfg.out.buf = out_buf;
+    return StdStream::get_instance().init(cfg);
+}
 
 ln::shell::CLId &get_clid_instance() {
     alignas(size_t) static std::array<uint8_t, 7 * 1024> thread_stack;

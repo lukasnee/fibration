@@ -78,16 +78,16 @@ extern "C" int _close(int fd) {
 }
 
 extern "C" int _read(int fd, char *ptr, int len) {
-    if (fd == STDIN_FILENO || fd == STDOUT_FILENO || fd == STDERR_FILENO) {
-        return StdStream::getInstance().read(fd, ptr, len);
+    if (fd == STDIN_FILENO) {
+        return StdStream::get_instance().read(fd, ptr, len);
     }
     errno = EBADF;
     return -1;
 }
 
 extern "C" int _write(int fd, char *ptr, int len) {
-    if (fd == STDIN_FILENO || fd == STDOUT_FILENO || fd == STDERR_FILENO) {
-        return StdStream::getInstance().write(fd, ptr, len);
+    if (fd == STDOUT_FILENO || fd == STDERR_FILENO) {
+        return StdStream::get_instance().write(fd, ptr, len);
     }
     errno = EBADF;
     return -1;
