@@ -104,24 +104,19 @@ bool Uart2::ll_init() {
 }
 
 bool Uart2::ll_deinit() {
-    bool result = false;
-
     if (HAL_UART_DeInit(&huart2) != HAL_OK) {
+        return false;
     }
-    else {
-        __HAL_RCC_USART2_CLK_DISABLE();
-        HAL_GPIO_DeInit(GPIOA, GPIO_PIN_2 | GPIO_PIN_3);
-        if (HAL_DMA_DeInit(huart2.hdmarx) != HAL_OK) {
-        }
-        else if (HAL_DMA_DeInit(huart2.hdmatx) != HAL_OK) {
-        }
-        else {
-            HAL_NVIC_DisableIRQ(DMA1_Channel6_IRQn);
-            HAL_NVIC_DisableIRQ(DMA1_Channel7_IRQn);
-            HAL_NVIC_DisableIRQ(USART2_IRQn);
-            result = true;
-        }
+    __HAL_RCC_USART2_CLK_DISABLE();
+    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_2 | GPIO_PIN_3);
+    if (HAL_DMA_DeInit(huart2.hdmarx) != HAL_OK) {
+        return false;
     }
-
-    return result;
+    if (HAL_DMA_DeInit(huart2.hdmatx) != HAL_OK) {
+        return false;
+    }
+    HAL_NVIC_DisableIRQ(DMA1_Channel6_IRQn);
+    HAL_NVIC_DisableIRQ(DMA1_Channel7_IRQn);
+    HAL_NVIC_DisableIRQ(USART2_IRQn);
+    return true;
 }

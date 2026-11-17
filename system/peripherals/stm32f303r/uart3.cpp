@@ -103,24 +103,19 @@ bool Uart3::ll_init() {
 }
 
 bool Uart3::ll_deinit() {
-    bool result = false;
-
     if (HAL_UART_DeInit(&huart3) != HAL_OK) {
+        return false;
     }
-    else {
-        __HAL_RCC_USART3_CLK_DISABLE();
-        HAL_GPIO_DeInit(GPIOB, GPIO_PIN_9 | GPIO_PIN_10);
-        if (HAL_DMA_DeInit(huart3.hdmatx) != HAL_OK) {
-        }
-        else if (HAL_DMA_DeInit(huart3.hdmarx) != HAL_OK) {
-        }
-        else {
-            HAL_NVIC_DisableIRQ(DMA1_Channel2_IRQn);
-            HAL_NVIC_DisableIRQ(DMA1_Channel3_IRQn);
-            HAL_NVIC_DisableIRQ(USART3_IRQn);
-            result = true;
-        }
+    __HAL_RCC_USART3_CLK_DISABLE();
+    HAL_GPIO_DeInit(GPIOB, GPIO_PIN_9 | GPIO_PIN_10);
+    if (HAL_DMA_DeInit(huart3.hdmatx) != HAL_OK) {
+        return false;
     }
-
-    return result;
+    if (HAL_DMA_DeInit(huart3.hdmarx) != HAL_OK) {
+        return false;
+    }
+    HAL_NVIC_DisableIRQ(DMA1_Channel2_IRQn);
+    HAL_NVIC_DisableIRQ(DMA1_Channel3_IRQn);
+    HAL_NVIC_DisableIRQ(USART3_IRQn);
+    return true;
 }
